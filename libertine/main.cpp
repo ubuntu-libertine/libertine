@@ -18,7 +18,30 @@
  */
 #include "libertine/config.h"
 
+#include <QDebug>
+#include <QGuiApplication>
+#include <QStringList>
+
+
 int
-main(int, char*[])
+main(int argc, char* argv[])
 {
+  QGuiApplication app(argc, argv);
+  app.setApplicationVersion(LIBERTINE_VERSION);
+
+  QStringList args = app.arguments();
+  if (args.contains("-V") || args.contains("--version"))
+  {
+    qDebug() << app.applicationName() << " " << app.applicationVersion();
+    return 0;
+  }
+  if (args.contains("-h") || args.contains("--help"))
+  {
+    qDebug() << "usage: " << args.at(0) << " [-h] [-v]";
+    qDebug() << "  -V, --version\t print app version and exit";
+    qDebug() << "  -h, --help\t print this help and exit";
+    return 0;
+  }
+
+  return app.exec();
 }
