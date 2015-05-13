@@ -19,6 +19,7 @@
 #ifndef LIBERTINE_LIBERTINE_H
 #define LIBERTINE_LIBERTINE_H
 
+#include <QtCore/QString>
 #include <QtGui/QGuiApplication>
 #include <QtQuick/QQuickView>
 
@@ -40,6 +41,7 @@ private:
     initialize_view();
 
 private:
+    QString     main_qml_source_file_;
     QQuickView  view_;
 };
 

@@ -1,5 +1,5 @@
-find_package(Qt5Gui)
-find_package(Qt5Quick)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Quick REQUIRED)
 set(CMAKE_AUTOMOC ON)
 
 configure_file(config.h.in config.h)
