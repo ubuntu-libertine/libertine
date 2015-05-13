@@ -1,6 +1,6 @@
 /**
- * @file main.cpp
- * @brief Libertine app mainline driver.
+ * @file libertine.h
+ * @brief Libertine app wrapper
  */
 /*
  * Copyright 2015 Canonical Ltd
@@ -16,13 +16,31 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "libertine/config.h"
-#include "libertine/libertine.h"
+#ifndef LIBERTINE_LIBERTINE_H
+#define LIBERTINE_LIBERTINE_H
+
+#include <QtGui/QGuiApplication>
+#include <QtQuick/QQuickView>
 
 
-int
-main(int argc, char* argv[])
+class Libertine
+: public QGuiApplication
 {
-  Libertine app(argc, argv);
-  return app.exec();
-}
+  Q_OBJECT
+
+public:
+    Libertine(int argc, char* argv[]);
+    ~Libertine();
+
+private:
+    void
+    parse_command_line();
+
+    void
+    initialize_view();
+
+private:
+    QQuickView  view_;
+};
+
+#endif /* LIBERTINE_LIBERTINE_H */
