@@ -29,12 +29,13 @@
 
 static QString const s_main_QML_source_file = "qml/libertine.qml";
 
+
 /**
  * Searches for the main QML source file.
  *
  * The actual QML sources could be in any of a number of places depending on if
  * the program was invoked from within the developer's source tree, a DEB, a
- * click, and clack, a snap or a snood.  Gotta check 'em all, in some semblance
+ * click, a clack, a snap or a snood.  Gotta check 'em all, in some semblance
  * of a priority order in which the developer's source tree is highest priority
  * and the system installation places are lowest.
  *
