@@ -1,5 +1,5 @@
 /**
- * @file elcomeview.qml
+ * @file WelcomeView.qml
  * @brief Libertine default welcome view
  */
 /*
@@ -34,6 +34,10 @@ Page {
 
         Label {
             id: welcome_message
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
             wrapMode: Text.Wrap
             horizontalAlignment: Text.AlignHCenter
 
@@ -63,7 +67,7 @@ Page {
             text: i18n.tr("Install")
             color: UbuntuColors.lightAubergine
             onClicked: {
-                mainView.state = "INSTALL_PROGRESS"
+                mainView.state = "PREPARE_CONTAINER"
             }
 
         }

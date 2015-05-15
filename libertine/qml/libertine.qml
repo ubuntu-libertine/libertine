@@ -19,22 +19,31 @@
 import QtQuick 2.0
 import Ubuntu.Components 0.1
 
+
 MainView {
     id: mainView
     objectName: "mainView"
     applicationName: "Legacy Application Manager"
     useDeprecatedToolbar: false
-    width: units.gu(60)
+    width:  units.gu(48)
     height: units.gu(75)
     property real margins: units.gu(2)
+
+    ContainerConfig {
+        id: containerConfig
+    }
 
     PageStack {
         id: pageStack
         state: "WELCOME"
-        property string pageName: "welcomeview.qml"  // initial state
+        property string pageName: "WelcomeView.qml"  // default initial state
 
         Component.onCompleted: {
             push(Qt.resolvedUrl(pageName))
+            if (containerConfig.are_containers_available())
+            {
+                pageName = "HomeView.qml"
+            }
         }
 
         onPageNameChanged: {
@@ -48,11 +57,24 @@ MainView {
     states: [
         State {
             name: "WELCOME"
-            PropertyChanges { target: pageStack; pageName: "welcomeview.qml"}
+            PropertyChanges {
+                target:   pageStack
+                pageName: "WelcomeView.qml"
+            }
         },
         State {
-            name: "INSTALL_PROGRESS"
-            PropertyChanges { target: pageStack; pageName: "installprogressview.qml"}
+            name: "PREPARE_CONTAINER"
+            PropertyChanges {
+                target:   pageStack
+                pageName: "PreparingContainerView.qml"
+            }
+        },
+        State {
+            name: "HOMEPAGE"
+            PropertyChanges {
+                target:   pageStack
+                pageName: "HomeView.qml"
+            }
         }
     ]
 }
