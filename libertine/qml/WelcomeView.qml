@@ -18,7 +18,7 @@
  */
 import QtQuick 2.0
 import QtQuick.Layouts 1.0
-import Ubuntu.Components 0.1
+import Ubuntu.Components 1.1
 
 
 Page {
@@ -28,27 +28,21 @@ Page {
     ColumnLayout {
         spacing: units.gu(2)
         anchors {
-           fill: parent
-           margins: units.gu(4)
+            fill: parent
+            margins: units.gu(4)
         }
 
         Label {
-            id: welcome_message
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            id: welcomeMessage
+            Layout.fillWidth: true
             wrapMode: Text.Wrap
             horizontalAlignment: Text.AlignHCenter
 
             text: "Welcome to the Ubuntu Legacy Application Support Manager."
         }
         Label {
-            id: warning_message
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            id: warningMessage
+            Layout.fillWidth: true
             wrapMode: Text.Wrap
             horizontalAlignment: Text.AlignHCenter
 
@@ -57,12 +51,9 @@ Page {
                   " environment takes some time and network bandwidth."
         }
         Button {
-            id: install_button
-            anchors{
-                left: parent.left
-                right: parent.right
-                margins: units.gu(4)
-            }
+            id: installButton
+            Layout.alignment: Qt.AlignCenter
+            Layout.maximumWidth: units.gu(12)
 
             text: i18n.tr("Install")
             color: UbuntuColors.lightAubergine
