@@ -23,11 +23,11 @@ import Ubuntu.Components 1.1
 MainView {
     id: mainView
     objectName: "mainView"
-    applicationName: "Legacy Application Manager"
+    applicationName: "libertine"
     useDeprecatedToolbar: false
     width:  units.gu(48)
     height: units.gu(75)
-    property real margins: units.gu(2)
+    property string currentContainerId: ""
 
     ContainerConfig {
         id: containerConfig
@@ -42,6 +42,7 @@ MainView {
             push(Qt.resolvedUrl(pageName))
             if (containerConfig.are_containers_available())
             {
+                mainView.currentContainerId = "demo"
                 pageName = "HomeView.qml"
             }
         }
@@ -74,6 +75,13 @@ MainView {
             PropertyChanges {
                 target:   pageStack
                 pageName: "HomeView.qml"
+            }
+        },
+        State {
+            name: "ADD_APPS"
+            PropertyChanges {
+                target:   pageStack
+                pageName: "AppAddView.qml"
             }
         }
     ]

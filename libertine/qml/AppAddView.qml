@@ -1,6 +1,6 @@
 /**
- * @file HomeView.qml
- * @brief Libertine default home view
+ * @file AppAddView.qml
+ * @brief Libertine app add view
  */
 /*
  * Copyright 2015 Canonical Ltd
@@ -21,28 +21,13 @@ import Ubuntu.Components 1.1
 
 
 Page {
-    id: homeView
-    title: i18n.tr("Classic Apps")
+    id: appAddView
+    title: i18n.tr("Install Apps")
 
     head.actions: [
         Action {
-	    iconName: "add"
-	    onTriggered: mainView.state = "ADD_APPS"
-	},
-        Action {
-	    iconName: "settings"
-	    onTriggered: print("settings")
+	    iconName: "search"
+	    onTriggered: print("search")
 	}
     ]
-
-    ContainerApps {
-        id: containerApps
-    }
-
-    ListView {
-        model: containerApps.appsForContainer
-        delegate: Text {
-            text: mainView.currentContainerId
-        }
-    }
 }

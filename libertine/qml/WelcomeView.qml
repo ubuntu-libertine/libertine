@@ -56,7 +56,7 @@ Page {
             Layout.maximumWidth: units.gu(12)
 
             text: i18n.tr("Install")
-            color: UbuntuColors.lightAubergine
+            color: UbuntuColors.green
             onClicked: {
                 mainView.state = "PREPARE_CONTAINER"
             }
