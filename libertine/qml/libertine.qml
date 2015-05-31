@@ -24,7 +24,7 @@ MainView {
     id: mainView
     objectName: "mainView"
     applicationName: "libertine"
-    width:  units.gu(48)
+    width:  units.gu(90)
     height: units.gu(75)
     property string currentContainerId: ""
 
