@@ -4,7 +4,8 @@ set(CMAKE_AUTOMOC ON)
 
 configure_file(config.h.in config.h)
 
-set(libertine_SRC libertine.cpp main.cpp)
+file(GLOB_RECURSE QML_SRC *.qml *.js *.json)
+set(libertine_SRC libertine.cpp main.cpp ${QML_SRC})
 
 include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 add_executable(libertine ${libertine_SRC})
