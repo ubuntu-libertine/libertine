@@ -3,7 +3,7 @@ Upstream-Name: libertine
 Upstream-Contact: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Source: http://launchpad.net/libertine
 
-Files: * (unless otherwise listed below)
+Files: *
 Copyright: 2015 Canonical Ltd.
 License: GPL-3
  This program is free software: you can redistribute it and/or modify
