@@ -19,6 +19,8 @@
 import QtQuick 2.4
 import QtQuick.Layouts 1.0
 import Ubuntu.Components 1.2
+import Ubuntu.Components.ListItems 1.0 as ListItems
+import "image_sources.js" as ImageSources
 
 
 Page {
@@ -50,6 +52,31 @@ Page {
                   " this time.  Downloading and setting up the required" +
                   " environment takes some time and network bandwidth."
         }
+
+        ComboButton {
+            id: imageSelector
+            Layout.alignment: Qt.AlignCenter
+
+            property var selectedImageSource: ImageSources.availableSources[0]
+            text: selectedImageSource ? selectedImageSource.name : i18n.tr("Select an image")
+
+            UbuntuListView {
+                id: availableImageSourcesList
+                model: ImageSources.availableSources
+                delegate: ListItems.Standard {
+                    text: modelData.name
+                    onClicked: {
+                        imageSelector.text = text
+                        imageSelector.expanded = false
+                        installButton.enabled = true
+                    }
+                }
+            }
+            onClicked: {
+                print("==smw> imageSelector.onClicked " + selectedImageSource.id)
+            }
+        }
+
         Button {
             id: installButton
             Layout.alignment: Qt.AlignCenter
@@ -57,8 +84,10 @@ Page {
 
             text: i18n.tr("Install")
             color: UbuntuColors.green
+            enabled: imageSelector.selectedImageSource
             onClicked: {
                 mainView.state = "PREPARE_CONTAINER"
+                print("==smw> installButton.onClicked " + imageSelector.selectedImageSource.name)
             }
 
         }
