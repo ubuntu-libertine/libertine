@@ -8,6 +8,7 @@ Homepage: https://launchpad.net/libertine
 
 Package: libertine
 Architecture: any
+Depends: ${misc:Depends}
 Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
  Provides a container and releated tools to be able to create, maintain, and
  integrate legacy deb-packaged applications generally based around the X11
