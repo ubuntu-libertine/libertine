@@ -19,5 +19,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define LIBERTINE_VERSION "@LIBERTINE_VERSION@"
+#define LIBERTINE_APPLICATION_NAME "@PROJECT_NAME@"
+#define LIBERTINE_VERSION          "@PROJECT_VERSION@"
 

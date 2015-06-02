@@ -20,6 +20,7 @@
 
 #include <cstdlib>
 #include "libertine/libertine.h"
+#include <QtCore/QCommandLineParser>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -76,6 +77,7 @@ Libertine(int argc, char* argv[])
 : QGuiApplication(argc, argv)
 , main_qml_source_file_(find_main_qml_source_file())
 {
+  setApplicationName(LIBERTINE_APPLICATION_NAME);
   setApplicationVersion(LIBERTINE_VERSION);
   parse_command_line();
 
@@ -104,21 +106,11 @@ Libertine::
 void Libertine::
 parse_command_line()
 {
-  for (auto const& arg: arguments())
-  {
-    if (arg == "-V" || arg == "--version")
-    {
-      qDebug() << applicationName() << " " << applicationVersion();
-      std::exit(0);
-    }
-    if (arg == "-h" || arg == "--help")
-    {
-      qDebug() << "usage: " << arguments().at(0) << " [-h] [-v]";
-      qDebug() << "  -V, --version\t print app version and exit";
-      qDebug() << "  -h, --help\t print this help and exit";
-      std::exit(0);
-    }
-  }
+  QCommandLineParser commandlineParser;
+  commandlineParser.setApplicationDescription("manage sandboxes for running legacy DEB-packaged X11-based applications");
+  commandlineParser.addHelpOption();
+  commandlineParser.addVersionOption();
+  commandlineParser.process(*this);
 }
 
 
