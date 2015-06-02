@@ -1,0 +1,60 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2014 Canonical Ltd.
+# Author: Christopher Townsend <christopher.townsend@canonical.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import optparse
+import lxc
+import os
+
+import LibertineContainerTools
+
+if __name__ == '__main__':
+    parser = optparse.OptionParser(description="Legacy X application support for Unity 8")
+    parser.add_option(
+        "--destroy", action="store", type="string",
+        help=("Destroy any existing environment entirely."))
+    parser.add_option(
+        "--update-container", action="store", type="string",
+        help=("Update the packages in the Legacy X Apps LXC."))
+    parser.add_option(
+        "--create", action="store_true",
+        help=("Create a new Libertine container."))
+    parser.add_option(
+        "--list", action="store_true",
+        help=("List all Libertine containers."))
+    parser.add_option(
+        "--install-package", action="store", type="string",
+        help=("Install a package in the Libertine container."))
+
+    (options, args) = parser.parse_args()
+
+    if options.destroy:
+        print("Destroy! %s" % options.destroy)
+        LibertineContainerTools.destroy_container(container)
+
+    if options.update_container:
+        print("Update!")
+
+    if options.list:
+        containers = LibertineContainerTools.list_containers()
+        for container in containers:
+            print("%s" % container)
+
+    if options.create:
+        container = LibertineContainerTools.instantiate_container("libertine1")
+        LibertineContainerTools.create_libertine_container(container)
+        LibertineContainerTools.generate_config(container)

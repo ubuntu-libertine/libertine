@@ -1,0 +1,98 @@
+#!/usr/bin/python3
+
+from socket import *
+import select
+
+
+def accept_new_connection():
+    newconn = lxc_dbus_session_sock.accept()[0]
+    descriptors.append(newconn)
+
+    host_dbus_session_sock = socket(AF_UNIX, SOCK_STREAM)
+    host_dbus_session_sock.connect(host_dbus_session_addr)
+    descriptors.append(host_dbus_session_sock)
+
+    socket_pairs.append([newconn, host_dbus_session_sock])
+
+def get_socket_pair(socket):
+    for i in range(len(socket_pairs)):
+        if socket in socket_pairs[i]:
+            return socket_pairs[i]
+
+def get_socket_partner(socket):
+    socket_pair = get_socket_pair(socket)
+
+    for i in range(len(socket_pair)):
+       if socket != socket_pair[i]:
+            return socket_pair[i]
+
+def close_connections(remove_socket):
+    partner_socket = get_socket_partner(remove_socket)
+
+    socket_pair = get_socket_pair(remove_socket)
+    socket_pairs.remove(socket_pair)
+
+    descriptors.remove(remove_socket)
+    remove_socket.shutdown(SHUT_RDWR)
+    remove_socket.close()
+
+    descriptors.remove(partner_socket)
+    partner_socket.shutdown(SHUT_RDWR)
+    partner_socket.close()
+
+def get_host_dbus_socket():
+    socket_key = "DBUS_SESSION_BUS_ADDRESS=unix:abstract="
+
+    with open("/run/user/1000/dbus-session", "r") as fd:
+        dbus_session_str = fd.read()
+
+    fd.close()
+
+    host_dbus_socket = dbus_session_str.partition(socket_key)[2]
+    host_dbus_socket = host_dbus_socket.rstrip('\n')
+    host_dbus_socket = "\0%s" % host_dbus_socket
+
+    return host_dbus_socket
+
+lxc_dbus_session_sock = socket(AF_UNIX, SOCK_STREAM)
+
+lxc_dbus_session_sock.bind("/run/user/1000/host_dbus_session")
+
+lxc_dbus_session_sock.listen(5)
+
+host_dbus_session_addr = get_host_dbus_socket()
+descriptors = [lxc_dbus_session_sock]
+socket_pairs = []
+
+while 1:
+    rlist, wlist, elist = select.select(descriptors, [], [])
+
+    for sock in rlist:
+        if sock.fileno() == -1:
+            continue
+
+        if sock == lxc_dbus_session_sock:
+            accept_new_connection()
+
+        else:
+            data = sock.recv(4096)
+            if len(data) == 0:
+                close_connections(sock)
+                continue
+
+            send_sock = get_socket_partner(sock)
+
+            if send_sock.fileno() < 0:
+                continue
+
+            totalsent = 0
+            while totalsent < len(data):
+                sent = send_sock.send(data)
+
+                if sent == 0:
+                    close_connections(sock)
+                    break
+                totalsent = totalsent + sent
+
+lxc_dbus_session_conn.close()
+host_dbus_session_sock.close()
