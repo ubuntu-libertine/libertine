@@ -56,7 +56,7 @@ def destroy_container(container):
         container.stop()
         container.destroy()
 
-def generate_rootfs(container):
+def create_libertine_container(container):
     username = os.environ['USER']
     user_id = os.getuid()
     group_id = os.getgid()
@@ -125,7 +125,7 @@ def generate_rootfs(container):
 
     container.stop()
 
-def generate_config(container):
+def create_libertine_config(container):
     user_id = os.getuid()
     home_entry = "%s %s none bind,create=dir" % (get_libertine_user_data_dir(container.name), home_path.strip('/'))
 

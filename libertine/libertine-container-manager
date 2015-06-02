@@ -57,4 +57,4 @@ if __name__ == '__main__':
     if options.create:
         container = LibertineContainerTools.instantiate_container("libertine1")
         LibertineContainerTools.create_libertine_container(container)
-        LibertineContainerTools.generate_config(container)
+        LibertineContainerTools.create_libertine_config(container)
