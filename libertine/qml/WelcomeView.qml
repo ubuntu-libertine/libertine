@@ -20,12 +20,15 @@ import QtQuick 2.4
 import QtQuick.Layouts 1.0
 import Ubuntu.Components 1.2
 import Ubuntu.Components.ListItems 1.0 as ListItems
-import "image_sources.js" as ImageSources
 
 
 Page {
     id: welcomeView
     title: "Welcome"
+
+    ImageSource {
+        id: imageSources
+    }
 
     ColumnLayout {
         spacing: units.gu(2)
@@ -57,12 +60,12 @@ Page {
             id: imageSelector
             Layout.alignment: Qt.AlignCenter
 
-            property var selectedImageSource: ImageSources.availableSources[0]
+            property var selectedImageSource: imageSources.defaultSource()
             text: selectedImageSource ? selectedImageSource.name : i18n.tr("Select an image")
 
             UbuntuListView {
                 id: availableImageSourcesList
-                model: ImageSources.availableSources
+                model: imageSources.loadSources()
                 delegate: ListItems.Standard {
                     text: modelData.name
                     onClicked: {
