@@ -46,12 +46,12 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     if options.destroy:
-        container = LibertineContainerTools.instantiate_libertine_container(options.destroy)
-        LibertineContainerTools.destroy_libertine_container(container)
+        container = LibertineContainerTools.LibertineContainer(options.destroy)
+        container.destroy_libertine_container()
 
     if options.update_container:
-        container = LibertineContainerTools.instantiate_libertine_container(options.update_container)
-        LibertineContainerTools.update_libertine_container(container)
+        container = LibertineContainerTools.LibertineContainer(options.update_container)
+        container.update_libertine_container()
 
     if options.list:
         containers = LibertineContainerTools.list_libertine_containers()
@@ -59,10 +59,10 @@ if __name__ == '__main__':
             print("%s" % container)
 
     if options.create:
-        container = LibertineContainerTools.instantiate_libertine_container(options.create)
-        LibertineContainerTools.create_libertine_container(container)
-        LibertineContainerTools.create_libertine_config(container)
+        container = LibertineContainerTools.LibertineContainer(options.create)
+        container.create_libertine_container()
+        container.create_libertine_config()
 
     if options.install_package and options.package_name:
-        container = LibertineContainerTools.instantiate_libertine_container(options.install_package)
-        LibertineContainerTools.install_package(container, options.package_name)
+        container = LibertineContainerTools.LibertineContainer(options.install_package)
+        container.install_package(options.package_name)
