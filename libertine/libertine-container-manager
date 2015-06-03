@@ -31,30 +31,38 @@ if __name__ == '__main__':
         "--update-container", action="store", type="string",
         help=("Update the packages in the Legacy X Apps LXC."))
     parser.add_option(
-        "--create", action="store_true",
+        "--create", action="store", type="string",
         help=("Create a new Libertine container."))
     parser.add_option(
         "--list", action="store_true",
         help=("List all Libertine containers."))
     parser.add_option(
         "--install-package", action="store", type="string",
-        help=("Install a package in the Libertine container."))
+        help=("Install a package in the specified Libertine container."))
+    parser.add_option(
+        "--package-name", action="store", type="string",
+        help=("The name of the package to install into the Libertine container."))
 
     (options, args) = parser.parse_args()
 
     if options.destroy:
-        print("Destroy! %s" % options.destroy)
-        LibertineContainerTools.destroy_container(container)
+        container = LibertineContainerTools.instantiate_libertine_container(options.destroy)
+        LibertineContainerTools.destroy_libertine_container(container)
 
     if options.update_container:
-        print("Update!")
+        container = LibertineContainerTools.instantiate_libertine_container(options.update_container)
+        LibertineContainerTools.update_libertine_container(container)
 
     if options.list:
-        containers = LibertineContainerTools.list_containers()
+        containers = LibertineContainerTools.list_libertine_containers()
         for container in containers:
             print("%s" % container)
 
     if options.create:
-        container = LibertineContainerTools.instantiate_container("libertine1")
+        container = LibertineContainerTools.instantiate_libertine_container(options.create)
         LibertineContainerTools.create_libertine_container(container)
         LibertineContainerTools.create_libertine_config(container)
+
+    if options.install_package and options.package_name:
+        container = LibertineContainerTools.instantiate_libertine_container(options.install_package)
+        LibertineContainerTools.install_package(container, options.package_name)

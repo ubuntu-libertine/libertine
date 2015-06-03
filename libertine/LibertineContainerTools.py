@@ -50,7 +50,7 @@ def start_container_for_update(container):
     container.attach_wait(lxc.attach_run_command,
                           ["apt-get", "update"])
 
-def destroy_container(container):
+def destroy_libertine_container(container):
     print("Destroy %s" % container.name)
     if container.defined:
         container.stop()
@@ -150,7 +150,7 @@ def create_libertine_config(container):
     ## Dump it all to disk
     container.save_config()
 
-def update_container(container):
+def update_libertine_container(container):
     # Update packages inside the LXC
     start_container_for_update(container)
 
@@ -162,13 +162,26 @@ def update_container(container):
     ## Stopping the container
     container.stop()
 
-def instantiate_container(name):
+def instantiate_libertine_container(name):
     config_path = get_libertine_container_path()
     container = lxc.Container(name, config_path)
 
     return container
 
-def list_containers():
+def list_libertine_containers():
     containers = lxc.list_containers(config_path=get_libertine_container_path())
 
     return containers
+
+def install_package(container, package_name):
+    stop_container = False
+
+    if not container.running:
+        start_container_for_update(container)
+        stop_container = True
+
+    container.attach_wait(lxc.attach_run_command,
+                          ["apt-get", "install", "-y", package_name])
+
+    if stop_container:
+        container.stop()
