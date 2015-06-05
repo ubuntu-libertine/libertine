@@ -2,7 +2,7 @@ Source: libertine
 Section: utils
 Priority: extra
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Build-Depends: cmake, debhelper (>= 9), qtdeclarative5-dev
+Build-Depends: cmake, debhelper (>= 9), qtdeclarative5-dev, python3-dev
 Standards-Version: 3.9.6
 Homepage: https://launchpad.net/libertine
 

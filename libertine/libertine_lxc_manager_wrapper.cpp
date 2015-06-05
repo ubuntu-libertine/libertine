@@ -36,25 +36,21 @@ const char* PY_LIST_LIBERTINE_CONTAINERS = "list_libertine_containers";
 LibertineManagerWrapper::LibertineManagerWrapper(const char *name)
 : libertine_lxc_name_(name)
 {
-  Py_Initialize();
+  PyObject *pArgs, *pDict, *pClass;
 
-  pName_ = PyUnicode_FromString(LIBERTINE_PYTHON_MODULE);
+  pDict = InitializePythonModule();
 
-  pModule_ = PyImport_Import(pName_);
-  Py_DECREF(pName_);
-
-  if (pModule_ != NULL)
+  if (pDict)
   {
-    pDict_ = PyModule_GetDict(pModule_);
+    pClass = PyDict_GetItemString(pDict, LIBERTINE_CONTAINER_CLASS);
 
-    pClass_ = PyDict_GetItemString(pDict_, LIBERTINE_CONTAINER_CLASS);
-
-    if (PyCallable_Check(pClass_))
+    if (PyCallable_Check(pClass))
     {
-      pArgs_ = PyTuple_New(1);
-      PyTuple_SetItem(pArgs_, 0, PyUnicode_FromString(libertine_lxc_name_));
-      pInstance_ = PyObject_CallObject(pClass_, pArgs_);
-      Py_DECREF(pClass_);
+      pArgs = PyTuple_New(1);
+      PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(libertine_lxc_name_));
+      pInstance_ = PyObject_CallObject(pClass, pArgs);
+      Py_DECREF(pArgs);
+      Py_DECREF(pClass);
     }
     else
     {
@@ -101,20 +97,13 @@ void LibertineManagerWrapper::InstallPackageInContainer(const char* package_name
 
 std::vector<char *>LibertineManagerWrapper::ListLibertineContainers()
 {
-  PyObject *pName, *pModule, *pDict, *pFunc, *pValue;
+  PyObject *pDict, *pFunc, *pValue;
   std::vector<char *>existing_libertine_containers;
 
-  Py_Initialize();
+  pDict = InitializePythonModule();
 
-  pName = PyUnicode_FromString(LIBERTINE_PYTHON_MODULE);
-
-  pModule = PyImport_Import(pName);
-  Py_DECREF(pName);
-
-  if (pModule != NULL)
+  if (pDict)
   {
-    pDict = PyModule_GetDict(pModule);
-
     pFunc = PyDict_GetItemString(pDict, PY_LIST_LIBERTINE_CONTAINERS);
 
     if (PyCallable_Check(pFunc))
@@ -137,11 +126,30 @@ std::vector<char *>LibertineManagerWrapper::ListLibertineContainers()
         Py_DECREF(pValue);
       }
     }
-    Py_DECREF(pModule);
   }
 
   Py_Finalize();
 
   return existing_libertine_containers;
+}
+
+PyObject* LibertineManagerWrapper::InitializePythonModule()
+{
+  PyObject *pName, *pModule, *pDict = NULL;
+
+  Py_Initialize();
+
+  pName = PyUnicode_FromString(LIBERTINE_PYTHON_MODULE);
+
+  pModule = PyImport_Import(pName);
+  Py_DECREF(pName);
+
+  if (pModule != NULL)
+  {
+    pDict = PyModule_GetDict(pModule);
+    Py_DECREF(pModule);
+  }
+
+  return pDict;
 }
 

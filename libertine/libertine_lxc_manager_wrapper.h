@@ -37,12 +37,10 @@ public:
   static std::vector<char *> ListLibertineContainers();
 
 private:
-  PyObject *pName_;
-  PyObject *pModule_;
-  PyObject *pDict_;
-  PyObject *pClass_;
+  static PyObject* InitializePythonModule();
+
+private:
   PyObject *pInstance_;
-  PyObject *pArgs_;
 
   const char* libertine_lxc_name_;
 };
