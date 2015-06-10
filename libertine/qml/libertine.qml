@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.4
+import U1db 1.0 as U1db
 import Ubuntu.Components 1.2
 
 
@@ -26,29 +27,52 @@ MainView {
     applicationName: "libertine"
     width:  units.gu(90)
     height: units.gu(75)
-    property string currentContainerId: ""
+    property var currentContainer: undefined
+
+    /**
+     * A local data store for the current Libertine configuration.
+     */
+    U1db.Database {
+        id: configDB
+        path: "libertine-config"
+    }
 
     ContainerConfig {
         id: containerConfig
     }
 
+    WelcomeView {
+        id: welcomeView
+        visible: false
+    }
+
+    ContainersView {
+        id: containersView
+        visible: false
+    }
+
+    HomeView {
+        id: homeView
+        visible: false
+    }
+
+    AppAddView {
+        id: appAddView
+        visible: false
+    }
+
     PageStack {
         id: pageStack
         state: "WELCOME"
-        property string pageName: "WelcomeView.qml"  // default initial state
+        property var page: welcomeView
 
         Component.onCompleted: {
-            push(Qt.resolvedUrl(pageName))
-            if (containerConfig.are_containers_available())
-            {
-                mainView.currentContainerId = "demo"
-                pageName = "HomeView.qml"
-            }
+            push(page)
         }
 
-        onPageNameChanged: {
+        onPageChanged: {
             pop();
-            push(Qt.resolvedUrl(pageName))
+            push(page)
         }
     }
 
@@ -58,30 +82,40 @@ MainView {
         State {
             name: "WELCOME"
             PropertyChanges {
-                target:   pageStack
-                pageName: "WelcomeView.qml"
+                target: pageStack
+                page:   welcomeView
             }
         },
         State {
-            name: "PREPARE_CONTAINER"
+            name: "CONTAINERS_VIEW"
             PropertyChanges {
-                target:   pageStack
-                pageName: "PreparingContainerView.qml"
+                target: pageStack
+                page:   containersView
             }
         },
         State {
             name: "HOMEPAGE"
             PropertyChanges {
-                target:   pageStack
-                pageName: "HomeView.qml"
+                target: pageStack
+                page:   homeView
             }
         },
         State {
             name: "ADD_APPS"
             PropertyChanges {
-                target:   pageStack
-                pageName: "AppAddView.qml"
+                target: pageStack
+                page:   appAddView
             }
         }
     ]
+
+    Component.onCompleted: {
+        mainView.currentContainer = containerConfig.getDefaultContainer()
+        if (mainView.currentContainer) {
+            state = "HOMEPAGE"
+        }
+        else if (containerConfig.hasContainers()) {
+            state = "CONTAINERS_VIEW"
+        }
+    }
 }

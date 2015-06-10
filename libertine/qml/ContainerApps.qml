@@ -20,19 +20,15 @@ import QtQuick 2.4
 import U1db 1.0 as U1db
 
 Item {
-    U1db.Database {
-        id: containerAppsDB
-        path: "container.apps.db"
-    }
 
     U1db.Document {
         id: containerApps
-        database: containerAppsDB
+        database: configDB
         docId: "ContainerApps"
     }
 
     U1db.Index {
-        database: containerAppsDB
+        database: configDB
 	id: containerAppIndex
 	name: "containerAppIndex"
 	expression: [ "containerId", "appId" ]
@@ -47,7 +43,7 @@ Item {
     function are_apps_installed(containerId) {
         var documentIds = {}
 
-        documentIds = containerAppsDB.listDocs()
+        documentIds = configDB.listDocs()
         return documentIds.length > 0
     }
 }

@@ -19,7 +19,7 @@
 import QtQuick 2.4
 import QtQuick.Layouts 1.0
 import Ubuntu.Components 1.2
-import Ubuntu.Components.ListItems 1.0 as ListItems
+import Ubuntu.Components.ListItems 1.0 as ListItem
 
 
 Page {
@@ -63,20 +63,23 @@ Page {
             property var selectedImageSource: imageSources.defaultSource()
             text: selectedImageSource ? selectedImageSource.name : i18n.tr("Select an image")
 
-            UbuntuListView {
-                id: availableImageSourcesList
-                model: imageSources.loadSources()
-                delegate: ListItems.Standard {
+            Component {
+                id: imageSourceDelegate
+                ListItem.Standard {
                     text: modelData.name
                     onClicked: {
                         imageSelector.text = text
                         imageSelector.expanded = false
+                        imageSelector.selectedImageSource = modelData
                         installButton.enabled = true
                     }
                 }
             }
-            onClicked: {
-                print("==smw> imageSelector.onClicked " + selectedImageSource.id)
+
+            UbuntuListView {
+                id: availableImageSourcesList
+                model: imageSources.loadSources()
+                delegate: imageSourceDelegate
             }
         }
 
@@ -89,8 +92,8 @@ Page {
             color: UbuntuColors.green
             enabled: imageSelector.selectedImageSource
             onClicked: {
-                mainView.state = "PREPARE_CONTAINER"
-                print("==smw> installButton.onClicked " + imageSelector.selectedImageSource.name)
+                containerConfig.addNewContainer(imageSelector.selectedImageSource)
+                mainView.state = "CONTAINERS_VIEW"
             }
 
         }

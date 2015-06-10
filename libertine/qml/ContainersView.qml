@@ -1,6 +1,6 @@
 /**
- * @file HomeView.qml
- * @brief Libertine container apps view
+ * @file ContainersView.qml
+ * @brief Libertine containers view
  */
 /*
  * Copyright 2015 Canonical Ltd
@@ -19,49 +19,33 @@
 import QtQuick 2.4
 import Ubuntu.Components 1.2
 import Ubuntu.Components.ListItems 1.0 as ListItem
-import Ubuntu.Components.Popups 1.0
 
 
+/**
+ * View providing a list of available containers and their (possibly animated)
+ * states.
+ */
 Page {
-    id: homeView
-    title: i18n.tr("Classic Apps")
+    id: containersView
+    title: i18n.tr("My Containers")
 
     head.actions: [
         Action {
-	    iconName: "add"
-	    onTriggered: mainView.state = "ADD_APPS"
-	},
-        Action {
-	    id: settingsButton
-	    iconName: "settings"
-	    onTriggered: PopupUtils.open(settingsMenu, homeView)
-	}
+            iconName: "add"
+            onTriggered: mainView.state = "ADD_CONTAINER"
+        }
     ]
 
     Component {
-	id: settingsMenu
-	ActionSelectionPopover {
-	    actions: ActionList {
-		Action {
-		    text: "App Sources"
-		    onTriggered: print(text)
-		}
-		Action {
-		    text: "Switch Container"
-		    onTriggered: mainView.state = "CONTAINERS_VIEW"
-		}
-	    }
-	}
-    }
-
-    ContainerApps {
-        id: containerApps
-    }
-
-    ListView {
-        model: containerApps.appsForContainer
-        delegate: Text {
-            text: mainView.currentContainer.name
+        id: containerDelegate
+        ListItem.Standard {
+            text: modelData.name
         }
+    }
+
+    UbuntuListView {
+        anchors.fill: parent
+        model: containerConfig.getContainers()
+        delegate: containerDelegate
     }
 }
