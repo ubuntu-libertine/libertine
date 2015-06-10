@@ -75,9 +75,9 @@ void LibertineManagerWrapper::DestroyLibertineContainer()
   PyObject_CallMethod(pInstance_, PY_DESTROY_LIBERTINE_CONTAINER, NULL);
 }
 
-void LibertineManagerWrapper::CreateLibertineContainer()
+void LibertineManagerWrapper::CreateLibertineContainer(const char *password)
 {
-  PyObject_CallMethod(pInstance_, PY_CREATE_LIBERTINE_CONTAINER, NULL);
+  PyObject_CallMethod(pInstance_, PY_CREATE_LIBERTINE_CONTAINER, "s", password);
 }
 
 void LibertineManagerWrapper::CreateLibertineConfig()
@@ -90,7 +90,7 @@ void LibertineManagerWrapper::UpdateLibertineContainer()
   PyObject_CallMethod(pInstance_, PY_UPDATE_LIBERTINE_CONTAINER, NULL);
 }
 
-void LibertineManagerWrapper::InstallPackageInContainer(const char* package_name)
+void LibertineManagerWrapper::InstallPackageInContainer(const char *package_name)
 {
   PyObject_CallMethod(pInstance_, PY_INSTALL_PACKAGE_IN_CONTAINER, "s", package_name);
 }

@@ -19,6 +19,7 @@
 import optparse
 import lxc
 import os
+import getpass
 
 import LibertineContainerTools
 
@@ -59,8 +60,10 @@ if __name__ == '__main__':
             print("%s" % container)
 
     if options.create:
+        print("Your user password is required for creating a Libertine container.")
+        password = getpass.getpass()
         container = LibertineContainerTools.LibertineContainer(options.create)
-        container.create_libertine_container()
+        container.create_libertine_container(password)
         container.create_libertine_config()
 
     if options.install_package and options.package_name:

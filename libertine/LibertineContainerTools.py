@@ -4,6 +4,7 @@ import lxc
 import subprocess
 import os
 import lsb_release
+import crypt
 
 home_path = os.environ['HOME']
 
@@ -17,6 +18,20 @@ def check_lxc_net_entry(entry):
             break
 
     return found
+
+def setup_host_environment(username, password):
+    lxc_net_entry = "%s veth lxcbr0 10" % str(username)
+
+    if not check_lxc_net_entry(lxc_net_entry):
+        dev_null = open('/dev/null', 'w')
+        passwd = subprocess.Popen(["sudo", "--stdin", "usermod", "--add-subuids", "100000-165536",
+                                   "--add-subgids", "100000-165536", str(username)], stdin=subprocess.PIPE,
+                                  stdout=dev_null.fileno(), stderr=subprocess.STDOUT)
+        passwd.communicate((password + '\n').encode('UTF-8'))
+        dev_null.close()
+
+        add_user_cmd = "echo %s | sudo tee -a /etc/lxc/lxc-usernet > /dev/null" % lxc_net_entry
+        subprocess.Popen(add_user_cmd, shell=True)
 
 def get_libertine_container_path():
     path = "%s/.cache/libertine-container/" % home_path
@@ -70,19 +85,15 @@ class LibertineContainer():
             self.container.stop()
             self.container.destroy()
 
-    def create_libertine_container(self):
+    def create_libertine_container(self, password=None):
+        if password is None:
+            return
+
         username = os.environ['USER']
         user_id = os.getuid()
         group_id = os.getgid()
 
-        subprocess.call(["sudo", "usermod", "--add-subuids", "100000-165536", str(username)])
-        subprocess.call(["sudo", "usermod", "--add-subgids", "100000-165536", str(username)])
-
-        lxc_net_entry = "%s veth lxcbr0 10" % str(username)
-
-        if not check_lxc_net_entry(lxc_net_entry):
-            add_user_cmd = "echo %s | sudo tee -a /etc/lxc/lxc-usernet > /dev/null" % lxc_net_entry
-            subprocess.Popen(add_user_cmd, shell=True)
+        setup_host_environment(username, password)
 
         # Generate the default lxc default config, if it doesn't exist
         config_path = get_libertine_container_path()
@@ -131,11 +142,8 @@ class LibertineContainer():
                                    ["userdel", "-r", "ubuntu"])
 
         self.container.attach_wait(lxc.attach_run_command,
-                                   ["useradd", "-u", str(user_id), "-G", "sudo", "-M", str(username)])
-
-        print("The following password setting is for the password of your user in the Legacy X App container.")
-        self.container.attach_wait(lxc.attach_run_command,
-                                   ["passwd", str(username)])
+                                   ["useradd", "-u", str(user_id), "-p", crypt.crypt(password),
+                                    "-G", "sudo", str(username)])
 
         self.container.stop()
 

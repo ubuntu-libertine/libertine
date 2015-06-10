@@ -30,10 +30,10 @@ public:
   ~LibertineManagerWrapper();
 
   void DestroyLibertineContainer();
-  void CreateLibertineContainer();
+  void CreateLibertineContainer(const char *password);
   void CreateLibertineConfig();
   void UpdateLibertineContainer();
-  void InstallPackageInContainer(const char* package_name);
+  void InstallPackageInContainer(const char *package_name);
   static std::vector<char *> ListLibertineContainers();
 
 private:
