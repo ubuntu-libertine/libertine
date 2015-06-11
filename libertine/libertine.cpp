@@ -20,7 +20,7 @@
 
 #include <cstdlib>
 #include "libertine/libertine.h"
-#include <QtCore/QCommandLineParser>
+#include "libertine/LibertineConfig.h"
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -79,7 +79,7 @@ Libertine(int argc, char* argv[])
 {
   setApplicationName(LIBERTINE_APPLICATION_NAME);
   setApplicationVersion(LIBERTINE_VERSION);
-  parse_command_line();
+  config_.reset(new LibertineConfig(*this));
 
   if (main_qml_source_file_.isEmpty())
   {
@@ -97,20 +97,6 @@ Libertine(int argc, char* argv[])
 Libertine::
 ~Libertine()
 {
-}
-
-
-/**
- * Parses the command line.
- */
-void Libertine::
-parse_command_line()
-{
-  QCommandLineParser commandlineParser;
-  commandlineParser.setApplicationDescription("manage sandboxes for running legacy DEB-packaged X11-based applications");
-  commandlineParser.addHelpOption();
-  commandlineParser.addVersionOption();
-  commandlineParser.process(*this);
 }
 
 

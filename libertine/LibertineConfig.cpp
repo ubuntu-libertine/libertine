@@ -1,6 +1,6 @@
 /**
- * @file libertine.h
- * @brief Libertine app wrapper
+ * @file LibertineConfig.cpp
+ * @brief Libertine Manager application-wide configuration module
  */
 /*
  * Copyright 2015 Canonical Ltd
@@ -16,35 +16,25 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef LIBERTINE_LIBERTINE_H
-#define LIBERTINE_LIBERTINE_H
+#include "libertine/LibertineConfig.h"
 
-#include <QtCore/QScopedPointer>
-#include <QtCore/QString>
-#include <QtGui/QGuiApplication>
-#include <QtQuick/QQuickView>
+#include "libertine/libertine.h"
+#include <QtCore/QCommandLineParser>
 
 
-class LibertineConfig;
-
-
-class Libertine
-: public QGuiApplication
+LibertineConfig::
+LibertineConfig(Libertine const& libertine)
 {
-  Q_OBJECT
+  QCommandLineParser commandlineParser;
+  commandlineParser.setApplicationDescription("manage sandboxes for running legacy DEB-packaged X11-based applications");
+  commandlineParser.addHelpOption();
+  commandlineParser.addVersionOption();
+  commandlineParser.process(libertine);
+}
 
-public:
-    Libertine(int argc, char* argv[]);
-    ~Libertine();
 
-private:
-    void
-    initialize_view();
+LibertineConfig::
+~LibertineConfig()
+{
+}
 
-private:
-    QString                         main_qml_source_file_;
-    QScopedPointer<LibertineConfig> config_;
-    QQuickView                      view_;
-};
-
-#endif /* LIBERTINE_LIBERTINE_H */

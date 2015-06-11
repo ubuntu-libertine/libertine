@@ -1,6 +1,6 @@
 /**
- * @file libertine.h
- * @brief Libertine app wrapper
+ * @file LibertineConfig.cpp
+ * @brief Libertine Manager application-wide configuration module
  */
 /*
  * Copyright 2015 Canonical Ltd
@@ -16,35 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef LIBERTINE_LIBERTINE_H
-#define LIBERTINE_LIBERTINE_H
+#ifndef LIBERTINE_LIBERTINECONFIG_H
+#define LIBERTINE_LIBERTINECONFIG_H
 
-#include <QtCore/QScopedPointer>
-#include <QtCore/QString>
-#include <QtGui/QGuiApplication>
-#include <QtQuick/QQuickView>
+#include "libertine/config.h"
 
 
-class LibertineConfig;
+class Libertine;
 
 
-class Libertine
-: public QGuiApplication
+/**
+ * The runtime configuration of the Libertine tools.
+ */
+class LibertineConfig
 {
-  Q_OBJECT
-
 public:
-    Libertine(int argc, char* argv[]);
-    ~Libertine();
-
-private:
-    void
-    initialize_view();
-
-private:
-    QString                         main_qml_source_file_;
-    QScopedPointer<LibertineConfig> config_;
-    QQuickView                      view_;
+  LibertineConfig(Libertine const& libertine);
+  ~LibertineConfig();
 };
 
-#endif /* LIBERTINE_LIBERTINE_H */
+#endif /* LIBERTINE_LIBERTINECONFIG_H */
