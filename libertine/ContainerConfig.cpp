@@ -21,6 +21,20 @@
 
 ContainerConfig::
 ContainerConfig(QObject* parent)
+: QObject(parent)
+{ }
+
+
+ContainerConfig::
+ContainerConfig(QString const& container_id,
+                QString const& container_name,
+                QString const& image_id,
+                QObject*       parent)
+: QObject(parent)
+, container_id_(container_id)
+, container_name_(container_name)
+, image_id_(image_id)
+, install_status_(InstallStatus::New)
 { }
 
 

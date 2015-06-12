@@ -21,7 +21,13 @@
 
 #include "libertine/ContainerConfig.h"
 
+/** Verify constructing a New containerConfig DTRT. */
 TEST(LibertineContainerConfig, constructFromScalars)
 {
-  ContainerConfig conatiner_config;
+  ContainerConfig container_config("id", "name", "image");
+
+  ASSERT_EQ(container_config.container_id(),   "id");
+  ASSERT_EQ(container_config.name(),           "name");
+  ASSERT_EQ(container_config.image_id(),       "image");
+  ASSERT_EQ(container_config.install_status(), ContainerConfig::InstallStatus::New);
 }

@@ -43,6 +43,10 @@ public:
 
 public:
   ContainerConfig(QObject* parent = nullptr);
+  ContainerConfig(QString const& container_id,
+                  QString const& container_name,
+                  QString const& image_id,
+                  QObject*       parent = nullptr);
   ~ContainerConfig();
 
   QString const&
