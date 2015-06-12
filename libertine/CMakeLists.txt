@@ -1,13 +1,9 @@
 configure_file(config.h.in config.h)
 
-set(liblibertine_SRC
-    ContainerConfig.cpp
-    LibertineConfig.cpp
-)
-
 add_library(
   liblibertine STATIC
-  ${liblibertine_SRC}
+  ContainerConfig.cpp
+  LibertineConfig.cpp
 )
 target_link_libraries(liblibertine Qt5::Core)
 

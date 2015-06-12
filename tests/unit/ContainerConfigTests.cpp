@@ -20,14 +20,41 @@
 #include <gtest/gtest.h>
 
 #include "libertine/ContainerConfig.h"
+#include <QtCore/QByteArray>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonParseError>
+
 
 /** Verify constructing a New containerConfig DTRT. */
 TEST(LibertineContainerConfig, constructFromScalars)
 {
   ContainerConfig container_config("id", "name", "image");
 
-  ASSERT_EQ(container_config.container_id(),   "id");
-  ASSERT_EQ(container_config.name(),           "name");
-  ASSERT_EQ(container_config.image_id(),       "image");
-  ASSERT_EQ(container_config.install_status(), ContainerConfig::InstallStatus::New);
+  EXPECT_EQ(container_config.container_id(),   "id");
+  EXPECT_EQ(container_config.name(),           "name");
+  EXPECT_EQ(container_config.image_id(),       "image");
+  EXPECT_EQ(container_config.install_status(), ContainerConfig::InstallStatus::New);
+}
+
+/** Verify constructing a ContainerConfig from JSON DTRT. */
+TEST(LibertineContainerConfig, constructFromJson)
+{
+  QByteArray raw_json(
+    "{"
+        "\"id\":            \"wily3\","
+        "\"name\":          \"Wily Werewolf\","
+        "\"image\":         \"wily\","
+        "\"installStatus\": \"ready\""
+    "}"
+  );
+  QJsonParseError parse_error;
+  QJsonDocument json = QJsonDocument::fromJson(raw_json, &parse_error);
+  ASSERT_EQ(parse_error.error, 0) << parse_error.errorString().toStdString();
+
+  ContainerConfig container_config(json.object());
+
+  EXPECT_EQ(container_config.container_id().toStdString(),   "wily3");
+  EXPECT_EQ(container_config.name().toStdString(),           "Wily Werewolf");
+  EXPECT_EQ(container_config.image_id().toStdString(),       "wily");
+  EXPECT_EQ(container_config.install_status(), ContainerConfig::InstallStatus::Ready);
 }

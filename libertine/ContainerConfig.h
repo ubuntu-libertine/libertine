@@ -19,6 +19,7 @@
 #ifndef CONTAINER_CONTAINERCONFIG_H
 #define CONTAINER_CONTAINERCONFIG_H
 
+#include <QtCore/QJsonObject>
 #include <QtCore/QObject>
 #include <QtCore/QString>
 
@@ -47,6 +48,8 @@ public:
                   QString const& container_name,
                   QString const& image_id,
                   QObject*       parent = nullptr);
+  ContainerConfig(QJsonObject const& json_object,
+                  QObject*           parent = nullptr);
   ~ContainerConfig();
 
   QString const&
@@ -66,6 +69,9 @@ public:
 
   void
   install_status(InstallStatus install_status);
+
+  QJsonObject
+  toJson() const;
 
 signals:
   void nameChanged();
