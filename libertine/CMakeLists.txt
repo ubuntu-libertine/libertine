@@ -6,6 +6,7 @@ configure_file(config.h.in config.h)
 
 file(GLOB_RECURSE QML_SRC *.qml *.js *.json)
 set(libertine_SRC 
+    ContainerConfig.cpp
     libertine.cpp
     LibertineConfig.cpp
     main.cpp

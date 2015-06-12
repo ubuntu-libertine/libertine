@@ -19,6 +19,7 @@
 #include "libertine/config.h"
 
 #include <cstdlib>
+#include "libertine/ContainerConfig.h"
 #include "libertine/libertine.h"
 #include "libertine/LibertineConfig.h"
 #include <QtCore/QDebug>
@@ -80,6 +81,7 @@ Libertine(int argc, char* argv[])
   setApplicationName(LIBERTINE_APPLICATION_NAME);
   setApplicationVersion(LIBERTINE_VERSION);
   config_.reset(new LibertineConfig(*this));
+  qmlRegisterType<ContainerConfig>("Libertine", 1, 0, "ContainerConfig");
 
   if (main_qml_source_file_.isEmpty())
   {
