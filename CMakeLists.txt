@@ -8,7 +8,17 @@ project(libertine
 include(GNUInstallDirs)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic")
 
+include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+
+find_package(Qt5Core  REQUIRED)
+find_package(Qt5Gui   REQUIRED)
+find_package(Qt5Quick REQUIRED)
+set(CMAKE_AUTOMOC ON)
+
 add_subdirectory(libertine)
+
+include(CTest)
+add_subdirectory(tests)
 
 set(ARCHIVE_NAME ${CMAKE_PROJECT_NAME}-${LIBERTINE_VERSION})
 add_custom_target(dist
