@@ -39,13 +39,13 @@ Page {
     Component {
         id: containerDelegate
         ListItem.Standard {
-            text: modelData.name
+            text: name
         }
     }
 
     UbuntuListView {
         anchors.fill: parent
-        model: containerConfig.getContainers()
+        model: containerConfigList
         delegate: containerDelegate
     }
 }

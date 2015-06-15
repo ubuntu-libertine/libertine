@@ -19,23 +19,25 @@
 #include "libertine/ContainerConfigList.h"
 
 #include "libertine/ContainerConfig.h"
+#include <QtCore/QDebug>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonValue>
+
 
 const QString ContainerConfigList::Json_object_name = "containerConfigs";
 
 
 ContainerConfigList::
 ContainerConfigList(QObject* parent)
-: QObject(parent)
+: QAbstractListModel(parent)
 { }
 
 
 ContainerConfigList::
 ContainerConfigList(QJsonObject const& json_object,
                     QObject*           parent)
-: QObject(parent)
+: QAbstractListModel(parent)
 {
   if (!json_object.empty())
   {
@@ -56,14 +58,58 @@ ContainerConfigList::
 
 bool ContainerConfigList::
 empty() const noexcept
-{
-  return configs_.empty();
-}
+{ return configs_.empty(); }
 
 
 ContainerConfigList::size_type ContainerConfigList::
 size() const noexcept
+{ return configs_.count(); }
+
+
+int ContainerConfigList::
+rowCount(QModelIndex const&) const
+{ 
+  return this->size();
+}
+
+
+QHash<int, QByteArray> ContainerConfigList::
+roleNames() const
 {
-  return configs_.count();
+  QHash<int, QByteArray> roles;
+  roles[static_cast<int>(DataRole::ContainerId)]    = "containerId";
+  roles[static_cast<int>(DataRole::ContainerName)]  = "name";
+  roles[static_cast<int>(DataRole::ImageId)]        = "imageId";
+  roles[static_cast<int>(DataRole::InstallStatus)]  = "installStatus";
+  return roles;
+}
+  
+
+QVariant ContainerConfigList::
+data(QModelIndex const& index, int role) const
+{
+  QVariant result;
+
+  if (index.isValid() && index.row() <= configs_.count())
+  {
+    switch (static_cast<DataRole>(role))
+    {
+      case DataRole::ContainerId:
+        result = configs_[index.row()]->container_id();
+        break;
+      case DataRole::ContainerName:
+        result = configs_[index.row()]->name();
+        break;
+      case DataRole::ImageId:
+        result = configs_[index.row()]->image_id();
+        break;
+      case DataRole::InstallStatus:
+        result = static_cast<int>(configs_[index.row()]->install_status());
+        break;
+      case DataRole::Error:
+        break;
+    }
+  }
+  return result;
 }
 

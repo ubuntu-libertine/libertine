@@ -29,6 +29,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
+#include <QtCore/QJsonParseError>
 #include <QtCore/QStandardPaths>
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
@@ -119,10 +120,10 @@ void Libertine::
 initialize_view()
 {
   view_.setResizeMode(QQuickView::SizeRootObjectToView);
-  view_.setSource(QUrl::fromLocalFile(main_qml_source_file_));
   QQmlContext* ctxt = view_.rootContext();
-  ctxt->setContextProperty("containeConfigList", containers_);
+  ctxt->setContextProperty("containerConfigList", containers_);
 
+  view_.setSource(QUrl::fromLocalFile(main_qml_source_file_));
   connect(view_.engine(), SIGNAL(quit()), SLOT(quit()));
 }
 
@@ -131,7 +132,6 @@ void Libertine::
 load_container_config_list()
 {
   QFile config_file(config_->containers_config_file_name());
-  qDebug() << "attempting to load ContailerConfig file " << config_file.fileName();
   if (config_file.exists())
   {
     if (!config_file.open(QIODevice::ReadOnly))
@@ -139,7 +139,12 @@ load_container_config_list()
       qWarning() << "could not open containers config file " << config_file.fileName();
       containers_ = new ContainerConfigList(this);
     } else {
-      QJsonDocument json = QJsonDocument::fromJson(config_file.readAll());
+      QJsonParseError parse_error;
+      QJsonDocument json = QJsonDocument::fromJson(config_file.readAll(), &parse_error);
+      if (parse_error.error)
+      {
+        qWarning() << "error parsing containers config file: " << parse_error.errorString();
+      }
       containers_ = new ContainerConfigList(json.object(), this);
     }
   } else {

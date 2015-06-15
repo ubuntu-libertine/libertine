@@ -19,9 +19,9 @@
 #ifndef CONTAINER_CONTAINERCONFIGLIST_H
 #define CONTAINER_CONTAINERCONFIGLIST_H
 
+#include <QtCore/QAbstractListModel>
 #include <QtCore/QJsonObject>
 #include <QtCore/QList>
-#include <QtCore/QObject>
 
 
 class ContainerConfig;
@@ -31,7 +31,7 @@ class ContainerConfig;
  * The runtime configuration of the Libertine tools.
  */
 class ContainerConfigList
-: public QObject
+: public QAbstractListModel
 {
   Q_OBJECT
 
@@ -42,20 +42,78 @@ public:
 
   static const QString Json_object_name;
 
+  /**
+   * Display roles for a container config.
+   */
+  enum class DataRole
+  : int
+  {
+    ContainerId = Qt::UserRole + 1,   /**< The container ID */
+    ContainerName,                    /**< The container name */
+    ImageId,                          /**< The image from which the container was built */
+    InstallStatus,                    /**< Current container install status */
+    Error                             /**< last role (error) */
+  };
+
 public:
+  /**
+   * Constructs a default-initialized (empty) list.
+   */
   explicit
   ContainerConfigList(QObject* parent = nullptr);
 
+  /**
+   * Constructs a container config list from an (in-memory) JSON string.
+   */
   ContainerConfigList(QJsonObject const& json_object,
                       QObject*           parent = nullptr);
 
+  /**
+   * Tears dow the container config list.
+   */
   ~ContainerConfigList();
 
+  /** 
+   * @addtogroup Standard container interface
+   * @{
+   */
+  /**
+   * Indicates if the list of available containers is empty.
+   */
   bool
   empty() const noexcept;
 
+  /**
+   * Gets the number of container configs in the list.
+   */
   size_type
   size() const noexcept;
+
+  /** @} */
+
+  /** 
+   * @addtogroup QML interface
+   * @{
+   */
+  /**
+   * Gets the number of rows in the data model.
+   */
+  int
+  rowCount(QModelIndex const& parent = QModelIndex()) const;
+
+  /**
+   * Gets the names of the various display roles.
+   */
+  QHash<int, QByteArray>
+  roleNames() const;
+  
+  /**
+   * Gets the column data for a row by role.
+   */
+  QVariant
+  data(QModelIndex const& index, int role = Qt::DisplayRole) const;
+
+  /** @} */
 
 private:
   ConfigList configs_;
