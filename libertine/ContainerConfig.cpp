@@ -18,6 +18,7 @@
  */
 #include "libertine/ContainerConfig.h"
 
+#include <QtCore/QDebug>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonValue>
 #include <stdexcept>
@@ -216,6 +217,7 @@ toJson() const
     if (install_status_ == name.enumeration)
     {
       json_object["installStatus"] = name.string;
+      break;
     }
   }
   return json_object;
