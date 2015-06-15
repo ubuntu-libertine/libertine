@@ -3,6 +3,7 @@ configure_file(config.h.in config.h)
 add_library(
   liblibertine STATIC
   ContainerConfig.cpp
+  ContainerConfigList.cpp
   LibertineConfig.cpp
 )
 target_link_libraries(liblibertine Qt5::Core)

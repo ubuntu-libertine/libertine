@@ -20,17 +20,23 @@
 
 #include <cstdlib>
 #include "libertine/ContainerConfig.h"
+#include "libertine/ContainerConfigList.h"
 #include "libertine/libertine.h"
 #include "libertine/LibertineConfig.h"
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
+#include <QtCore/QFile>
 #include <QtCore/QFileInfo>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 #include <QtCore/QStandardPaths>
+#include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
 
 
+namespace
+{
 static QString const s_main_QML_source_file = "qml/libertine.qml";
-
 
 /**
  * Searches for the main QML source file.
@@ -64,6 +70,8 @@ find_main_qml_source_file()
   return QString();
 }
 
+} // anonymous namespace
+
 
 /**
  * Constraucts a Libertine application wrapper object.
@@ -88,6 +96,8 @@ Libertine(int argc, char* argv[])
     qWarning() << "Can not locate " << s_main_QML_source_file;
   }
 
+  load_container_config_list();
+
   initialize_view();
   view_.show();
 }
@@ -110,8 +120,30 @@ initialize_view()
 {
   view_.setResizeMode(QQuickView::SizeRootObjectToView);
   view_.setSource(QUrl::fromLocalFile(main_qml_source_file_));
+  QQmlContext* ctxt = view_.rootContext();
+  ctxt->setContextProperty("containeConfigList", containers_);
 
   connect(view_.engine(), SIGNAL(quit()), SLOT(quit()));
 }
 
+
+void Libertine::
+load_container_config_list()
+{
+  QFile config_file(config_->containers_config_file_name());
+  qDebug() << "attempting to load ContailerConfig file " << config_file.fileName();
+  if (config_file.exists())
+  {
+    if (!config_file.open(QIODevice::ReadOnly))
+    {
+      qWarning() << "could not open containers config file " << config_file.fileName();
+      containers_ = new ContainerConfigList(this);
+    } else {
+      QJsonDocument json = QJsonDocument::fromJson(config_file.readAll());
+      containers_ = new ContainerConfigList(json.object(), this);
+    }
+  } else {
+    containers_ = new ContainerConfigList(this);
+  }
+}
 

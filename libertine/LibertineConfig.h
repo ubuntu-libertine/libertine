@@ -19,7 +19,7 @@
 #ifndef LIBERTINE_LIBERTINECONFIG_H
 #define LIBERTINE_LIBERTINECONFIG_H
 
-#include "libertine/config.h"
+#include <QtCore/QString>
 
 
 class Libertine;
@@ -33,6 +33,9 @@ class LibertineConfig
 public:
   LibertineConfig(Libertine const& libertine);
   ~LibertineConfig();
+
+  QString
+  containers_config_file_name() const;
 };
 
 #endif /* LIBERTINE_LIBERTINECONFIG_H */

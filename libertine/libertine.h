@@ -25,6 +25,7 @@
 #include <QtQuick/QQuickView>
 
 
+class ContainerConfigList;
 class LibertineConfig;
 
 
@@ -41,9 +42,13 @@ private:
     void
     initialize_view();
 
+    void
+    load_container_config_list();
+
 private:
     QString                         main_qml_source_file_;
     QScopedPointer<LibertineConfig> config_;
+    ContainerConfigList*            containers_;
     QQuickView                      view_;
 };
 
