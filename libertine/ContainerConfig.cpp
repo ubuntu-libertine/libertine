@@ -47,7 +47,7 @@ namespace {
     QString id = value.toString();
     if (id.length() == 0)
     {
-        throw std::runtime_error("container id not empty in JSON object");
+        throw std::runtime_error("container id empty in JSON object");
     }
 
     return id;

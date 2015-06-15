@@ -155,8 +155,24 @@ load_container_config_list()
 
 
 void Libertine::
+save_container_config_list()
+{
+  QFile config_file(config_->containers_config_file_name());
+  if (!config_file.open(QIODevice::WriteOnly))
+  {
+    qWarning() << "could not open containers config file " << config_file.fileName();
+  }
+  else
+  {
+    QJsonDocument jdoc(containers_->toJson());
+    config_file.write(jdoc.toJson(QJsonDocument::Indented));
+  }
+}
+
+
+void Libertine::
 handleContainerConfigsChanged()
 {
-  qDebug() << __PRETTY_FUNCTION__ << " called";
+  save_container_config_list();
 }
 

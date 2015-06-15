@@ -74,7 +74,10 @@ public:
   ~ContainerConfigList();
 
   Q_INVOKABLE void
-  addNewContainer(QString const& imageId);
+  addNewContainer(QVariantMap const& image);
+
+  QJsonObject
+  toJson() const;
 
   /** 
    * @addtogroup Standard container interface
@@ -121,6 +124,14 @@ public:
 signals:
   void
   dataChanged();
+
+private:
+  /**
+   * Generates a bis (suffix) that can be used to distinguish between otherwise
+   * identical container ids and names.
+   */
+  int
+  generate_bis(QString const& image_id);
 
 private:
   ConfigList configs_;

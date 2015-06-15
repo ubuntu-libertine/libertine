@@ -18,11 +18,14 @@
  */
 #include "libertine/ContainerConfigList.h"
 
+#include <algorithm>
 #include "libertine/ContainerConfig.h"
 #include <QtCore/QDebug>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonValue>
+#include <QtCore/QRegExp>
+#include <QtCore/QString>
 
 
 const QString ContainerConfigList::Json_object_name = "containerConfigs";
@@ -57,14 +60,37 @@ ContainerConfigList::
 
 
 void ContainerConfigList::
-addNewContainer(QString const& imageId)
+addNewContainer(QVariantMap const& image)
 {
+  QString image_id = image["id"].toString();
+  QString id = image_id;
+  QString name = image["name"].toString();
+  int bis = generate_bis(image_id);
+  if (bis > 0)
+  {
+    id = QString("%1-%2").arg(id).arg(bis);
+    name = QString("%1 (%2)").arg(name).arg(bis);
+  }
+
   beginInsertRows(QModelIndex(), rowCount(), rowCount());
-  QString id = "bork";
-  QString name = "bork";
-  configs_.append(new ContainerConfig(id, name, imageId, this));
+  configs_.append(new ContainerConfig(id, name, image_id, this));
   emit dataChanged();
   endInsertRows();
+}
+
+
+QJsonObject ContainerConfigList::
+toJson() const
+{
+  QJsonArray contents;
+  for (auto const& config: configs_)
+  {
+    contents.append(config->toJson());
+  }
+
+  QJsonObject json_object;
+  json_object[Json_object_name] = contents;
+  return json_object;
 }
 
 
@@ -122,6 +148,31 @@ data(QModelIndex const& index, int role) const
         break;
     }
   }
+
   return result;
+}
+
+
+int ContainerConfigList::
+generate_bis(QString const& image_id)
+{
+  int bis = 0;
+  int max = 0;
+  QRegExp re = QRegExp("^(\\w*)(?:-(\\d+))?$", Qt::CaseInsensitive);
+  for (auto const& config: configs_)
+  {
+    int found = re.indexIn(config->container_id());
+    if (found >= 0 && re.cap(1) == image_id)
+    {
+      ++bis;
+      bool ok;
+      int val = re.cap(2).toInt(&ok);
+      if (ok && val > 0)
+        max = std::max(bis, val);
+    }
+  }
+  if (bis > 0)
+    bis = std::max(bis, max) + 1;
+  return bis;
 }
 
