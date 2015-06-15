@@ -92,7 +92,7 @@ Page {
             color: UbuntuColors.green
             enabled: imageSelector.selectedImageSource
             onClicked: {
-                containerConfig.addNewContainer(imageSelector.selectedImageSource)
+                containerConfigList.addNewContainer(imageSelector.selectedImageSource)
                 mainView.state = "CONTAINERS_VIEW"
             }
 

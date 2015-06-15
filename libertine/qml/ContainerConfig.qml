@@ -89,14 +89,6 @@ Item {
     }
 
     /**
-     * Indicates if there any defined containers at all.
-     */
-    function hasContainers() {
-        var containers = getContainers()
-        return containers.length > 0
-    }
-
-    /**
      * Adds a new container to the databsae.
      */
     function addNewContainer(imageSource) {

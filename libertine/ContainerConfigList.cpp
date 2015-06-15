@@ -56,6 +56,18 @@ ContainerConfigList::
 { }
 
 
+void ContainerConfigList::
+addNewContainer(QString const& imageId)
+{
+  beginInsertRows(QModelIndex(), rowCount(), rowCount());
+  QString id = "bork";
+  QString name = "bork";
+  configs_.append(new ContainerConfig(id, name, imageId, this));
+  emit dataChanged();
+  endInsertRows();
+}
+
+
 bool ContainerConfigList::
 empty() const noexcept
 { return configs_.empty(); }

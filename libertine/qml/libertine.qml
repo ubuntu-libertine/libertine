@@ -114,7 +114,7 @@ MainView {
         if (mainView.currentContainer) {
             state = "HOMEPAGE"
         }
-        else if (containerConfig.hasContainers()) {
+        else if (!containerConfigList.empty()) {
             state = "CONTAINERS_VIEW"
         }
     }

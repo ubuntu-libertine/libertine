@@ -73,6 +73,9 @@ public:
    */
   ~ContainerConfigList();
 
+  Q_INVOKABLE void
+  addNewContainer(QString const& imageId);
+
   /** 
    * @addtogroup Standard container interface
    * @{
@@ -80,7 +83,7 @@ public:
   /**
    * Indicates if the list of available containers is empty.
    */
-  bool
+  Q_INVOKABLE bool
   empty() const noexcept;
 
   /**
@@ -114,6 +117,10 @@ public:
   data(QModelIndex const& index, int role = Qt::DisplayRole) const;
 
   /** @} */
+
+signals:
+  void
+  dataChanged();
 
 private:
   ConfigList configs_;

@@ -150,5 +150,13 @@ load_container_config_list()
   } else {
     containers_ = new ContainerConfigList(this);
   }
+  connect(containers_, SIGNAL(dataChanged()), SLOT(handleContainerConfigsChanged()));
+}
+
+
+void Libertine::
+handleContainerConfigsChanged()
+{
+  qDebug() << __PRETTY_FUNCTION__ << " called";
 }
 
