@@ -28,7 +28,8 @@
 #include <QtCore/QString>
 
 
-const QString ContainerConfigList::Json_object_name = "containerConfigs";
+const QString ContainerConfigList::Json_container_list = "containerList";
+const QString ContainerConfigList::Json_default_container = "defaultContainer";
 
 
 ContainerConfigList::
@@ -44,8 +45,10 @@ ContainerConfigList(QJsonObject const& json_object,
 {
   if (!json_object.empty())
   {
-    QJsonArray containerConfigs = json_object[Json_object_name].toArray();
-    for (auto const& config: containerConfigs)
+    default_container_id_ = json_object[Json_default_container].toString();
+
+    QJsonArray container_list = json_object[Json_container_list].toArray();
+    for (auto const& config: container_list)
     {
       QJsonObject containerConfig = config.toObject();
       configs_.append(new ContainerConfig(containerConfig, this));
@@ -74,6 +77,9 @@ addNewContainer(QVariantMap const& image)
 
   beginInsertRows(QModelIndex(), rowCount(), rowCount());
   configs_.append(new ContainerConfig(id, name, image_id, this));
+  if (this->size() == 1)
+    default_container_id_ = id;
+
   emit dataChanged();
   endInsertRows();
 }
@@ -82,16 +88,28 @@ addNewContainer(QVariantMap const& image)
 QJsonObject ContainerConfigList::
 toJson() const
 {
+  QJsonObject json_object;
+  json_object[Json_default_container] = default_container_id_;
+
   QJsonArray contents;
   for (auto const& config: configs_)
   {
     contents.append(config->toJson());
   }
+  json_object[Json_container_list] = contents;
 
-  QJsonObject json_object;
-  json_object[Json_object_name] = contents;
   return json_object;
 }
+
+
+QString const& ContainerConfigList::
+default_container_id() const
+{ return default_container_id_; }
+
+
+void ContainerConfigList::
+default_container_id(QString const& container_id)
+{ default_container_id_ = container_id; }
 
 
 bool ContainerConfigList::

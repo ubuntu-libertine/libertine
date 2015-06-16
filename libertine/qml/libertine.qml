@@ -37,10 +37,6 @@ MainView {
         path: "libertine-config"
     }
 
-    ContainerConfig {
-        id: containerConfig
-    }
-
     WelcomeView {
         id: welcomeView
         visible: false
@@ -110,7 +106,7 @@ MainView {
     ]
 
     Component.onCompleted: {
-        mainView.currentContainer = containerConfig.getDefaultContainer()
+        mainView.currentContainer = containerConfigList.defaultContainerId
         if (mainView.currentContainer) {
             state = "HOMEPAGE"
         }

@@ -39,7 +39,7 @@ TEST(LibertineContainerConfigList, constructFromJson)
 {
   QByteArray raw_json(
     "{"
-      "\"containerConfigs\": ["
+      "\"containerList\": ["
         "{"
           "\"id\":            \"wily\","
           "\"name\":          \"Wily Werewolf\","
@@ -52,7 +52,8 @@ TEST(LibertineContainerConfigList, constructFromJson)
           "\"image\":         \"wily\","
           "\"installStatus\": \"new\""
         "}"
-      "]"
+      "],"
+      "\"defaultContainer\": \"wily\""
     "}"
   );
   QJsonParseError parse_error;
@@ -63,4 +64,5 @@ TEST(LibertineContainerConfigList, constructFromJson)
 
   EXPECT_EQ(container_configs.empty(), false);
   EXPECT_EQ(container_configs.size(), 2);
+  EXPECT_EQ(container_configs.default_container_id().toStdString(), "wily");
 }

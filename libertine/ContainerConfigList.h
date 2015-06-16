@@ -35,12 +35,18 @@ class ContainerConfigList
 {
   Q_OBJECT
 
+  Q_PROPERTY(QString defaultContainerId
+             READ default_container_id
+             WRITE default_container_id
+             NOTIFY defaultContainerChanged)
+
 public:
   using ConfigList = QList<ContainerConfig*>;
   using iterator = ConfigList::iterator;
   using size_type = ConfigList::size_type;
 
-  static const QString Json_object_name;
+  static const QString Json_container_list;
+  static const QString Json_default_container;
 
   /**
    * Display roles for a container config.
@@ -78,6 +84,12 @@ public:
 
   QJsonObject
   toJson() const;
+
+  QString const&
+  default_container_id() const;
+
+  void
+  default_container_id(QString const& container_id);
 
   /** 
    * @addtogroup Standard container interface
@@ -125,6 +137,9 @@ signals:
   void
   dataChanged();
 
+  void
+  defaultContainerChanged();
+
 private:
   /**
    * Generates a bis (suffix) that can be used to distinguish between otherwise
@@ -135,6 +150,7 @@ private:
 
 private:
   ConfigList configs_;
+  QString    default_container_id_;
 };
 
 #endif /* CONTAINER_CONTAINERCONFIGLIST_H */
