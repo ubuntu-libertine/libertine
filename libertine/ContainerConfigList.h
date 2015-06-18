@@ -25,6 +25,7 @@
 
 
 class ContainerConfig;
+class LibertineConfig;
 
 
 /**
@@ -75,6 +76,12 @@ public:
                       QObject*           parent = nullptr);
 
   /**
+   * Constructs a container config list from a container config.
+   */
+  ContainerConfigList(LibertineConfig const* config,
+                      QObject*           parent = nullptr);
+
+  /**
    * Tears dow the container config list.
    */
   ~ContainerConfigList();
@@ -91,7 +98,7 @@ public:
   void
   default_container_id(QString const& container_id);
 
-  /** 
+  /**
    * @addtogroup Standard container interface
    * @{
    */
@@ -109,7 +116,7 @@ public:
 
   /** @} */
 
-  /** 
+  /**
    * @addtogroup QML interface
    * @{
    */
@@ -124,7 +131,7 @@ public:
    */
   QHash<int, QByteArray>
   roleNames() const;
-  
+
   /**
    * Gets the column data for a row by role.
    */
@@ -134,9 +141,6 @@ public:
   /** @} */
 
 signals:
-  void
-  dataChanged();
-
   void
   defaultContainerChanged();
 
@@ -148,7 +152,11 @@ private:
   int
   generate_bis(QString const& image_id);
 
+  void
+  save_container_config_list();
+
 private:
+  LibertineConfig const* config_;
   ConfigList configs_;
   QString    default_container_id_;
 };

@@ -42,16 +42,6 @@ private:
     void
     initialize_view();
 
-    void
-    load_container_config_list();
-
-    void
-    save_container_config_list();
-
-private slots:
-    void
-    handleContainerConfigsChanged();
-
 private:
     QString                         main_qml_source_file_;
     QScopedPointer<LibertineConfig> config_;

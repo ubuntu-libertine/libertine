@@ -28,8 +28,6 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtCore/QJsonDocument>
-#include <QtCore/QJsonObject>
-#include <QtCore/QJsonParseError>
 #include <QtCore/QStandardPaths>
 #include <QtQml/QQmlContext>
 #include <QtQml/QQmlEngine>
@@ -97,7 +95,7 @@ Libertine(int argc, char* argv[])
     qWarning() << "Can not locate " << s_main_QML_source_file;
   }
 
-  load_container_config_list();
+  containers_ = new ContainerConfigList(config_.data(), this);
 
   initialize_view();
   view_.show();
@@ -105,7 +103,7 @@ Libertine(int argc, char* argv[])
 
 
 /**
- * Tears diwn the Libertine application wrapper object.
+ * Tears down the Libertine application wrapper object.
  */
 Libertine::
 ~Libertine()
@@ -125,54 +123,5 @@ initialize_view()
 
   view_.setSource(QUrl::fromLocalFile(main_qml_source_file_));
   connect(view_.engine(), SIGNAL(quit()), SLOT(quit()));
-}
-
-
-void Libertine::
-load_container_config_list()
-{
-  QFile config_file(config_->containers_config_file_name());
-  if (config_file.exists())
-  {
-    if (!config_file.open(QIODevice::ReadOnly))
-    {
-      qWarning() << "could not open containers config file " << config_file.fileName();
-      containers_ = new ContainerConfigList(this);
-    } else {
-      QJsonParseError parse_error;
-      QJsonDocument json = QJsonDocument::fromJson(config_file.readAll(), &parse_error);
-      if (parse_error.error)
-      {
-        qWarning() << "error parsing containers config file: " << parse_error.errorString();
-      }
-      containers_ = new ContainerConfigList(json.object(), this);
-    }
-  } else {
-    containers_ = new ContainerConfigList(this);
-  }
-  connect(containers_, SIGNAL(dataChanged()), SLOT(handleContainerConfigsChanged()));
-}
-
-
-void Libertine::
-save_container_config_list()
-{
-  QFile config_file(config_->containers_config_file_name());
-  if (!config_file.open(QIODevice::WriteOnly))
-  {
-    qWarning() << "could not open containers config file " << config_file.fileName();
-  }
-  else
-  {
-    QJsonDocument jdoc(containers_->toJson());
-    config_file.write(jdoc.toJson(QJsonDocument::Indented));
-  }
-}
-
-
-void Libertine::
-handleContainerConfigsChanged()
-{
-  save_container_config_list();
 }
 

@@ -17,15 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "libertine/ContainerConfigList.h"
+#include "libertine/LibertineConfig.h"
 
 #include <algorithm>
 #include "libertine/ContainerConfig.h"
 #include <QtCore/QDebug>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonParseError>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonValue>
 #include <QtCore/QRegExp>
 #include <QtCore/QString>
+#include <QtCore/QFile>
 
 
 const QString ContainerConfigList::Json_container_list = "containerList";
@@ -58,6 +62,44 @@ ContainerConfigList(QJsonObject const& json_object,
 
 
 ContainerConfigList::
+ContainerConfigList(LibertineConfig const* config,
+                    QObject*        parent)
+: QAbstractListModel(parent)
+, config_(config)
+{
+  QFile config_file(config_->containers_config_file_name());
+
+  if (config_file.exists())
+  {
+    if (!config_file.open(QIODevice::ReadOnly))
+    {
+      qWarning() << "could not open containers config file " << config_file.fileName();
+    }
+    else
+    {
+      QJsonParseError parse_error;
+      QJsonDocument json = QJsonDocument::fromJson(config_file.readAll(), &parse_error);
+      if (parse_error.error)
+      {
+        qWarning() << "error parsing containers config file: " << parse_error.errorString();
+      }
+      if (!json.object().empty())
+      {
+        default_container_id_ = json.object()[Json_default_container].toString();
+
+        QJsonArray container_list = json.object()[Json_container_list].toArray();
+        for (auto const& config: container_list)
+        {
+          QJsonObject containerConfig = config.toObject();
+          configs_.append(new ContainerConfig(containerConfig, this));
+        }
+      }
+    }
+  }
+}
+
+
+ContainerConfigList::
 ~ContainerConfigList()
 { }
 
@@ -80,7 +122,7 @@ addNewContainer(QVariantMap const& image)
   if (this->size() == 1)
     default_container_id_ = id;
 
-  emit dataChanged();
+  save_container_config_list();
   endInsertRows();
 }
 
@@ -124,7 +166,7 @@ size() const noexcept
 
 int ContainerConfigList::
 rowCount(QModelIndex const&) const
-{ 
+{
   return this->size();
 }
 
@@ -139,7 +181,7 @@ roleNames() const
   roles[static_cast<int>(DataRole::InstallStatus)]  = "installStatus";
   return roles;
 }
-  
+
 
 QVariant ContainerConfigList::
 data(QModelIndex const& index, int role) const
@@ -168,6 +210,22 @@ data(QModelIndex const& index, int role) const
   }
 
   return result;
+}
+
+
+void ContainerConfigList::
+save_container_config_list()
+{
+  QFile config_file(config_->containers_config_file_name());
+  if (!config_file.open(QIODevice::WriteOnly))
+  {
+    qWarning() << "could not open containers config file " << config_file.fileName();
+  }
+  else
+  {
+    QJsonDocument jdoc(toJson());
+    config_file.write(jdoc.toJson(QJsonDocument::Indented));
+  }
 }
 
 
