@@ -79,7 +79,7 @@ public:
    * Constructs a container config list from a container config.
    */
   ContainerConfigList(LibertineConfig const* config,
-                      QObject*           parent = nullptr);
+                      QObject*               parent = nullptr);
 
   /**
    * Tears dow the container config list.
@@ -157,8 +157,8 @@ private:
 
 private:
   LibertineConfig const* config_;
-  ConfigList configs_;
-  QString    default_container_id_;
+  ConfigList             configs_;
+  QString                default_container_id_;
 };
 
 #endif /* CONTAINER_CONTAINERCONFIGLIST_H */

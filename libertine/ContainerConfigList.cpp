@@ -22,14 +22,14 @@
 #include <algorithm>
 #include "libertine/ContainerConfig.h"
 #include <QtCore/QDebug>
-#include <QtCore/QJsonDocument>
-#include <QtCore/QJsonParseError>
+#include <QtCore/QFile>
 #include <QtCore/QJsonArray>
+#include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
+#include <QtCore/QJsonParseError>
 #include <QtCore/QJsonValue>
 #include <QtCore/QRegExp>
 #include <QtCore/QString>
-#include <QtCore/QFile>
 
 
 const QString ContainerConfigList::Json_container_list = "containerList";
@@ -63,7 +63,7 @@ ContainerConfigList(QJsonObject const& json_object,
 
 ContainerConfigList::
 ContainerConfigList(LibertineConfig const* config,
-                    QObject*        parent)
+                    QObject*               parent)
 : QAbstractListModel(parent)
 , config_(config)
 {
