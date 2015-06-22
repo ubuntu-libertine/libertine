@@ -35,6 +35,12 @@ LibertineConfig(Libertine const& libertine)
 
 
 LibertineConfig::
+LibertineConfig()
+{
+}
+
+
+LibertineConfig::
 ~LibertineConfig()
 {
 }

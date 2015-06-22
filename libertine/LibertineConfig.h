@@ -32,6 +32,7 @@ class LibertineConfig
 {
 public:
   LibertineConfig(Libertine const& libertine);
+  LibertineConfig();
   ~LibertineConfig();
 
   QString
