@@ -17,16 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "libertine_lxc_manager_wrapper.h"
-#include "ContainerConfigList.h"
+#include "libertine/libertine_lxc_manager_wrapper.h"
+#include "libertine/ContainerConfigList.h"
+#include "libertine/ContainerManager.h"
 #include "libertine/LibertineConfig.h"
 #include "libertine/config.h"
 
-#include <getopt.h>
+#include <iomanip>
 #include <iostream>
 #include <unistd.h>
 #include <QCoreApplication>
 #include <QtCore/QCommandLineParser>
+
+using namespace std;
 
 int main (int argc, char *argv[])
 {
@@ -38,6 +41,10 @@ int main (int argc, char *argv[])
   app.setApplicationName(LIBERTINE_APPLICATION_NAME);
 
   containers = new ContainerConfigList(&config);
+
+  ContainerManagerController *controller = new ContainerManagerController;
+  QObject::connect(controller->worker, SIGNAL(finished()), &app, SLOT(quit()));
+  controller->workerThread.start();
 
   commandlineParser.setApplicationDescription("Command-line tool to manage sandboxes for running legacy DEB-packaged X11-based applications");
   commandlineParser.addHelpOption();
@@ -54,6 +61,13 @@ int main (int argc, char *argv[])
     commandlineParser.clearPositionalArguments();
     commandlineParser.addPositionalArgument("create", "Create a new Libertine container.");
     commandlineParser.process(app);
+
+    QVariantMap image;
+    image.insert("id", "wily");
+    image.insert("name", "Ubuntu 'Wily Werewolf'");
+    QString container_id = containers->addNewContainer(image);
+
+    emit controller->doCreate(container_id);
   }
   else if (command == "destroy")
   {
@@ -66,10 +80,12 @@ int main (int argc, char *argv[])
     if (commandlineParser.isSet("name"))
     {
       const QString container_id = commandlineParser.value("name");
+
+      emit controller->doDestroy(container_id);
     }
     else
     {
-      std::cout << QCoreApplication::translate("main", "You must specify a container name when using the destroy command!").toStdString().c_str() << std::endl;
+      cout << QCoreApplication::translate("main", "You must specify a container name when using the destroy command!").toStdString().c_str() << endl;
       commandlineParser.showHelp(-1);
     }
   }
@@ -86,11 +102,13 @@ int main (int argc, char *argv[])
     if (commandlineParser.isSet("name") && commandlineParser.isSet("package"))
     {
       const QString package_name = commandlineParser.value("install-package");
-      const QString container_name = commandlineParser.value("name");
+      const QString container_id = commandlineParser.value("name");
+
+      emit controller->doInstall(container_id, package_name);
     }
     else
     {
-      std::cout << QCoreApplication::translate("main", "You must specify a container name & package name when using the install-package command!").toStdString().c_str() << std::endl;
+      cout << QCoreApplication::translate("main", "You must specify a container name & package name when using the install-package command!").toStdString().c_str() << endl;
       commandlineParser.showHelp(-1);
     }
   }
@@ -106,10 +124,12 @@ int main (int argc, char *argv[])
     if (commandlineParser.isSet("name"))
     {
       const QString container_id = commandlineParser.value("name");
+
+      emit controller->doUpdate(container_id);
     }
     else
     {
-      std::cout << QCoreApplication::translate("main", "You must specify a container name when using the update command!").toStdString().c_str() << std::endl;
+      cout << QCoreApplication::translate("main", "You must specify a container name when using the update command!").toStdString().c_str() << endl;
       commandlineParser.showHelp(-1);
     }
   }
@@ -118,12 +138,25 @@ int main (int argc, char *argv[])
     commandlineParser.clearPositionalArguments();
     commandlineParser.addPositionalArgument("list", "List all existing Libertine containers.");
     commandlineParser.process(app);
+
+    int count = containers->size();
+    QVariant name, id;
+
+    cout << setw(10) << left << "id" << setw(30) << left << "Container Name" << endl;
+    for (int i = 0; i < count; ++i)
+    {
+      name = containers->data(containers->index(i, 0), (int)ContainerConfigList::DataRole::ContainerName);
+      id = containers->data(containers->index(i, 0), (int)ContainerConfigList::DataRole::ContainerId);
+      cout << setw(10) << left << id.toString().toStdString() << setw(30) << left << name.toString().toStdString() << endl;
+    }
+
+    return 0;
   }
   else
   {
-    std::cout << QCoreApplication::translate("main", "Invalid command specified!").toStdString().c_str() << std::endl;
+    cout << QCoreApplication::translate("main", "Invalid command specified!").toStdString().c_str() << endl;
     commandlineParser.showHelp(-1);
   }
 
-  return 0;
+  return app.exec();
 }
