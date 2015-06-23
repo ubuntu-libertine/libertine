@@ -19,6 +19,8 @@
 #ifndef CONTAINER_CONTAINERCONFIGLIST_H
 #define CONTAINER_CONTAINERCONFIGLIST_H
 
+#include "libertine/libertine_lxc_manager_wrapper.h"
+
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QJsonObject>
 #include <QtCore/QList>
@@ -86,7 +88,7 @@ public:
    */
   ~ContainerConfigList();
 
-  Q_INVOKABLE void
+  Q_INVOKABLE QString
   addNewContainer(QVariantMap const& image);
 
   QJsonObject

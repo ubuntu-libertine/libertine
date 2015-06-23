@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "libertine/ContainerManager.h"
 #include "libertine/ContainerConfigList.h"
 #include "libertine/LibertineConfig.h"
 
@@ -104,7 +105,7 @@ ContainerConfigList::
 { }
 
 
-void ContainerConfigList::
+QString ContainerConfigList::
 addNewContainer(QVariantMap const& image)
 {
   QString image_id = image["id"].toString();
@@ -124,6 +125,8 @@ addNewContainer(QVariantMap const& image)
 
   save_container_config_list();
   endInsertRows();
+
+  return id;
 }
 
 

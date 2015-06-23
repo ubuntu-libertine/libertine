@@ -2,21 +2,22 @@ configure_file(config.h.in config.h)
 
 add_library(
   liblibertine STATIC
+  ContainerManager.cpp
   ContainerConfig.cpp
   ContainerConfigList.cpp
   LibertineConfig.cpp
+  libertine_lxc_manager_wrapper.cpp
 )
-target_link_libraries(liblibertine Qt5::Core)
+target_link_libraries(liblibertine Qt5::Core python3.4m)
 
 file(GLOB_RECURSE QML_SRC *.qml *.js *.json)
 set(libertine_SRC 
     libertine.cpp
     main.cpp
-    libertine_lxc_manager_wrapper.cpp
     ${QML_SRC}
 )
 
 add_executable(libertine ${libertine_SRC})
-target_link_libraries(libertine liblibertine Qt5::Core Qt5::Quick Qt5::Gui python3.4m)
+target_link_libraries(libertine liblibertine Qt5::Core Qt5::Quick Qt5::Gui)
 
 install(TARGETS libertine RUNTIME DESTINATION bin)
