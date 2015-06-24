@@ -18,7 +18,6 @@
  */
 import QtQuick 2.4
 import Ubuntu.Components 1.2
-import Ubuntu.Components.ListItems 1.0 as ListItem
 
 
 /**
@@ -36,16 +35,49 @@ Page {
         }
     ]
 
-    Component {
-        id: containerDelegate
-        ListItem.Standard {
-            text: name
-        }
-    }
-
     UbuntuListView {
         anchors.fill: parent
         model: containerConfigList
-        delegate: containerDelegate
+        delegate: ListItem {
+            Label {
+                text: name
+            }
+
+            leadingActions: ListItemActions {
+                actions: [
+                    Action {
+                        iconName: "delete"
+                        text: i18n.tr("delete")
+                        description: i18n.tr("Delete Container")
+                        onTriggered: {
+                            console.log("delete container " + containerId)
+                        }
+                    }
+                ]
+            }
+
+            trailingActions: ListItemActions {
+                actions: [
+                    Action {
+                        iconName: "info"
+                        text: i18n.tr("info")
+                        description: i18n.tr("Container Info")
+                        onTriggered: {
+                            console.log("info for container " + containerId)
+                        }
+                    },
+                    Action {
+                        iconName: "edit"
+                        text: i18n.tr("edit")
+                        description: i18n.tr("Container Apps")
+                        onTriggered: {
+                            console.log("edit container " + containerId)
+                            mainView.currentContainer = containerId
+                            mainView.state = "HOMEPAGE"
+                        }
+                    }
+                ]
+            }
+        }
     }
 }

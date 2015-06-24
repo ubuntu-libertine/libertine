@@ -24,7 +24,7 @@ import Ubuntu.Components.Popups 1.0
 
 Page {
     id: homeView
-    title: i18n.tr("Classic Apps")
+    title: i18n.tr("Classic Apps") + " - " + mainView.currentContainer
 
     head.actions: [
         Action {
