@@ -35,7 +35,7 @@ createContainer(QString const& container_id)
 {
   LibertineManagerWrapper manager(container_id.toStdString().c_str());
 
-  manager.CreateLibertineContainer("tesb5rotj6");
+  manager.CreateLibertineContainer("123456");
 
   emit finished();
 }
