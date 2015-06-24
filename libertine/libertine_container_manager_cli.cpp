@@ -81,8 +81,15 @@ int main (int argc, char *argv[])
     {
       const QString container_id = commandlineParser.value("name");
 
-      containers->deleteContainer(container_id);
-      emit controller->doDestroy(container_id);
+      if (containers->deleteContainer(container_id))
+      {
+        emit controller->doDestroy(container_id);
+      }
+      else
+      {
+        cout << QCoreApplication::translate("main", "The container name specified does not exist.").toStdString().c_str() << endl;
+        return -1;
+      }
     }
     else
     {

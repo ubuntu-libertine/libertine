@@ -130,13 +130,17 @@ addNewContainer(QVariantMap const& image)
 }
 
 
-void ContainerConfigList::
+bool ContainerConfigList::
 deleteContainer(QString const& container_id)
 {
+  bool found = false;
+
   for (int i = 0; i < rowCount(); ++i)
   {
     if (configs_[i]->container_id() == container_id)
     {
+      found = true;
+
       beginRemoveRows(QModelIndex(), i, i);
       configs_.removeAt(i);
 
@@ -154,6 +158,7 @@ deleteContainer(QString const& container_id)
       break;
     }
   }
+  return found;
 }
 
 

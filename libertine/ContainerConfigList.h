@@ -91,7 +91,7 @@ public:
   Q_INVOKABLE QString
   addNewContainer(QVariantMap const& image);
 
-  Q_INVOKABLE void
+  Q_INVOKABLE bool
   deleteContainer(QString const& container_id);
 
   QJsonObject

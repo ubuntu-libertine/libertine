@@ -45,6 +45,8 @@ destroyContainer(QString const& container_id)
 {
   LibertineManagerWrapper manager(container_id.toStdString().c_str());
 
+  manager.DestroyLibertineContainer();
+
   emit finished();
 }
 
