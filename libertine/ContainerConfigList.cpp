@@ -130,6 +130,33 @@ addNewContainer(QVariantMap const& image)
 }
 
 
+void ContainerConfigList::
+deleteContainer(QString const& container_id)
+{
+  for (int i = 0; i < rowCount(); ++i)
+  {
+    if (configs_[i]->container_id() == container_id)
+    {
+      beginRemoveRows(QModelIndex(), i, i);
+      configs_.removeAt(i);
+
+      if ((default_container_id_ == container_id) && !configs_.empty())
+      {
+        default_container_id_ = configs_.front()->container_id();
+      }
+      else
+      {
+        default_container_id_ = "";
+      }
+
+      save_container_config_list();
+      endRemoveRows();
+      break;
+    }
+  }
+}
+
+
 QJsonObject ContainerConfigList::
 toJson() const
 {

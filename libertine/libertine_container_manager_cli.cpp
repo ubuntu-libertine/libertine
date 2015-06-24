@@ -81,6 +81,7 @@ int main (int argc, char *argv[])
     {
       const QString container_id = commandlineParser.value("name");
 
+      containers->deleteContainer(container_id);
       emit controller->doDestroy(container_id);
     }
     else
