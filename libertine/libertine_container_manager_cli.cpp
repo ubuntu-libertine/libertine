@@ -42,10 +42,6 @@ int main (int argc, char *argv[])
 
   containers = new ContainerConfigList(&config);
 
-  ContainerManagerController *controller = new ContainerManagerController;
-  QObject::connect(controller->worker, SIGNAL(finished()), &app, SLOT(quit()));
-  controller->workerThread.start();
-
   commandlineParser.setApplicationDescription("Command-line tool to manage sandboxes for running legacy DEB-packaged X11-based applications");
   commandlineParser.addHelpOption();
 
@@ -67,7 +63,9 @@ int main (int argc, char *argv[])
     image.insert("name", "Ubuntu 'Wily Werewolf'");
     QString container_id = containers->addNewContainer(image);
 
-    emit controller->doCreate(container_id);
+    ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Create, container_id);
+    QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
+    worker->start();
   }
   else if (command == "destroy")
   {
@@ -83,7 +81,9 @@ int main (int argc, char *argv[])
 
       if (containers->deleteContainer(container_id))
       {
-        emit controller->doDestroy(container_id);
+        ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Destroy, container_id);
+        QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
+        worker->start();
       }
       else
       {
@@ -112,7 +112,9 @@ int main (int argc, char *argv[])
       const QString package_name = commandlineParser.value("install-package");
       const QString container_id = commandlineParser.value("name");
 
-      emit controller->doInstall(container_id, package_name);
+      ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Install, container_id, package_name);
+      QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
+      worker->start();
     }
     else
     {
@@ -133,7 +135,9 @@ int main (int argc, char *argv[])
     {
       const QString container_id = commandlineParser.value("name");
 
-      emit controller->doUpdate(container_id);
+      ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Update, container_id);
+      QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
+      worker->start();
     }
     else
     {

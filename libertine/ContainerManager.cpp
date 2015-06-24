@@ -19,16 +19,55 @@
 #include "libertine/ContainerManager.h"
 
 ContainerManagerWorker::
-ContainerManagerWorker(QObject* parent)
-: QObject(parent)
+ContainerManagerWorker(ContainerAction container_action,
+                       QString const& container_id)
+: container_action_(container_action)
+, container_id_(container_id)
 {
 
 }
 
 ContainerManagerWorker::
+ContainerManagerWorker(ContainerAction container_action,
+                       QString const& container_id,
+                       QString const& package_name)
+: container_action_(container_action)
+, container_id_(container_id)
+, package_name_(package_name)
+{
+
+}
+
+
+ContainerManagerWorker::
 ~ContainerManagerWorker()
 { }
 
+void ContainerManagerWorker::
+run()
+{
+  switch(container_action_)
+  {
+    case ContainerAction::Create:
+      createContainer(container_id_);
+      break;
+
+    case ContainerAction::Destroy:
+      destroyContainer(container_id_);
+      break;
+
+    case ContainerAction::Install:
+      installPackage(container_id_, package_name_);
+      break;
+
+    case ContainerAction::Update:
+      updateContainer(container_id_);
+      break;
+
+    default:
+      break;
+  }
+}
 
 void ContainerManagerWorker::
 createContainer(QString const& container_id)
@@ -64,30 +103,4 @@ updateContainer(QString const& container_id)
   LibertineManagerWrapper manager(container_id.toStdString().c_str());
 
   emit finished();
-}
-
-
-ContainerManagerController::
-ContainerManagerController(QObject* parent)
-: QObject(parent)
-{
-  worker = new ContainerManagerWorker;
-
-  worker->moveToThread(&workerThread);
-  QObject::connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
-  QObject::connect(worker, &ContainerManagerWorker::finished, this, &ContainerManagerController::threadQuit);
-  QObject::connect(this, &ContainerManagerController::doCreate, worker, &ContainerManagerWorker::createContainer);
-  QObject::connect(this, &ContainerManagerController::doDestroy, worker, &ContainerManagerWorker::destroyContainer);
-  QObject::connect(this, &ContainerManagerController::doInstall, worker, &ContainerManagerWorker::installPackage);
-  QObject::connect(this, &ContainerManagerController::doUpdate, worker, &ContainerManagerWorker::updateContainer);
-}
-
-ContainerManagerController::
-~ContainerManagerController()
-{ }
-
-void ContainerManagerController::
-threadQuit()
-{
-  workerThread.quit();
 }

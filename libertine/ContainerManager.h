@@ -26,46 +26,44 @@
 #include <QtCore/QThread>
 
 class ContainerManagerWorker
-: public QObject
+: public QThread
 {
   Q_OBJECT
 
 public:
-  ContainerManagerWorker(QObject* parent = nullptr);
+  enum class ContainerAction
+  : int
+  {
+    Create,
+    Destroy,
+    Install,
+    Update
+  };
+
+public:
+  ContainerManagerWorker(ContainerAction container_action,
+                         QString const& container_id);
+  ContainerManagerWorker(ContainerAction container_action,
+                         QString const& container_id,
+                         QString const& package_name);
   ~ContainerManagerWorker();
 
-public slots:
+protected:
+  void run() Q_DECL_OVERRIDE;
+
+private:
   void createContainer(QString const& container_id);
   void destroyContainer(QString const& container_id);
   void installPackage(QString const& container_id, QString const& package_name);
   void updateContainer(QString const& container_id);
 
+private:
+  ContainerAction container_action_;
+  QString container_id_;
+  QString package_name_;
+
 signals:
   void finished();
-};
-
-class ContainerManagerController
-: public QObject
-{
-  Q_OBJECT
-
-public:
-  ContainerManagerController(QObject* parent = nullptr);
-  ~ContainerManagerController();
-
-public:
-  QThread workerThread;
-  ContainerManagerWorker *worker;
-
-public slots:
-  void threadQuit();
-
-signals:
-  void doCreate(QString const& container_id = nullptr);
-  void doDestroy(QString const& container_id = nullptr);
-  void doInstall(QString const& container_id = nullptr,
-                 QString const& package_name = nullptr);
-  void doUpdate(QString const& container_id = nullptr);
 };
 
 #endif /* CONTAINER_CONTAINERMANAGER_H_ */
