@@ -19,6 +19,7 @@
 #include "libertine/config.h"
 
 #include <cstdlib>
+#include "libertine/ContainerManager.h"
 #include "libertine/ContainerConfig.h"
 #include "libertine/ContainerConfigList.h"
 #include "libertine/libertine.h"
@@ -89,6 +90,7 @@ Libertine(int argc, char* argv[])
   setApplicationVersion(LIBERTINE_VERSION);
   config_.reset(new LibertineConfig(*this));
   qmlRegisterType<ContainerConfig>("Libertine", 1, 0, "ContainerConfig");
+  qmlRegisterType<ContainerManagerWorker>("Libertine", 1, 0, "ContainerManagerWorker");
 
   if (main_qml_source_file_.isEmpty())
   {

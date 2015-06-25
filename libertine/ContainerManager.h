@@ -29,6 +29,10 @@ class ContainerManagerWorker
 : public QThread
 {
   Q_OBJECT
+  Q_ENUMS(ContainerAction)
+  Q_PROPERTY(ContainerAction containerAction READ container_action WRITE container_action)
+  Q_PROPERTY(QString containerId READ container_id WRITE container_id)
+  Q_PROPERTY(QString packageName READ package_name WRITE package_name)
 
 public:
   enum class ContainerAction
@@ -41,12 +45,31 @@ public:
   };
 
 public:
+  ContainerManagerWorker();
   ContainerManagerWorker(ContainerAction container_action,
                          QString const& container_id);
   ContainerManagerWorker(ContainerAction container_action,
                          QString const& container_id,
                          QString const& package_name);
   ~ContainerManagerWorker();
+
+  ContainerAction
+  container_action() const;
+
+  void
+  container_action(ContainerAction container_action);
+
+  QString const&
+  container_id() const;
+
+  void
+  container_id(QString const& container_id);
+
+  QString const&
+  package_name() const;
+
+  void
+  package_name(QString const& package_name);
 
 protected:
   void run() Q_DECL_OVERRIDE;

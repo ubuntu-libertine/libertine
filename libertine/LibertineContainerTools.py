@@ -136,16 +136,19 @@ class LibertineContainer():
                                "release": installed_release,
                                "arch": architecture})
 
-        self.container.start()
+        self.create_libertine_config()
 
-        self.container.attach_wait(lxc.attach_run_command,
-                                   ["userdel", "-r", "ubuntu"])
+        if self.container.start():
+            self.container.attach_wait(lxc.attach_run_command,
+                                       ["userdel", "-r", "ubuntu"])
 
-        self.container.attach_wait(lxc.attach_run_command,
-                                   ["useradd", "-u", str(user_id), "-p", crypt.crypt(password),
-                                    "-G", "sudo", str(username)])
+            self.container.attach_wait(lxc.attach_run_command,
+                                       ["useradd", "-u", str(user_id), "-p", crypt.crypt(password),
+                                        "-G", "sudo", str(username)])
 
-        self.container.stop()
+            self.container.stop()
+        else:
+            print("Container failed to start.")
 
     def create_libertine_config(self):
         user_id = os.getuid()
@@ -168,6 +171,10 @@ class LibertineContainer():
         self.container.append_config_item("lxc.mount.entry", "tmpfs run tmpfs rw,nodev,noexec,nosuid,size=5242880")
         self.container.append_config_item("lxc.mount.entry", "none run/user tmpfs rw,nodev,noexec,nosuid,size=104857600,mode=0755,create=dir")
         self.container.append_config_item("lxc.mount.entry", run_user_entry)
+
+        # No tty's to work around an issue when using this from a GUI
+        self.container.clear_config_item("lxc.tty")
+        self.container.set_config_item("lxc.tty", "0")
 
         ## Dump it all to disk
         self.container.save_config()

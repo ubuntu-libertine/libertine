@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+import Libertine 1.0
 import QtQuick 2.4
 import QtQuick.Layouts 1.0
 import Ubuntu.Components 1.2
@@ -91,8 +92,16 @@ Page {
             text: i18n.tr("Install")
             color: UbuntuColors.green
             enabled: imageSelector.selectedImageSource
+
+            ContainerManagerWorker {
+              id: worker
+            }
+
             onClicked: {
-                containerConfigList.addNewContainer(imageSelector.selectedImageSource)
+                var container_id = containerConfigList.addNewContainer(imageSelector.selectedImageSource)
+                worker.containerAction = ContainerManagerWorker.Create
+                worker.containerId = container_id
+                worker.start()
                 mainView.state = "CONTAINERS_VIEW"
             }
 

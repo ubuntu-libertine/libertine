@@ -19,6 +19,11 @@
 #include "libertine/ContainerManager.h"
 
 ContainerManagerWorker::
+ContainerManagerWorker()
+{ }
+
+
+ContainerManagerWorker::
 ContainerManagerWorker(ContainerAction container_action,
                        QString const& container_id)
 : container_action_(container_action)
@@ -26,6 +31,7 @@ ContainerManagerWorker(ContainerAction container_action,
 {
 
 }
+
 
 ContainerManagerWorker::
 ContainerManagerWorker(ContainerAction container_action,
@@ -42,6 +48,43 @@ ContainerManagerWorker(ContainerAction container_action,
 ContainerManagerWorker::
 ~ContainerManagerWorker()
 { }
+
+
+ContainerManagerWorker::ContainerAction ContainerManagerWorker::
+container_action() const
+{ return container_action_; }
+
+
+void ContainerManagerWorker::
+container_action(ContainerAction container_action)
+{
+  container_action_ = container_action;
+}
+
+
+QString const& ContainerManagerWorker::
+container_id() const
+{ return container_id_; }
+
+
+void ContainerManagerWorker::
+container_id(QString const& container_id)
+{
+  container_id_ = container_id;
+}
+
+
+QString const& ContainerManagerWorker::
+package_name() const
+{ return package_name_; }
+
+
+void ContainerManagerWorker::
+package_name(QString const& package_name)
+{
+  package_name_ = package_name;
+}
+
 
 void ContainerManagerWorker::
 run()
@@ -69,6 +112,7 @@ run()
   }
 }
 
+
 void ContainerManagerWorker::
 createContainer(QString const& container_id)
 {
@@ -78,6 +122,7 @@ createContainer(QString const& container_id)
 
   emit finished();
 }
+
 
 void ContainerManagerWorker::
 destroyContainer(QString const& container_id)
@@ -89,6 +134,7 @@ destroyContainer(QString const& container_id)
   emit finished();
 }
 
+
 void ContainerManagerWorker::
 installPackage(QString const& container_id, QString const& package_name)
 {
@@ -96,6 +142,7 @@ installPackage(QString const& container_id, QString const& package_name)
 
   emit finished();
 }
+
 
 void ContainerManagerWorker::
 updateContainer(QString const& container_id)
