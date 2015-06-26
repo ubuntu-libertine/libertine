@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+import Libertine 1.0
 import QtQuick 2.4
 import Ubuntu.Components 1.2
 
@@ -38,6 +39,17 @@ Page {
     UbuntuListView {
         anchors.fill: parent
         model: containerConfigList
+
+        ContainerManagerWorker {
+            id: worker
+        }
+
+        Connections {
+            target: worker
+            onFinishedDestroy: {
+                containerConfigList.deleteContainer(worker.containerId)
+            }
+        }
         delegate: ListItem {
             Label {
                 text: name
@@ -51,6 +63,9 @@ Page {
                         description: i18n.tr("Delete Container")
                         onTriggered: {
                             console.log("delete container " + containerId)
+                            worker.containerAction = ContainerManagerWorker.Destroy
+                            worker.containerId = containerId
+                            worker.start()
                         }
                     }
                 ]

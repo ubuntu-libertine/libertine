@@ -87,6 +87,7 @@ private:
 
 signals:
   void finished();
+  void finishedDestroy();
 };
 
 #endif /* CONTAINER_CONTAINERMANAGER_H_ */
