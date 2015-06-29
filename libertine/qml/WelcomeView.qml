@@ -93,12 +93,10 @@ Page {
             color: UbuntuColors.green
             enabled: imageSelector.selectedImageSource
 
-            ContainerManagerWorker {
-              id: worker
-            }
-
             onClicked: {
                 var container_id = containerConfigList.addNewContainer(imageSelector.selectedImageSource)
+                var comp = Qt.createComponent("ContainerManager.qml")
+                var worker = comp.createObject()
                 worker.containerAction = ContainerManagerWorker.Create
                 worker.containerId = container_id
                 worker.start()

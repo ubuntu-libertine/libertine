@@ -131,7 +131,7 @@ destroyContainer(QString const& container_id)
 
   manager.DestroyLibertineContainer();
 
-  emit finishedDestroy();
+  emit finishedDestroy(container_id);
   emit finished();
 }
 

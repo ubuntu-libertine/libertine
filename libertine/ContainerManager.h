@@ -87,7 +87,7 @@ private:
 
 signals:
   void finished();
-  void finishedDestroy();
+  void finishedDestroy(QString const& container_id);
 };
 
 #endif /* CONTAINER_CONTAINERMANAGER_H_ */

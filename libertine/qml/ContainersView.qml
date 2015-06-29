@@ -29,6 +29,10 @@ Page {
     id: containersView
     title: i18n.tr("My Containers")
 
+    function deleteContainer(containerId) {
+        containerConfigList.deleteContainer(containerId)
+    }
+
     head.actions: [
         Action {
             iconName: "add"
@@ -40,16 +44,6 @@ Page {
         anchors.fill: parent
         model: containerConfigList
 
-        ContainerManagerWorker {
-            id: worker
-        }
-
-        Connections {
-            target: worker
-            onFinishedDestroy: {
-                containerConfigList.deleteContainer(worker.containerId)
-            }
-        }
         delegate: ListItem {
             Label {
                 text: name
@@ -63,8 +57,11 @@ Page {
                         description: i18n.tr("Delete Container")
                         onTriggered: {
                             console.log("delete container " + containerId)
+                            var comp = Qt.createComponent("ContainerManager.qml")
+                            var worker = comp.createObject()
                             worker.containerAction = ContainerManagerWorker.Destroy
                             worker.containerId = containerId
+                            worker.finishedDestroy.connect(deleteContainer)
                             worker.start()
                         }
                     }
