@@ -23,6 +23,8 @@
 #include <vector>
 #include <python3.4/Python.h>
 
+void initialize_python();
+
 class LibertineManagerWrapper
 {
 public:

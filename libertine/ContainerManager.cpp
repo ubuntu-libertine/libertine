@@ -121,6 +121,7 @@ createContainer(QString const& container_id)
   manager.CreateLibertineContainer("123456");
 
   emit finished();
+  quit();
 }
 
 
@@ -133,6 +134,7 @@ destroyContainer(QString const& container_id)
 
   emit finishedDestroy(container_id);
   emit finished();
+  quit();
 }
 
 
@@ -142,6 +144,7 @@ installPackage(QString const& container_id, QString const& package_name)
   LibertineManagerWrapper manager(container_id.toStdString().c_str());
 
   emit finished();
+  quit();
 }
 
 
@@ -151,4 +154,5 @@ updateContainer(QString const& container_id)
   LibertineManagerWrapper manager(container_id.toStdString().c_str());
 
   emit finished();
+  quit();
 }

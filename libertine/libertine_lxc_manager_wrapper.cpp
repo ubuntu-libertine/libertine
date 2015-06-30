@@ -33,10 +33,22 @@ const char* PY_INSTALL_PACKAGE_IN_CONTAINER = "install_package";
 // Functions outside of the Python class that are needed
 const char* PY_LIST_LIBERTINE_CONTAINERS = "list_libertine_containers";
 
+void initialize_python()
+{
+  Py_Initialize();
+
+  PyEval_InitThreads();
+  PyEval_SaveThread();
+}
+
+
 LibertineManagerWrapper::LibertineManagerWrapper(const char *name)
 : libertine_lxc_name_(name)
 {
   PyObject *pArgs, *pDict, *pClass;
+
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
 
   pDict = InitializePythonModule();
 
@@ -61,38 +73,62 @@ LibertineManagerWrapper::LibertineManagerWrapper(const char *name)
   {
     PyErr_Print();
   }
+
+  PyGILState_Release(gstate);
 }
 
 LibertineManagerWrapper::~LibertineManagerWrapper()
 {
-  Py_DECREF(pInstance_);
-
-  Py_Finalize();
 }
 
 void LibertineManagerWrapper::DestroyLibertineContainer()
 {
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
   PyObject_CallMethod(pInstance_, PY_DESTROY_LIBERTINE_CONTAINER, NULL);
+
+  PyGILState_Release(gstate);
 }
 
 void LibertineManagerWrapper::CreateLibertineContainer(const char *password)
 {
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
   PyObject_CallMethod(pInstance_, PY_CREATE_LIBERTINE_CONTAINER, "s", password);
+
+  PyGILState_Release(gstate);
 }
 
 void LibertineManagerWrapper::CreateLibertineConfig()
 {
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
   PyObject_CallMethod(pInstance_, PY_CREATE_LIBERTINE_CONFIG, NULL);
+
+  PyGILState_Release(gstate);
 }
 
 void LibertineManagerWrapper::UpdateLibertineContainer()
 {
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
   PyObject_CallMethod(pInstance_, PY_UPDATE_LIBERTINE_CONTAINER, NULL);
+
+  PyGILState_Release(gstate);
 }
 
 void LibertineManagerWrapper::InstallPackageInContainer(const char *package_name)
 {
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
   PyObject_CallMethod(pInstance_, PY_INSTALL_PACKAGE_IN_CONTAINER, "s", package_name);
+
+  PyGILState_Release(gstate);
 }
 
 std::vector<char *>LibertineManagerWrapper::ListLibertineContainers()
@@ -128,16 +164,12 @@ std::vector<char *>LibertineManagerWrapper::ListLibertineContainers()
     }
   }
 
-  Py_Finalize();
-
   return existing_libertine_containers;
 }
 
 PyObject* LibertineManagerWrapper::InitializePythonModule()
 {
   PyObject *pName, *pModule, *pDict = NULL;
-
-  Py_Initialize();
 
   pName = PyUnicode_FromString(LIBERTINE_PYTHON_MODULE);
 

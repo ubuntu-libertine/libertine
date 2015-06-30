@@ -40,6 +40,8 @@ int main (int argc, char *argv[])
   QCoreApplication app(argc, argv);
   app.setApplicationName(LIBERTINE_APPLICATION_NAME);
 
+  initialize_python();
+
   containers = new ContainerConfigList(&config);
 
   commandlineParser.setApplicationDescription("Command-line tool to manage sandboxes for running legacy DEB-packaged X11-based applications");

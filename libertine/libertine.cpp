@@ -92,6 +92,8 @@ Libertine(int argc, char* argv[])
   qmlRegisterType<ContainerConfig>("Libertine", 1, 0, "ContainerConfig");
   qmlRegisterType<ContainerManagerWorker>("Libertine", 1, 0, "ContainerManagerWorker");
 
+  initialize_python();
+
   if (main_qml_source_file_.isEmpty())
   {
     qWarning() << "Can not locate " << s_main_QML_source_file;
