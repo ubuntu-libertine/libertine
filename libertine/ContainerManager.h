@@ -50,7 +50,7 @@ public:
                          QString const& container_id);
   ContainerManagerWorker(ContainerAction container_action,
                          QString const& container_id,
-                         QString const& package_name);
+                         QString const& data);
   ~ContainerManagerWorker();
 
   ContainerAction
@@ -75,7 +75,7 @@ protected:
   void run() Q_DECL_OVERRIDE;
 
 private:
-  void createContainer(QString const& container_id);
+  void createContainer(QString const& container_id, QString const& password);
   void destroyContainer(QString const& container_id);
   void installPackage(QString const& container_id, QString const& package_name);
   void updateContainer(QString const& container_id);
@@ -83,7 +83,7 @@ private:
 private:
   ContainerAction container_action_;
   QString container_id_;
-  QString package_name_;
+  QString data_;
 
 signals:
   void finished();

@@ -36,10 +36,10 @@ ContainerManagerWorker(ContainerAction container_action,
 ContainerManagerWorker::
 ContainerManagerWorker(ContainerAction container_action,
                        QString const& container_id,
-                       QString const& package_name)
+                       QString const& data)
 : container_action_(container_action)
 , container_id_(container_id)
-, package_name_(package_name)
+, data_(data)
 {
 
 }
@@ -76,13 +76,13 @@ container_id(QString const& container_id)
 
 QString const& ContainerManagerWorker::
 package_name() const
-{ return package_name_; }
+{ return data_; }
 
 
 void ContainerManagerWorker::
 package_name(QString const& package_name)
 {
-  package_name_ = package_name;
+  data_ = package_name;
 }
 
 
@@ -92,7 +92,7 @@ run()
   switch(container_action_)
   {
     case ContainerAction::Create:
-      createContainer(container_id_);
+      createContainer(container_id_, data_);
       break;
 
     case ContainerAction::Destroy:
@@ -100,7 +100,7 @@ run()
       break;
 
     case ContainerAction::Install:
-      installPackage(container_id_, package_name_);
+      installPackage(container_id_, data_);
       break;
 
     case ContainerAction::Update:
@@ -114,11 +114,11 @@ run()
 
 
 void ContainerManagerWorker::
-createContainer(QString const& container_id)
+createContainer(QString const& container_id, QString const& password)
 {
   LibertineManagerWrapper manager(container_id.toStdString().c_str());
 
-  manager.CreateLibertineContainer("123456");
+  manager.CreateLibertineContainer(password.toStdString().c_str());
 
   emit finished();
   quit();

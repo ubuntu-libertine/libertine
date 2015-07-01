@@ -21,6 +21,7 @@
 #include "libertine/ContainerConfigList.h"
 #include "libertine/ContainerManager.h"
 #include "libertine/LibertineConfig.h"
+#include "libertine/PasswordHelper.h"
 #include "libertine/config.h"
 
 #include <iomanip>
@@ -60,12 +61,40 @@ int main (int argc, char *argv[])
     commandlineParser.addPositionalArgument("create", "Create a new Libertine container.");
     commandlineParser.process(app);
 
+    PasswordHelper passwordHelper;
+    QString password;
+    int i = 1;
+
+    while (1)
+    {
+      password = passwordHelper.GetPassword();
+
+      if (password.isNull())
+      {
+        return 0;
+      }
+      else if (passwordHelper.VerifyUserPassword(password))
+      {
+        break;
+      }
+      else if (i == 3)
+      {
+        cout << "Too many password attempts." << endl;
+        return 0;
+      }
+      else
+      {
+        cout << "Wrong password entered.  Please try again." << endl;
+        ++i;
+      }
+    }
+
     QVariantMap image;
     image.insert("id", "wily");
     image.insert("name", "Ubuntu 'Wily Werewolf'");
     QString container_id = containers->addNewContainer(image);
 
-    ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Create, container_id);
+    ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Create, container_id, password);
     QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
     worker->start();
   }
