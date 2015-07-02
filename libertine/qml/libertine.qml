@@ -67,7 +67,6 @@ MainView {
         }
 
         onPageChanged: {
-            pop();
             push(page)
         }
     }
@@ -108,9 +107,11 @@ MainView {
     Component.onCompleted: {
         mainView.currentContainer = containerConfigList.defaultContainerId
         if (mainView.currentContainer) {
+            pageStack.pop()
             state = "HOMEPAGE"
         }
         else if (!containerConfigList.empty()) {
+            pageStack.pop()
             state = "CONTAINERS_VIEW"
         }
     }
