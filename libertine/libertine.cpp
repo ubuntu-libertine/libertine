@@ -24,6 +24,7 @@
 #include "libertine/ContainerConfigList.h"
 #include "libertine/libertine.h"
 #include "libertine/LibertineConfig.h"
+#include "libertine/PasswordHelper.h"
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -91,6 +92,7 @@ Libertine(int argc, char* argv[])
   config_.reset(new LibertineConfig(*this));
   qmlRegisterType<ContainerConfig>("Libertine", 1, 0, "ContainerConfig");
   qmlRegisterType<ContainerManagerWorker>("Libertine", 1, 0, "ContainerManagerWorker");
+  qmlRegisterType<PasswordHelper>("Libertine", 1, 0, "PasswordHelper");
 
   initialize_python();
 
@@ -100,6 +102,7 @@ Libertine(int argc, char* argv[])
   }
 
   containers_ = new ContainerConfigList(config_.data(), this);
+  password_helper_ = new PasswordHelper();
 
   initialize_view();
   view_.show();
@@ -124,6 +127,7 @@ initialize_view()
   view_.setResizeMode(QQuickView::SizeRootObjectToView);
   QQmlContext* ctxt = view_.rootContext();
   ctxt->setContextProperty("containerConfigList", containers_);
+  ctxt->setContextProperty("passwordHelper", password_helper_);
 
   view_.setSource(QUrl::fromLocalFile(main_qml_source_file_));
   connect(view_.engine(), SIGNAL(quit()), SLOT(quit()));

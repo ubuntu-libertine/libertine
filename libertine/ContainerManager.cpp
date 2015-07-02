@@ -75,14 +75,14 @@ container_id(QString const& container_id)
 
 
 QString const& ContainerManagerWorker::
-package_name() const
+data() const
 { return data_; }
 
 
 void ContainerManagerWorker::
-package_name(QString const& package_name)
+data(QString const& data)
 {
-  data_ = package_name;
+  data_ = data;
 }
 
 

@@ -56,7 +56,6 @@ Page {
                         text: i18n.tr("delete")
                         description: i18n.tr("Delete Container")
                         onTriggered: {
-                            console.log("delete container " + containerId)
                             var comp = Qt.createComponent("ContainerManager.qml")
                             var worker = comp.createObject()
                             worker.containerAction = ContainerManagerWorker.Destroy

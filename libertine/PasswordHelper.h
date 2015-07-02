@@ -3,10 +3,14 @@
 
 #include <iostream>
 #include <security/pam_appl.h>
+#include <QtCore/QObject>
 #include <QtCore/QString>
 
 class PasswordHelper
+: public QObject
 {
+  Q_OBJECT
+
 public:
   PasswordHelper();
   ~PasswordHelper();
@@ -14,7 +18,7 @@ public:
   QString
   GetPassword();
 
-  bool
+  Q_INVOKABLE bool
   VerifyUserPassword(QString const& password);
 };
 

@@ -31,6 +31,16 @@ Page {
         id: imageSources
     }
 
+    function passwordAccepted(password) {
+        var container_id = containerConfigList.addNewContainer(imageSelector.selectedImageSource)
+        var comp = Qt.createComponent("ContainerManager.qml")
+        var worker = comp.createObject()
+        worker.containerAction = ContainerManagerWorker.Create
+        worker.containerId = container_id
+        worker.data = password
+        worker.start()
+    }
+
     ColumnLayout {
         spacing: units.gu(2)
         anchors {
@@ -94,15 +104,11 @@ Page {
             enabled: imageSelector.selectedImageSource
 
             onClicked: {
-                var container_id = containerConfigList.addNewContainer(imageSelector.selectedImageSource)
-                var comp = Qt.createComponent("ContainerManager.qml")
-                var worker = comp.createObject()
-                worker.containerAction = ContainerManagerWorker.Create
-                worker.containerId = container_id
-                worker.start()
-                mainView.state = "CONTAINERS_VIEW"
+                var item = pageStack.push(Qt.resolvedUrl("PasswordView.qml"))
+                item.acceptPassword.connect(passwordAccepted)
             }
 
         }
     }
+
 }

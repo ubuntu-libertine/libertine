@@ -27,6 +27,7 @@
 
 class ContainerConfigList;
 class LibertineConfig;
+class PasswordHelper;
 
 
 class Libertine
@@ -46,6 +47,7 @@ private:
     QString                         main_qml_source_file_;
     QScopedPointer<LibertineConfig> config_;
     ContainerConfigList*            containers_;
+    PasswordHelper*                 password_helper_;
     QQuickView                      view_;
 };
 

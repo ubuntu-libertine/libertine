@@ -32,7 +32,7 @@ class ContainerManagerWorker
   Q_ENUMS(ContainerAction)
   Q_PROPERTY(ContainerAction containerAction READ container_action WRITE container_action)
   Q_PROPERTY(QString containerId READ container_id WRITE container_id)
-  Q_PROPERTY(QString packageName READ package_name WRITE package_name)
+  Q_PROPERTY(QString data READ data WRITE data)
 
 public:
   enum class ContainerAction
@@ -66,10 +66,10 @@ public:
   container_id(QString const& container_id);
 
   QString const&
-  package_name() const;
+  data() const;
 
   void
-  package_name(QString const& package_name);
+  data(QString const& data);
 
 protected:
   void run() Q_DECL_OVERRIDE;
