@@ -155,6 +155,8 @@ updateContainer(QString const& container_id)
 {
   LibertineManagerWrapper manager(container_id.toStdString().c_str());
 
+  manager.UpdateLibertineContainer();
+
   emit finished();
   quit();
 }
