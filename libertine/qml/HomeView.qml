@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+import Libertine 1.0
 import QtQuick 2.4
 import Ubuntu.Components 1.2
 import Ubuntu.Components.ListItems 1.0 as ListItem
@@ -46,6 +47,12 @@ Page {
 		    text: "App Sources"
 		    onTriggered: print(text)
 		}
+                Action {
+                    text: "Update Container"
+                    onTriggered: {
+                      updateContainer()
+                    }
+                }
 		Action {
 		    text: "Switch Container"
 		    onTriggered: mainView.state = "CONTAINERS_VIEW"
@@ -63,5 +70,13 @@ Page {
         delegate: Text {
             text: mainView.currentContainer.name
         }
+    }
+
+    function updateContainer() {
+          var comp = Qt.createComponent("ContainerManager.qml")
+          var worker = comp.createObject()
+          worker.containerAction = ContainerManagerWorker.Update
+          worker.containerId = mainView.currentContainer
+          worker.start()
     }
 }

@@ -27,8 +27,7 @@ Page {
     title: i18n.tr("Install Apps")
 
     Label {
-        id: infoLabel
-        objectName: "infoLabel"
+        id: enterPackageMessage
 
         visible: false
 
@@ -41,12 +40,11 @@ Page {
 
     TextField {
         id: appName
-        objectName: "appName"
 
         visible: false
 
         anchors {
-            top: infoLabel.bottom
+            top: enterPackageMessage.bottom
             horizontalCenter: parent.horizontalCenter
             margins: units.gu(1)
         }
@@ -54,21 +52,39 @@ Page {
         width: parent.width - anchors.margins * 2
 
         onAccepted: {
-            installPackage()
-            containerConfigList.addNewApp(mainView.currentContainer, text)
-            appName.text = ""
-            pageStack.pop()
+            if (containerConfigList.addNewApp(mainView.currentContainer, text)) {
+                installPackage()
+                appName.text = ""
+                pageStack.pop()
+            }
+            else {
+                appAlreadyInstalledMessage.text = i18n.tr("Package ") + text + i18n.tr(" already installed. Please try a different package name.")
+                appAlreadyInstalledMessage.visible = true
+                appName.text = ""
+            }  
         }
     }
+
+    Label {
+        id: appAlreadyInstalledMessage
+
+        visible: false
+
+        anchors {
+            top: appName.bottom
+            margins: units.gu(3)
+        }
+        height: units.gu(4.5)
+     }
 
     head.actions: [
         Action {
 	    iconName: "search"
 	    onTriggered: {
-              if (infoLabel.visible) {
-                 infoLabel.visible = false;
-                 appName.visible = false;
-                 appName.text = ""
+              if (enterPackageMessage.visible) {
+                  enterPackageMessage.visible = false;
+                  appName.visible = false;
+                  appName.text = ""
               }
               print("search")
             }
@@ -76,10 +92,9 @@ Page {
         Action {
            iconName: "settings"
            onTriggered: {
-             print("add")
-             infoLabel.visible = true
-             appName.visible = true
-             appName.forceActiveFocus()
+               enterPackageMessage.visible = true
+               appName.visible = true
+               appName.forceActiveFocus()
            }
         }
     ]

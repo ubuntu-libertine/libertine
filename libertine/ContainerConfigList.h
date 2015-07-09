@@ -94,7 +94,7 @@ public:
   Q_INVOKABLE bool
   deleteContainer(QString const& container_id);
 
-  Q_INVOKABLE void
+  Q_INVOKABLE bool
   addNewApp(QString const& container_id,
             QString const& package_name);
 
