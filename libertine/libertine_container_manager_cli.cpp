@@ -140,8 +140,10 @@ int main (int argc, char *argv[])
 
     if (commandlineParser.isSet("name") && commandlineParser.isSet("package"))
     {
-      const QString package_name = commandlineParser.value("install-package");
+      const QString package_name = commandlineParser.value("package");
       const QString container_id = commandlineParser.value("name");
+
+      containers->addNewApp(container_id, package_name);
 
       ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Install, container_id, package_name);
       QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
