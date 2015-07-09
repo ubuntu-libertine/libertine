@@ -44,6 +44,8 @@ TEST(LibertineContainerConfig, constructFromJson)
         "\"id\":            \"wily3\","
         "\"name\":          \"Wily Werewolf\","
         "\"image\":         \"wily\","
+        "\"installedApps\": ["
+        "],"
         "\"installStatus\": \"ready\""
     "}"
   );
@@ -57,4 +59,65 @@ TEST(LibertineContainerConfig, constructFromJson)
   EXPECT_EQ(container_config.name().toStdString(),           "Wily Werewolf");
   EXPECT_EQ(container_config.image_id().toStdString(),       "wily");
   EXPECT_EQ(container_config.install_status(), ContainerConfig::InstallStatus::Ready);
+  EXPECT_EQ(container_config.container_apps().empty(), true);
+}
+
+TEST(LibertineContainerConfig, constructFromJsonWithOneApp)
+{
+  QByteArray raw_json(
+    "{"
+        "\"id\":            \"wily3\","
+        "\"name\":          \"Wily Werewolf\","
+        "\"image\":         \"wily\","
+        "\"installedApps\": ["
+            "{"
+                 "\"packageName\": \"firefox\","
+                 "\"appStatus\":   \"installed\""
+            "}"
+        "],"
+        "\"installStatus\": \"ready\""
+    "}"
+  );
+  QJsonParseError parse_error;
+  QJsonDocument json = QJsonDocument::fromJson(raw_json, &parse_error);
+  ASSERT_EQ(parse_error.error, 0) << parse_error.errorString().toStdString();
+
+  ContainerConfig container_config(json.object());
+
+  EXPECT_EQ(container_config.container_apps().empty(), false);
+  EXPECT_EQ(container_config.container_apps()[0]->package_name(), "firefox");
+  EXPECT_EQ(container_config.container_apps()[0]->app_status(), ContainerApps::AppStatus::Installed);
+}
+
+TEST(LibertineContainerConfig, constructFromJsonWithTwoApps)
+{
+  QByteArray raw_json(
+    "{"
+        "\"id\":            \"wily3\","
+        "\"name\":          \"Wily Werewolf\","
+        "\"image\":         \"wily\","
+        "\"installedApps\": ["
+            "{"
+                 "\"packageName\": \"firefox\","
+                 "\"appStatus\":   \"installed\""
+            "},"
+            "{"
+                 "\"packageName\": \"xterm\","
+                 "\"appStatus\":   \"new\""
+            "}"
+        "],"
+        "\"installStatus\": \"ready\""
+    "}"
+  );
+  QJsonParseError parse_error;
+  QJsonDocument json = QJsonDocument::fromJson(raw_json, &parse_error);
+  ASSERT_EQ(parse_error.error, 0) << parse_error.errorString().toStdString();
+
+  ContainerConfig container_config(json.object());
+
+  EXPECT_EQ(container_config.container_apps().empty(), false);
+  EXPECT_EQ(container_config.container_apps()[0]->package_name(), "firefox");
+  EXPECT_EQ(container_config.container_apps()[0]->app_status(), ContainerApps::AppStatus::Installed);
+  EXPECT_EQ(container_config.container_apps()[1]->package_name(), "xterm");
+  EXPECT_EQ(container_config.container_apps()[1]->app_status(), ContainerApps::AppStatus::New);
 }

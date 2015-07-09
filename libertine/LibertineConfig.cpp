@@ -53,4 +53,3 @@ containers_config_file_name() const
   QString file_name = path + "/ContainersConfig.json";
   return file_name;
 }
-

@@ -19,6 +19,7 @@
 #include "libertine/ContainerConfig.h"
 
 #include <QtCore/QDebug>
+#include <QtCore/QJsonArray>
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonValue>
 #include <stdexcept>
@@ -131,7 +132,108 @@ namespace {
     }
     return ContainerConfig::InstallStatus::New;
   }
+
+  const static struct { QString string; ContainerApps::AppStatus enumeration; } app_status_names[] =
+  {
+    { "new",        ContainerApps::AppStatus::New        },
+    { "installing", ContainerApps::AppStatus::Installing },
+    { "installed",  ContainerApps::AppStatus::Installed  },
+    { "failed",     ContainerApps::AppStatus::Failed     },
+    { QString(),    ContainerApps::AppStatus::New        }
+  };
+
+  QString
+  extract_package_name_from_json(QJsonObject const& json_object)
+  {
+    QString package_name;
+
+    QJsonValue value = json_object["packageName"];
+    if (value != QJsonValue::Undefined)
+    {
+      QJsonValue::Type value_type = value.type();
+      if (value_type == QJsonValue::String)
+      {
+        package_name = value.toString();
+      }
+    }
+
+    return package_name;
+  }
+
+  ContainerApps::AppStatus
+  extract_app_status_from_json(QJsonObject const& json_object)
+  {
+    ContainerApps::AppStatus app_status = ContainerApps::AppStatus::New;
+
+    QJsonValue value = json_object["appStatus"];
+    if (value != QJsonValue::Undefined)
+    {
+      QJsonValue::Type value_type = value.type();
+      if (value_type == QJsonValue::String)
+      {
+        QString s = value.toString();
+        if (s.length() > 0)
+        {
+          for (auto const& name: app_status_names)
+          {
+            if (0 == s.compare(name.string, Qt::CaseInsensitive))
+            {
+              app_status = name.enumeration;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    return app_status;
+  }
+
+  QList<ContainerApps*>
+  extract_container_apps_from_json(QJsonObject const& json_object)
+  {
+    QList<ContainerApps*> container_apps;
+    QString package_name;
+    ContainerApps::AppStatus app_status;
+
+    QJsonArray installed_apps = json_object["installedApps"].toArray();
+
+    for (auto const& app: installed_apps)
+    {
+      package_name = extract_package_name_from_json(app.toObject());
+
+      app_status = extract_app_status_from_json(app.toObject());
+
+      container_apps.append(new ContainerApps(package_name, app_status));
+    }
+    return container_apps;
+  }
 } // anonymous namespace
+
+
+ContainerApps::
+ContainerApps(QString const& package_name,
+              ContainerApps::AppStatus app_status,
+              QObject* parent)
+: QObject(parent)
+, package_name_(package_name)
+, app_status_(app_status)
+{ }
+
+
+ContainerApps::
+~ContainerApps()
+{ }
+
+
+QString const& ContainerApps::
+package_name() const
+{ return package_name_; }
+
+
+ContainerApps::AppStatus ContainerApps::
+app_status() const
+{ return app_status_; }
 
 
 ContainerConfig::
@@ -153,6 +255,7 @@ ContainerConfig(QString const& container_id,
 { }
 
 
+
 ContainerConfig::
 ContainerConfig(QJsonObject const& json_object,
                 QObject*          parent)
@@ -161,6 +264,7 @@ ContainerConfig(QJsonObject const& json_object,
 , container_name_(extract_container_name_from_json(json_object, container_id_))
 , image_id_(extract_image_id_from_json(json_object, container_id_))
 , install_status_(extract_install_status_from_json(json_object))
+, container_apps_(extract_container_apps_from_json(json_object))
 { }
 
 
@@ -205,10 +309,18 @@ install_status(InstallStatus install_status)
 }
 
 
+QList<ContainerApps*> & ContainerConfig::
+container_apps()
+{ return container_apps_; }
+
+
 QJsonObject ContainerConfig::
 toJson() const
 {
-  QJsonObject json_object;
+  QJsonObject json_object,
+              app_object;
+  QJsonArray apps;
+
   json_object["id"] = container_id_;
   json_object["name"] = container_name_;
   json_object["image"] = image_id_;
@@ -220,6 +332,14 @@ toJson() const
       break;
     }
   }
+  for (auto const& container_app: container_apps_)
+  {
+    app_object["packageName"] = container_app->package_name();
+    app_object["appStatus"] = app_status_names[0].string;
+    apps.append(app_object);
+  }
+  json_object["installedApps"] = apps;
+
   return json_object;
 }
 

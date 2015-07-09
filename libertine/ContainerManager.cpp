@@ -143,6 +143,8 @@ installPackage(QString const& container_id, QString const& package_name)
 {
   LibertineManagerWrapper manager(container_id.toStdString().c_str());
 
+  manager.InstallPackageInContainer(package_name.toStdString().c_str());
+
   emit finished();
   quit();
 }

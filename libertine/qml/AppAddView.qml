@@ -16,7 +16,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+import Libertine 1.0
 import QtQuick 2.4
+import QtQuick.Layouts 1.0
 import Ubuntu.Components 1.2
 
 
@@ -24,10 +26,70 @@ Page {
     id: appAddView
     title: i18n.tr("Install Apps")
 
+    Label {
+        id: infoLabel
+        objectName: "infoLabel"
+
+        visible: false
+
+        Layout.fillWidth: true
+        wrapMode: Text.Wrap
+        horizontalAlignment: Text.AlignHCenter
+
+        text: "Please enter the exact package name of the app to install:"
+    }
+
+    TextField {
+        id: appName
+        objectName: "appName"
+
+        visible: false
+
+        anchors {
+            top: infoLabel.bottom
+            horizontalCenter: parent.horizontalCenter
+            margins: units.gu(1)
+        }
+        height: units.gu(4.5)
+        width: parent.width - anchors.margins * 2
+
+        onAccepted: {
+            installPackage()
+            containerConfigList.addNewApp(mainView.currentContainer, text)
+            appName.text = ""
+            pageStack.pop()
+        }
+    }
+
     head.actions: [
         Action {
 	    iconName: "search"
-	    onTriggered: print("search")
-	}
+	    onTriggered: {
+              if (infoLabel.visible) {
+                 infoLabel.visible = false;
+                 appName.visible = false;
+                 appName.text = ""
+              }
+              print("search")
+            }
+	},
+        Action {
+           iconName: "settings"
+           onTriggered: {
+             print("add")
+             infoLabel.visible = true
+             appName.visible = true
+             appName.forceActiveFocus()
+           }
+        }
     ]
+
+    function installPackage() {
+        var comp = Qt.createComponent("ContainerManager.qml")
+        var worker = comp.createObject()
+        worker.containerAction = ContainerManagerWorker.Install
+        worker.containerId = mainView.currentContainer
+        worker.data = appName.text
+        worker.start()
+    }
 }

@@ -17,7 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.4
-import U1db 1.0 as U1db
 import Ubuntu.Components 1.2
 
 
@@ -28,14 +27,6 @@ MainView {
     width:  units.gu(90)
     height: units.gu(75)
     property var currentContainer: undefined
-
-    /**
-     * A local data store for the current Libertine configuration.
-     */
-    U1db.Database {
-        id: configDB
-        path: "libertine-config"
-    }
 
     WelcomeView {
         id: welcomeView

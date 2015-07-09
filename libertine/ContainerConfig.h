@@ -26,6 +26,33 @@
 #include <QtCore/QString>
 
 
+class ContainerApps
+: public QObject
+{
+  Q_OBJECT
+
+public:
+  enum class AppStatus
+  { New, Installing, Installed, Failed };
+
+public:
+  ContainerApps(QString const& package_name,
+                AppStatus app_status,
+                QObject* parent = nullptr);
+  ~ContainerApps();
+
+  QString const&
+  package_name() const;
+
+  AppStatus
+  app_status() const;
+
+private:
+  QString   package_name_;
+  AppStatus app_status_;
+};
+
+
 /**
  * The runtime configuration of the Libertine tools.
  */
@@ -72,6 +99,9 @@ public:
   void
   install_status(InstallStatus install_status);
 
+  QList<ContainerApps*> &
+  container_apps();
+
   QJsonObject
   toJson() const;
 
@@ -80,10 +110,11 @@ signals:
   void installStatusChanged();
 
 private:
-  QString       container_id_;
-  QString       container_name_;
-  QString       image_id_;
-  InstallStatus install_status_;
+  QString               container_id_;
+  QString               container_name_;
+  QString               image_id_;
+  InstallStatus         install_status_;
+  QList<ContainerApps*> container_apps_;
 };
 
 #endif /* CONTAINER_CONTAINERCONFIG_H */

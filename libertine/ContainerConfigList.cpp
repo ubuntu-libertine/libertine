@@ -162,6 +162,23 @@ deleteContainer(QString const& container_id)
 }
 
 
+void ContainerConfigList::
+addNewApp(QString const& container_id, QString const& package_name)
+{
+  for (int i = 0; i < rowCount(); ++i)
+  {
+    if (configs_[i]->container_id() == container_id)
+    {
+      configs_[i]->container_apps().append(new ContainerApps(package_name, ContainerApps::AppStatus::New, this));
+
+      save_container_config_list();
+
+      break;
+    }
+  }
+}
+
+
 QJsonObject ContainerConfigList::
 toJson() const
 {

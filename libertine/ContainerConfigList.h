@@ -94,6 +94,10 @@ public:
   Q_INVOKABLE bool
   deleteContainer(QString const& container_id);
 
+  Q_INVOKABLE void
+  addNewApp(QString const& container_id,
+            QString const& package_name);
+
   QJsonObject
   toJson() const;
 

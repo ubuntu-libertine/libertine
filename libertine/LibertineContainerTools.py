@@ -51,19 +51,25 @@ def create_libertine_user_data_dir(name):
 
 def start_container_for_update(container):
     if not container.running:
-        print("Starting the container")
+        print("Starting the container...")
         if not container.start():
-            parser.error("Unable to start the container.")
-        container.wait("RUNNING")
+            print("Container failed to start")
+            return False
+        if not container.wait("RUNNING", 10):
+            print("Container failed to enter the RUNNING state")
+            return False
 
     if not container.get_ips(timeout=30):
         print("Not able to connect to the network.")
+        return False
 
     container.attach_wait(lxc.attach_run_command,
                           ["umount", "/tmp/.X11-unix"])
 
     container.attach_wait(lxc.attach_run_command,
                           ["apt-get", "update"])
+
+    return True
 
 def instantiate_libertine_container(name):
     config_path = get_libertine_container_path()
@@ -195,11 +201,14 @@ class LibertineContainer():
         stop_container = False
 
         if not self.container.running:
-            start_container_for_update(self.container)
+            if not start_container_for_update(self.container):
+              return (False, "Container did not start")
             stop_container = True
 
         self.container.attach_wait(lxc.attach_run_command,
-                                   ["apt-get", "install", "-y", package_name])
+                                   ["apt-get", "install", "-y", "--no-install-recommends", package_name])
 
         if stop_container:
             self.container.stop()
+
+        return True

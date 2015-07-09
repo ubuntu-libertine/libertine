@@ -126,7 +126,23 @@ void LibertineManagerWrapper::InstallPackageInContainer(const char *package_name
   PyGILState_STATE gstate;
   gstate = PyGILState_Ensure();
 
-  PyObject_CallMethod(pInstance_, PY_INSTALL_PACKAGE_IN_CONTAINER, "s", package_name);
+  PyObject *result = PyObject_CallMethod(pInstance_, PY_INSTALL_PACKAGE_IN_CONTAINER, "s", package_name);
+
+  if (result)
+  {
+    if (PyTuple_GetItem(result, 0) == Py_False)
+    {
+      if (PyUnicode_Check(PyTuple_GetItem(result, 1)))
+      {
+        // Add some error handling
+      }
+    }
+    Py_DECREF(result);
+  }
+  else
+  {
+    PyErr_Print();
+  }
 
   PyGILState_Release(gstate);
 }
