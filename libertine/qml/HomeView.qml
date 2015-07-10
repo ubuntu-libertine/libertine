@@ -30,7 +30,7 @@ Page {
     head.actions: [
         Action {
 	    iconName: "add"
-	    onTriggered: mainView.state = "ADD_APPS"
+	    onTriggered: pageStack.push(Qt.resolvedUrl("AppAddView.qml"))
 	},
         Action {
 	    id: settingsButton
@@ -50,12 +50,15 @@ Page {
                 Action {
                     text: "Update Container"
                     onTriggered: {
-                      updateContainer()
+                        updateContainer()
                     }
                 }
 		Action {
 		    text: "Switch Container"
-		    onTriggered: mainView.state = "CONTAINERS_VIEW"
+		    onTriggered: {
+                        pageStack.pop()
+                        pageStack.push(Qt.resolvedUrl("ContainersView.qml"))
+                    }
 		}
 	    }
 	}

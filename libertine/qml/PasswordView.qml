@@ -51,11 +51,12 @@ Page {
         echoMode: TextInput.Password
 
         onAccepted: {
-            if (passwordHelper.VerifyUserPassword(text))
-              passwordView.acceptPassword(text)
-            text = "";
-            pageStack.pop()
-            mainView.state = "CONTAINERS_VIEW"
+            if (passwordHelper.VerifyUserPassword(text)) {
+                passwordView.acceptPassword(text)
+                pageStack.clear()
+                pageStack.push(Qt.resolvedUrl("ContainersView.qml"))
+            }
+            text = ""
         }
     }
 }

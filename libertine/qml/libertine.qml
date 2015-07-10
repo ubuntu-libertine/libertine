@@ -28,82 +28,21 @@ MainView {
     height: units.gu(75)
     property var currentContainer: undefined
 
-    WelcomeView {
-        id: welcomeView
-        visible: false
-    }
-
-    ContainersView {
-        id: containersView
-        visible: false
-    }
-
-    HomeView {
-        id: homeView
-        visible: false
-    }
-
-    AppAddView {
-        id: appAddView
-        visible: false
-    }
-
     PageStack {
         id: pageStack
-        state: "WELCOME"
-        property var page: welcomeView
-
-        Component.onCompleted: {
-            push(page)
-        }
-
-        onPageChanged: {
-            push(page)
-        }
     }
-
-    // The pages/views will set the state to the next one when it is done
-    // like this: onClicked: {mainView.state = "TESTSELECTION"}
-    states: [
-        State {
-            name: "WELCOME"
-            PropertyChanges {
-                target: pageStack
-                page:   welcomeView
-            }
-        },
-        State {
-            name: "CONTAINERS_VIEW"
-            PropertyChanges {
-                target: pageStack
-                page:   containersView
-            }
-        },
-        State {
-            name: "HOMEPAGE"
-            PropertyChanges {
-                target: pageStack
-                page:   homeView
-            }
-        },
-        State {
-            name: "ADD_APPS"
-            PropertyChanges {
-                target: pageStack
-                page:   appAddView
-            }
-        }
-    ]
 
     Component.onCompleted: {
         mainView.currentContainer = containerConfigList.defaultContainerId
+
         if (mainView.currentContainer) {
-            pageStack.pop()
-            state = "HOMEPAGE"
+            pageStack.push(Qt.resolvedUrl("HomeView.qml"))
         }
         else if (!containerConfigList.empty()) {
-            pageStack.pop()
-            state = "CONTAINERS_VIEW"
+            pageStack.push(Qt.resolvedUrl("ContainersView.qml"))
+        }
+        else {
+            pageStack.push(Qt.resolvedUrl("WelcomeView.qml"))
         }
     }
 }

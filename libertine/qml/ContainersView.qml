@@ -36,7 +36,7 @@ Page {
     head.actions: [
         Action {
             iconName: "add"
-            onTriggered: mainView.state = "ADD_CONTAINER"
+            onTriggered: pageStack.push(Qt.resolvedUrl("WelcomeView.qml"))
         }
     ]
 
@@ -84,7 +84,8 @@ Page {
                         onTriggered: {
                             console.log("edit container " + containerId)
                             mainView.currentContainer = containerId
-                            mainView.state = "HOMEPAGE"
+                            pageStack.pop()
+                            pageStack.push(Qt.resolvedUrl("HomeView.qml"))
                         }
                     }
                 ]
