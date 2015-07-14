@@ -26,6 +26,7 @@
 #include <QtCore/QList>
 
 
+class ContainerApps;
 class ContainerConfig;
 class LibertineConfig;
 
@@ -97,6 +98,9 @@ public:
   Q_INVOKABLE bool
   addNewApp(QString const& container_id,
             QString const& package_name);
+
+  QList<ContainerApps*> *
+  getAppsForContainer(QString const& container_id);
 
   QJsonObject
   toJson() const;

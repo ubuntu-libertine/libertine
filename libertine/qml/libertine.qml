@@ -36,6 +36,7 @@ MainView {
         mainView.currentContainer = containerConfigList.defaultContainerId
 
         if (mainView.currentContainer) {
+            containerAppsList.setContainerApps(mainView.currentContainer)
             pageStack.push(Qt.resolvedUrl("HomeView.qml"))
         }
         else if (!containerConfigList.empty()) {

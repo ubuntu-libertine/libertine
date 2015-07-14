@@ -82,8 +82,8 @@ Page {
                         text: i18n.tr("edit")
                         description: i18n.tr("Container Apps")
                         onTriggered: {
-                            console.log("edit container " + containerId)
                             mainView.currentContainer = containerId
+                            containerAppsList.setContainerApps(mainView.currentContainer)
                             pageStack.pop()
                             pageStack.push(Qt.resolvedUrl("HomeView.qml"))
                         }

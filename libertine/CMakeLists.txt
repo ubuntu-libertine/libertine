@@ -5,6 +5,7 @@ add_library(
   ContainerManager.cpp
   ContainerConfig.cpp
   ContainerConfigList.cpp
+  ContainerAppsList.cpp
   LibertineConfig.cpp
   PasswordHelper.cpp
   libertine_lxc_manager_wrapper.cpp

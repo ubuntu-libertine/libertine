@@ -52,7 +52,7 @@ Page {
         width: parent.width - anchors.margins * 2
 
         onAccepted: {
-            if (containerConfigList.addNewApp(mainView.currentContainer, text)) {
+            if (containerAppsList.addNewApp(mainView.currentContainer, text)) {
                 installPackage()
                 appName.text = ""
                 pageStack.pop()
