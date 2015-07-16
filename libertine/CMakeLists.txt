@@ -28,4 +28,5 @@ target_link_libraries(libertine liblibertine Qt5::Core Qt5::Quick Qt5::Gui)
 add_executable(libertine_container_manager ${libertine_cli_SRC})
 target_link_libraries(libertine_container_manager liblibertine Qt5::Core Qt5::Quick Qt5::Gui)
 
-install(TARGETS libertine RUNTIME DESTINATION bin)
+install(DIRECTORY qml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${CMAKE_PROJECT_NAME})
+install(TARGETS libertine RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

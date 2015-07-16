@@ -2,13 +2,21 @@ Source: libertine
 Section: utils
 Priority: extra
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Build-Depends: cmake, debhelper (>= 9), qtdeclarative5-dev, python3-dev
+Build-Depends: cmake,
+               debhelper (>= 9),
+               libgtest-dev,
+               libpam0g-dev,
+               python3-dev,
+               qtdeclarative5-dev
 Standards-Version: 3.9.6
 Homepage: https://launchpad.net/libertine
 
 Package: libertine
 Architecture: any
-Depends: ${misc:Depends}
+Depends: qml-module-qtquick2,
+         qtdeclarative5-ubuntu-ui-toolkit-plugin,
+         ${misc:Depends},
+         ${shlibs:Depends}
 Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
  Provides a container and releated tools to be able to create, maintain, and
  integrate legacy deb-packaged applications generally based around the X11
