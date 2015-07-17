@@ -121,8 +121,10 @@ void LibertineManagerWrapper::UpdateLibertineContainer()
   PyGILState_Release(gstate);
 }
 
-void LibertineManagerWrapper::InstallPackageInContainer(const char *package_name)
+bool LibertineManagerWrapper::InstallPackageInContainer(const char* package_name, char** error_msg)
 {
+  bool success = true;
+
   PyGILState_STATE gstate;
   gstate = PyGILState_Ensure();
 
@@ -132,9 +134,11 @@ void LibertineManagerWrapper::InstallPackageInContainer(const char *package_name
   {
     if (PyTuple_GetItem(result, 0) == Py_False)
     {
-      if (PyUnicode_Check(PyTuple_GetItem(result, 1)))
+      PyObject *msg;
+      if (PyUnicode_Check((msg = PyTuple_GetItem(result, 1))))
       {
-        // Add some error handling
+        strncpy(*error_msg, PyUnicode_AsUTF8(msg), 1024);
+        success = false;
       }
     }
     Py_DECREF(result);
@@ -145,6 +149,8 @@ void LibertineManagerWrapper::InstallPackageInContainer(const char *package_name
   }
 
   PyGILState_Release(gstate);
+
+  return success;
 }
 
 std::vector<char *>LibertineManagerWrapper::ListLibertineContainers()

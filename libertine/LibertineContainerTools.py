@@ -7,6 +7,8 @@ import lsb_release
 import crypt
 import ctypes
 import tempfile
+import io
+import sys
 
 from contextlib import contextmanager
 
@@ -259,6 +261,7 @@ class LibertineContainer():
         self.container.stop()
 
     def install_package(self, package_name):
+        f = io.BytesIO()
         stop_container = False
 
         if not self.container.running:
@@ -266,10 +269,18 @@ class LibertineContainer():
               return (False, "Container did not start")
             stop_container = True
 
-        self.container.attach_wait(lxc.attach_run_command,
-                                   ["apt-get", "install", "-y", "--no-install-recommends", package_name])
+        with output_redirector(f):
+            retval = self.container.attach_wait(lxc.attach_run_command,
+                                                ["apt-get", "install", "-y", "--no-install-recommends", package_name])
 
         if stop_container:
             self.container.stop()
+
+        if retval != 0:
+            lxc_output = f.getvalue().split(b'\n')
+
+            for line in lxc_output:
+                if line.decode().startswith('E: '):
+                    return (False, line.decode().lstrip('E: '))
 
         return True

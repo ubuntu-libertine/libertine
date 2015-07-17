@@ -52,21 +52,23 @@ Page {
         width: parent.width - anchors.margins * 2
 
         onAccepted: {
-            if (containerAppsList.addNewApp(mainView.currentContainer, text)) {
+            if (!containerConfigList.isAppInstalled(mainView.currentContainer, text)) {
+                containerAppsList.addNewApp(mainView.currentContainer, text)
                 installPackage()
+                appInstallMessage.text = i18n.tr("Installing ") + text + i18n.tr("...")
+                appInstallMessage.visible = true
                 appName.text = ""
-                pageStack.pop()
             }
             else {
-                appAlreadyInstalledMessage.text = i18n.tr("Package ") + text + i18n.tr(" already installed. Please try a different package name.")
-                appAlreadyInstalledMessage.visible = true
+                appInstallMessage.text = i18n.tr("Package ") + text + i18n.tr(" already installed. Please try a different package name.")
+                appInstallMessage.visible = true
                 appName.text = ""
             }  
         }
     }
 
     Label {
-        id: appAlreadyInstalledMessage
+        id: appInstallMessage
 
         visible: false
 
@@ -75,7 +77,7 @@ Page {
             margins: units.gu(3)
         }
         height: units.gu(4.5)
-     }
+    }
 
     head.actions: [
         Action {
@@ -105,6 +107,21 @@ Page {
         worker.containerAction = ContainerManagerWorker.Install
         worker.containerId = mainView.currentContainer
         worker.data = appName.text
+        worker.finishedInstall.connect(finishedInstall)
         worker.start()
+    }
+
+    function finishedInstall(result, error_msg) {
+        if (result) {
+            if (appAddView) {
+                pageStack.pop()
+            }
+        }
+        else {
+            if (appAddView) {
+                appInstallMessage.text = error_msg
+                appInstallMessage.visible = true
+            }
+        }
     }
 }

@@ -59,7 +59,7 @@ public:
   Q_INVOKABLE void
   setContainerApps(QString const& container_id);
 
-  Q_INVOKABLE bool
+  Q_INVOKABLE void
   addNewApp(QString const& container_id, QString const& package_name);
 
   Q_INVOKABLE bool

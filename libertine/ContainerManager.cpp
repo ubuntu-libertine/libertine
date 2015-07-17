@@ -141,10 +141,15 @@ destroyContainer(QString const& container_id)
 void ContainerManagerWorker::
 installPackage(QString const& container_id, QString const& package_name)
 {
+  char error_msg[1024];
+  char *buff_ptr = error_msg;
+  bool result;
+
   LibertineManagerWrapper manager(container_id.toStdString().c_str());
 
-  manager.InstallPackageInContainer(package_name.toStdString().c_str());
+  result = manager.InstallPackageInContainer(package_name.toStdString().c_str(), &buff_ptr);
 
+  emit finishedInstall(result, QString(error_msg));
   emit finished();
   quit();
 }

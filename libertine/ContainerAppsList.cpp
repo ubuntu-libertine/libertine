@@ -39,18 +39,14 @@ setContainerApps(QString const& container_id)
 }
 
 
-bool ContainerAppsList::
+void ContainerAppsList::
 addNewApp(QString const& container_id, QString const& package_name)
 {
-  bool result;
-
   beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
-  result = container_config_list_->addNewApp(container_id, package_name);
+  container_config_list_->addNewApp(container_id, package_name);
 
   endInsertRows();
-
-  return result;
 }
 
 

@@ -88,6 +88,7 @@ private:
 signals:
   void finished();
   void finishedDestroy(QString const& container_id);
+  void finishedInstall(bool result, QString const& error_msg);
 };
 
 #endif /* CONTAINER_CONTAINERMANAGER_H_ */

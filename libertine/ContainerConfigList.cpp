@@ -162,28 +162,20 @@ deleteContainer(QString const& container_id)
 }
 
 
-bool ContainerConfigList::
+void ContainerConfigList::
 addNewApp(QString const& container_id, QString const& package_name)
 {
   for (auto const& config: configs_)
   {
     if (config->container_id() == container_id)
     {
-      for (auto const& app: config->container_apps())
-      {
-        if (app->package_name() == package_name)
-        {
-          return false;
-        }
-      }
       config->container_apps().append(new ContainerApps(package_name, ContainerApps::AppStatus::New, this));
 
       save_container_config_list();
 
-      return true;
+      break;
     }
   }
-  return false;
 }
 
 
@@ -198,6 +190,27 @@ getAppsForContainer(QString const& container_id)
     }
   }
   return nullptr;
+}
+
+
+bool ContainerConfigList::
+isAppInstalled(QString const& container_id, QString const& package_name)
+{
+  for (auto const& config: configs_)
+  {
+    if (config->container_id() == container_id)
+    {
+      for (auto const& app: config->container_apps())
+      {
+        if (app->package_name() == package_name)
+        {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 

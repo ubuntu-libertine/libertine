@@ -95,12 +95,16 @@ public:
   Q_INVOKABLE bool
   deleteContainer(QString const& container_id);
 
-  Q_INVOKABLE bool
+  Q_INVOKABLE void
   addNewApp(QString const& container_id,
             QString const& package_name);
 
   QList<ContainerApps*> *
   getAppsForContainer(QString const& container_id);
+
+  Q_INVOKABLE bool
+  isAppInstalled(QString const& container_id,
+                 QString const& package_name);
 
   QJsonObject
   toJson() const;
