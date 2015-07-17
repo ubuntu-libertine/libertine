@@ -284,3 +284,19 @@ class LibertineContainer():
                     return (False, line.decode().lstrip('E: '))
 
         return True
+
+    def remove_package(self, package_name):
+        f = io.BytesIO()
+        stop_container = False
+
+        if not self.container.running:
+            if not start_container_for_update(self.container):
+              return (False, "Container did not start")
+            stop_container = True
+
+        with output_redirector(f):
+            retval = self.container.attach_wait(lxc.attach_run_command,
+                                                ["apt-get", "remove", "-y", package_name])
+
+        if stop_container:
+            self.container.stop()

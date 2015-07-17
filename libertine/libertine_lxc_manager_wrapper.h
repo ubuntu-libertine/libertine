@@ -36,6 +36,7 @@ public:
   void CreateLibertineConfig();
   void UpdateLibertineContainer();
   bool InstallPackageInContainer(const char* package_name, char** error_msg);
+  bool RemovePackageInContainer(const char* package_name, char** error_msg);
   static std::vector<char *> ListLibertineContainers();
 
 private:

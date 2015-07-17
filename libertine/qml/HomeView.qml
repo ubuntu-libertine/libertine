@@ -70,14 +70,48 @@ Page {
             Label {
                 text: packageName
             }
+            leadingActions: ListItemActions {
+                actions: [
+                    Action {
+                        iconName: "delete"
+                        text: i18n.tr("delete")
+                        description: i18n.tr("Remove Package")
+                        onTriggered: {
+                            removePackage(packageName)
+                            containerAppsList.removeApp(mainView.currentContainer, packageName)
+                        }
+                    }
+                ]
+            }
+            trailingActions: ListItemActions {
+                actions: [
+                    Action {
+                        iconName: "info"
+                        text: i18n.tr("info")
+                        description: i18n.tr("Package Info")
+                        onTriggered: {
+                            console.log("info for package " + packageName)
+                        }
+                    }
+                ]
+            }
         }
     }
 
     function updateContainer() {
-          var comp = Qt.createComponent("ContainerManager.qml")
-          var worker = comp.createObject()
-          worker.containerAction = ContainerManagerWorker.Update
-          worker.containerId = mainView.currentContainer
-          worker.start()
+        var comp = Qt.createComponent("ContainerManager.qml")
+        var worker = comp.createObject()
+        worker.containerAction = ContainerManagerWorker.Update
+        worker.containerId = mainView.currentContainer
+        worker.start()
+    }
+
+    function removePackage(packageName) {
+        var comp = Qt.createComponent("ContainerManager.qml")
+        var worker = comp.createObject()
+        worker.containerAction = ContainerManagerWorker.Remove
+        worker.containerId = mainView.currentContainer
+        worker.data = packageName
+        worker.start()
     }
 }

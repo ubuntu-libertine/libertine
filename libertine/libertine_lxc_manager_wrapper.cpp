@@ -29,6 +29,7 @@ const char* PY_CREATE_LIBERTINE_CONTAINER = "create_libertine_container";
 const char* PY_CREATE_LIBERTINE_CONFIG = "create_libertine_config";
 const char* PY_UPDATE_LIBERTINE_CONTAINER = "update_libertine_container";
 const char* PY_INSTALL_PACKAGE_IN_CONTAINER = "install_package";
+const char* PY_REMOVE_PACKAGE_IN_CONTAINER = "remove_package";
 
 // Functions outside of the Python class that are needed
 const char* PY_LIST_LIBERTINE_CONTAINERS = "list_libertine_containers";
@@ -129,6 +130,38 @@ bool LibertineManagerWrapper::InstallPackageInContainer(const char* package_name
   gstate = PyGILState_Ensure();
 
   PyObject *result = PyObject_CallMethod(pInstance_, PY_INSTALL_PACKAGE_IN_CONTAINER, "s", package_name);
+
+  if (result)
+  {
+    if (PyTuple_GetItem(result, 0) == Py_False)
+    {
+      PyObject *msg;
+      if (PyUnicode_Check((msg = PyTuple_GetItem(result, 1))))
+      {
+        strncpy(*error_msg, PyUnicode_AsUTF8(msg), 1024);
+        success = false;
+      }
+    }
+    Py_DECREF(result);
+  }
+  else
+  {
+    PyErr_Print();
+  }
+
+  PyGILState_Release(gstate);
+
+  return success;
+}
+
+bool LibertineManagerWrapper::RemovePackageInContainer(const char* package_name, char** error_msg)
+{
+  bool success = true;
+
+  PyGILState_STATE gstate;
+  gstate = PyGILState_Ensure();
+
+  PyObject *result = PyObject_CallMethod(pInstance_, PY_REMOVE_PACKAGE_IN_CONTAINER, "s", package_name);
 
   if (result)
   {

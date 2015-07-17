@@ -50,6 +50,19 @@ addNewApp(QString const& container_id, QString const& package_name)
 }
 
 
+void ContainerAppsList::
+removeApp(QString const& container_id, QString const& package_name)
+{
+  int index = container_config_list_->getAppIndex(container_id, package_name);
+
+  beginRemoveRows(QModelIndex(), index, index);
+
+  container_config_list_->removeApp(container_id, index);
+
+  endRemoveRows();
+}
+
+
 bool ContainerAppsList::
 empty() const noexcept
 { return apps_->empty(); }
