@@ -15,7 +15,9 @@ Package: libertine
 Architecture: any
 Depends: qml-module-qtquick2,
          qtdeclarative5-ubuntu-ui-toolkit-plugin,
+         python3-lxc,
          ${misc:Depends},
+         ${python3:Depends},
          ${shlibs:Depends}
 Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
  Provides a container and releated tools to be able to create, maintain, and

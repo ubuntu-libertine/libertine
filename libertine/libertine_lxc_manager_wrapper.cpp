@@ -20,7 +20,7 @@
 #include <cstdlib>
 #include "libertine_lxc_manager_wrapper.h"
 
-const char* LIBERTINE_PYTHON_MODULE = "LibertineContainerTools";
+const char* LIBERTINE_PYTHON_MODULE = "libertine";
 const char* LIBERTINE_CONTAINER_CLASS = "LibertineContainer";
 
 // Methods availaible from the LibertineContainer Python class
@@ -225,6 +225,9 @@ std::vector<char *>LibertineManagerWrapper::ListLibertineContainers()
 PyObject* LibertineManagerWrapper::InitializePythonModule()
 {
   PyObject *pName, *pModule, *pDict = NULL;
+
+  /* for running from the source root directory */
+  PyRun_SimpleString("import sys; sys.path.append('python')\n");
 
   pName = PyUnicode_FromString(LIBERTINE_PYTHON_MODULE);
 

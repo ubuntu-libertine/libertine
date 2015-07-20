@@ -1,4 +1,16 @@
-# LibertineContainerTools.py
+# Copyright 2015 Canonical Ltd.
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3, as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranties of
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import lxc
 import subprocess
@@ -145,9 +157,13 @@ def list_libertine_containers():
 
     return containers
 
-class LibertineContainer():
+class LibertineContainer(object):
+    """
+    A sandbox for DEB-packaged X11-based applications.
+    """
     def __init__(self, name):
-         self.container = instantiate_libertine_container(name)
+        super().__init__()
+        self.container = instantiate_libertine_container(name)
 
     def destroy_libertine_container(self):
         if self.container.defined:

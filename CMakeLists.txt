@@ -16,6 +16,7 @@ find_package(Qt5Quick REQUIRED)
 set(CMAKE_AUTOMOC ON)
 
 add_subdirectory(libertine)
+add_subdirectory(python)
 
 include(CTest)
 add_subdirectory(tests)

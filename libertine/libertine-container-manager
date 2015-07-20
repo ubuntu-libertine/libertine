@@ -21,7 +21,7 @@ import lxc
 import os
 import getpass
 
-import LibertineContainerTools
+from libertine import LibertineContainer, list_libertine_containers
 
 if __name__ == '__main__':
     parser = optparse.OptionParser(description="Legacy X application support for Unity 8")
@@ -47,25 +47,25 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     if options.destroy:
-        container = LibertineContainerTools.LibertineContainer(options.destroy)
+        container = LibertineContainer(options.destroy)
         container.destroy_libertine_container()
 
     if options.update_container:
-        container = LibertineContainerTools.LibertineContainer(options.update_container)
+        container = LibertineContainer(options.update_container)
         container.update_libertine_container()
 
     if options.list:
-        containers = LibertineContainerTools.list_libertine_containers()
+        containers = list_libertine_containers()
         for container in containers:
             print("%s" % container)
 
     if options.create:
         print("Your user password is required for creating a Libertine container.")
         password = getpass.getpass()
-        container = LibertineContainerTools.LibertineContainer(options.create)
+        container = LibertineContainer(options.create)
         container.create_libertine_container(password)
         container.create_libertine_config()
 
     if options.install_package and options.package_name:
-        container = LibertineContainerTools.LibertineContainer(options.install_package)
+        container = LibertineContainer(options.install_package)
         container.install_package(options.package_name)
