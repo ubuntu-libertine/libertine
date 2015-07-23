@@ -20,6 +20,7 @@
 
 #include "libertine/libertine.h"
 #include <QtCore/QCommandLineParser>
+#include <QtCore/QDir>
 #include <QtCore/QStandardPaths>
 
 
@@ -50,6 +51,13 @@ QString LibertineConfig::
 containers_config_file_name() const
 {
   QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+  QDir dir(path);
+
+  if (!dir.exists())
+  {
+    dir.mkpath(path);
+  }
+
   QString file_name = path + "/ContainersConfig.json";
   return file_name;
 }

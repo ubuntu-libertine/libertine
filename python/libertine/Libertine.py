@@ -113,6 +113,11 @@ def get_libertine_container_path():
 
     return path
 
+def get_lxc_default_config_path():
+    path = "%s/.config/lxc" % home_path
+
+    return path
+
 def get_libertine_user_data_dir(name):
     user_data_path = "%s/.local/share/libertine-container/user-data/%s" % (home_path, name)
 
@@ -181,7 +186,7 @@ class LibertineContainer(object):
         setup_host_environment(username, password)
 
         # Generate the default lxc default config, if it doesn't exist
-        config_path = get_libertine_container_path()
+        config_path = get_lxc_default_config_path()
         config_file = "%s/default.conf" % config_path
 
         if not os.path.exists(config_path):
