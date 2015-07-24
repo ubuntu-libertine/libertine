@@ -17,6 +17,7 @@ set(CMAKE_AUTOMOC ON)
 
 add_subdirectory(libertine)
 add_subdirectory(python)
+add_subdirectory(data)
 
 include(CTest)
 add_subdirectory(tests)
