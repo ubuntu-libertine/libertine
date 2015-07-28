@@ -16,6 +16,8 @@ Architecture: any
 Depends: qml-module-qtquick2,
          qtdeclarative5-ubuntu-ui-toolkit-plugin,
          python3-lxc,
+         lxc-templates,
+         uidmap,
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
