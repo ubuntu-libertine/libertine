@@ -43,8 +43,9 @@ void initialize_python()
 }
 
 
-LibertineManagerWrapper::LibertineManagerWrapper(const char *name)
-: libertine_lxc_name_(name)
+LibertineManagerWrapper::LibertineManagerWrapper(const char *name, const char *type)
+: libertine_container_name_(name)
+, libertine_container_type_(type)
 {
   PyObject *pArgs, *pDict, *pClass;
 
@@ -59,8 +60,9 @@ LibertineManagerWrapper::LibertineManagerWrapper(const char *name)
 
     if (PyCallable_Check(pClass))
     {
-      pArgs = PyTuple_New(1);
-      PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(libertine_lxc_name_));
+      pArgs = PyTuple_New(2);
+      PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(libertine_container_name_));
+      PyTuple_SetItem(pArgs, 1, PyUnicode_FromString(libertine_container_type_));
       pInstance_ = PyObject_CallObject(pClass, pArgs);
       Py_DECREF(pArgs);
       Py_DECREF(pClass);

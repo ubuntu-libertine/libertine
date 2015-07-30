@@ -75,6 +75,7 @@ public:
   ContainerConfig(QObject* parent = nullptr);
   ContainerConfig(QString const& container_id,
                   QString const& container_name,
+                  QString const& container_type,
                   QString const& image_id,
                   QObject*       parent = nullptr);
   ContainerConfig(QJsonObject const& json_object,
@@ -89,6 +90,9 @@ public:
 
   void
   name(QString const& name);
+
+  QString const&
+  container_type() const;
 
   QString const&
   image_id() const;
@@ -112,6 +116,7 @@ signals:
 private:
   QString               container_id_;
   QString               container_name_;
+  QString               container_type_;
   QString               image_id_;
   InstallStatus         install_status_;
   QList<ContainerApps*> container_apps_;

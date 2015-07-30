@@ -78,6 +78,28 @@ namespace {
   }
 
   QString
+  extract_container_type_from_json(QJsonObject const& json_object,
+                                   QString const&     container_id)
+  {
+    QString type = container_id;
+    QJsonValue value = json_object["type"];
+    if (value != QJsonValue::Undefined)
+    {
+      QJsonValue::Type value_type = value.type();
+      if (value_type == QJsonValue::String)
+      {
+        QString s = value.toString();
+        if (s.length() > 0)
+        {
+          type = s;
+        }
+      }
+    }
+
+    return type;
+  }
+
+  QString
   extract_image_id_from_json(QJsonObject const& json_object,
                              QString const&     container_id)
   {
@@ -245,11 +267,13 @@ ContainerConfig(QObject* parent)
 ContainerConfig::
 ContainerConfig(QString const& container_id,
                 QString const& container_name,
+                QString const& container_type,
                 QString const& image_id,
                 QObject*       parent)
 : QObject(parent)
 , container_id_(container_id)
 , container_name_(container_name)
+, container_type_(container_type)
 , image_id_(image_id)
 , install_status_(InstallStatus::New)
 { }
@@ -262,6 +286,7 @@ ContainerConfig(QJsonObject const& json_object,
 : QObject(parent)
 , container_id_(extract_container_id_from_json(json_object))
 , container_name_(extract_container_name_from_json(json_object, container_id_))
+, container_type_(extract_container_type_from_json(json_object, container_id_))
 , image_id_(extract_image_id_from_json(json_object, container_id_))
 , install_status_(extract_install_status_from_json(json_object))
 , container_apps_(extract_container_apps_from_json(json_object))
@@ -289,6 +314,11 @@ name(QString const& name)
   container_name_ = name;
   emit nameChanged();
 }
+
+
+QString const& ContainerConfig::
+container_type() const
+{ return container_type_; }
 
 
 QString const& ContainerConfig::
@@ -323,6 +353,7 @@ toJson() const
 
   json_object["id"] = container_id_;
   json_object["name"] = container_name_;
+  json_object["type"] = container_type_;
   json_object["image"] = image_id_;
   for (auto const& name: install_status_names)
   {

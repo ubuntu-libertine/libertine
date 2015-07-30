@@ -28,7 +28,7 @@ void initialize_python();
 class LibertineManagerWrapper
 {
 public:
-  LibertineManagerWrapper(const char *name);
+  LibertineManagerWrapper(const char *name, const char *type);
   ~LibertineManagerWrapper();
 
   void DestroyLibertineContainer();
@@ -45,7 +45,8 @@ private:
 private:
   PyObject *pInstance_;
 
-  const char* libertine_lxc_name_;
+  const char* libertine_container_name_;
+  const char* libertine_container_type_;
 };
 
 #endif

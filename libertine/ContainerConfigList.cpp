@@ -106,7 +106,7 @@ ContainerConfigList::
 
 
 QString ContainerConfigList::
-addNewContainer(QVariantMap const& image)
+addNewContainer(QVariantMap const& image, QString const& type)
 {
   QString image_id = image["id"].toString();
   QString id = image_id;
@@ -119,7 +119,7 @@ addNewContainer(QVariantMap const& image)
   }
 
   beginInsertRows(QModelIndex(), rowCount(), rowCount());
-  configs_.append(new ContainerConfig(id, name, image_id, this));
+  configs_.append(new ContainerConfig(id, name, type, image_id, this));
   if (this->size() == 1)
     default_container_id_ = id;
 
@@ -258,6 +258,22 @@ getAppIndex(QString const& container_id, QString const& package_name)
 }
 
 
+QString ContainerConfigList::
+getContainerType(QString const& container_id)
+{
+  QString default_type("lxc");
+
+  for (auto const& config: configs_)
+  {
+    if (config->container_id() == container_id)
+    {
+      return config->container_type();
+    }
+  }
+  return default_type;
+}
+
+
 QJsonObject ContainerConfigList::
 toJson() const
 {
@@ -308,6 +324,7 @@ roleNames() const
   QHash<int, QByteArray> roles;
   roles[static_cast<int>(DataRole::ContainerId)]    = "containerId";
   roles[static_cast<int>(DataRole::ContainerName)]  = "name";
+  roles[static_cast<int>(DataRole::ContainerType)]  = "type";
   roles[static_cast<int>(DataRole::ImageId)]        = "imageId";
   roles[static_cast<int>(DataRole::InstallStatus)]  = "installStatus";
   return roles;
@@ -328,6 +345,9 @@ data(QModelIndex const& index, int role) const
         break;
       case DataRole::ContainerName:
         result = configs_[index.row()]->name();
+        break;
+      case DataRole::ContainerType:
+        result = configs_[index.row()]->container_type();
         break;
       case DataRole::ImageId:
         result = configs_[index.row()]->image_id();

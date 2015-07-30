@@ -60,6 +60,7 @@ public:
   {
     ContainerId = Qt::UserRole + 1,   /**< The container ID */
     ContainerName,                    /**< The container name */
+    ContainerType,                    /**< The type of container - lxc or chroot */
     ImageId,                          /**< The image from which the container was built */
     InstallStatus,                    /**< Current container install status */
     Error                             /**< last role (error) */
@@ -90,7 +91,7 @@ public:
   ~ContainerConfigList();
 
   Q_INVOKABLE QString
-  addNewContainer(QVariantMap const& image);
+  addNewContainer(QVariantMap const& image, QString const& type);
 
   Q_INVOKABLE bool
   deleteContainer(QString const& container_id);
@@ -113,6 +114,9 @@ public:
   int
   getAppIndex(QString const& container_id,
               QString const& package_name);
+
+  QString
+  getContainerType(QString const& container_id);
 
   QJsonObject
   toJson() const;

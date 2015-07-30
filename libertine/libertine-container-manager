@@ -35,6 +35,9 @@ if __name__ == '__main__':
         "--create", action="store", type="string",
         help=("Create a new Libertine container."))
     parser.add_option(
+        "--container-type", action="store", type="string",
+        help=("Type of Libertine container to create. lxc | chroot"))
+    parser.add_option(
         "--list", action="store_true",
         help=("List all Libertine containers."))
     parser.add_option(
@@ -47,11 +50,11 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     if options.destroy:
-        container = LibertineContainer(options.destroy)
+        container = LibertineContainer(options.destroy, options.container_type)
         container.destroy_libertine_container()
 
     if options.update_container:
-        container = LibertineContainer(options.update_container)
+        container = LibertineContainer(options.update_container, options.container_type)
         container.update_libertine_container()
 
     if options.list:
@@ -60,12 +63,14 @@ if __name__ == '__main__':
             print("%s" % container)
 
     if options.create:
-        print("Your user password is required for creating a Libertine container.")
-        password = getpass.getpass()
-        container = LibertineContainer(options.create)
+        password = None
+
+        if options.container_type == "lxc":
+            print("Your user password is required for creating a Libertine container.")
+            password = getpass.getpass()
+        container = LibertineContainer(options.create, options.container_type)
         container.create_libertine_container(password)
-        container.create_libertine_config()
 
     if options.install_package and options.package_name:
-        container = LibertineContainer(options.install_package)
+        container = LibertineContainer(options.install_package, options.container_type)
         container.install_package(options.package_name)

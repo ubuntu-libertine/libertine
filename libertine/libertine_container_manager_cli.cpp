@@ -58,43 +58,52 @@ int main (int argc, char *argv[])
   if (command == "create")
   {
     commandlineParser.clearPositionalArguments();
-    commandlineParser.addPositionalArgument("create", "Create a new Libertine container.");
+    commandlineParser.addPositionalArgument("create", QCoreApplication::translate("main", "Create a new Libertine container."));
+    commandlineParser.addOption({{"t", "type"}, QCoreApplication::translate("main", "Type of container.  Either 'lxc' or 'chroot'."), "container_type"});
     commandlineParser.process(app);
 
-    PasswordHelper passwordHelper;
     QString password;
-    int i = 1;
+    const QString container_type = commandlineParser.value("type");
 
-    while (1)
+    if (container_type == "lxc")
     {
-      password = passwordHelper.GetPassword();
+      PasswordHelper passwordHelper;
+      int i = 1;
 
-      if (password.isNull())
+      while (1)
       {
-        return 0;
-      }
-      else if (passwordHelper.VerifyUserPassword(password))
-      {
-        break;
-      }
-      else if (i == 3)
-      {
-        cout << "Too many password attempts." << endl;
-        return 0;
-      }
-      else
-      {
-        cout << "Wrong password entered.  Please try again." << endl;
-        ++i;
+        password = passwordHelper.GetPassword();
+
+        if (password.isNull())
+        {
+          return 0;
+        }
+        else if (passwordHelper.VerifyUserPassword(password))
+        {
+          break;
+        }
+        else if (i == 3)
+        {
+          cout << "Too many password attempts." << endl;
+          return 0;
+        }
+        else
+        {
+          cout << "Wrong password entered.  Please try again." << endl;
+          ++i;
+        }
       }
     }
 
     QVariantMap image;
     image.insert("id", "wily");
     image.insert("name", "Ubuntu 'Wily Werewolf'");
-    QString container_id = containers->addNewContainer(image);
+    QString container_id = containers->addNewContainer(image, container_type);
 
-    ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Create, container_id, password);
+    ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Create,
+                                                                container_id,
+                                                                container_type,
+                                                                password);
     QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
     worker->start();
   }
@@ -112,7 +121,9 @@ int main (int argc, char *argv[])
 
       if (containers->deleteContainer(container_id))
       {
-        ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Destroy, container_id);
+        ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Destroy,
+                                                                    container_id,
+                                                                    containers->getContainerType(container_id));
         QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
         worker->start();
       }
@@ -145,7 +156,10 @@ int main (int argc, char *argv[])
 
       containers->addNewApp(container_id, package_name);
 
-      ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Install, container_id, package_name);
+      ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Install,
+                                                                  container_id,
+                                                                  containers->getContainerType(container_id),
+                                                                  package_name);
       QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
       worker->start();
     }
@@ -168,7 +182,9 @@ int main (int argc, char *argv[])
     {
       const QString container_id = commandlineParser.value("name");
 
-      ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Update, container_id);
+      ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Update,
+                                                                  container_id,
+                                                                  containers->getContainerType(container_id));
       QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
       worker->start();
     }

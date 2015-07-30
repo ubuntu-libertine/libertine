@@ -28,10 +28,11 @@
 /** Verify constructing a New containerConfig DTRT. */
 TEST(LibertineContainerConfig, constructFromScalars)
 {
-  ContainerConfig container_config("id", "name", "image");
+  ContainerConfig container_config("id", "name", "type", "image");
 
   EXPECT_EQ(container_config.container_id(),   "id");
   EXPECT_EQ(container_config.name(),           "name");
+  EXPECT_EQ(container_config.container_type(), "type");
   EXPECT_EQ(container_config.image_id(),       "image");
   EXPECT_EQ(container_config.install_status(), ContainerConfig::InstallStatus::New);
 }
@@ -43,6 +44,7 @@ TEST(LibertineContainerConfig, constructFromJson)
     "{"
         "\"id\":            \"wily3\","
         "\"name\":          \"Wily Werewolf\","
+        "\"type\":          \"lxc\","
         "\"image\":         \"wily\","
         "\"installedApps\": ["
         "],"
@@ -68,6 +70,7 @@ TEST(LibertineContainerConfig, constructFromJsonWithOneApp)
     "{"
         "\"id\":            \"wily3\","
         "\"name\":          \"Wily Werewolf\","
+        "\"type\":          \"lxc\","
         "\"image\":         \"wily\","
         "\"installedApps\": ["
             "{"
@@ -95,6 +98,7 @@ TEST(LibertineContainerConfig, constructFromJsonWithTwoApps)
     "{"
         "\"id\":            \"wily3\","
         "\"name\":          \"Wily Werewolf\","
+        "\"type\":          \"lxc\","
         "\"image\":         \"wily\","
         "\"installedApps\": ["
             "{"
