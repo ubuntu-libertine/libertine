@@ -1,0 +1,98 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2015 Canonical Ltd.
+# Author: Christopher Townsend <christopher.townsend@canonical.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import os
+import sys
+import json
+import lxc
+import subprocess
+import shlex
+import xdg.BaseDirectory as basedir
+
+home_path = os.environ['HOME']
+
+libertine_json_file_path = os.path.join(basedir.xdg_data_home, 'libertine', 'ContainersConfig.json')
+libertine_container_path = basedir.save_cache_path('libertine-container')
+libertine_userdata_path = os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data')
+
+def get_container_type(container_id):
+    container_type = ''
+
+    with open(libertine_json_file_path) as fd:
+        container_list = json.load(fd)
+        fd.close()
+
+    for container in container_list["containerList"]:
+        if container["id"] == container_id:
+            return container["type"]
+
+    return ""
+
+def get_container_path(container_id):
+    return os.path.join(libertine_container_path, container_id)
+
+def get_userdata_path(container_id):
+    return os.path.join(libertine_userdata_path, container_id)
+
+def build_proot_command(container_id):
+    proot_cmd = "proot -R " + get_container_path(container_id)
+
+    bind_mounts = " -b %s:%s" % (get_userdata_path(container_id), home_path)
+
+    xdg_user_dirs = ['Documents', 'Music', 'Pictures', 'Videos']
+    for user_dir in xdg_user_dirs:
+        user_dir_path = os.path.join(home_path, user_dir)
+        bind_mounts += " -b %s:%s" % (user_dir_path, user_dir_path)
+
+    proot_cmd += bind_mounts
+    return proot_cmd
+
+def launch_lxc_application(container_id, app_exec_line):
+    container = lxc.Container(container_id, libertine_container_path)
+
+    if not container.running:
+        if not container.start():
+            print("Container failed to start")
+            return
+        if not container.wait("RUNNING", 10):
+            print("Container failed to enter the RUNNING state")
+            return
+
+    if not container.get_ips(timeout=30):
+        print("Not able to connect to the network.")
+        return
+
+    container.attach_wait(lxc.attach_run_command, app_exec_line)
+
+def launch_chroot_application(container_id, app_exec_line):
+    proot_cmd = build_proot_command(container_id)
+
+    args = shlex.split(proot_cmd)
+    args.extend(app_exec_line)
+
+    subprocess.Popen(args).wait()
+
+if __name__ == '__main__':
+    container_id = sys.argv[1]
+    app_exec_line = sys.argv[2:]
+    container_type = get_container_type(container_id)
+
+    if container_type == "lxc":
+        launch_lxc_application(container_id, app_exec_line)
+    elif container_type == "chroot":
+        launch_chroot_application(container_id, app_exec_line)

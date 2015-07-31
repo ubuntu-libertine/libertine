@@ -23,6 +23,7 @@ import io
 import sys
 import shlex
 import shutil
+import xdg.BaseDirectory as basedir
 
 from contextlib import contextmanager
 
@@ -116,13 +117,13 @@ def get_host_distro_release():
     return distinfo.get('CODENAME', 'n/a')
 
 def get_libertine_container_path():
-    return os.path.join(home_path, '.cache', 'libertine-container')
+    return basedir.save_cache_path('libertine-container')
 
 def get_lxc_default_config_path():
     return os.path.join(home_path, '.config', 'lxc')
 
 def get_libertine_user_data_dir(name):
-    return os.path.join(home_path, '.local', 'share', 'libertine-container', 'user-data', name)
+    return os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data', name)
 
 def create_libertine_user_data_dir(name):
     user_data = get_libertine_user_data_dir(name)
