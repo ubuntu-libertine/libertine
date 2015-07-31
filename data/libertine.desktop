@@ -6,6 +6,6 @@ Exec=libertine
 Terminal=false
 Type=Application
 Icon=/usr/share/libertine/libertine_64.png
-Catgories=
+Catagories=
 GenericName="Application Sandbox"
 X-Ubuntu-Touch=true
