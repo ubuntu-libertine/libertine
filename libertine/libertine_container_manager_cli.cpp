@@ -115,28 +115,28 @@ int main (int argc, char *argv[])
 
     commandlineParser.process(app);
 
+    QString container_id;
     if (commandlineParser.isSet("name"))
     {
-      const QString container_id = commandlineParser.value("name");
-
-      if (containers->deleteContainer(container_id))
-      {
-        ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Destroy,
-                                                                    container_id,
-                                                                    containers->getContainerType(container_id));
-        QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
-        worker->start();
-      }
-      else
-      {
-        cout << QCoreApplication::translate("main", "The container name specified does not exist.").toStdString().c_str() << endl;
-        return -1;
-      }
+      container_id = commandlineParser.value("name");
     }
     else
     {
-      cout << QCoreApplication::translate("main", "You must specify a container name when using the destroy command!").toStdString().c_str() << endl;
-      commandlineParser.showHelp(-1);
+      container_id = containers->default_container_id();
+    }
+
+    if (containers->deleteContainer(container_id))
+    {
+      ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Destroy,
+                                                                  container_id,
+                                                                  containers->getContainerType(container_id));
+      QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
+      worker->start();
+    }
+    else
+    {
+      cout << QCoreApplication::translate("main", "The container name specified does not exist.").toStdString().c_str() << endl;
+      return -1;
     }
   }
   else if (command == "install-package")
@@ -149,10 +149,19 @@ int main (int argc, char *argv[])
 
     commandlineParser.process(app);
 
-    if (commandlineParser.isSet("name") && commandlineParser.isSet("package"))
+    QString container_id;
+    if (commandlineParser.isSet("name"))
+    {
+      container_id = commandlineParser.value("name");
+    }
+    else
+    {
+      container_id = containers->default_container_id();
+    }
+
+    if (commandlineParser.isSet("package"))
     {
       const QString package_name = commandlineParser.value("package");
-      const QString container_id = commandlineParser.value("name");
 
       containers->addNewApp(container_id, package_name);
 
@@ -165,7 +174,7 @@ int main (int argc, char *argv[])
     }
     else
     {
-      cout << QCoreApplication::translate("main", "You must specify a container name & package name when using the install-package command!").toStdString().c_str() << endl;
+      cout << QCoreApplication::translate("main", "You must specify a package name when using the install-package command!").toStdString().c_str() << endl;
       commandlineParser.showHelp(-1);
     }
   }
@@ -178,21 +187,21 @@ int main (int argc, char *argv[])
 
     commandlineParser.process(app);
 
+    QString container_id;
     if (commandlineParser.isSet("name"))
     {
-      const QString container_id = commandlineParser.value("name");
-
-      ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Update,
-                                                                  container_id,
-                                                                  containers->getContainerType(container_id));
-      QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
-      worker->start();
+      container_id = commandlineParser.value("name");
     }
     else
     {
-      cout << QCoreApplication::translate("main", "You must specify a container name when using the update command!").toStdString().c_str() << endl;
-      commandlineParser.showHelp(-1);
+      container_id = containers->default_container_id();
     }
+
+    ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Update,
+                                                                container_id,
+                                                                containers->getContainerType(container_id));
+    QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
+    worker->start();
   }
   else if (command == "list")
   {
