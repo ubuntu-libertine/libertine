@@ -32,7 +32,7 @@ Page {
     }
 
     function passwordAccepted(password) {
-        var container_id = containerConfigList.addNewContainer(imageSelector.selectedImageSource)
+        var container_id = containerConfigList.addNewContainer(imageSelector.selectedImageSource, "lxc")
         var comp = Qt.createComponent("ContainerManager.qml")
         var worker = comp.createObject()
         worker.containerAction = ContainerManagerWorker.Create
