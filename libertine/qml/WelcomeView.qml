@@ -34,10 +34,11 @@ Page {
     function passwordAccepted(password) {
         var container_id = containerConfigList.addNewContainer(imageSelector.selectedImageSource, "lxc")
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject()
-        worker.containerAction = ContainerManagerWorker.Create
-        worker.containerId = container_id
-        worker.data = password
+        var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Create,
+                                              "containerId": container_id,
+                                              "containerType": "lxc",
+                                              "data": password})
+        worker.CreateContainerManager()
         worker.start()
     }
 

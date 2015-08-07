@@ -30,9 +30,10 @@ class ContainerManagerWorker
 {
   Q_OBJECT
   Q_ENUMS(ContainerAction)
-  Q_PROPERTY(ContainerAction containerAction READ container_action WRITE container_action)
-  Q_PROPERTY(QString containerId READ container_id WRITE container_id)
-  Q_PROPERTY(QString data READ data WRITE data)
+  Q_PROPERTY(ContainerAction containerAction READ container_action WRITE container_action NOTIFY containerActionChanged)
+  Q_PROPERTY(QString containerId READ container_id WRITE container_id NOTIFY containerIdChanged)
+  Q_PROPERTY(QString containerType READ container_type WRITE container_type NOTIFY containerTypeChanged)
+  Q_PROPERTY(QString data READ data WRITE data NOTIFY dataChanged)
 
 public:
   enum class ContainerAction
@@ -55,6 +56,9 @@ public:
                          QString const& container_type,
                          QString const& data);
   ~ContainerManagerWorker();
+
+  Q_INVOKABLE void
+  CreateContainerManager();
 
   ContainerAction
   container_action() const;
@@ -98,6 +102,10 @@ private:
   QString data_;
 
 signals:
+  void containerActionChanged();
+  void containerIdChanged();
+  void containerTypeChanged();
+  void dataChanged();
   void finished();
   void finishedDestroy(QString const& container_id);
   void finishedInstall(bool result, QString const& error_msg);

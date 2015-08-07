@@ -100,18 +100,20 @@ Page {
 
     function updateContainer() {
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject()
-        worker.containerAction = ContainerManagerWorker.Update
-        worker.containerId = mainView.currentContainer
+        var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Update,
+                                              "containerId": mainView.currentContainer,
+                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer)})
+        worker.CreateContainerManager()
         worker.start()
     }
 
     function removePackage(packageName) {
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject()
-        worker.containerAction = ContainerManagerWorker.Remove
-        worker.containerId = mainView.currentContainer
-        worker.data = packageName
+        var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Remove,
+                                              "containerId": mainView.currentContainer,
+                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer),
+                                              "data": packageName})
+        worker.CreateContainerManager()
         worker.start()
     }
 }

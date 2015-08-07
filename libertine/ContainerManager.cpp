@@ -31,7 +31,7 @@ ContainerManagerWorker(ContainerAction container_action,
 , container_id_(container_id)
 , container_type_(container_type)
 {
-  manager_ = new LibertineManagerWrapper(container_id.toStdString().c_str(), container_type.toStdString().c_str());
+  CreateContainerManager();
 }
 
 
@@ -45,7 +45,7 @@ ContainerManagerWorker(ContainerAction container_action,
 , container_type_(container_type)
 , data_(data)
 {
-  manager_ = new LibertineManagerWrapper(container_id.toStdString().c_str(), container_type.toStdString().c_str());
+  CreateContainerManager();
 }
 
 
@@ -53,6 +53,13 @@ ContainerManagerWorker::
 ~ContainerManagerWorker()
 {
   delete manager_;
+}
+
+
+void ContainerManagerWorker::
+CreateContainerManager()
+{
+  manager_ = new LibertineManagerWrapper(container_id_.toStdString().c_str(), container_type_.toStdString().c_str());
 }
 
 

@@ -103,10 +103,11 @@ Page {
 
     function installPackage() {
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject()
-        worker.containerAction = ContainerManagerWorker.Install
-        worker.containerId = mainView.currentContainer
-        worker.data = appName.text
+        var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Install,
+                                              "containerId": mainView.currentContainer,
+                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer),
+                                              "data": appName.text})
+        worker.CreateContainerManager()
         worker.finishedInstall.connect(finishedInstall)
         worker.start()
     }

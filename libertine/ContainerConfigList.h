@@ -115,7 +115,7 @@ public:
   getAppIndex(QString const& container_id,
               QString const& package_name);
 
-  QString
+  Q_INVOKABLE QString
   getContainerType(QString const& container_id);
 
   QJsonObject
