@@ -323,7 +323,7 @@ class LibertineLXC(object):
 class LibertineChroot(object):
     def __init__(self, name):
         self.name = name
-        self.chroot_path = os.path.join(get_libertine_container_path(), name)
+        self.chroot_path = os.path.join(get_libertine_container_path(), name, "rootfs")
         os.environ['FAKECHROOT_CMD_SUBST'] = '$FAKECHROOT_CMD_SUBST:/usr/bin/chfn=/bin/true'
 
     def destroy_libertine_container(self):
