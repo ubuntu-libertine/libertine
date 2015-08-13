@@ -5,7 +5,11 @@ project(libertine
         VERSION 0.99.1
         LANGUAGES CXX)
 
+find_package(PkgConfig REQUIRED)
 include(GNUInstallDirs)
+include(CheckIncludeFile)
+include(CheckFunctionExists)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic")
 
 include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
@@ -13,6 +17,10 @@ include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 find_package(Qt5Core  REQUIRED)
 find_package(Qt5Gui   REQUIRED)
 find_package(Qt5Quick REQUIRED)
+
+pkg_check_modules(GLIB2 REQUIRED glib-2.0)
+include_directories(${GLIB2_INCLUDE_DIRS})
+
 set(CMAKE_AUTOMOC ON)
 
 add_subdirectory(libertine)
