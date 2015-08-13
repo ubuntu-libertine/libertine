@@ -18,6 +18,9 @@ target_link_libraries(liblibertine Qt5::Core python3.4m pam)
 add_library(
   libertine-common SHARED
   libertine_common.cpp
+  ContainerConfigList.cpp
+  LibertineConfig.cpp
+  ContainerConfig.cpp
 )
 set_target_properties(libertine-common PROPERTIES
   VERSION ${ABI_VERSION}.0.0
@@ -26,6 +29,7 @@ set_target_properties(libertine-common PROPERTIES
 )
 target_link_libraries(libertine-common
   ${GLIB2_LIBRARIES}
+  Qt5::Core
 )
 
 file(GLOB_RECURSE QML_SRC *.qml *.js *.json)

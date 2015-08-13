@@ -18,15 +18,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "libertine/libertine_common.h"
+#include "libertine/ContainerConfigList.h"
+#include "libertine/LibertineConfig.h"
+
 
 gchar **
 libertine_list_containers(void)
 {
+  guint container_count,
+        i;
+  LibertineConfig config;
+  ContainerConfigList * container_list = new ContainerConfigList(&config);
   GArray * containers = g_array_new(TRUE, TRUE, sizeof(gchar *));
+  QVariant id;
 
-  gchar * container_id = g_strdup("wily");
+  container_count = (guint)container_list->size();
 
-  g_array_append_val(containers, container_id);
+  for (i = 0; i < container_count; ++i)
+  {
+    id = container_list->data(container_list->index(i, 0), (int)ContainerConfigList::DataRole::ContainerId); 
+    gchar * container_id = g_strdup((gchar *)id.toString().toStdString().c_str());
+    g_array_append_val(containers, container_id);
+  }
+
+  delete container_list;
 
   return (gchar **)g_array_free(containers, FALSE);
 }
@@ -76,9 +91,26 @@ libertine_container_home_path(const gchar * container_id)
 gchar *
 libertine_container_name(const gchar * container_id)
 {
+  guint container_count,
+        i;
   gchar * container_name = NULL;
+  LibertineConfig config;
+  ContainerConfigList * container_list = new ContainerConfigList(&config);
+  QVariant id;
 
-  container_name = g_strdup("Ubuntu 'Wily Werewolf'");
+  container_count = (guint)container_list->size();
+
+  for (i = 0; i < container_count; ++i)
+  {
+    id = container_list->data(container_list->index(i, 0), (int)ContainerConfigList::DataRole::ContainerId);
+
+    if (g_strcmp0((gchar *)id.toString().toStdString().c_str(), container_id) == 0)
+    {
+      QVariant name = container_list->data(container_list->index(i, 0), (int)ContainerConfigList::DataRole::ContainerName);
+      container_name = g_strdup(name.toString().toStdString().c_str());
+      break;
+    }
+  }
 
   return container_name;
 }

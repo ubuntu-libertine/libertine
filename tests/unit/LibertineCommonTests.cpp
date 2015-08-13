@@ -23,12 +23,15 @@
 
 TEST(LibertineCommon, ListContainers)
 {
+  g_setenv("XDG_DATA_HOME", CMAKE_SOURCE_DIR "/libertine-config/libertine", TRUE);
+
   gchar ** containers = libertine_list_containers();
 
   ASSERT_NE(containers, nullptr);
-  ASSERT_EQ(g_strv_length(containers), 1);
+  ASSERT_EQ(g_strv_length(containers), 2);
 
   ASSERT_STREQ("wily", containers[0]);
+  ASSERT_STREQ("wily-2", containers[1]);
 
   g_strfreev(containers);
 }
@@ -63,11 +66,20 @@ TEST(LibertineCommon, ContainerHomePath)
 
 TEST(LibertineCommon, ContainerName)
 {
-  gchar * container_id = g_strdup("wily");
+  g_setenv("XDG_DATA_HOME", CMAKE_SOURCE_DIR "/libertine-config/libertine", TRUE);
 
+  gchar * container_id = g_strdup("wily");
   gchar * container_name = libertine_container_name(container_id);
 
   ASSERT_STREQ("Ubuntu 'Wily Werewolf'", container_name);
+
+  g_free(container_id);
+  g_free(container_name);
+
+  container_id = g_strdup("wily-2");
+  container_name = libertine_container_name(container_id);
+
+  ASSERT_STREQ("Ubuntu 'Wily Werewolf' (2)", container_name);
 
   g_free(container_id);
   g_free(container_name);
