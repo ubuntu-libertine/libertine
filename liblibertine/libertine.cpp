@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "libertine/libertine_common.h"
+#include "liblibertine/libertine.h"
 #include "libertine/ContainerConfigList.h"
 #include "libertine/LibertineConfig.h"
 
@@ -28,20 +28,18 @@ libertine_list_containers(void)
   guint container_count,
         i;
   LibertineConfig config;
-  ContainerConfigList * container_list = new ContainerConfigList(&config);
+  ContainerConfigList container_list(&config);
   GArray * containers = g_array_new(TRUE, TRUE, sizeof(gchar *));
   QVariant id;
 
-  container_count = (guint)container_list->size();
+  container_count = (guint)container_list.size();
 
   for (i = 0; i < container_count; ++i)
   {
-    id = container_list->data(container_list->index(i, 0), (int)ContainerConfigList::DataRole::ContainerId); 
+    id = container_list.data(container_list.index(i, 0), (int)ContainerConfigList::DataRole::ContainerId); 
     gchar * container_id = g_strdup((gchar *)id.toString().toStdString().c_str());
     g_array_append_val(containers, container_id);
   }
-
-  delete container_list;
 
   return (gchar **)g_array_free(containers, FALSE);
 }
@@ -95,18 +93,18 @@ libertine_container_name(const gchar * container_id)
         i;
   gchar * container_name = NULL;
   LibertineConfig config;
-  ContainerConfigList * container_list = new ContainerConfigList(&config);
+  ContainerConfigList container_list(&config);
   QVariant id;
 
-  container_count = (guint)container_list->size();
+  container_count = (guint)container_list.size();
 
   for (i = 0; i < container_count; ++i)
   {
-    id = container_list->data(container_list->index(i, 0), (int)ContainerConfigList::DataRole::ContainerId);
+    id = container_list.data(container_list.index(i, 0), (int)ContainerConfigList::DataRole::ContainerId);
 
     if (g_strcmp0((gchar *)id.toString().toStdString().c_str(), container_id) == 0)
     {
-      QVariant name = container_list->data(container_list->index(i, 0), (int)ContainerConfigList::DataRole::ContainerName);
+      QVariant name = container_list.data(container_list.index(i, 0), (int)ContainerConfigList::DataRole::ContainerName);
       container_name = g_strdup(name.toString().toStdString().c_str());
       break;
     }

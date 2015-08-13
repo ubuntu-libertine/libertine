@@ -19,7 +19,7 @@
  */
 #include <gtest/gtest.h>
 
-#include "libertine/libertine_common.h"
+#include "liblibertine/libertine.h"
 
 TEST(LibertineCommon, ListContainers)
 {

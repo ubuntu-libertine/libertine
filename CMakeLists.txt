@@ -27,6 +27,7 @@ add_subdirectory(libertine)
 add_subdirectory(python)
 add_subdirectory(data)
 add_subdirectory(tools)
+add_subdirectory(liblibertine)
 
 include(CTest)
 add_subdirectory(tests)
