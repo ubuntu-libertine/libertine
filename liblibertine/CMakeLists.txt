@@ -28,3 +28,26 @@ target_link_libraries(libertine-common
 
 install(FILES libertine.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/liblibertine-${API_VERSION}")
 install(TARGETS libertine-common LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+##########################
+# Introspection
+##########################
+
+include(UseGObjectIntrospection)
+
+set(INTROSPECTION_GIRS)
+set(_introspection_files libertine.h)
+set(Libertine_2_gir "libertine")
+set(Libertine_2_gir_INCLUDES GObject-2.0)
+
+gir_get_cflags(_cflags)
+set(Libertine_2_gir_CFLAGS ${c_flags})
+set(Libertine_2_gir_LIBS libertine)
+
+list_make_absolute(_abs_introspection_files _introspection_files "${CMAKE_CURRENT_SOURCE_DIR}/")
+set(Libertine_2_gir_FILES ${_abs_introspection_files})
+set(Libertine_2_gir_SCANNERFLAGS --c-include "libertine.h")
+set(Libertine_2_gir_EXPORT_PACKAGES "libertine-${API_VERSION}")
+
+list(APPEND INTROSPECTION_GIRS Libertine-2.gir)
+gir_add_introspections(INTROSPECTION_GIRS)

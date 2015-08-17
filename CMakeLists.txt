@@ -5,7 +5,10 @@ project(libertine
         VERSION 0.99.1
         LANGUAGES CXX)
 
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
+
 find_package(PkgConfig REQUIRED)
+find_package(GObjectIntrospection REQUIRED)
 include(GNUInstallDirs)
 include(CheckIncludeFile)
 include(CheckFunctionExists)

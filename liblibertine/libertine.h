@@ -1,7 +1,3 @@
-/**
- * @file libertine_common.h
- * @brief The Libertine Common shared library header file
- */
 /*
  * Copyright 2015 Canonical Ltd.
  *
