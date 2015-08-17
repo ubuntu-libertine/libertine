@@ -10,7 +10,7 @@ add_executable(
 )
 target_link_libraries(
   test_container_config
-  liblibertine
+  libertine-common
   gtest gtest_main
   Qt5::Core
 )

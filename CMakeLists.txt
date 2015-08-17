@@ -21,6 +21,9 @@ find_package(Qt5Quick REQUIRED)
 pkg_check_modules(GLIB2 REQUIRED glib-2.0)
 include_directories(${GLIB2_INCLUDE_DIRS})
 
+pkg_check_modules(PYTHON3 REQUIRED python3)
+include_directories(${PYTHON3_INCLUDE_DIRS})
+
 set(CMAKE_AUTOMOC ON)
 
 add_subdirectory(libertine)

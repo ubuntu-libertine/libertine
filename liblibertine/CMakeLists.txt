@@ -9,6 +9,10 @@ add_library(
   ${libertine_src}/ContainerConfigList.cpp
   ${libertine_src}/LibertineConfig.cpp
   ${libertine_src}/ContainerConfig.cpp
+  ${libertine_src}/ContainerManager.cpp
+  ${libertine_src}/ContainerAppsList.cpp
+  ${libertine_src}/PasswordHelper.cpp
+  ${libertine_src}/libertine_lxc_manager_wrapper.cpp
 )
 set_target_properties(libertine-common PROPERTIES
   VERSION ${ABI_VERSION}.0.0
@@ -17,7 +21,9 @@ set_target_properties(libertine-common PROPERTIES
 )
 target_link_libraries(libertine-common
   ${GLIB2_LIBRARIES}
+  ${PYTHON3_LIBRARIES}
   Qt5::Core
+  pam
 )
 
 install(FILES libertine.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/liblibertine-${API_VERSION}")

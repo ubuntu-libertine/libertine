@@ -1,17 +1,5 @@
 configure_file(config.h.in config.h)
 
-add_library(
-  liblibertine STATIC
-  ContainerManager.cpp
-  ContainerConfig.cpp
-  ContainerConfigList.cpp
-  ContainerAppsList.cpp
-  LibertineConfig.cpp
-  PasswordHelper.cpp
-  libertine_lxc_manager_wrapper.cpp
-)
-target_link_libraries(liblibertine Qt5::Core python3.4m pam)
-
 file(GLOB_RECURSE QML_SRC *.qml *.js *.json)
 set(libertine_SRC
     libertine.cpp
@@ -23,10 +11,10 @@ set(libertine_cli_SRC
 )
 
 add_executable(libertine ${libertine_SRC})
-target_link_libraries(libertine liblibertine Qt5::Core Qt5::Quick Qt5::Gui)
+target_link_libraries(libertine libertine-common Qt5::Core Qt5::Quick Qt5::Gui)
 
 add_executable(libertine_container_manager ${libertine_cli_SRC})
-target_link_libraries(libertine_container_manager liblibertine Qt5::Core Qt5::Quick Qt5::Gui)
+target_link_libraries(libertine_container_manager libertine-common Qt5::Core Qt5::Quick)
 
 install(DIRECTORY qml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${CMAKE_PROJECT_NAME})
 install(TARGETS libertine libertine_container_manager RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
