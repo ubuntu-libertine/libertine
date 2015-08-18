@@ -44,7 +44,7 @@ def get_container_type(container_id):
     return ""
 
 def get_container_path(container_id):
-    return os.path.join(libertine_container_path, container_id)
+    return os.path.join(libertine_container_path, container_id, "rootfs")
 
 def get_userdata_path(container_id):
     return os.path.join(libertine_userdata_path, container_id)
