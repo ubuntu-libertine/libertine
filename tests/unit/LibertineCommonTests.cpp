@@ -23,7 +23,7 @@
 
 TEST(LibertineCommon, ListContainers)
 {
-  g_setenv("XDG_DATA_HOME", CMAKE_SOURCE_DIR "/libertine-config/libertine", TRUE);
+  g_setenv("XDG_DATA_HOME", CMAKE_SOURCE_DIR "/libertine-config", TRUE);
 
   gchar ** containers = libertine_list_containers();
 
@@ -66,7 +66,7 @@ TEST(LibertineCommon, ContainerHomePath)
 
 TEST(LibertineCommon, ContainerName)
 {
-  g_setenv("XDG_DATA_HOME", CMAKE_SOURCE_DIR "/libertine-config/libertine", TRUE);
+  g_setenv("XDG_DATA_HOME", CMAKE_SOURCE_DIR "/libertine-config", TRUE);
 
   gchar * container_id = g_strdup("wily");
   gchar * container_name = libertine_container_name(container_id);

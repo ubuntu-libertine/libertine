@@ -50,7 +50,7 @@ LibertineConfig::
 QString LibertineConfig::
 containers_config_file_name() const
 {
-  QString path = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+  QString path = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/libertine";
   QDir dir(path);
 
   if (!dir.exists())

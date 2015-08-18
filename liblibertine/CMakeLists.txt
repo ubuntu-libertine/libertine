@@ -37,17 +37,19 @@ include(UseGObjectIntrospection)
 
 set(INTROSPECTION_GIRS)
 set(_introspection_files libertine.h)
-set(Libertine_2_gir "libertine")
-set(Libertine_2_gir_INCLUDES GObject-2.0)
+set(Libertine_1_gir "libertine")
+set(Libertine_1_gir_INCLUDES GObject-2.0)
 
 gir_get_cflags(_cflags)
-set(Libertine_2_gir_CFLAGS ${c_flags})
-set(Libertine_2_gir_LIBS libertine)
+set(Libertine_1_gir_CFLAGS ${c_flags})
+set(Libertine_1_gir_LIBS libertine)
 
 list_make_absolute(_abs_introspection_files _introspection_files "${CMAKE_CURRENT_SOURCE_DIR}/")
-set(Libertine_2_gir_FILES ${_abs_introspection_files})
-set(Libertine_2_gir_SCANNERFLAGS --c-include "libertine.h")
-set(Libertine_2_gir_EXPORT_PACKAGES "libertine-${API_VERSION}")
+set(Libertine_1_gir_FILES ${_abs_introspection_files})
+set(Libertine_1_gir_SCANNERFLAGS --c-include "libertine.h")
+set(Libertine_1_gir_EXPORT_PACKAGES "libertine-${API_VERSION}")
 
-list(APPEND INTROSPECTION_GIRS Libertine-2.gir)
+list(APPEND INTROSPECTION_GIRS Libertine-1.gir)
 gir_add_introspections(INTROSPECTION_GIRS)
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/Libertine-1.typelib" DESTINATION "${CMAKE_INSTALL_LIBDIR}/girepository-1.0")
