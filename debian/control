@@ -4,8 +4,11 @@ Priority: extra
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
 Build-Depends: cmake,
                debhelper (>= 9),
+               libgirepository1.0-dev,
+               libglib2.0-dev,
                libgtest-dev,
                libpam0g-dev,
+               gobject-introspection,
                python3-dev,
                qtdeclarative5-dev
 Standards-Version: 3.9.6
@@ -21,6 +24,7 @@ Depends: qml-module-qtquick2,
          proot,
          ${misc:Depends},
          ${python3:Depends},
+         ${gir:Depends},
          ${shlibs:Depends}
 Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
  Provides a container and releated tools to be able to create, maintain, and
