@@ -19,16 +19,12 @@ add_test(test_container_config
   test_container_config
 )
 
-add_executable(
-  test_libertine_common
-  LibertineCommonTests.cpp
+add_test(test_libertine_public_gir
+  "/usr/bin/python3" "-m" "testtools.run" "${CMAKE_CURRENT_SOURCE_DIR}/libertine_public_gir_tests.py"
 )
-target_link_libraries(
-  test_libertine_common
-  libertine-common
-  gtest gtest_main
-)
-
-add_test(test_libertine_common
-  test_libertine_common
-)
+set_tests_properties(test_libertine_public_gir
+                     PROPERTIES
+                     ENVIRONMENT "GI_TYPELIB_PATH=${CMAKE_BINARY_DIR}/liblibertine;LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/liblibertine:${LD_LIBRARY_PATH};CMAKE_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
+set_tests_properties(test_libertine_public_gir
+                     PROPERTIES
+                     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
