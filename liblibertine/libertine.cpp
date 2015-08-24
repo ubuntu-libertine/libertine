@@ -25,8 +25,8 @@
 gchar **
 libertine_list_containers(void)
 {
-  guint container_count,
-        i;
+  guint container_count;
+  guint i;
   LibertineConfig config;
   ContainerConfigList container_list(&config);
   GArray * containers = g_array_new(TRUE, TRUE, sizeof(gchar *));
@@ -89,8 +89,8 @@ libertine_container_home_path(const gchar * container_id)
 gchar *
 libertine_container_name(const gchar * container_id)
 {
-  guint container_count,
-        i;
+  guint container_count;
+  guint i;
   gchar * container_name = NULL;
   LibertineConfig config;
   ContainerConfigList container_list(&config);
