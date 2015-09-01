@@ -1,5 +1,5 @@
 libertine (0.99-0ubuntu1) UNRELEASED; urgency=medium
 
-  * Initial release.
+  * initial release (lp: #1489773)
 
  -- Stephen M. Webb <stephen.webb@canonical.com>  Sun, 31 May 2015 18:36:35 -0400

@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_FULL_PREFIX@
+exec_prefix=${prefix}
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+
+Name: libertine
+Description: Libertine legacy application sandbox
+Version: @PROJECT_VERSION@
+
+Requires: @LIBERTINE_REQUIRES@
+Libs: -L${libdir} -llibertine
+Cflags: -I@liblibertine_headers_path@

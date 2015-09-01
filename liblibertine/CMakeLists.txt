@@ -26,8 +26,13 @@ target_link_libraries(libertine-common
   pam
 )
 
-install(FILES libertine.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/liblibertine-${API_VERSION}")
+set(liblibertine_headers_path "${CMAKE_INSTALL_FULL_INCLUDEDIR}/liblibertine")
+install(FILES libertine.h DESTINATION ${liblibertine_headers_path})
 install(TARGETS libertine-common LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+configure_file(libertine.pc.in ${CMAKE_BINARY_DIR}/libertine.pc @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/libertine.pc
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig)
 
 ##########################
 # Introspection

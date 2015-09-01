@@ -1,0 +1,3 @@
+usr/include/liblibertine
+usr/lib/*/liblibertine.so
+usr/lib/*/pkgconfig/libertine.pc
