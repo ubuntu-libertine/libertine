@@ -167,6 +167,7 @@ def list_libertine_containers():
 class LibertineLXC(object):
     def __init__(self, name):
         self.container = lxc_container(name)
+        self.series = name.split("-")[0]
 
     def destroy_libertine_container(self):
         if self.container.defined:
@@ -323,6 +324,7 @@ class LibertineLXC(object):
 class LibertineChroot(object):
     def __init__(self, name):
         self.name = name
+        self.series = name.split("-")[0]
         self.chroot_path = os.path.join(get_libertine_container_path(), name, "rootfs")
         os.environ['FAKECHROOT_CMD_SUBST'] = '$FAKECHROOT_CMD_SUBST:/usr/bin/chfn=/bin/true'
 
@@ -330,17 +332,21 @@ class LibertineChroot(object):
         shutil.rmtree(self.chroot_path)
 
     def create_libertine_container(self, password=None):
-        installed_release = get_host_distro_release()
+        installed_release = self.series
 
         # Create the actual chroot
-        command_line = "fakechroot fakeroot debootstrap --verbose --variant=fakechroot " + installed_release + " " + self.chroot_path
+        if installed_release == "trusty":
+            command_line = "debootstrap --verbose " + installed_release + " " + self.chroot_path
+        else:
+            command_line = "fakechroot fakeroot debootstrap --verbose --variant=fakechroot " + installed_release + " " + self.chroot_path
         args = shlex.split(command_line)
         subprocess.Popen(args).wait()
 
         # Remove symlinks as they can ill-behaved recursive behavior in the chroot
-        print("Fixing chroot symlinks...")
-        os.remove(os.path.join(self.chroot_path, 'dev'))
-        os.remove(os.path.join(self.chroot_path, 'proc'))
+        if installed_release != "trusty":
+            print("Fixing chroot symlinks...")
+            os.remove(os.path.join(self.chroot_path, 'dev'))
+            os.remove(os.path.join(self.chroot_path, 'proc'))
 
         # Add universe and -updates to the chroot's sources.list
         print("Updating chroot's sources.list entries...")
@@ -351,33 +357,64 @@ class LibertineChroot(object):
 
             fd.close()
 
-        # Generate the proper locale(s) in the chroot
-        print("Generating chroot's locale...")
-        locale = os.popen("locale", "r").read().split("\n")
-        locales = ''
+        create_libertine_user_data_dir(self.name)
 
-        for line in locale:
-            if line == "":
-                break
-            line = line.split('=')[1].replace("\"", "")
-            if not line in locales and line != "":
-                locales += ' ' + line
+        if installed_release == "trusty":
+            print("Additional configuration for Trusty chroot...")
+            cmd_line_prefix = "proot -b /usr/lib/locale -S " + self.chroot_path
+            
+            command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /etc/init.d/systemd-logind"
+            args = shlex.split(command_line)
+            cmd = subprocess.Popen(args).wait()
 
-        command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/sbin/locale-gen " + locales
-        args = shlex.split(command_line)
-        cmd = subprocess.Popen(args).wait()
+            command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /sbin/initctl"
+            args = shlex.split(command_line)
+            cmd = subprocess.Popen(args).wait()
+
+            command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /sbin/udevd"
+            args = shlex.split(command_line)
+            cmd = subprocess.Popen(args).wait()
+
+            command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /usr/sbin/rsyslogd"
+            args = shlex.split(command_line)
+            cmd = subprocess.Popen(args).wait()
+
+            command_line = cmd_line_prefix + " ln -s /bin/true /etc/init.d/systemd-logind"
+            args = shlex.split(command_line)
+            cmd = subprocess.Popen(args).wait()
+
+            command_line = cmd_line_prefix + " ln -s /bin/true /sbin/initctl"
+            args = shlex.split(command_line)
+            cmd = subprocess.Popen(args).wait()
+
+            command_line = cmd_line_prefix + " ln -s /bin/true /sbin/udevd"
+            args = shlex.split(command_line)
+            cmd = subprocess.Popen(args).wait()
+
+            command_line = cmd_line_prefix + " ln -s /bin/true /usr/sbin/rsyslogd"
+            args = shlex.split(command_line)
+            cmd = subprocess.Popen(args).wait()
 
     def update_libertine_container(self):
-        command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get update"
+        if self.series == "trusty":
+            command_line = "proot -b /usr/lib/locale -S " + self.chroot_path + " apt-get update"
+        else:
+            command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get update"
         args = shlex.split(command_line)
         cmd = subprocess.Popen(args).wait()
 
-        command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get dist-upgrade -y"
+        if self.series == "trusty":
+            command_line = "proot -b /usr/lib/locale -S " + self.chroot_path + " apt-get dist-upgrade -y"
+        else:
+            command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get dist-upgrade -y"
         args = shlex.split(command_line)
         cmd = subprocess.Popen(args).wait()
 
     def install_package(self, package_name):
-        command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get install -y " + package_name
+        if self.series == "trusty":
+            command_line = "proot -b /usr/lib/locale -S " + self.chroot_path + " apt-get install -y " + package_name
+        else:
+            command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get install -y " + package_name
         args = shlex.split(command_line)
         cmd = subprocess.Popen(args).wait()
 

@@ -60,10 +60,12 @@ int main (int argc, char *argv[])
     commandlineParser.clearPositionalArguments();
     commandlineParser.addPositionalArgument("create", QCoreApplication::translate("main", "Create a new Libertine container."));
     commandlineParser.addOption({{"t", "type"}, QCoreApplication::translate("main", "Type of container.  Either 'lxc' or 'chroot'."), "container_type"});
+    commandlineParser.addOption({{"s", "series"}, QCoreApplication::translate("main", "Ubuntu distro series to create."), "distro_series"});
     commandlineParser.process(app);
 
     QString password;
     const QString container_type = commandlineParser.value("type");
+    const QString distro_series = commandlineParser.value("series");
 
     if (container_type == "lxc")
     {
@@ -96,8 +98,23 @@ int main (int argc, char *argv[])
     }
 
     QVariantMap image;
-    image.insert("id", "wily");
-    image.insert("name", "Ubuntu 'Wily Werewolf'");
+
+    if (distro_series == "trusty")
+    {
+      image.insert("id", "trusty");
+      image.insert("name", "Ubuntu 'Trusty Tahr'");
+    }
+    else if (distro_series == "vivid")
+    {
+      image.insert("id", "vivid");
+      image.insert("name", "Ubuntu 'Vivid Vervet'");
+    }
+    else
+    {
+      image.insert("id", "wily");
+      image.insert("name", "Ubuntu 'Wily Werewolf'");
+    }
+
     QString container_id = containers->addNewContainer(image, container_type);
 
     ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Create,

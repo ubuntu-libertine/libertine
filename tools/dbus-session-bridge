@@ -1,11 +1,15 @@
 #!/usr/bin/python3
 
-from socket import *
+import daemonize
+import os
 import select
+import signal
+import sys
 
+from socket import *
 
 def accept_new_connection():
-    newconn = lxc_dbus_session_sock.accept()[0]
+    newconn = container_dbus_session_sock.accept()[0]
     descriptors.append(newconn)
 
     host_dbus_session_sock = socket(AF_UNIX, SOCK_STREAM)
@@ -40,6 +44,13 @@ def close_connections(remove_socket):
     partner_socket.shutdown(SHUT_RDWR)
     partner_socket.close()
 
+def close_all_connections():
+    for i, j in socket_pairs:
+        i.shutdown(SHUT_RDWR)
+        i.close()
+        j.shutdown(SHUT_RDWR)
+        j.close()
+
 def get_host_dbus_socket():
     socket_key = "DBUS_SESSION_BUS_ADDRESS=unix:abstract="
 
@@ -54,45 +65,57 @@ def get_host_dbus_socket():
 
     return host_dbus_socket
 
-lxc_dbus_session_sock = socket(AF_UNIX, SOCK_STREAM)
+def socket_cleanup(signum, frame):
+    container_dbus_session_sock.close()
+    close_all_connections()
+    os.remove(dbus_session_socket_path)
 
-lxc_dbus_session_sock.bind("/run/user/1000/host_dbus_session")
+def main_loop():
+    signal.signal(signal.SIGTERM, socket_cleanup)
+    signal.signal(signal.SIGINT, socket_cleanup)
 
-lxc_dbus_session_sock.listen(5)
+    while 1:
+        rlist, wlist, elist = select.select(descriptors, [], [])
+
+        for sock in rlist:
+            if sock.fileno() == -1:
+                continue
+
+            if sock == container_dbus_session_sock:
+                accept_new_connection()
+
+            else:
+                data = sock.recv(4096)
+                if len(data) == 0:
+                    close_connections(sock)
+                    continue
+
+                send_sock = get_socket_partner(sock)
+
+                if send_sock.fileno() < 0:
+                    continue
+
+                totalsent = 0
+                while totalsent < len(data):
+                    sent = send_sock.send(data)
+
+                    if sent == 0:
+                        close_connections(sock)
+                        break
+                    totalsent = totalsent + sent
+
+dbus_session_socket_path = sys.argv[1]
+
+container_dbus_session_sock = socket(AF_UNIX, SOCK_STREAM)
+container_dbus_session_sock.bind(dbus_session_socket_path)
+container_dbus_session_sock.listen(5)
 
 host_dbus_session_addr = get_host_dbus_socket()
-descriptors = [lxc_dbus_session_sock]
+descriptors = [container_dbus_session_sock]
 socket_pairs = []
 
-while 1:
-    rlist, wlist, elist = select.select(descriptors, [], [])
+unique_id = os.environ['DISPLAY'].strip(':')
+pid = "/tmp/dbus_session_bridge" + unique_id + ".pid"
 
-    for sock in rlist:
-        if sock.fileno() == -1:
-            continue
-
-        if sock == lxc_dbus_session_sock:
-            accept_new_connection()
-
-        else:
-            data = sock.recv(4096)
-            if len(data) == 0:
-                close_connections(sock)
-                continue
-
-            send_sock = get_socket_partner(sock)
-
-            if send_sock.fileno() < 0:
-                continue
-
-            totalsent = 0
-            while totalsent < len(data):
-                sent = send_sock.send(data)
-
-                if sent == 0:
-                    close_connections(sock)
-                    break
-                totalsent = totalsent + sent
-
-lxc_dbus_session_conn.close()
-host_dbus_session_sock.close()
+daemon = daemonize.Daemonize(app="dbus_session_bridge", pid=pid, action=main_loop, auto_close_fds=False)
+daemon.start()

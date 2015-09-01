@@ -1,1 +1,1 @@
-install(PROGRAMS libertine-launch DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(PROGRAMS libertine-launch dbus-session-bridge DESTINATION ${CMAKE_INSTALL_BINDIR})

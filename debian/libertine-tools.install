@@ -1,2 +1,3 @@
 usr/bin/libertine-launch
 usr/bin/libertine_container_manager
+usr/bin/dbus-session-bridge

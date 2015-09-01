@@ -30,7 +30,8 @@ Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
 
 Package: libertine-tools
 Architecture: any
-Depends: python3-libertine,
+Depends: python3-daemonize,
+         python3-libertine,
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
@@ -77,7 +78,8 @@ Package: python3-libertine
 Architecture: all
 Section: python
 Multi-Arch: allowed
-Depends: gir1.2-libertine,
+Depends: debootstrap,
+         gir1.2-libertine,
          lxc-templates,
          proot,
          python3-lxc,

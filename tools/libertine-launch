@@ -24,6 +24,8 @@ import subprocess
 import shlex
 import xdg.BaseDirectory as basedir
 
+from Xlib import display
+
 home_path = os.environ['HOME']
 
 libertine_json_file_path = os.path.join(basedir.xdg_data_home, 'libertine', 'ContainersConfig.json')
@@ -49,9 +51,29 @@ def get_container_path(container_id):
 def get_userdata_path(container_id):
     return os.path.join(libertine_userdata_path, container_id)
 
+def set_dbus_session_socket_path():
+    unique_id = os.environ['DISPLAY'].strip(':')
+    user_id = os.getuid()
+
+    dbus_session_socket_path = os.path.join('/', 'run', 'user', str(user_id), 'host_dbus_session' + unique_id)
+
+    os.environ['DBUS_SESSION_BUS_ADDRESS'] = "unix:path=" + dbus_session_socket_path
+
+    return dbus_session_socket_path
+
+def launch_dbus_session_bridge():
+    dbus_session_bridge_cmd = "dbus-session-bridge " + set_dbus_session_socket_path()
+
+    args = shlex.split(dbus_session_bridge_cmd)
+    subprocess.Popen(args).wait()
+
 def build_proot_command(container_id):
     proot_cmd = "proot -R " + get_container_path(container_id)
 
+    # Bind-mount the host's locale(s)
+    proot_cmd += " -b /usr/lib/locale"
+
+    # Bind-mount common XDG direcotries
     bind_mounts = " -b %s:%s" % (get_userdata_path(container_id), home_path)
 
     xdg_user_dirs = ['Documents', 'Music', 'Pictures', 'Videos']
@@ -91,6 +113,11 @@ if __name__ == '__main__':
     container_id = sys.argv[1]
     app_exec_line = sys.argv[2:]
     container_type = get_container_type(container_id)
+
+    launch_dbus_session_bridge()
+
+    # Work around the issue where starting some apps will close Xmir when they close the display
+    display.Display()
 
     if container_type == "lxc":
         launch_lxc_application(container_id, app_exec_line)
