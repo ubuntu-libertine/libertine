@@ -93,7 +93,8 @@ Description: Python3 scripts for the Libertine application sandbox
 Package: libertine-demo
 Architecture: any
 Multi-Arch: allowed
-Depends: ${misc:Depends}
+Depends: libertine-tools,
+         ${misc:Depends}
 Description: Adds desktop files and icon for Unity 8 desktop support
  .
  Add desktop files and icons for the targeted applications needed for legacy
