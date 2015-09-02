@@ -1,0 +1,5 @@
+libertine-demo: desktop-command-not-in-package usr/share/applications/trusty_firefox_0.0.desktop bin/true
+libertine-demo: desktop-command-not-in-package usr/share/applications/trusty_gedit_0.0.desktop bin/true
+libertine-demo: desktop-command-not-in-package usr/share/applications/trusty_gimp_0.0.desktop bin/true
+libertine-demo: desktop-command-not-in-package usr/share/applications/trusty_libreoffice-startcenter_0.0.desktop bin/true
+libertine-demo: desktop-command-not-in-package usr/share/applications/trusty_xchat-gnome_0.0.desktop bin/true

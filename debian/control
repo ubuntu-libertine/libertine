@@ -89,3 +89,12 @@ Depends: debootstrap,
 Description: Python3 scripts for the Libertine application sandbox
  .
  Python3 modules for the Libertine tools.
+
+Package: libertine-demo
+Architecture: any
+Multi-Arch: allowed
+Depends: ${misc:Depends}
+Description: Adds desktop files and icon for Unity 8 desktop support
+ .
+ Add desktop files and icons for the targeted applications needed for legacy
+ X application support on Unity 8.
