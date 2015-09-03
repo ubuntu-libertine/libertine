@@ -35,11 +35,9 @@ Depends: python3-daemonize,
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
-Description: command-line tools for running deb-packaged X11 apps on
- Ubuntu Personal
- .
- Command-line tools that can be used for creating and using the Ubuntu Personal
- sandbox for legacy Deb-packaged X11 applicatons.
+Description: CLI tools for running deb-packaged X11 apps on Ubuntu Personal
+ Command-line tools that can be used for creating, manipulating, and using
+ the Ubuntu Personal sandbox for legacy Deb-packaged X11 applicatons.
 
 Package: liblibertine1
 Architecture: any
@@ -47,9 +45,10 @@ Multi-Arch: same
 Depends: ${misc:Depends},
          ${shlibs:Depends}
 Description: runtime for running deb-packaged X11 apps on Ubuntu Personal
- .
- Runtime library for creating and using the Ubuntu Personal
- sandbox for legacy Deb-packaged X11 applicatons.
+ Runtime library for creating and using the Ubuntu Personal sandbox for legacy
+ Deb-packaged X11 applicatons.  This library is used by the Libertine tools
+ and other software interacting wit hthe Libertine container, such as scopes
+ or application launchers.
 
 Package: liblibertine-dev
 Section: libdevel
@@ -59,7 +58,6 @@ Depends: liblibertine1 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: developer files for the Libertine application sandbox
- .
  Headers and shared libraries used to create the tools for creating and using
  the Ubuntu Personal sandbox for legacy Deb-packaged X11 applicatons.
 
@@ -70,9 +68,9 @@ Depends: liblibertine1 (= ${binary:Version}),
          ${gir:Depends},
          ${misc:Depends}
 Description: GObject introspection files for the Libertine application sandbox
- .
  The GObject introspection description files for the Libertine application
- sandbox runtime.
+ sandbox runtime.  This package allows the Libertine API to be used from
+ GIR-compliant languages such as Python.
 
 Package: python3-libertine
 Architecture: all
@@ -87,8 +85,7 @@ Depends: debootstrap,
          ${misc:Depends},
          ${python3:Depends}
 Description: Python3 scripts for the Libertine application sandbox
- .
- Python3 modules for the Libertine tools.
+ Python3 modules for the Libertine application sandbox tools.
 
 Package: libertine-demo
 Architecture: any
@@ -96,6 +93,5 @@ Multi-Arch: allowed
 Depends: libertine-tools,
          ${misc:Depends}
 Description: Adds desktop files and icon for Unity 8 desktop support
- .
  Add desktop files and icons for the targeted applications needed for legacy
  X application support on Unity 8.

@@ -1,5 +1,145 @@
-libertine (0.99-0ubuntu1) UNRELEASED; urgency=medium
+libertine (0.99+15.10.20150902.1-0ubuntu1) wily; urgency=medium
 
+  [ Stephen M. Webb ]
   * initial release (lp: #1489773)
+  * Added application icon and .desktop file. added: data/
+    data/CMakeLists.txt data/libertine.desktop data/libertine_64.png
+  * CMakeLists.txt: added 'dist' target
+  * ContainerConfig: added JSON marchalling/unmarshalling
+  * ContainerConfig: fixed marshalling of install status
+  * ContainerConfig: new (C++) class added:
+    libertine/ContainerConfig.cpp libertine/ContainerConfig.h
+  * ContainerConfigList: added default container handling removed:
+    libertine/qml/ContainerConfig.qml
+  * ContainerConfigList: hook for adding containers
+  * ContainerConfigList: new (C++) class added:
+    libertine/ContainerConfigList.cpp libertine/ContainerConfigList.h
+    tests/unit/ContainerConfigListTests.cpp
+  * ContainerConfigList: saved containers list
+  * LibertineConfig: new class added: libertine/LibertineConfig.cpp
+    libertine/LibertineConfig.h
+  * Merge branch 'deb-dependencies'
+  * Merge pull request #3 from ubuntu-libertine/libertine.chroot-tool
+  * Merge pull request #4 from ubuntu-libertine/libertine.libertine-
+    launch
+  * WelcomeView: added ComboButton for selecting the image source added:
+    libertine/qml/image_sources.js
+  * added Debian packaging added: debian/ debian/changelog debian/compat
+    debian/control debian/copyright debian/files debian/rules
+  * added Libertine app wrapper and placeholder QML added:
+    libertine/libertine.cpp libertine/libertine.h libertine/qml/
+    libertine/qml/libertine.qml
+  * added elementary Welcome view added:
+    libertine/qml/installprogressview.qml libertine/qml/welcomeview.qml
+  * debian/control: added some basic build deps
+  * debian/copyright: minor format correction
+  * debian/files: remove file removed: debian/files
+  * debian/source/format: set to 3.0 (quilt) added: debian/source/
+    debian/source/format
+  * integrated ContainerConfigList class and QML code
+  * libertine/CMakeLists.txt: added QML install rules
+  * made app a Qt application
+  * made app smarter about locating the QML sources
+  * refactored C++ code to enable unit testing added: tests/
+    tests/CMakeLists.txt tests/unit/ tests/unit/CMakeLists.txt
+    tests/unit/ContainerConfigTests.cpp
+  * refactored ImageSource into a separate QML component added:
+    libertine/qml/ImageSource.qml
+  * roughed-in ContainerConfig and HomeView added:
+    libertine/qml/ContainerConfig.qml libertine/qml/HomeView.qml
+    renamed: libertine/qml/installprogressview.qml =>
+    libertine/qml/PreparingContainerView.qml
+    libertine/qml/welcomeview.qml => libertine/qml/WelcomeView.qml
+  * roughed-in the Container Apps view added:
+    libertine/qml/AppAddView.qml libertine/qml/ContainerApps.qml
+  * set default GUI width to 90 GU, following design guidelines
+  * simplified command-line parsing
+  * tests/unit/ContainerCOnfigTest: added an actual test
+  * updated imported QML versions
+  * updated to Ubuntu 'Wily Werewolf' versions of QML components
 
- -- Stephen M. Webb <stephen.webb@canonical.com>  Sun, 31 May 2015 18:36:35 -0400
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Chris Townsend ]
+  * Actually destroy the container now
+  * Add a Password page to the GUI
+  * Add a couple of more runtime package dependencies.
+  * Add a deleteContainer method
+  * Add ability for QML to use the threaded ContainerManagerWorker
+  * Add actions in commands
+  * Add an empty Libertine class ctor
+  * Add back in gir support for dh_girepository
+  * Add call to update the Libertine container
+  * Add capturing of errors when installing a package
+  * Add file copyright headers
+  * Add initial Python files for handling Libertine containers
+  * Add initial support for handling the user's password
+  * Add initial support for using a password for creating a ccontainer
+  * Add necessary dependencies.
+  * Add new Python embedded class to managing Libertine LXC's.
+  * Add proper embedded Python multi-threading support
+  * Add some more functions and cleanup.
+  * Add stdout/stderr redirector in Python for capturing output
+  * Add support for GObject Introspection added: cmake/
+    cmake/FindGObjectIntrospection.cmake cmake/ListOperations.cmake
+    cmake/UseGObjectIntrospection.cmake
+  * Add support for a threaded container manager
+  * Add support for installing apps in the Libertine container
+  * Add support for showing installed apps in the GUI
+  * Add support to remove packages in Libertine container
+  * Add tool to create the bespoke container for specific chroot
+    installs. added: tools/create_bespoke_container.sh
+  * Add unit testing for Gobject introspection. removed:
+    tests/unit/LibertineCommonTests.cpp added:
+    tests/unit/libertine_public_gir_tests.py
+  * Additional fixes for GObject instrospection support.
+  * Allow updating Libertine Container from GUI
+  * Clean up some methods and build for the main project
+  * Derive from the QThread type
+  * Dynamically create ContainerManagerWorker objects
+  * Fix package install in the cli
+  * Fix some bugs when using Libertine for the first time.
+  * Fix some styling issues
+  * Fix some typos.
+  * Fix the GUI to work with the recently refactored Python backend.
+  * Fix the chroot path to include "rootfs" to be consistent with LXC's.
+  * Fix typo in the Catagories key
+  * Hook up the delete functions in the QML code.
+  * Initial support for liblibertine common shared library added:
+    libertine/libertine_common.cpp libertine/libertine_common.h
+    tests/unit/LibertineCommonTests.cpp tests/unit/libertine-data/
+    tests/unit/libertine-data/libertine-container/ tests/unit/libertine-
+    data/libertine-container/wily/ tests/unit/libertine-data/libertine-
+    container/wily/rootfs/ tests/unit/libertine-data/libertine-
+    container/wily/rootfs/.gitignore tests/unit/libertine-home/
+    tests/unit/libertine-home/libertine-container/ tests/unit/libertine-
+    home/libertine-container/user-data/ tests/unit/libertine-
+    home/libertine-container/user-data/wily/ tests/unit/libertine-
+    home/libertine-container/user-data/wily/.gitignore
+  * Make page navigation a bit easier
+  * Make the whole library shared now and link the executables to it.
+  * Merge branch 'master' of github.com:ubuntu-libertine/libertine
+  * Merge branch 'master' of github.com:ubuntu-libertine/libertine
+    added: .gitignore libertine/qml/ContainersView.qml
+  * Merge branch 'new-libertine-manager-cli' added:
+    libertine/libertine_container_manager_cli.cpp
+  * Merge github.com:ubuntu-libertine/libertine into
+    libertine.liblibertine
+  * Merge pull request #2 from ubuntu-libertine/deb-dependencies
+  * Merge pull request #5 from attente/master
+  * Merge pull request #6 from attente/master
+  * More support for the liblibertine common shared library.
+  * Reconfigure the file layout for the shared library.
+  * Redo page navigation
+  * Refactor some code
+  * Rename method
+  * Rename some functions to be more descriptive.
+  * Use a Python class for the methods to be used the managing
+    application.
+  * Use single declared variable.
+  * Use the default container when not specifying the '-n' option in the
+    CLI.
+  * fixed D-Bus session bridge tool
+
+ -- CI Train Bot <ci-train-bot@canonical.com>  Wed, 02 Sep 2015 19:35:53 +0000

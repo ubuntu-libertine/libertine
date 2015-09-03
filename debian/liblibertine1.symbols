@@ -1,0 +1,6 @@
+liblibertine.so.1 liblibertine1 #MINVER#
+ (regex|optional)".+@Base" 0.99
+ libertine_container_home_path@Base 0.99
+ libertine_container_name@Base 0.99
+ libertine_container_path@Base 0.99
+ libertine_list_containers@Base 0.99

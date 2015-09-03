@@ -61,10 +61,10 @@ def set_dbus_session_socket_path():
 
     return dbus_session_socket_path
 
-def launch_dbus_session_bridge():
-    dbus_session_bridge_cmd = "dbus-session-bridge " + set_dbus_session_socket_path()
+def launch_libertine_session_bridge():
+    libertine_session_bridge_cmd = "libertine-session-bridge " + set_dbus_session_socket_path()
 
-    args = shlex.split(dbus_session_bridge_cmd)
+    args = shlex.split(libertine_session_bridge_cmd)
     subprocess.Popen(args).wait()
 
 def build_proot_command(container_id):
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     app_exec_line = sys.argv[2:]
     container_type = get_container_type(container_id)
 
-    launch_dbus_session_bridge()
+    launch_libertine_session_bridge()
 
     # Work around the issue where starting some apps will close Xmir when they close the display
     display.Display()

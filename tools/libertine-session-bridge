@@ -115,7 +115,7 @@ descriptors = [container_dbus_session_sock]
 socket_pairs = []
 
 unique_id = os.environ['DISPLAY'].strip(':')
-pid = "/tmp/dbus_session_bridge" + unique_id + ".pid"
+pid = "/tmp/libertine_session_bridge" + unique_id + ".pid"
 
-daemon = daemonize.Daemonize(app="dbus_session_bridge", pid=pid, action=main_loop, auto_close_fds=False)
+daemon = daemonize.Daemonize(app="libertine_session_bridge", pid=pid, action=main_loop, auto_close_fds=False)
 daemon.start()
