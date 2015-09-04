@@ -125,11 +125,46 @@ def get_lxc_default_config_path():
 def get_libertine_user_data_dir(name):
     return os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data', name)
 
+def chown_recursive_dirs(path):
+    uid = int(os.environ['SUDO_UID'])
+    gid = int(os.environ['SUDO_GID'])
+
+    if uid is not None and gid is not None:
+        for root, dirs, files in os.walk(path):
+            for d in dirs:
+                os.chown(os.path.join(root, d), uid, gid)
+            for f in files:
+                os.chown(os.path.join(root, f), uid, gid)
+
+        os.chown(path, uid, gid)
+
 def create_libertine_user_data_dir(name):
     user_data = get_libertine_user_data_dir(name)
 
     if not os.path.exists(user_data):
         os.makedirs(user_data)
+
+def create_compiz_config(name):
+    user_data = get_libertine_user_data_dir(name)
+
+    compiz_config_dir = os.path.join(user_data, '.config', 'compiz-1', 'compizconfig')
+
+    os.makedirs(compiz_config_dir)
+
+    # Create the general Compiz config file
+    with open(os.path.join(compiz_config_dir, 'config'), 'w+') as fd:
+        fd.write("[general]\n")
+        fd.write("profile = Default\n")
+        fd.write("integration = true\n")
+    fd.close()
+
+    # Create the default profile file
+    with open(os.path.join(compiz_config_dir, 'Default.ini'), 'w+') as fd:
+        fd.write("[core]\n")
+        fd.write("s0_active_plugins = core;place;\n\n")
+        fd.write("[place]\n")
+        fd.write("s0_mode = 3")
+    fd.close()
 
 def start_container_for_update(container):
     if not container.running:
@@ -237,6 +272,13 @@ class LibertineLXC(object):
             self.container.stop()
         else:
             print("Container failed to start.")
+
+        print("Updating the contents of the container after creation...")
+        self.update_libertine_container()
+
+        print("Installing Compiz as the Xmir window manager...")
+        self.install_package('compiz')
+        create_compiz_config(self.container.name)
 
     def create_libertine_config(self):
         user_id = os.getuid()
@@ -355,7 +397,7 @@ class LibertineChroot(object):
             fd.write("deb http://archive.ubuntu.com/ubuntu " + installed_release + "-updates main\n")
             fd.write("deb http://archive.ubuntu.com/ubuntu " + installed_release + "-updates universe\n")
 
-            fd.close()
+        fd.close()
 
         create_libertine_user_data_dir(self.name)
 
@@ -394,6 +436,16 @@ class LibertineChroot(object):
             command_line = cmd_line_prefix + " ln -s /bin/true /usr/sbin/rsyslogd"
             args = shlex.split(command_line)
             cmd = subprocess.Popen(args).wait()
+
+        print("Updating the contents of the container after creation...")
+        self.update_libertine_container()
+
+        print("Installing Compiz as the Xmir window manager...")
+        self.install_package("compiz")
+        create_compiz_config(self.name)
+
+        # Check if the container was created as root and chown the user directories as necessary
+        chown_recursive_dirs(get_libertine_user_data_dir(self.name))
 
     def update_libertine_container(self):
         if self.series == "trusty":
