@@ -403,7 +403,11 @@ class LibertineChroot(object):
 
         if installed_release == "trusty":
             print("Additional configuration for Trusty chroot...")
-            cmd_line_prefix = "proot -b /usr/lib/locale -S " + self.chroot_path
+
+            proot_cmd = '/usr/bin/proot'
+            if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
+                raise RuntimeError('executable proot not found')
+            cmd_line_prefix = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path
             
             command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /etc/init.d/systemd-logind"
             args = shlex.split(command_line)
@@ -449,14 +453,20 @@ class LibertineChroot(object):
 
     def update_libertine_container(self):
         if self.series == "trusty":
-            command_line = "proot -b /usr/lib/locale -S " + self.chroot_path + " apt-get update"
+            proot_cmd = '/usr/bin/proot'
+            if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
+                raise RuntimeError('executable proot not found')
+            command_line = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path + " apt-get update"
         else:
             command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get update"
         args = shlex.split(command_line)
         cmd = subprocess.Popen(args).wait()
 
         if self.series == "trusty":
-            command_line = "proot -b /usr/lib/locale -S " + self.chroot_path + " apt-get dist-upgrade -y"
+            proot_cmd = '/usr/bin/proot'
+            if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
+                raise RuntimeError('executable proot not found')
+            command_line = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path + " apt-get dist-upgrade -y"
         else:
             command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get dist-upgrade -y"
         args = shlex.split(command_line)
@@ -464,7 +474,10 @@ class LibertineChroot(object):
 
     def install_package(self, package_name):
         if self.series == "trusty":
-            command_line = "proot -b /usr/lib/locale -S " + self.chroot_path + " apt-get install -y " + package_name
+            proot_cmd = '/usr/bin/proot'
+            if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
+                raise RuntimeError('executable proot not found')
+            command_line = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path + " apt-get install -y " + package_name
         else:
             command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get install -y " + package_name
         args = shlex.split(command_line)

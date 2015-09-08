@@ -73,13 +73,13 @@ Description: GObject introspection files for the Libertine application sandbox
  GIR-compliant languages such as Python.
 
 Package: python3-libertine
-Architecture: all
+Architecture: any
 Section: python
 Multi-Arch: allowed
 Depends: debootstrap,
          gir1.2-libertine,
          lxc-templates,
-         proot,
+         proot [amd64 arm64 armhf i386],
          python3-lxc,
          uidmap,
          ${misc:Depends},
