@@ -78,9 +78,11 @@ Section: python
 Multi-Arch: allowed
 Depends: debootstrap,
          gir1.2-libertine,
+         lsb-release,
          lxc-templates,
          proot [amd64 arm64 armhf i386],
          python3-lxc,
+         python3-xdg,
          uidmap,
          ${misc:Depends},
          ${python3:Depends}
