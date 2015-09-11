@@ -77,6 +77,8 @@ Architecture: any
 Section: python
 Multi-Arch: allowed
 Depends: debootstrap,
+         fakechroot,
+         fakeroot,
          gir1.2-libertine,
          lsb-release,
          lxc-templates,
