@@ -1,3 +1,13 @@
+libertine (0.99+15.10.20150910.2-0ubuntu1) wily; urgency=medium
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+  [ Stephen M. Webb ]
+  * python3-libertine: package runtime dependency fixes
+
+ -- Stephen M. Webb <stephen.webb@canonical.com>  Thu, 10 Sep 2015 14:36:22 +0000
+
 libertine (0.99+15.10.20150902.1-0ubuntu1) wily; urgency=medium
 
   [ Stephen M. Webb ]
