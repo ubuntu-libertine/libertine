@@ -390,6 +390,19 @@ class LibertineChroot(object):
             os.remove(os.path.join(self.chroot_path, 'dev'))
             os.remove(os.path.join(self.chroot_path, 'proc'))
 
+            with open(os.path.join(self.chroot_path, 'usr', 'sbin', 'policy-rc.d'), 'w+') as fd:
+                fd.write("#!/bin/sh\n\n")
+                fd.write("while true; do\n")
+                fd.write("case \"$1\" in\n")
+                fd.write("  -*) shift ;;\n")
+                fd.write("  makedev) exit 0;;\n")
+                fd.write("  *)  exit 101;;\n")
+                fd.write("esac\n")
+                fd.write("done\n")
+            fd.close()
+
+            os.chmod(os.path.join(self.chroot_path, 'usr', 'sbin', 'policy-rc.d'), 0o755)
+
         # Add universe and -updates to the chroot's sources.list
         print("Updating chroot's sources.list entries...")
         with open(os.path.join(self.chroot_path, 'etc', 'apt', 'sources.list'), 'a') as fd:
