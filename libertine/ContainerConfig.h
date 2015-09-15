@@ -63,7 +63,7 @@ class ContainerConfig
   Q_ENUMS(InstallStatus)
   Q_PROPERTY(QString containerId READ container_id)
   Q_PROPERTY(QString name READ name WRITE name NOTIFY nameChanged)
-  Q_PROPERTY(QString imageId READ image_id)
+  Q_PROPERTY(QString distroSeries READ distro_series)
   Q_PROPERTY(InstallStatus installStatus READ install_status WRITE install_status NOTIFY installStatusChanged)
 
 public:
@@ -76,7 +76,7 @@ public:
   ContainerConfig(QString const& container_id,
                   QString const& container_name,
                   QString const& container_type,
-                  QString const& image_id,
+                  QString const& distro_series,
                   QObject*       parent = nullptr);
   ContainerConfig(QJsonObject const& json_object,
                   QObject*           parent = nullptr);
@@ -95,7 +95,7 @@ public:
   container_type() const;
 
   QString const&
-  image_id() const;
+  distro_series() const;
 
   InstallStatus
   install_status() const;
@@ -117,7 +117,7 @@ private:
   QString               container_id_;
   QString               container_name_;
   QString               container_type_;
-  QString               image_id_;
+  QString               distro_series_;
   InstallStatus         install_status_;
   QList<ContainerApps*> container_apps_;
 };

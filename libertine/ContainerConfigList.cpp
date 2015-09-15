@@ -108,25 +108,32 @@ ContainerConfigList::
 QString ContainerConfigList::
 addNewContainer(QVariantMap const& image, QString const& type)
 {
-  QString image_id = image["id"].toString();
-  QString id = image_id;
+  QString distro_series = image["distro_series"].toString();
+  QString container_id = image["container_id"].toString();
   QString name = image["name"].toString();
-  int bis = generate_bis(image_id);
+
+  // Work around for now until we implement host distro discovery
+  if (distro_series.isEmpty())
+  {
+    distro_series = container_id;
+  }
+
+  int bis = generate_bis(container_id);
   if (bis > 0)
   {
-    id = QString("%1-%2").arg(id).arg(bis);
+    container_id = QString("%1-%2").arg(container_id).arg(bis);
     name = QString("%1 (%2)").arg(name).arg(bis);
   }
 
   beginInsertRows(QModelIndex(), rowCount(), rowCount());
-  configs_.append(new ContainerConfig(id, name, type, image_id, this));
+  configs_.append(new ContainerConfig(container_id, name, type, distro_series, this));
   if (this->size() == 1)
-    default_container_id_ = id;
+    default_container_id_ = container_id;
 
   save_container_config_list();
   endInsertRows();
 
-  return id;
+  return container_id;
 }
 
 
@@ -325,7 +332,7 @@ roleNames() const
   roles[static_cast<int>(DataRole::ContainerId)]    = "containerId";
   roles[static_cast<int>(DataRole::ContainerName)]  = "name";
   roles[static_cast<int>(DataRole::ContainerType)]  = "type";
-  roles[static_cast<int>(DataRole::ImageId)]        = "imageId";
+  roles[static_cast<int>(DataRole::DistroSeries)]   = "distroSeries";
   roles[static_cast<int>(DataRole::InstallStatus)]  = "installStatus";
   return roles;
 }
@@ -349,8 +356,8 @@ data(QModelIndex const& index, int role) const
       case DataRole::ContainerType:
         result = configs_[index.row()]->container_type();
         break;
-      case DataRole::ImageId:
-        result = configs_[index.row()]->image_id();
+      case DataRole::DistroSeries:
+        result = configs_[index.row()]->distro_series();
         break;
       case DataRole::InstallStatus:
         result = static_cast<int>(configs_[index.row()]->install_status());
@@ -381,7 +388,7 @@ save_container_config_list()
 
 
 int ContainerConfigList::
-generate_bis(QString const& image_id)
+generate_bis(QString const& id)
 {
   int bis = 0;
   int max = 0;
@@ -389,7 +396,7 @@ generate_bis(QString const& image_id)
   for (auto const& config: configs_)
   {
     int found = re.indexIn(config->container_id());
-    if (found >= 0 && re.cap(1) == image_id)
+    if (found >= 0 && re.cap(1) == id)
     {
       ++bis;
       bool ok;

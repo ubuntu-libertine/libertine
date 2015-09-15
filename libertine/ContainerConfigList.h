@@ -61,7 +61,7 @@ public:
     ContainerId = Qt::UserRole + 1,   /**< The container ID */
     ContainerName,                    /**< The container name */
     ContainerType,                    /**< The type of container - lxc or chroot */
-    ImageId,                          /**< The image from which the container was built */
+    DistroSeries,                     /**< The distro from which the container was built */
     InstallStatus,                    /**< Current container install status */
     Error                             /**< last role (error) */
   };
@@ -179,7 +179,7 @@ private:
    * identical container ids and names.
    */
   int
-  generate_bis(QString const& image_id);
+  generate_bis(QString const& distro_series);
 
   void
   save_container_config_list();

@@ -12,17 +12,18 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import lxc
-import subprocess
-import os
-import lsb_release
 import crypt
 import ctypes
-import tempfile
 import io
-import sys
+import json
+import lsb_release
+import lxc
+import os
 import shlex
 import shutil
+import subprocess
+import sys
+import tempfile
 import xdg.BaseDirectory as basedir
 
 from contextlib import contextmanager
@@ -125,6 +126,22 @@ def get_lxc_default_config_path():
 def get_libertine_user_data_dir(name):
     return os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data', name)
 
+def get_libertine_json_file_path():
+    return os.path.join(basedir.xdg_data_home, 'libertine', 'ContainersConfig.json')
+
+def get_container_distro(container_id):
+    container_distro = ""
+
+    with open(get_libertine_json_file_path()) as fd:
+        container_list = json.load(fd)
+        fd.close()
+
+    for container in container_list["containerList"]:
+        if container["id"] == container_id:
+            return container["distro"]
+
+    return ""
+
 def chown_recursive_dirs(path):
     uid = int(os.environ['SUDO_UID'])
     gid = int(os.environ['SUDO_GID'])
@@ -202,7 +219,7 @@ def list_libertine_containers():
 class LibertineLXC(object):
     def __init__(self, name):
         self.container = lxc_container(name)
-        self.series = name.split("-")[0]
+        self.series = get_container_distro(name)
 
     def destroy_libertine_container(self):
         if self.container.defined:
@@ -366,9 +383,10 @@ class LibertineLXC(object):
 class LibertineChroot(object):
     def __init__(self, name):
         self.name = name
-        self.series = name.split("-")[0]
+        self.series = get_container_distro(name)
         self.chroot_path = os.path.join(get_libertine_container_path(), name, "rootfs")
         os.environ['FAKECHROOT_CMD_SUBST'] = '$FAKECHROOT_CMD_SUBST:/usr/bin/chfn=/bin/true'
+        os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
 
     def destroy_libertine_container(self):
         shutil.rmtree(self.chroot_path)

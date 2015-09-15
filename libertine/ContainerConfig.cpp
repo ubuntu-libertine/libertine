@@ -100,11 +100,11 @@ namespace {
   }
 
   QString
-  extract_image_id_from_json(QJsonObject const& json_object,
-                             QString const&     container_id)
+  extract_distro_series_from_json(QJsonObject const& json_object,
+                                  QString const&     container_id)
   {
-    QString image = container_id;
-    QJsonValue value = json_object["image"];
+    QString distro_series = container_id;
+    QJsonValue value = json_object["distro"];
     if (value != QJsonValue::Undefined)
     {
       QJsonValue::Type value_type = value.type();
@@ -113,12 +113,12 @@ namespace {
         QString s = value.toString();
         if (s.length() > 0)
         {
-          image = s;
+          distro_series = s;
         }
       }
     }
 
-    return image;
+    return distro_series;
   }
 
   const static struct { QString string; ContainerConfig::InstallStatus enumeration; } install_status_names[] =
@@ -268,13 +268,13 @@ ContainerConfig::
 ContainerConfig(QString const& container_id,
                 QString const& container_name,
                 QString const& container_type,
-                QString const& image_id,
+                QString const& distro_series,
                 QObject*       parent)
 : QObject(parent)
 , container_id_(container_id)
 , container_name_(container_name)
 , container_type_(container_type)
-, image_id_(image_id)
+, distro_series_(distro_series)
 , install_status_(InstallStatus::New)
 { }
 
@@ -287,7 +287,7 @@ ContainerConfig(QJsonObject const& json_object,
 , container_id_(extract_container_id_from_json(json_object))
 , container_name_(extract_container_name_from_json(json_object, container_id_))
 , container_type_(extract_container_type_from_json(json_object, container_id_))
-, image_id_(extract_image_id_from_json(json_object, container_id_))
+, distro_series_(extract_distro_series_from_json(json_object, container_id_))
 , install_status_(extract_install_status_from_json(json_object))
 , container_apps_(extract_container_apps_from_json(json_object))
 { }
@@ -322,8 +322,8 @@ container_type() const
 
 
 QString const& ContainerConfig::
-image_id() const
-{ return image_id_; }
+distro_series() const
+{ return distro_series_; }
 
 
 ContainerConfig::InstallStatus ContainerConfig::
@@ -354,7 +354,7 @@ toJson() const
   json_object["id"] = container_id_;
   json_object["name"] = container_name_;
   json_object["type"] = container_type_;
-  json_object["image"] = image_id_;
+  json_object["distro"] = distro_series_;
   for (auto const& name: install_status_names)
   {
     if (install_status_ == name.enumeration)

@@ -28,12 +28,12 @@
 /** Verify constructing a New containerConfig DTRT. */
 TEST(LibertineContainerConfig, constructFromScalars)
 {
-  ContainerConfig container_config("id", "name", "type", "image");
+  ContainerConfig container_config("id", "name", "type", "distro");
 
   EXPECT_EQ(container_config.container_id(),   "id");
   EXPECT_EQ(container_config.name(),           "name");
   EXPECT_EQ(container_config.container_type(), "type");
-  EXPECT_EQ(container_config.image_id(),       "image");
+  EXPECT_EQ(container_config.distro_series(),  "distro");
   EXPECT_EQ(container_config.install_status(), ContainerConfig::InstallStatus::New);
 }
 
@@ -45,7 +45,7 @@ TEST(LibertineContainerConfig, constructFromJson)
         "\"id\":            \"wily3\","
         "\"name\":          \"Wily Werewolf\","
         "\"type\":          \"lxc\","
-        "\"image\":         \"wily\","
+        "\"distro\":        \"wily\","
         "\"installedApps\": ["
         "],"
         "\"installStatus\": \"ready\""
@@ -59,7 +59,7 @@ TEST(LibertineContainerConfig, constructFromJson)
 
   EXPECT_EQ(container_config.container_id().toStdString(),   "wily3");
   EXPECT_EQ(container_config.name().toStdString(),           "Wily Werewolf");
-  EXPECT_EQ(container_config.image_id().toStdString(),       "wily");
+  EXPECT_EQ(container_config.distro_series().toStdString(),  "wily");
   EXPECT_EQ(container_config.install_status(), ContainerConfig::InstallStatus::Ready);
   EXPECT_EQ(container_config.container_apps().empty(), true);
 }
@@ -71,7 +71,7 @@ TEST(LibertineContainerConfig, constructFromJsonWithOneApp)
         "\"id\":            \"wily3\","
         "\"name\":          \"Wily Werewolf\","
         "\"type\":          \"lxc\","
-        "\"image\":         \"wily\","
+        "\"distro\":        \"wily\","
         "\"installedApps\": ["
             "{"
                  "\"packageName\": \"firefox\","
@@ -99,7 +99,7 @@ TEST(LibertineContainerConfig, constructFromJsonWithTwoApps)
         "\"id\":            \"wily3\","
         "\"name\":          \"Wily Werewolf\","
         "\"type\":          \"lxc\","
-        "\"image\":         \"wily\","
+        "\"distro\":        \"wily\","
         "\"installedApps\": ["
             "{"
                  "\"packageName\": \"firefox\","

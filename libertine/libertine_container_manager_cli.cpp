@@ -60,12 +60,23 @@ int main (int argc, char *argv[])
     commandlineParser.clearPositionalArguments();
     commandlineParser.addPositionalArgument("create", QCoreApplication::translate("main", "Create a new Libertine container."));
     commandlineParser.addOption({{"t", "type"}, QCoreApplication::translate("main", "Type of container.  Either 'lxc' or 'chroot'."), "container_type"});
-    commandlineParser.addOption({{"s", "series"}, QCoreApplication::translate("main", "Ubuntu distro series to create."), "distro_series"});
+    commandlineParser.addOption({{"d", "distro"}, QCoreApplication::translate("main", "Ubuntu distro series to create."), "distro_series"});
+    commandlineParser.addOption({{"i", "id"}, QCoreApplication::translate("main", "Container identifier."), "container_id"});
     commandlineParser.process(app);
 
     QString password;
     const QString container_type = commandlineParser.value("type");
-    const QString distro_series = commandlineParser.value("series");
+    const QString distro_series = commandlineParser.value("distro");
+
+    QString container_id;
+    if (commandlineParser.isSet("id"))
+    {
+      container_id = commandlineParser.value("id");
+    }
+    else
+    {
+      container_id = distro_series;
+    }
 
     if (container_type == "lxc")
     {
@@ -99,26 +110,27 @@ int main (int argc, char *argv[])
 
     QVariantMap image;
 
+    image.insert("distro_series", distro_series);
     if (distro_series == "trusty")
     {
-      image.insert("id", "trusty");
+      image.insert("container_id", container_id);
       image.insert("name", "Ubuntu 'Trusty Tahr'");
     }
     else if (distro_series == "vivid")
     {
-      image.insert("id", "vivid");
+      image.insert("container_id", container_id);
       image.insert("name", "Ubuntu 'Vivid Vervet'");
     }
     else
     {
-      image.insert("id", "wily");
+      image.insert("container_id", container_id);
       image.insert("name", "Ubuntu 'Wily Werewolf'");
     }
 
-    QString container_id = containers->addNewContainer(image, container_type);
+    QString unique_container_id = containers->addNewContainer(image, container_type);
 
     ContainerManagerWorker *worker = new ContainerManagerWorker(ContainerManagerWorker::ContainerAction::Create,
-                                                                container_id,
+                                                                unique_container_id,
                                                                 container_type,
                                                                 password);
     QObject::connect(worker, SIGNAL(finished()), &app, SLOT(quit()));
@@ -128,14 +140,14 @@ int main (int argc, char *argv[])
   {
     commandlineParser.clearPositionalArguments();
     commandlineParser.addPositionalArgument("destroy", QCoreApplication::translate("main", "Destroy an existing Libertine container."));
-    commandlineParser.addOption({{"n", "name"}, QCoreApplication::translate("main", "Name of container"), "container_name"});
+    commandlineParser.addOption({{"i", "id"}, QCoreApplication::translate("main", "Container identifier."), "container_id"});
 
     commandlineParser.process(app);
 
     QString container_id;
-    if (commandlineParser.isSet("name"))
+    if (commandlineParser.isSet("id"))
     {
-      container_id = commandlineParser.value("name");
+      container_id = commandlineParser.value("id");
     }
     else
     {
@@ -161,15 +173,15 @@ int main (int argc, char *argv[])
     commandlineParser.clearPositionalArguments();
     commandlineParser.addPositionalArgument("install-package", QCoreApplication::translate("main", "Install a package in an existing Libertine container."));
 
-    commandlineParser.addOption({{"n", "name"}, QCoreApplication::translate("main", "Name of container"), "container_name"});
+    commandlineParser.addOption({{"i", "id"}, QCoreApplication::translate("main", "Container identifier."), "container_id"});
     commandlineParser.addOption({{"p", "package"}, QCoreApplication::translate("main", "Name of package to install"), "package_name"});
 
     commandlineParser.process(app);
 
     QString container_id;
-    if (commandlineParser.isSet("name"))
+    if (commandlineParser.isSet("id"))
     {
-      container_id = commandlineParser.value("name");
+      container_id = commandlineParser.value("id");
     }
     else
     {
@@ -200,14 +212,14 @@ int main (int argc, char *argv[])
     commandlineParser.clearPositionalArguments();
     commandlineParser.addPositionalArgument("update", QCoreApplication::translate("main", "Update packages in an existing Libertine container."));
 
-    commandlineParser.addOption({{"n", "name"}, QCoreApplication::translate("main", "Name of container"), "container_name"});
+    commandlineParser.addOption({{"i", "id"}, QCoreApplication::translate("main", "Container identifier."), "container_id"});
 
     commandlineParser.process(app);
 
     QString container_id;
-    if (commandlineParser.isSet("name"))
+    if (commandlineParser.isSet("id"))
     {
-      container_id = commandlineParser.value("name");
+      container_id = commandlineParser.value("id");
     }
     else
     {

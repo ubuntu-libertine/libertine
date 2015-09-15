@@ -1,4 +1,4 @@
 var availableSources = [
-  { id: "wily", name: "Ubuntu 'Wily Werewolf'" },
-  { id: "sid",  name: "Debian 'Unstable'" }
+  { container_id: "wily", name: "Ubuntu 'Wily Werewolf'" },
+  { container_id: "sid",  name: "Debian 'Unstable'" }
 ]
