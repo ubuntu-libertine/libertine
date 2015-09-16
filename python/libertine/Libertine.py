@@ -142,6 +142,15 @@ def get_container_distro(container_id):
 
     return ""
 
+def get_host_architecture():
+    dpkg = subprocess.Popen(['dpkg', '--print-architecture'],
+                            stdout=subprocess.PIPE,
+                            universal_newlines=True)
+    if dpkg.wait() != 0:
+        parser.error("Failed to determine the local architecture.")
+
+    return dpkg.stdout.read().strip()
+
 def chown_recursive_dirs(path):
     uid = int(os.environ['SUDO_UID'])
     gid = int(os.environ['SUDO_GID'])
@@ -263,13 +272,7 @@ class LibertineLXC(object):
         installed_release = get_host_distro_release()
 
         ## Figure out the host architecture
-        dpkg = subprocess.Popen(['dpkg', '--print-architecture'],
-                                stdout=subprocess.PIPE,
-                                universal_newlines=True)
-        if dpkg.wait() != 0:
-            parser.error("Failed to determine the local architecture.")
-
-        architecture = dpkg.stdout.read().strip()
+        architecture = get_host_architecture()
 
         self.container.create("download", 0,
                               {"dist": "ubuntu",
@@ -422,11 +425,16 @@ class LibertineChroot(object):
             os.chmod(os.path.join(self.chroot_path, 'usr', 'sbin', 'policy-rc.d'), 0o755)
 
         # Add universe and -updates to the chroot's sources.list
+        if (get_host_architecture() == 'armhf'):
+            archive = "deb http://ports.ubuntu.com/ubuntu-ports "
+        else:
+            archive = "deb http://archive.ubuntu.com/ubuntu "
+
         print("Updating chroot's sources.list entries...")
         with open(os.path.join(self.chroot_path, 'etc', 'apt', 'sources.list'), 'a') as fd:
-            fd.write("deb http://archive.ubuntu.com/ubuntu " + installed_release + " universe\n")
-            fd.write("deb http://archive.ubuntu.com/ubuntu " + installed_release + "-updates main\n")
-            fd.write("deb http://archive.ubuntu.com/ubuntu " + installed_release + "-updates universe\n")
+            fd.write(archive + installed_release + " universe\n")
+            fd.write(archive + installed_release + "-updates main\n")
+            fd.write(archive + installed_release + "-updates universe\n")
 
         fd.close()
 
