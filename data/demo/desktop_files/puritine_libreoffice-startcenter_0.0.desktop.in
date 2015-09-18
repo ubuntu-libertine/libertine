@@ -2,7 +2,6 @@
 Version=1.0
 Name=LibreOffice
 Exec=/bin/true
-TryExec=/opt/click.ubuntu.com/puritine-@BUILD_ARCH@.canonical/current/trusty/rootfs/bin/true
 Type=Application
 StartupNotify=true
 Icon=/usr/share/libertine/demo/icons/libreoffice-startcenter.png

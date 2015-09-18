@@ -2,7 +2,6 @@
 Version=1.0
 Name=Gedit
 Exec=/bin/true
-TryExec=/opt/click.ubuntu.com/puritine-@BUILD_ARCH@.canonical/current/trusty/rootfs/bin/true
 Type=Application
 StartupNotify=true
 Icon=/usr/share/libertine/demo/icons/accessories-text-editor.svg

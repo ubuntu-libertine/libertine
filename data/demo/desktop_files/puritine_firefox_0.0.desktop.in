@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=Firefox
+Exec=/bin/true
+Type=Application
+StartupNotify=true
+Icon=/usr/share/libertine/demo/icons/firefox.png
+Keywords=Libertine
+NotShowIn=Unity;
+X-Ubuntu-Touch=true
+X-Ubuntu-XMir-Enable=true
