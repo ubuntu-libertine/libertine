@@ -1,3 +1,4 @@
 data/demo/icons/* usr/share/libertine/demo/icons/
 usr/bin/create_bespoke_container
 usr/share/applications/demo/* usr/share/applications/
+usr/share/upstart/sessions/puritine-click.conf
