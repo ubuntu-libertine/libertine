@@ -55,3 +55,9 @@ class TestLibertineGir(TestCase):
         container_id = 'wily-2'
         container_name = Libertine.container_name(container_id)
         self.assertThat(container_name, Equals("Ubuntu 'Wily Werewolf' (2)"))
+
+    def test_list__apps_for_container(self):
+        os.environ['XDG_DATA_HOME'] = self.cmake_source_dir + '/libertine-config'
+  
+        apps = Libertine.list_apps_for_container('wily')
+        self.assertThat(len(apps), Equals(0))

@@ -65,6 +65,17 @@ gchar * libertine_container_home_path(const gchar * container_id);
  */
 gchar * libertine_container_name(const gchar * container_id);
 
+/**
+ * libertine_list_apps_for_container:
+ * @container_id: ID of the container
+ * 
+ * Gets the list of existing apps installed in a container.
+ *
+ * Return value: (transfer full): A NULL terminated list of
+ *     app IDs.  Should be free'd with g_strfreev().
+ */
+gchar ** libertine_list_apps_for_container(const gchar * container_id);
+
 #ifdef __cplusplus
 }
 #endif

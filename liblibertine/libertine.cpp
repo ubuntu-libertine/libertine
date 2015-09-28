@@ -23,6 +23,41 @@
 
 
 gchar **
+libertine_list_apps_for_container(const gchar * container_id)
+{
+  g_return_val_if_fail(container_id != NULL, NULL);
+  gchar * path = NULL;
+  path = libertine_container_path(container_id);
+  GArray * apps = g_array_new(TRUE, TRUE, sizeof(gchar *));
+  GError **error = NULL;
+
+  gchar * fullpath = g_strjoin("/", g_strdup(path), "usr/share/applications", NULL);
+
+  GDir * dir = g_dir_open(fullpath, 0, error);
+  g_return_val_if_fail(dir != NULL, NULL);
+  
+  const gchar * files;
+  while ((files = g_dir_read_name(dir)) != NULL)
+  {
+    gchar *file = g_build_filename(fullpath, files, NULL);
+    if (g_file_test(file, G_FILE_TEST_IS_REGULAR))
+    {
+      gchar * basename = g_path_get_basename(file);
+      gchar ** name = g_strsplit(basename, ".", 0);
+      gchar * app_id = g_strjoin("_", g_strdup(container_id), name[0], "0.0", NULL);
+      g_array_append_val(apps, app_id);
+      g_strfreev(name);
+      g_free(basename);
+    }
+    g_free(file);
+  }
+
+  g_dir_close(dir);
+  g_free(path);
+  return (gchar **)g_array_free(apps, FALSE);
+}
+
+gchar **
 libertine_list_containers(void)
 {
   guint container_count;
