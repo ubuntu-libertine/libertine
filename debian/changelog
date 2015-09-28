@@ -1,3 +1,29 @@
+libertine (0.99.2+15.10.20150918-0ubuntu1) wily; urgency=medium
+
+  [ Chris Townsend ]
+  * Rename desktop files to match the Puritine container name.
+  * Add an upstart job to link to the Puritine container data.
+  * Add a function to determine the architecture used to create the 
+    container and set the container's sources.list entries appropriately.
+  * Add support for explicitly naming a container when creating one and 
+    various variable naming cleanup.
+  * Add a policy-rc.d script to the chroot to keep certain services from
+    starting during package installation.
+  * Add runtime depends for fakechroot and fakeroot.
+  * Install Compiz by default inside the container.
+  * Install the create_bespoke_container script. This script will be moved
+    to lp:puritine in the future.
+  * Add a libertine-demo package that installs desktop files and icons for
+    the supported X apps.
+
+  [ Ted Gould ]
+  * Add an upstart job to link to the Puritine container data.
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Fri, 18 Sep 2015 17:07:23 +0000
+
 libertine (0.99+15.10.20150910.2-0ubuntu1) wily; urgency=medium
 
   [ CI Train Bot ]
