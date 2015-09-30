@@ -1,3 +1,14 @@
+libertine (0.99.3+15.10.20150929-0ubuntu1) wily; urgency=medium
+
+  [ Ken VanDine ]
+  * Added libertine_list_apps_for_container API returning a list of app IDs
+    installed in a container.
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Tue, 29 Sep 2015 11:41:36 +0000
+
 libertine (0.99.2+15.10.20150918-0ubuntu1) wily; urgency=medium
 
   [ Chris Townsend ]
