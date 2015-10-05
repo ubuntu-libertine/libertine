@@ -152,8 +152,13 @@ def get_host_architecture():
     return dpkg.stdout.read().strip()
 
 def chown_recursive_dirs(path):
-    uid = int(os.environ['SUDO_UID'])
-    gid = int(os.environ['SUDO_GID'])
+    uid = None
+    gid = None
+
+    if 'SUDO_UID' in os.environ:
+        uid = int(os.environ['SUDO_UID'])
+    if 'SUDO_GID' in os.environ:
+        gid = int(os.environ['SUDO_GID'])
 
     if uid is not None and gid is not None:
         for root, dirs, files in os.walk(path):
