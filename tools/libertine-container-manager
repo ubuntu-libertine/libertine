@@ -16,61 +16,310 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import optparse
+import argparse
+import json
 import lxc
-import os
 import getpass
+import os
+import sys
+import xdg.BaseDirectory as basedir
 
-from libertine import LibertineContainer, list_libertine_containers
+from distro_info import UbuntuDistroInfo, DistroDataOutdated
+from gi.repository import Libertine
+from libertine import LibertineContainer, list_libertine_containers, \
+      get_host_distro_release
+
+
+def get_container_config_path():
+    return os.path.join(basedir.xdg_data_home, 'libertine')
+
+
+def get_container_config_file():
+    return os.path.join(get_container_config_path(), 'ContainersConfig.json')
+
+
+def read_container_config_file():
+    container_list = {}
+    container_config_file = get_container_config_file()
+
+    if os.path.exists(container_config_file):
+        with open(container_config_file, 'r') as fd:
+            container_list = json.load(fd)
+
+        fd.close()
+
+    return container_list
+
+
+def write_container_config_file(container_list):
+    container_config_file = get_container_config_file()
+
+    with open(container_config_file, 'w') as fd:
+        json.dump(container_list, fd, sort_keys=True, indent=4)
+        fd.write('\n')
+
+    fd.close()
+
+
+def get_default_container_id():
+    default_container_id = None
+
+    container_list = read_container_config_file()
+
+    if "defaultContainer" in container_list:
+        default_container_id = container_list['defaultContainer']
+
+    return default_container_id
+
+
+def get_container_type(container_id):
+    container_type = None
+
+    container_list = read_container_config_file()
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            container_type = container['type']
+            break
+
+    return container_type
+
+
+def is_distro_valid(distro):
+    supported_distros = UbuntuDistroInfo().supported()
+
+    try:
+        supported_distros.index(distro)
+    except ValueError:
+        return False
+
+    return True
+
+
+def get_distro_codename(distro):
+    ubuntu_distro_info = UbuntuDistroInfo()
+
+    for row in ubuntu_distro_info._rows:
+        if row['series'] == distro:
+            return row['codename']
+
+    return None
+
+
+def container_exists(container_id):
+    container_list = read_container_config_file()
+
+    if container_list:
+        for container in container_list['containerList']:
+            if container['id'] == container_id:
+                return True
+
+    return False
+
+
+def add_new_container(id, name, type, distro):
+    if not os.path.exists(get_container_config_path()):
+        os.mkdirs(get_container_config_path())
+
+    container_list = read_container_config_file()
+
+    container_obj = {'id': id, 'installStatus': 'new', 'type': type,
+                     'distro': distro, 'name': name, 'installedApps': []}
+
+    if "defaultContainer" not in container_list:
+        container_list['defaultContainer'] = id
+
+    if "containerList" not in container_list:
+        container_list['containerList'] = [container_obj]
+    else:
+        container_list['containerList'].append(container_obj)
+
+    write_container_config_file(container_list)
+
+
+def delete_container(container_id):
+    container_list = read_container_config_file()
+
+    if not container_list:
+        print("Unable to delete container.  No containers defined.")
+        sys.exit(1)
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            container_list['containerList'].remove(container)
+
+            # Set a new defaultContainer if the current default is being deleted.
+            if container_list['defaultContainer'] == container_id and container_list['containerList']:
+                container_list['defaultContainer'] = container_list['containerList'][0]['id']
+            # Remove the defaultContainer if there are no more containers left.
+            elif not container_list['containerList']:
+                del container_list['defaultContainer']
+
+            write_container_config_file(container_list)
+            break
+
+
+def package_exists(container, package_name):
+    for package in container['installedApps']:
+        if package['packageName'] == package_name:
+            return True
+
+    return False
+
+
+def add_new_package(container_id, package_name):
+    container_list = read_container_config_file()
+
+    if not container_list:
+        print("No containers defined.  Please create a new container before installing a package.")
+        sys.exit(1)
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            package_obj = {'packageName': package_name, 'appStatus': 'new'}
+
+            if not container['installedApps']:
+                container['installedApps'] = [package_obj]
+            elif package_exists(container, package_name):
+                print("Package \'%s\' is already installed." % package_name)
+                sys.exit(1)
+            else:
+                container['installedApps'].append(package_obj)
+
+            write_container_config_file(container_list)
+            break
+
+
+def create(args):
+    password = None
+
+    if args.distro and not is_distro_valid(args.distro):
+        print("Invalid distro %s" % args.distro, file=sys.stderr)
+        sys.exit(1)
+
+    if not args.distro:
+        args.distro = get_host_distro_release()
+
+    if not args.name:
+        args.name = "Ubuntu \'" + get_distro_codename(args.distro) + "\'"
+
+    if args.id and container_exists(args.id):
+        print("Container id \'%s\' is already used." % args.id, file=sys.stderr)
+        sys.exit(1)
+    elif not args.id:
+        args.id = get_unique_container_id(distro)
+
+    if args.type == "lxc":
+        print("Your user password is required for creating a Libertine container.")
+        password = getpass.getpass()
+
+    add_new_container(args.id, args.name, args.type, args.distro)
+
+    container = LibertineContainer(args.id, args.type)
+    container.create_libertine_container(password)
+
+
+def destroy(args):
+    if args.id and not container_exists(args.id):
+        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
+        sys.exit(1)
+    elif not args.id:
+        args.id = get_default_container_id()
+
+    container = LibertineContainer(args.id, get_container_type(args.id))
+    container.destroy_libertine_container()
+    delete_container(args.id)
+
+
+def install_package(args):
+    if args.id and not container_exists(args.id):
+        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
+        sys.exit(1)
+    elif not args.id:
+        args.id = get_default_container_id()
+
+    add_new_package(args.id, args.package)
+
+    container = LibertineContainer(args.id, get_container_type(args.id))
+    container.install_package(args.package)
+
+
+def update(args):
+    if args.id and not container_exists(args.id):
+        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
+        sys.exit(1)
+    elif not args.id:
+        args.id = get_default_container_id()
+
+    container = LibertineContainer(args.id, get_container_type(args.id))
+    container.update_libertine_container()
+
+
+def list(args):
+    containers = Libertine.list_containers()
+    for container in containers:
+        print("%s" % container)
+
 
 if __name__ == '__main__':
-    parser = optparse.OptionParser(description="Legacy X application support for Unity 8")
-    parser.add_option(
-        "--destroy", action="store", type="string",
-        help=("Destroy any existing environment entirely."))
-    parser.add_option(
-        "--update-container", action="store", type="string",
-        help=("Update the packages in the Legacy X Apps LXC."))
-    parser.add_option(
-        "--create", action="store", type="string",
+    parser = argparse.ArgumentParser(description="Legacy X application support for Unity 8")
+    subparsers = parser.add_subparsers(dest="subparser_name")
+
+    # Handle the create command and its options
+    parser_create = subparsers.add_parser(
+        'create',
         help=("Create a new Libertine container."))
-    parser.add_option(
-        "--container-type", action="store", type="string",
-        help=("Type of Libertine container to create. lxc | chroot"))
-    parser.add_option(
-        "--list", action="store_true",
-        help=("List all Libertine containers."))
-    parser.add_option(
-        "--install-package", action="store", type="string",
+    parser_create.add_argument(
+        '-i', '--id',
+        required=True,
+        help=("Container identifier."))
+    parser_create.add_argument(
+        '-t', '--type', default="lxc",
+        help=("Type of Libertine container to create. Either 'lxc' or 'chroot'."))
+    parser_create.add_argument(
+        '-d', '--distro',
+        help=("Ubuntu distro series to create."))
+    parser_create.add_argument(
+        '-n', '--name',
+        help=("User friendly container name."))
+    parser_create.set_defaults(func=create)
+
+    # Handle the destroy command and its options
+    parser_destroy = subparsers.add_parser(
+        'destroy',
+        help=("Destroy any existing environment entirely."))
+    parser_destroy.add_argument(
+        '-i', '--id',
+        help=("Container identifier.  Default container is used if omitted."))
+    parser_destroy.set_defaults(func=destroy)
+
+    # Handle the install-package command and its options
+    parser_install = subparsers.add_parser(
+        'install-package',
         help=("Install a package in the specified Libertine container."))
-    parser.add_option(
-        "--package-name", action="store", type="string",
-        help=("The name of the package to install into the Libertine container."))
+    parser_install.add_argument(
+        '-p', '--package',
+        required=True,
+        help=("Name of package to install."))
+    parser_install.add_argument(
+        '-i', '--id',
+        help=("Container identifier.  Default container is used if omitted."))
+    parser_install.set_defaults(func=install_package)
 
-    (options, args) = parser.parse_args()
+    # Handle the update command and its options
+    parser_update = subparsers.add_parser(
+        'update',
+        help=("Update the packages in the Libertine container."))
+    parser_update.add_argument(
+        '-i', '--id',
+        help=("Container identifier.  Default container is used if omitted."))
+    parser_update.set_defaults(func=update)
 
-    if options.destroy:
-        container = LibertineContainer(options.destroy, options.container_type)
-        container.destroy_libertine_container()
+    # Handle the list command
+    parser_list = subparsers.add_parser(
+        "list",
+        help=("List all Libertine containers."))
+    parser_list.set_defaults(func=list)
 
-    if options.update_container:
-        container = LibertineContainer(options.update_container, options.container_type)
-        container.update_libertine_container()
-
-    if options.list:
-        containers = list_libertine_containers()
-        for container in containers:
-            print("%s" % container)
-
-    if options.create:
-        password = None
-
-        if options.container_type == "lxc":
-            print("Your user password is required for creating a Libertine container.")
-            password = getpass.getpass()
-        container = LibertineContainer(options.create, options.container_type)
-        container.create_libertine_container(password)
-
-    if options.install_package and options.package_name:
-        container = LibertineContainer(options.install_package, options.container_type)
-        container.install_package(options.package_name)
+    args = parser.parse_args()
+    args.func(args)
