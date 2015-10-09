@@ -36,4 +36,4 @@ add_test(test_libertine_container_manager
 set_tests_properties(test_libertine_container_manager
                      PROPERTIES
                      ENVIRONMENT
-                     "CMAKE_BINARY_DIR=${CMAKE_BINARY_DIR};PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_SOURCE_DIR}/python;CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}")
+                     "GI_TYPELIB_PATH=${CMAKE_BINARY_DIR}/liblibertine;LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/liblibertine:${LD_LIBRARY_PATH};CMAKE_BINARY_DIR=${CMAKE_BINARY_DIR};PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_SOURCE_DIR}/python;CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}")
