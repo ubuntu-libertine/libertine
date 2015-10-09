@@ -13,8 +13,6 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import crypt
-import ctypes
-import io
 import json
 import lsb_release
 import lxc
@@ -26,66 +24,8 @@ import sys
 import tempfile
 import xdg.BaseDirectory as basedir
 
-from contextlib import contextmanager
-
 home_path = os.environ['HOME']
 
-libc = ctypes.CDLL(None)
-c_stdout = ctypes.c_void_p.in_dll(libc, 'stdout')
-
-@contextmanager
-def output_redirector(stream):
-    # The original fd stdout points to. Usually 1 on POSIX systems.
-    original_stdout_fd = sys.stdout.fileno()
-    original_stderr_fd = sys.stderr.fileno()
-
-    def _redirect_output(to_fd):
-        """Redirect stdout/stderr to the given file descriptor."""
-        # Flush the C-level buffer stdout
-        libc.fflush(c_stdout)
-        # Flush and close sys.stdout/sys.stderr - also closes the file descriptor (fd)
-        sys.stdout.close()
-        sys.stderr.close()
-        # Make original_stdout_fd point to the same file as to_fd
-        os.dup2(to_fd, original_stdout_fd)
-        # Create a new sys.stdout that points to the redirected fd
-        sys.stdout = io.TextIOWrapper(os.fdopen(original_stdout_fd, 'wb'))
-
-        # Make original_stderr_fd point to sys.stdout fd
-        os.dup2(sys.stdout.fileno(), original_stderr_fd)
-        # Create a new sys.stderr that points to the redirected fd
-        sys.stderr = io.TextIOWrapper(os.fdopen(original_stderr_fd, 'wb'))
-
-    def _restore_output(stdout_fd, stderr_fd):
-        libc.fflush(c_stdout)
-
-        sys.stdout.close()
-        sys.stderr.close()
-
-        os.dup2(stdout_fd, original_stdout_fd)
-        os.dup2(stderr_fd, original_stderr_fd)
-
-        sys.stdout = io.TextIOWrapper(os.fdopen(original_stdout_fd, 'wb'))
-        sys.stderr = io.TextIOWrapper(os.fdopen(original_stderr_fd, 'wb'))
-
-    # Save a copy of the original stdout fd in saved_stdout_fd
-    saved_stdout_fd = os.dup(original_stdout_fd)
-    saved_stderr_fd = os.dup(original_stderr_fd)
-    try:
-        # Create a temporary file and redirect stdout to it
-        tfile = tempfile.TemporaryFile(mode='w+b')
-        _redirect_output(tfile.fileno())
-        # Yield to caller, then redirect stdout back to the saved fd
-        yield
-        _restore_output(saved_stdout_fd, saved_stderr_fd)
-        # Copy contents of temporary file to the given stream
-        tfile.flush()
-        tfile.seek(0, io.SEEK_SET)
-        stream.write(tfile.read())
-    finally:
-        tfile.close()
-        os.close(saved_stdout_fd)
-        os.close(saved_stderr_fd)
 
 def check_lxc_net_entry(entry):
     lxc_net_file = open('/etc/lxc/lxc-usernet')
@@ -97,6 +37,7 @@ def check_lxc_net_entry(entry):
             break
 
     return found
+
 
 def setup_host_environment(username, password):
     lxc_net_entry = "%s veth lxcbr0 10" % str(username)
@@ -112,22 +53,28 @@ def setup_host_environment(username, password):
         add_user_cmd = "echo %s | sudo tee -a /etc/lxc/lxc-usernet > /dev/null" % lxc_net_entry
         subprocess.Popen(add_user_cmd, shell=True)
 
+
 def get_host_distro_release():
     distinfo = lsb_release.get_distro_information()
 
     return distinfo.get('CODENAME', 'n/a')
 
+
 def get_libertine_container_path():
     return basedir.save_cache_path('libertine-container')
+
 
 def get_lxc_default_config_path():
     return os.path.join(home_path, '.config', 'lxc')
 
+
 def get_libertine_user_data_dir(name):
     return os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data', name)
 
+
 def get_libertine_json_file_path():
     return os.path.join(basedir.xdg_data_home, 'libertine', 'ContainersConfig.json')
+
 
 def get_container_distro(container_id):
     container_distro = ""
@@ -142,6 +89,7 @@ def get_container_distro(container_id):
 
     return ""
 
+
 def get_host_architecture():
     dpkg = subprocess.Popen(['dpkg', '--print-architecture'],
                             stdout=subprocess.PIPE,
@@ -150,6 +98,7 @@ def get_host_architecture():
         parser.error("Failed to determine the local architecture.")
 
     return dpkg.stdout.read().strip()
+
 
 def chown_recursive_dirs(path):
     uid = None
@@ -169,11 +118,13 @@ def chown_recursive_dirs(path):
 
         os.chown(path, uid, gid)
 
+
 def create_libertine_user_data_dir(name):
     user_data = get_libertine_user_data_dir(name)
 
     if not os.path.exists(user_data):
         os.makedirs(user_data)
+
 
 def create_compiz_config(name):
     user_data = get_libertine_user_data_dir(name)
@@ -197,6 +148,7 @@ def create_compiz_config(name):
         fd.write("s0_mode = 3")
     fd.close()
 
+
 def start_container_for_update(container):
     if not container.running:
         print("Starting the container...")
@@ -219,16 +171,13 @@ def start_container_for_update(container):
 
     return True
 
+
 def lxc_container(name):
     config_path = get_libertine_container_path()
     container = lxc.Container(name, config_path)
 
     return container
 
-def list_libertine_containers():
-    containers = lxc.list_containers(config_path=get_libertine_container_path())
-
-    return containers
 
 class LibertineLXC(object):
     def __init__(self, name):
@@ -273,10 +222,10 @@ class LibertineLXC(object):
 
         create_libertine_user_data_dir(self.container.name)
 
-        ## Get to the codename of the host Ubuntu release so container will match
+        # Get to the codename of the host Ubuntu release so container will match
         installed_release = get_host_distro_release()
 
-        ## Figure out the host architecture
+        # Figure out the host architecture
         architecture = get_host_architecture()
 
         self.container.create("download", 0,
@@ -331,7 +280,7 @@ class LibertineLXC(object):
         self.container.clear_config_item("lxc.tty")
         self.container.set_config_item("lxc.tty", "0")
 
-        ## Dump it all to disk
+        # Dump it all to disk
         self.container.save_config()
 
     def update_libertine_container(self):
@@ -343,46 +292,38 @@ class LibertineLXC(object):
         self.container.attach_wait(lxc.attach_run_command,
                                    ["apt-get", "dist-upgrade", "-y"])
 
-        ## Stopping the container
+        # Stopping the container
         self.container.stop()
 
     def install_package(self, package_name):
-        f = io.BytesIO()
         stop_container = False
 
         if not self.container.running:
             if not start_container_for_update(self.container):
-              return (False, "Container did not start")
+                return (False, "Container did not start")
             stop_container = True
 
-        with output_redirector(f):
-            retval = self.container.attach_wait(lxc.attach_run_command,
-                                                ["apt-get", "install", "-y", "--no-install-recommends", package_name])
+        retval = self.container.attach_wait(lxc.attach_run_command,
+                                            ["apt-get", "install", "-y", "--no-install-recommends", package_name])
 
         if stop_container:
             self.container.stop()
 
         if retval != 0:
-            lxc_output = f.getvalue().split(b'\n')
-
-            for line in lxc_output:
-                if line.decode().startswith('E: '):
-                    return (False, line.decode().lstrip('E: '))
+            return False
 
         return True
 
     def remove_package(self, package_name):
-        f = io.BytesIO()
         stop_container = False
 
         if not self.container.running:
             if not start_container_for_update(self.container):
-              return (False, "Container did not start")
+                return (False, "Container did not start")
             stop_container = True
 
-        with output_redirector(f):
-            retval = self.container.attach_wait(lxc.attach_run_command,
-                                                ["apt-get", "remove", "-y", package_name])
+        retval = self.container.attach_wait(lxc.attach_run_command,
+                                            ["apt-get", "remove", "-y", package_name])
 
         if stop_container:
             self.container.stop()
@@ -452,7 +393,7 @@ class LibertineChroot(object):
             if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
                 raise RuntimeError('executable proot not found')
             cmd_line_prefix = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path
-            
+
             command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /etc/init.d/systemd-logind"
             args = shlex.split(command_line)
             cmd = subprocess.Popen(args).wait()
@@ -532,6 +473,27 @@ class LibertineChroot(object):
         args = shlex.split(command_line)
         cmd = subprocess.Popen(args).wait()
 
+
+class LibertineMock(object):
+    def __init__(self, name):
+        self.name = name
+
+    def destroy_libertine_container(self):
+        return True
+
+    def create_libertine_container(self, password=None):
+        return True
+
+    def update_libertine_container(self):
+        return True
+
+    def install_package(self, package_name):
+        return True
+
+    def remove_package(self, package_name):
+        return True
+
+
 class LibertineContainer(object):
     """
     A sandbox for DEB-packaged X11-based applications.
@@ -540,10 +502,10 @@ class LibertineContainer(object):
         super().__init__()
         if container_type == "lxc":
             self.container = LibertineLXC(name)
-
         elif container_type == "chroot":
             self.container = LibertineChroot(name)
-
+        elif container_type == "mock":
+            self.container = LibertineMock(name)
         else:
             print("Unsupported container type %s" % container_type)
 
@@ -553,14 +515,11 @@ class LibertineContainer(object):
     def create_libertine_container(self, password=None):
         self.container.create_libertine_container(password)
 
-    def create_libertine_config(self):
-        self.container.create_libertine_config()
-
     def update_libertine_container(self):
         self.container.update_libertine_container()
 
     def install_package(self, package_name):
-        self.container.install_package(package_name)
+        return self.container.install_package(package_name)
 
     def remove_package(self, package_name):
         self.container.remove_package(package_name)

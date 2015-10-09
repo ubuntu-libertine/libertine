@@ -26,8 +26,7 @@ import xdg.BaseDirectory as basedir
 
 from distro_info import UbuntuDistroInfo, DistroDataOutdated
 from gi.repository import Libertine
-from libertine import LibertineContainer, list_libertine_containers, \
-      get_host_distro_release
+from libertine import LibertineContainer, get_host_distro_release
 
 
 def get_container_config_path():
@@ -119,7 +118,7 @@ def container_exists(container_id):
 
 def add_new_container(id, name, type, distro):
     if not os.path.exists(get_container_config_path()):
-        os.mkdirs(get_container_config_path())
+        os.makedirs(get_container_config_path())
 
     container_list = read_container_config_file()
 
@@ -159,10 +158,17 @@ def delete_container(container_id):
             break
 
 
-def package_exists(container, package_name):
-    for package in container['installedApps']:
-        if package['packageName'] == package_name:
-            return True
+def package_exists(container_id, package_name):
+    container_list = read_container_config_file()
+
+    if not container_list:
+        return False
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            for package in container['installedApps']:
+                if package['packageName'] == package_name:
+                    return True
 
     return False
 
@@ -180,14 +186,30 @@ def add_new_package(container_id, package_name):
 
             if not container['installedApps']:
                 container['installedApps'] = [package_obj]
-            elif package_exists(container, package_name):
-                print("Package \'%s\' is already installed." % package_name)
-                sys.exit(1)
             else:
                 container['installedApps'].append(package_obj)
 
             write_container_config_file(container_list)
             break
+
+
+def delete_package(container_id, package_name):
+    container_list = read_container_config_file()
+
+    if not container_list:
+        print("No containers defined.  Please create a new container before installing a package.")
+        sys.exit(1)
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            for package in container['installedApps']:
+                if package['packageName'] == package_name:
+                    container['installedApps'].remove(package)
+                    write_container_config_file(container_list)
+                    return
+
+    print("Package \'%s\' does not exist." % package_name)
+    sys.exit(1)
 
 
 def create(args):
@@ -210,8 +232,11 @@ def create(args):
         args.id = get_unique_container_id(distro)
 
     if args.type == "lxc":
-        print("Your user password is required for creating a Libertine container.")
-        password = getpass.getpass()
+        if sys.stdin.isatty():
+            print("Your user password is required for creating a Libertine container.")
+            password = getpass.getpass()
+        else:
+            password = sys.stdin.readline().rstrip()
 
     add_new_container(args.id, args.name, args.type, args.distro)
 
@@ -238,10 +263,34 @@ def install_package(args):
     elif not args.id:
         args.id = get_default_container_id()
 
+    if package_exists(args.id, args.package):
+        print("Package \'%s\' is already installed." % args.package)
+        sys.exit(1)
+
     add_new_package(args.id, args.package)
 
     container = LibertineContainer(args.id, get_container_type(args.id))
-    container.install_package(args.package)
+
+    if not container.install_package(args.package):
+        delete_package(args.id, args.package)
+        sys.exit(1)
+
+
+def remove_package(args):
+    if args.id and not container_exists(args.id):
+        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
+        sys.exit(1)
+    elif not args.id:
+        args.id = get_default_container_id()
+
+    if not package_exists(args.id, args.package):
+        print("Package \'%s\' is not installed." % args.package)
+        sys.exit(1)
+
+    container = LibertineContainer(args.id, get_container_type(args.id))
+    container.remove_package(args.package)
+
+    delete_package(args.id, args.package)
 
 
 def update(args):
@@ -305,6 +354,19 @@ if __name__ == '__main__':
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
     parser_install.set_defaults(func=install_package)
+
+    # Handle the remove-package command and its options
+    parser_install = subparsers.add_parser(
+        'remove-package',
+        help=("Remove a package in the specified Libertine container."))
+    parser_install.add_argument(
+        '-p', '--package',
+        required=True,
+        help=("Name of package to install."))
+    parser_install.add_argument(
+        '-i', '--id',
+        help=("Container identifier.  Default container is used if omitted."))
+    parser_install.set_defaults(func=remove_package)
 
     # Handle the update command and its options
     parser_update = subparsers.add_parser(

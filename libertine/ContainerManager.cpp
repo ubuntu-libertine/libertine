@@ -18,6 +18,12 @@
  */
 #include "libertine/ContainerManager.h"
 
+#include <QtCore/QProcess>
+
+
+const QString ContainerManagerWorker::libertine_container_manager_tool = "libertine-container-manager";
+
+
 ContainerManagerWorker::
 ContainerManagerWorker()
 { }
@@ -30,9 +36,7 @@ ContainerManagerWorker(ContainerAction container_action,
 : container_action_(container_action)
 , container_id_(container_id)
 , container_type_(container_type)
-{
-  CreateContainerManager();
-}
+{ }
 
 
 ContainerManagerWorker::
@@ -44,23 +48,12 @@ ContainerManagerWorker(ContainerAction container_action,
 , container_id_(container_id)
 , container_type_(container_type)
 , data_(data)
-{
-  CreateContainerManager();
-}
+{ }
 
 
 ContainerManagerWorker::
 ~ContainerManagerWorker()
-{
-  delete manager_;
-}
-
-
-void ContainerManagerWorker::
-CreateContainerManager()
-{
-  manager_ = new LibertineManagerWrapper(container_id_.toStdString().c_str(), container_type_.toStdString().c_str());
-}
+{ }
 
 
 ContainerManagerWorker::ContainerAction ContainerManagerWorker::
@@ -145,7 +138,21 @@ run()
 void ContainerManagerWorker::
 createContainer(QString const& password)
 {
-  manager_->CreateLibertineContainer(password.toStdString().c_str());
+  QProcess libertine_cli_tool;
+  QString exec_line = libertine_container_manager_tool;
+  QStringList args;
+
+  args << "create" << "-i" << container_id_ << "-t" << container_type_ << "-d" << "wily";
+
+  libertine_cli_tool.start(exec_line, args);
+
+  if (!libertine_cli_tool.waitForStarted())
+      quit();
+
+  libertine_cli_tool.write(password.toStdString().c_str()); 
+  libertine_cli_tool.closeWriteChannel();
+
+  libertine_cli_tool.waitForFinished();
 
   emit finished();
   quit();
@@ -155,7 +162,17 @@ createContainer(QString const& password)
 void ContainerManagerWorker::
 destroyContainer()
 {
-  manager_->DestroyLibertineContainer();
+  QProcess libertine_cli_tool;
+  QString exec_line = libertine_container_manager_tool;
+  QStringList args;
+
+  args << "destroy" << "-i" << container_id_;
+  libertine_cli_tool.start(exec_line, args);
+
+  if (!libertine_cli_tool.waitForStarted())
+      quit();
+
+  libertine_cli_tool.waitForFinished();
 
   emit finishedDestroy(container_id_);
   emit finished();
@@ -166,11 +183,27 @@ destroyContainer()
 void ContainerManagerWorker::
 installPackage(QString const& package_name)
 {
-  char error_msg[1024];
-  char *buff_ptr = error_msg;
-  bool result;
+  QByteArray error_msg;
+  bool result = true;
 
-  result = manager_->InstallPackageInContainer(package_name.toStdString().c_str(), &buff_ptr);
+  QProcess libertine_cli_tool;
+  QString exec_line = libertine_container_manager_tool;
+  QStringList args;
+
+  args << "install-package" << "-i" << container_id_ << "-p" << package_name;
+
+  libertine_cli_tool.start(exec_line, args);
+
+  if (!libertine_cli_tool.waitForStarted())
+      quit();
+
+  libertine_cli_tool.waitForFinished();
+
+  if (libertine_cli_tool.exitCode() != 0)
+  {
+    error_msg = libertine_cli_tool.readAllStandardError();
+    result = false;
+  }
 
   emit finishedInstall(result, QString(error_msg));
   emit finished();
@@ -181,11 +214,26 @@ installPackage(QString const& package_name)
 void ContainerManagerWorker::
 removePackage(QString const& package_name)
 {
-  char error_msg[1024];
-  char *buff_ptr = error_msg;
-  bool result;
+  QByteArray error_msg;
+  bool result = true;
 
-  result = manager_->RemovePackageInContainer(package_name.toStdString().c_str(), &buff_ptr);
+  QProcess libertine_cli_tool;
+  QString exec_line = libertine_container_manager_tool;
+  QStringList args;
+
+  args << "remove-package" << "-i" << container_id_ << "-p" << package_name;
+  libertine_cli_tool.start(exec_line, args);
+
+  if (!libertine_cli_tool.waitForStarted())
+      quit();
+
+  libertine_cli_tool.waitForFinished();
+
+  if (libertine_cli_tool.exitCode() != 0)
+  {
+    error_msg = libertine_cli_tool.readAllStandardError();
+    result = false;
+  }
 
   emit finishedRemove(result, QString(error_msg));
   emit finished();
@@ -196,7 +244,18 @@ removePackage(QString const& package_name)
 void ContainerManagerWorker::
 updateContainer()
 {
-  manager_->UpdateLibertineContainer();
+  QProcess libertine_cli_tool;
+  QString exec_line = libertine_container_manager_tool;
+  QStringList args;
+
+  args << "update" << "-i" << container_id_;
+
+  libertine_cli_tool.start(exec_line, args);
+
+  if (!libertine_cli_tool.waitForStarted())
+      quit();
+
+  libertine_cli_tool.waitForFinished();
 
   emit finished();
   quit();

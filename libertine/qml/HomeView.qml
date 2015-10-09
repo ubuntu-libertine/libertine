@@ -103,7 +103,6 @@ Page {
         var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Update,
                                               "containerId": mainView.currentContainer,
                                               "containerType": containerConfigList.getContainerType(mainView.currentContainer)})
-        worker.CreateContainerManager()
         worker.start()
     }
 
@@ -113,7 +112,6 @@ Page {
                                               "containerId": mainView.currentContainer,
                                               "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                               "data": packageName})
-        worker.CreateContainerManager()
         worker.start()
     }
 }

@@ -22,9 +22,9 @@
 
 __all__ = [
           # from Libertine
-          'LibertineContainer', 'list_libertine_containers', 'get_host_distro_release'
+          'LibertineContainer', 'get_host_distro_release'
           ]
 
 __docformat__ = "restructuredtext en"
 
-from libertine.Libertine import LibertineContainer, list_libertine_containers, get_host_distro_release
+from libertine.Libertine import LibertineContainer, get_host_distro_release

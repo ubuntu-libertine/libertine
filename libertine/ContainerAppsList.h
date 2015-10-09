@@ -19,7 +19,6 @@
 #ifndef _CONTAINER_APPS_LIST_H_
 #define _CONTAINER_APPS_LIST_H_
 
-#include "libertine/libertine_lxc_manager_wrapper.h"
 #include "libertine/ContainerConfig.h"
 
 #include <QtCore/QAbstractListModel>

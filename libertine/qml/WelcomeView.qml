@@ -38,7 +38,6 @@ Page {
                                               "containerId": container_id,
                                               "containerType": "lxc",
                                               "data": password})
-        worker.CreateContainerManager()
         worker.start()
     }
 

@@ -19,8 +19,6 @@
 #ifndef CONTAINER_CONTAINERCONFIG_H
 #define CONTAINER_CONTAINERCONFIG_H
 
-#include "libertine/libertine_lxc_manager_wrapper.h"
-
 #include <QtCore/QJsonObject>
 #include <QtCore/QObject>
 #include <QtCore/QString>

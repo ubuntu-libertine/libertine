@@ -107,7 +107,6 @@ Page {
                                               "containerId": mainView.currentContainer,
                                               "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                               "data": appName.text})
-        worker.CreateContainerManager()
         worker.finishedInstall.connect(finishedInstall)
         worker.start()
     }

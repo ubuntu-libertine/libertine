@@ -19,8 +19,6 @@
 #ifndef CONTAINER_CONTAINERMANAGER_H_
 #define CONTAINER_CONTAINERMANAGER_H_
 
-#include "libertine/libertine_lxc_manager_wrapper.h"
-
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QThread>
@@ -36,6 +34,8 @@ class ContainerManagerWorker
   Q_PROPERTY(QString data READ data WRITE data NOTIFY dataChanged)
 
 public:
+  static const QString libertine_container_manager_tool;
+
   enum class ContainerAction
   : int
   {
@@ -56,9 +56,6 @@ public:
                          QString const& container_type,
                          QString const& data);
   ~ContainerManagerWorker();
-
-  Q_INVOKABLE void
-  CreateContainerManager();
 
   ContainerAction
   container_action() const;
@@ -96,7 +93,6 @@ private:
 
 private:
   ContainerAction container_action_;
-  LibertineManagerWrapper *manager_;
   QString container_id_;
   QString container_type_;
   QString data_;

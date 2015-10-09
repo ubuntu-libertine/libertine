@@ -130,7 +130,6 @@ addNewContainer(QVariantMap const& image, QString const& type)
   if (this->size() == 1)
     default_container_id_ = container_id;
 
-  save_container_config_list();
   endInsertRows();
 
   return container_id;
@@ -161,7 +160,6 @@ deleteContainer(QString const& container_id)
       default_container_id_ = "";
     }
 
-    save_container_config_list();
     endRemoveRows();
   }
 
@@ -177,9 +175,6 @@ addNewApp(QString const& container_id, QString const& package_name)
     if (config->container_id() == container_id)
     {
       config->container_apps().append(new ContainerApps(package_name, ContainerApps::AppStatus::New, this));
-
-      save_container_config_list();
-
       break;
     }
   }
@@ -192,8 +187,6 @@ removeApp(QString const& container_id, int index)
   int container_index = getContainerIndex(container_id);
 
   configs_.at(container_index)->container_apps().removeAt(index);
-
-  save_container_config_list();
 }
 
 
@@ -368,22 +361,6 @@ data(QModelIndex const& index, int role) const
   }
 
   return result;
-}
-
-
-void ContainerConfigList::
-save_container_config_list()
-{
-  QFile config_file(config_->containers_config_file_name());
-  if (!config_file.open(QIODevice::WriteOnly))
-  {
-    qWarning() << "could not open containers config file " << config_file.fileName();
-  }
-  else
-  {
-    QJsonDocument jdoc(toJson());
-    config_file.write(jdoc.toJson(QJsonDocument::Indented));
-  }
 }
 
 

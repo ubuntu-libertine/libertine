@@ -60,7 +60,6 @@ Page {
                             var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Destroy,
                                                                   "containerId": containerId,
                                                                   "containerType": containerConfigList.getContainerType(containerId)})
-                            worker.CreateContainerManager()
                             worker.finishedDestroy.connect(deleteContainer)
                             worker.start()
                         }

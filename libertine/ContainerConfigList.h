@@ -19,8 +19,6 @@
 #ifndef CONTAINER_CONTAINERCONFIGLIST_H
 #define CONTAINER_CONTAINERCONFIGLIST_H
 
-#include "libertine/libertine_lxc_manager_wrapper.h"
-
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QJsonObject>
 #include <QtCore/QList>
@@ -180,9 +178,6 @@ private:
    */
   int
   generate_bis(QString const& distro_series);
-
-  void
-  save_container_config_list();
 
   int
   getContainerIndex(QString const& container_id);

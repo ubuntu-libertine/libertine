@@ -12,7 +12,6 @@ add_library(
   ${libertine_src}/ContainerManager.cpp
   ${libertine_src}/ContainerAppsList.cpp
   ${libertine_src}/PasswordHelper.cpp
-  ${libertine_src}/libertine_lxc_manager_wrapper.cpp
 )
 set_target_properties(libertine-common PROPERTIES
   VERSION ${ABI_VERSION}.0.0
