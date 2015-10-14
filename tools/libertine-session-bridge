@@ -53,7 +53,7 @@ def close_all_connections():
 def get_host_dbus_socket():
     socket_key = "DBUS_SESSION_BUS_ADDRESS=unix:abstract="
 
-    with open("/run/user/1000/dbus-session", "r") as fd:
+    with open(os.path.join('/', 'run', 'user', str(os.getuid()), 'dbus-session'), 'r') as fd:
         dbus_session_str = fd.read()
 
     fd.close()
