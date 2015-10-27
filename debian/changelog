@@ -1,3 +1,18 @@
+libertine (0.99.4+16.04.20151023-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * Add a check to ensure the SUDO_UID and SUDO_GID keys exist in os.environ
+    before actually trying to access them.
+  * Switch to using the Python libertine-container-manager instead of the C++
+    libertine_container_manager.  Simplifies code quite a bit. (LP: #1509472)
+  * Fix the hard coded uid to read the actual uid when getting the dbus session
+    address.
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Fri, 23 Oct 2015 20:36:03 +0000
+
 libertine (0.99.3+15.10.20150929-0ubuntu1) wily; urgency=medium
 
   [ Ken VanDine ]
