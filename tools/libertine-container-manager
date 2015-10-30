@@ -25,7 +25,11 @@ import sys
 import xdg.BaseDirectory as basedir
 
 from distro_info import UbuntuDistroInfo, DistroDataOutdated
+
+from gi import require_version
+require_version('Libertine', '1')
 from gi.repository import Libertine
+
 from libertine import LibertineContainer, get_host_distro_release
 
 
@@ -116,6 +120,17 @@ def container_exists(container_id):
     return False
 
 
+def update_container_install_status(container_id, new_status):
+    container_list = read_container_config_file()
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            container['installStatus'] = new_status
+
+            write_container_config_file(container_list)
+            break
+
+
 def add_new_container(id, name, type, distro):
     if not os.path.exists(get_container_config_path()):
         os.makedirs(get_container_config_path())
@@ -171,6 +186,18 @@ def package_exists(container_id, package_name):
                     return True
 
     return False
+
+
+def update_package_install_status(container_id, package_name, new_status):
+    container_list = read_container_config_file()
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            for package in container['installedApps']:
+                if package['packageName'] == package_name:
+                    package['appStatus'] = new_status 
+                    write_container_config_file(container_list)
+                    return
 
 
 def add_new_package(container_id, package_name):
@@ -241,7 +268,9 @@ def create(args):
     add_new_container(args.id, args.name, args.type, args.distro)
 
     container = LibertineContainer(args.id, args.type)
+    update_container_install_status(args.id, "installing")
     container.create_libertine_container(password)
+    update_container_install_status(args.id, "ready")
 
 
 def destroy(args):
@@ -271,9 +300,12 @@ def install_package(args):
 
     container = LibertineContainer(args.id, get_container_type(args.id))
 
+    update_package_install_status(args.id, args.package, "installing")
     if not container.install_package(args.package):
         delete_package(args.id, args.package)
         sys.exit(1)
+
+    update_package_install_status(args.id, args.package, "installed")
 
 
 def remove_package(args):

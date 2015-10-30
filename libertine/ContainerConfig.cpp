@@ -123,11 +123,11 @@ namespace {
 
   const static struct { QString string; ContainerConfig::InstallStatus enumeration; } install_status_names[] =
   {
-    { "new",          ContainerConfig::InstallStatus::New         },
-    { "downloading",  ContainerConfig::InstallStatus::Downloading },
-    { "configuring",  ContainerConfig::InstallStatus::Configuring },
-    { "ready",        ContainerConfig::InstallStatus::Ready       },
-    { QString(),      ContainerConfig::InstallStatus::New         }
+    { "new",          ContainerConfig::InstallStatus::New        },
+    { "installing",   ContainerConfig::InstallStatus::Installing },
+    { "ready",        ContainerConfig::InstallStatus::Ready      },
+    { "failed",       ContainerConfig::InstallStatus::Failed     },
+    { QString(),      ContainerConfig::InstallStatus::New        }
   };
 
   ContainerConfig::InstallStatus

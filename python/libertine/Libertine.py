@@ -466,7 +466,13 @@ class LibertineChroot(object):
         else:
             command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get install -y " + package_name
         args = shlex.split(command_line)
-        cmd = subprocess.Popen(args).wait()
+        cmd = subprocess.Popen(args)
+        cmd.wait()
+
+        if cmd.returncode != 0:
+            return False
+        else:
+            return True
 
     def remove_package(self, package_name):
         command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get remove -y " + package_name

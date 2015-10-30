@@ -67,7 +67,8 @@ class ContainerConfig
 public:
   /** The container's current install state. */
   enum class InstallStatus
-  { New, Downloading, Configuring, Ready };
+  { New, Installing, Ready, Failed };
+
 
 public:
   ContainerConfig(QObject* parent = nullptr);
