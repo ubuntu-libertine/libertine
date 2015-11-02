@@ -125,6 +125,10 @@ run()
       removePackage(data_);
       break;
 
+    case ContainerAction::Search:
+      searchPackageCache(data_);
+      break;
+
     case ContainerAction::Update:
       updateContainer();
       break;
@@ -147,7 +151,7 @@ createContainer(QString const& password)
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
-      quit();
+    quit();
 
   libertine_cli_tool.write(password.toStdString().c_str()); 
   libertine_cli_tool.closeWriteChannel();
@@ -170,7 +174,7 @@ destroyContainer()
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
-      quit();
+    quit();
 
   libertine_cli_tool.waitForFinished();
 
@@ -195,7 +199,7 @@ installPackage(QString const& package_name)
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
-      quit();
+    quit();
 
   libertine_cli_tool.waitForFinished();
 
@@ -225,7 +229,7 @@ removePackage(QString const& package_name)
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
-      quit();
+    quit();
 
   libertine_cli_tool.waitForFinished();
 
@@ -236,6 +240,46 @@ removePackage(QString const& package_name)
   }
 
   emit finishedRemove(result, QString(error_msg));
+  emit finished();
+  quit();
+}
+
+
+void ContainerManagerWorker::
+searchPackageCache(QString const& search_string)
+{
+  QProcess libertine_cli_tool;
+  QString exec_line = libertine_container_manager_tool;
+  QStringList args;
+  QByteArray search_output;
+  QList<QString> packageList;
+  bool result = true;
+
+  args << "search-cache" << "-i" << container_id_ << "-s" << search_string;
+  libertine_cli_tool.start(exec_line, args);
+
+  if (!libertine_cli_tool.waitForStarted())
+    quit();
+
+  libertine_cli_tool.waitForFinished();
+
+  search_output = libertine_cli_tool.readAllStandardOutput();
+
+  if (search_output.isEmpty())
+  {
+    result = false;
+  }
+  else
+  {
+    QList<QByteArray> packages = search_output.split('\n');
+
+    foreach (const QByteArray &package, packages)
+    {
+      packageList.append(QString(package));
+    }
+  }
+
+  emit finishedSearch(result, packageList);
   emit finished();
   quit();
 }
@@ -253,7 +297,7 @@ updateContainer()
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
-      quit();
+    quit();
 
   libertine_cli_tool.waitForFinished();
 

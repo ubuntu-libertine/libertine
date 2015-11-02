@@ -325,6 +325,17 @@ def remove_package(args):
     delete_package(args.id, args.package)
 
 
+def search_cache(args):
+    if args.id and not container_exists(args.id):
+        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
+        sys.exit(1)
+    elif not args.id:
+        args.id = get_default_container_id()
+
+    container = LibertineContainer(args.id, get_container_type(args.id))
+    container.search_package_cache(args.search_string)
+
+
 def update(args):
     if args.id and not container_exists(args.id):
         print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
@@ -399,6 +410,19 @@ if __name__ == '__main__':
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
     parser_install.set_defaults(func=remove_package)
+
+    # Handle the search-cache command and its options
+    parser_search = subparsers.add_parser(
+        'search-cache',
+        help=("Search for packages based on the search string in the specified Libertine container."))
+    parser_search.add_argument(
+        '-s', '--search-string',
+        required=True,
+        help=("String to search for in the package cache."))
+    parser_search.add_argument(
+        '-i', '--id',
+        help=("Container identifier.  Default container is used if omitted."))
+    parser_search.set_defaults(func=search_cache)
 
     # Handle the update command and its options
     parser_update = subparsers.add_parser(

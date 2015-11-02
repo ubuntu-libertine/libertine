@@ -328,6 +328,20 @@ class LibertineLXC(object):
         if stop_container:
             self.container.stop()
 
+    def search_package_cache(self, search_string):
+       stop_container = False
+
+       if not self.container.running:
+           if not start_container_for_update(self.container):
+               return (False, "Container did not start")
+           stop_container = True
+
+       retval = self.container.attach_wait(lxc.attach_run_command,
+                                           ["apt-cache", "search", search_string])
+
+       if stop_container:
+           self.container.stop()
+
 
 class LibertineChroot(object):
     def __init__(self, name):
@@ -477,7 +491,14 @@ class LibertineChroot(object):
     def remove_package(self, package_name):
         command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get remove -y " + package_name
         args = shlex.split(command_line)
-        cmd = subprocess.Popen(args).wait()
+        cmd = subprocess.Popen(args)
+        cmd.wait()
+
+    def search_package_cache(self, search_string):
+        command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-cache search " + search_string
+        args = shlex.split(command_line)
+        cmd = subprocess.Popen(args)
+        cmd.wait()
 
 
 class LibertineMock(object):
@@ -497,6 +518,9 @@ class LibertineMock(object):
         return True
 
     def remove_package(self, package_name):
+        return True
+
+    def search_package_cache(self, search_string):
         return True
 
 
@@ -529,3 +553,6 @@ class LibertineContainer(object):
 
     def remove_package(self, package_name):
         self.container.remove_package(package_name)
+
+    def search_package_cache(self, search_string):
+        self.container.search_package_cache(search_string)
