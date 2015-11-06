@@ -74,6 +74,10 @@ def build_proot_command(container_id):
     # Bind-mount the host's locale(s)
     proot_cmd += " -b /usr/lib/locale"
 
+    # Bind-mount extrausers on the phone
+    if os.path.exists("/var/lib/extrausers"):
+        proot_cmd += " -b /var/lib/extrausers"
+ 
     # Bind-mount common XDG direcotries
     bind_mounts = " -b %s:%s" % (get_userdata_path(container_id), home_path)
 

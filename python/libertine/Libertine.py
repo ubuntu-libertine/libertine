@@ -443,6 +443,8 @@ class LibertineChroot(object):
         print("Updating the contents of the container after creation...")
         self.update_libertine_container()
 
+        self.install_package("libnss-extrausers")
+
         print("Installing Compiz as the Xmir window manager...")
         self.install_package("compiz")
         create_compiz_config(self.name)
