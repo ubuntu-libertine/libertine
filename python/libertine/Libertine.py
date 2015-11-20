@@ -123,7 +123,8 @@ def create_compiz_config(name):
 
     compiz_config_dir = os.path.join(user_data, '.config', 'compiz-1', 'compizconfig')
 
-    os.makedirs(compiz_config_dir)
+    if not os.path.exists(compiz_config_dir):
+        os.makedirs(compiz_config_dir)
 
     # Create the general Compiz config file
     with open(os.path.join(compiz_config_dir, 'config'), 'w+') as fd:
