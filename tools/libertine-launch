@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
 import os
-import sys
 import json
 import lxc
 import psutil
@@ -121,15 +121,20 @@ def launch_chroot_application(container_id, app_exec_line):
         child.terminate()
 
 if __name__ == '__main__':
-    container_id = sys.argv[1]
-    app_exec_line = sys.argv[2:]
-    container_type = get_container_type(container_id)
+    arg_parser = argparse.ArgumentParser(description='launch an application in a Libertine container')
+    arg_parser.add_argument('container_id',
+                            help='Libertine container ID')
+    arg_parser.add_argument('app_exec_line', nargs=argparse.REMAINDER,
+                            help='exec line')
+    args = arg_parser.parse_args()
+
+    container_type = get_container_type(args.container_id)
 
     session_bridge = launch_libertine_session_bridge()
 
     if container_type == "lxc":
-        launch_lxc_application(container_id, app_exec_line)
+        launch_lxc_application(args.container_id, args.app_exec_line)
     elif container_type == "chroot":
-        launch_chroot_application(container_id, app_exec_line)
+        launch_chroot_application(args.container_id, args.app_exec_line)
 
     session_bridge.terminate()
