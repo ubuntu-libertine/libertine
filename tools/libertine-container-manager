@@ -18,6 +18,7 @@
 
 import argparse
 import json
+import lsb_release
 import lxc
 import getpass
 import os
@@ -30,7 +31,7 @@ from gi import require_version
 require_version('Libertine', '1')
 from gi.repository import Libertine
 
-from libertine import LibertineContainer, get_host_distro_release
+from libertine import LibertineContainer
 
 
 def get_container_config_path():
@@ -86,6 +87,12 @@ def get_container_type(container_id):
             break
 
     return container_type
+
+
+def get_host_distro_release():
+    distinfo = lsb_release.get_distro_information()
+
+    return distinfo.get('CODENAME', 'n/a')
 
 
 def is_distro_valid(distro):

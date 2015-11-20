@@ -2,3 +2,4 @@ usr/bin/libertine-launch
 usr/bin/libertine-session-bridge
 usr/bin/libertine-container-manager
 usr/share/man
+usr/share/libertine/libertine-lxc.conf

@@ -14,7 +14,6 @@
 
 import crypt
 import json
-import lsb_release
 import lxc
 import os
 import shlex
@@ -54,12 +53,6 @@ def setup_host_environment(username, password):
         subprocess.Popen(add_user_cmd, shell=True)
 
 
-def get_host_distro_release():
-    distinfo = lsb_release.get_distro_information()
-
-    return distinfo.get('CODENAME', 'n/a')
-
-
 def get_libertine_container_path():
     return basedir.save_cache_path('libertine-container')
 
@@ -81,7 +74,6 @@ def get_container_distro(container_id):
 
     with open(get_libertine_json_file_path()) as fd:
         container_list = json.load(fd)
-        fd.close()
 
     for container in container_list["containerList"]:
         if container["id"] == container_id:
@@ -138,7 +130,6 @@ def create_compiz_config(name):
         fd.write("[general]\n")
         fd.write("profile = Default\n")
         fd.write("integration = true\n")
-    fd.close()
 
     # Create the default profile file
     with open(os.path.join(compiz_config_dir, 'Default.ini'), 'w+') as fd:
@@ -146,7 +137,6 @@ def create_compiz_config(name):
         fd.write("s0_active_plugins = core;place;\n\n")
         fd.write("[place]\n")
         fd.write("s0_mode = 3")
-    fd.close()
 
 
 def start_container_for_update(container):
@@ -193,6 +183,8 @@ class LibertineLXC(object):
         if password is None:
             return
 
+        installed_release = self.series
+
         username = os.environ['USER']
         user_id = os.getuid()
         group_id = os.getgid()
@@ -218,20 +210,17 @@ class LibertineLXC(object):
                 fd.write("lxc.id_map = g %s %s 1\n" % (group_id, group_id))
                 fd.write("lxc.id_map = u %s %s %s\n" % (user_id + 1, (user_id + 1) + 100000, 65536 - (user_id + 1)))
                 fd.write("lxc.id_map = g %s %s %s\n" % (group_id + 1, (group_id + 1) + 100000, 65536 - (user_id + 1)))
-            fd.close()
 
         create_libertine_user_data_dir(self.container.name)
-
-        # Get to the codename of the host Ubuntu release so container will match
-        installed_release = get_host_distro_release()
 
         # Figure out the host architecture
         architecture = get_host_architecture()
 
-        self.container.create("download", 0,
-                              {"dist": "ubuntu",
-                               "release": installed_release,
-                               "arch": architecture})
+        if not self.container.create("download", 0,
+                                     {"dist": "ubuntu",
+                                      "release": installed_release,
+                                      "arch": architecture}):
+            return False
 
         self.create_libertine_config()
 
@@ -242,8 +231,6 @@ class LibertineLXC(object):
             self.container.attach_wait(lxc.attach_run_command,
                                        ["useradd", "-u", str(user_id), "-p", crypt.crypt(password),
                                         "-G", "sudo", str(username)])
-
-            self.container.stop()
         else:
             print("Container failed to start.")
 
@@ -253,6 +240,8 @@ class LibertineLXC(object):
         print("Installing Compiz as the Xmir window manager...")
         self.install_package('compiz')
         create_compiz_config(self.container.name)
+
+        self.container.stop()
 
     def create_libertine_config(self):
         user_id = os.getuid()
@@ -267,25 +256,23 @@ class LibertineLXC(object):
             xdg_user_dir_entry = "%s/%s %s/%s none bind,create=dir,optional" % (home_path, user_dir, home_path.strip('/'), user_dir)
             self.container.append_config_item("lxc.mount.entry", xdg_user_dir_entry)
 
-        # Bind mount the X socket directories
-        self.container.append_config_item("lxc.mount.entry", "/tmp/.X11-unix tmp/.X11-unix/ none bind,create=dir")
-
         # Setup the mounts for /run/user/$user_id
         run_user_entry = "/run/user/%s run/user/%s none rbind,create=dir" % (user_id, user_id)
         self.container.append_config_item("lxc.mount.entry", "tmpfs run tmpfs rw,nodev,noexec,nosuid,size=5242880")
         self.container.append_config_item("lxc.mount.entry", "none run/user tmpfs rw,nodev,noexec,nosuid,size=104857600,mode=0755,create=dir")
         self.container.append_config_item("lxc.mount.entry", run_user_entry)
 
-        # No tty's to work around an issue when using this from a GUI
-        self.container.clear_config_item("lxc.tty")
-        self.container.set_config_item("lxc.tty", "0")
+        self.container.append_config_item("lxc.include", "/usr/share/libertine/libertine-lxc.conf")
 
         # Dump it all to disk
         self.container.save_config()
 
     def update_libertine_container(self):
         # Update packages inside the LXC
-        start_container_for_update(self.container)
+        stop_container = not self.container.running
+
+        if not start_container_for_update(self.container):
+            return (False, "Container did not start")
 
         print("Updating packages inside the LXC...")
 
@@ -293,7 +280,8 @@ class LibertineLXC(object):
                                    ["apt-get", "dist-upgrade", "-y"])
 
         # Stopping the container
-        self.container.stop()
+        if stop_container:
+            self.container.stop()
 
     def install_package(self, package_name):
         stop_container = False
@@ -304,7 +292,7 @@ class LibertineLXC(object):
             stop_container = True
 
         retval = self.container.attach_wait(lxc.attach_run_command,
-                                            ["apt-get", "install", "-y", "--no-install-recommends", package_name])
+                                            ["apt-get", "install", "-y", package_name])
 
         if stop_container:
             self.container.stop()
@@ -380,9 +368,7 @@ class LibertineChroot(object):
                 fd.write("  *)  exit 101;;\n")
                 fd.write("esac\n")
                 fd.write("done\n")
-            fd.close()
-
-            os.chmod(os.path.join(self.chroot_path, 'usr', 'sbin', 'policy-rc.d'), 0o755)
+                os.fchmod(fd.fileno(), 0o755)
 
         # Add universe and -updates to the chroot's sources.list
         if (get_host_architecture() == 'armhf'):
@@ -395,8 +381,6 @@ class LibertineChroot(object):
             fd.write(archive + installed_release + " universe\n")
             fd.write(archive + installed_release + "-updates main\n")
             fd.write(archive + installed_release + "-updates universe\n")
-
-        fd.close()
 
         create_libertine_user_data_dir(self.name)
 
