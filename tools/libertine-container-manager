@@ -18,33 +18,20 @@
 
 import argparse
 import json
+import libertine.utils
 import lsb_release
 import lxc
 import getpass
 import os
 import sys
-import xdg.BaseDirectory as basedir
 
 from distro_info import UbuntuDistroInfo, DistroDataOutdated
-
-from gi import require_version
-require_version('Libertine', '1')
-from gi.repository import Libertine
-
 from libertine import LibertineContainer
-
-
-def get_container_config_path():
-    return os.path.join(basedir.xdg_data_home, 'libertine')
-
-
-def get_container_config_file():
-    return os.path.join(get_container_config_path(), 'ContainersConfig.json')
 
 
 def read_container_config_file():
     container_list = {}
-    container_config_file = get_container_config_file()
+    container_config_file = libertine.utils.get_libertine_database_file_path()
 
     if os.path.exists(container_config_file):
         with open(container_config_file, 'r') as fd:
@@ -56,7 +43,7 @@ def read_container_config_file():
 
 
 def write_container_config_file(container_list):
-    container_config_file = get_container_config_file()
+    container_config_file = libertine.utils.get_libertine_database_file_path()
 
     with open(container_config_file, 'w') as fd:
         json.dump(container_list, fd, sort_keys=True, indent=4)
@@ -139,8 +126,8 @@ def update_container_install_status(container_id, new_status):
 
 
 def add_new_container(id, name, type, distro):
-    if not os.path.exists(get_container_config_path()):
-        os.makedirs(get_container_config_path())
+    if not os.path.exists(libertine.utils.get_libertine_database_dir_path()):
+        os.makedirs(libertine.utils.get_libertine_database_dir_path())
 
     container_list = read_container_config_file()
 
@@ -202,7 +189,7 @@ def update_package_install_status(container_id, package_name, new_status):
         if container['id'] == container_id:
             for package in container['installedApps']:
                 if package['packageName'] == package_name:
-                    package['appStatus'] = new_status 
+                    package['appStatus'] = new_status
                     write_container_config_file(container_list)
                     return
 
@@ -355,7 +342,7 @@ def update(args):
 
 
 def list(args):
-    containers = Libertine.list_containers()
+    containers = libertine.utils.Libertine.list_containers()
     for container in containers:
         print("%s" % container)
 

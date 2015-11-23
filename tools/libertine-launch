@@ -19,25 +19,21 @@
 import argparse
 import os
 import json
+import libertine.utils
 import lxc
 import psutil
 import shlex
 import signal
-import xdg.BaseDirectory as basedir
 
 from subprocess import DEVNULL
 
 home_path = os.environ['HOME']
 
-libertine_json_file_path = os.path.join(basedir.xdg_data_home, 'libertine', 'ContainersConfig.json')
-libertine_container_path = basedir.save_cache_path('libertine-container')
-libertine_userdata_path = os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data')
-
 
 def get_container_type(container_id):
     container_type = ''
 
-    with open(libertine_json_file_path) as fd:
+    with open(libertine.utils.get_libertine_database_file_path()) as fd:
         container_list = json.load(fd)
         fd.close()
 
@@ -48,19 +44,11 @@ def get_container_type(container_id):
     return ""
 
 
-def get_container_path(container_id):
-    return os.path.join(libertine_container_path, container_id, "rootfs")
-
-
-def get_userdata_path(container_id):
-    return os.path.join(libertine_userdata_path, container_id)
-
-
 def set_dbus_session_socket_path():
     unique_id = os.environ['DISPLAY'].strip(':')
 
     dbus_session_socket_path = (
-        os.path.join(basedir.get_runtime_dir(), 'host_dbus_session' + unique_id))
+        os.path.join(libertine.utils.get_user_runtime_dir(), 'host_dbus_session' + unique_id))
 
     os.environ['DBUS_SESSION_BUS_ADDRESS'] = "unix:path=" + dbus_session_socket_path
 
@@ -68,7 +56,7 @@ def set_dbus_session_socket_path():
 
 
 def lxc_setup_pulse():
-    pulse_socket_path = os.path.join(basedir.get_runtime_dir(), '.pulse_socket')
+    pulse_socket_path = os.path.join(libertine.utils.get_user_runtime_dir(), '.pulse_socket')
 
     lsof_cmd = 'lsof -n %s' % pulse_socket_path
     args = shlex.split(lsof_cmd)
@@ -96,7 +84,7 @@ def build_proot_command(container_id):
     proot_cmd = '/usr/bin/proot'
     if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
         raise RuntimeError('executable proot not found')
-    proot_cmd += " -R " + get_container_path(container_id)
+    proot_cmd += " -R " + libertine.utils.get_libertine_container_rootfs_path(container_id)
 
     # Bind-mount the host's locale(s)
     proot_cmd += " -b /usr/lib/locale"
@@ -106,7 +94,10 @@ def build_proot_command(container_id):
         proot_cmd += " -b /var/lib/extrausers"
 
     # Bind-mount common XDG direcotries
-    bind_mounts = " -b %s:%s" % (get_userdata_path(container_id), home_path)
+    bind_mounts = (
+        " -b %s:%s"
+        % (libertine.utils.get_libertine_container_userdata_dir_path(container_id), home_path)
+    )
 
     xdg_user_dirs = ['Documents', 'Music', 'Pictures', 'Videos']
     for user_dir in xdg_user_dirs:
@@ -118,7 +109,7 @@ def build_proot_command(container_id):
 
 
 def launch_lxc_application(container_id, app_exec_line):
-    container = lxc.Container(container_id, libertine_container_path)
+    container = lxc.Container(container_id, libertine.utils.get_libertine_containers_dir_path())
 
     if not container.running:
         if not container.start():

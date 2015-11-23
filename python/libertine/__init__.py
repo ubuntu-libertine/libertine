@@ -22,7 +22,7 @@
 
 __all__ = [
           # from Libertine
-          'LibertineContainer'
+          'LibertineContainer', 'utils'
           ]
 
 __docformat__ = "restructuredtext en"

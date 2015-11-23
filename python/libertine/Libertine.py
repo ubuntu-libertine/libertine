@@ -19,9 +19,7 @@ import os
 import shlex
 import shutil
 import subprocess
-import sys
-import tempfile
-import xdg.BaseDirectory as basedir
+import libertine.utils
 
 home_path = os.environ['HOME']
 
@@ -42,37 +40,24 @@ def setup_host_environment(username, password):
     lxc_net_entry = "%s veth lxcbr0 10" % str(username)
 
     if not check_lxc_net_entry(lxc_net_entry):
-        dev_null = open('/dev/null', 'w')
         passwd = subprocess.Popen(["sudo", "--stdin", "usermod", "--add-subuids", "100000-165536",
-                                   "--add-subgids", "100000-165536", str(username)], stdin=subprocess.PIPE,
-                                  stdout=dev_null.fileno(), stderr=subprocess.STDOUT)
+                                   "--add-subgids", "100000-165536", str(username)],
+                                  stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                                  stderr=subprocess.STDOUT)
         passwd.communicate((password + '\n').encode('UTF-8'))
-        dev_null.close()
 
         add_user_cmd = "echo %s | sudo tee -a /etc/lxc/lxc-usernet > /dev/null" % lxc_net_entry
         subprocess.Popen(add_user_cmd, shell=True)
-
-
-def get_libertine_container_path():
-    return basedir.save_cache_path('libertine-container')
 
 
 def get_lxc_default_config_path():
     return os.path.join(home_path, '.config', 'lxc')
 
 
-def get_libertine_user_data_dir(name):
-    return os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data', name)
-
-
-def get_libertine_json_file_path():
-    return os.path.join(basedir.xdg_data_home, 'libertine', 'ContainersConfig.json')
-
-
 def get_container_distro(container_id):
     container_distro = ""
 
-    with open(get_libertine_json_file_path()) as fd:
+    with open(libertine.utils.get_libertine_database_file_path()) as fd:
         container_list = json.load(fd)
 
     for container in container_list["containerList"]:
@@ -111,17 +96,16 @@ def chown_recursive_dirs(path):
         os.chown(path, uid, gid)
 
 
-def create_libertine_user_data_dir(name):
-    user_data = get_libertine_user_data_dir(name)
+def create_libertine_user_data_dir(container_id):
+    user_data = libertine.utils.get_libertine_container_userdata_dir_path(container_id)
 
     if not os.path.exists(user_data):
         os.makedirs(user_data)
 
 
-def create_compiz_config(name):
-    user_data = get_libertine_user_data_dir(name)
-
-    compiz_config_dir = os.path.join(user_data, '.config', 'compiz-1', 'compizconfig')
+def create_compiz_config(container_id):
+    compiz_config_dir = os.path.join(libertine.utils.get_libertine_container_userdata_dir_path(container_id),
+                                     '.config', 'compiz-1', 'compizconfig')
 
     if not os.path.exists(compiz_config_dir):
         os.makedirs(compiz_config_dir)
@@ -163,17 +147,18 @@ def start_container_for_update(container):
     return True
 
 
-def lxc_container(name):
-    config_path = get_libertine_container_path()
-    container = lxc.Container(name, config_path)
+def lxc_container(container_id):
+    config_path = libertine.utils.get_libertine_containers_dir_path()
+    container = lxc.Container(container_id, config_path)
 
     return container
 
 
 class LibertineLXC(object):
-    def __init__(self, name):
-        self.container = lxc_container(name)
-        self.series = get_container_distro(name)
+    def __init__(self, container_id):
+        self.container_id = container_id
+        self.container = lxc_container(container_id)
+        self.series = get_container_distro(container_id)
 
     def destroy_libertine_container(self):
         if self.container.defined:
@@ -212,7 +197,7 @@ class LibertineLXC(object):
                 fd.write("lxc.id_map = u %s %s %s\n" % (user_id + 1, (user_id + 1) + 100000, 65536 - (user_id + 1)))
                 fd.write("lxc.id_map = g %s %s %s\n" % (group_id + 1, (group_id + 1) + 100000, 65536 - (user_id + 1)))
 
-        create_libertine_user_data_dir(self.container.name)
+        create_libertine_user_data_dir(self.container_id)
 
         # Figure out the host architecture
         architecture = get_host_architecture()
@@ -240,13 +225,17 @@ class LibertineLXC(object):
 
         print("Installing Compiz as the Xmir window manager...")
         self.install_package('compiz')
-        create_compiz_config(self.container.name)
+        create_compiz_config(self.container_id)
 
         self.container.stop()
 
     def create_libertine_config(self):
         user_id = os.getuid()
-        home_entry = "%s %s none bind,create=dir" % (get_libertine_user_data_dir(self.container.name), home_path.strip('/'))
+        home_entry = (
+            "%s %s none bind,create=dir"
+            % (libertine.utils.get_libertine_container_userdata_dir_path(self.container_id),
+               home_path.strip('/'))
+        )
 
         # Bind mount the user's home directory
         self.container.append_config_item("lxc.mount.entry", home_entry)
@@ -254,13 +243,17 @@ class LibertineLXC(object):
         xdg_user_dirs = ['Documents', 'Music', 'Pictures', 'Videos']
 
         for user_dir in xdg_user_dirs:
-            xdg_user_dir_entry = "%s/%s %s/%s none bind,create=dir,optional" % (home_path, user_dir, home_path.strip('/'), user_dir)
+            xdg_user_dir_entry = (
+                "%s/%s %s/%s none bind,create=dir,optional"
+                % (home_path, user_dir, home_path.strip('/'), user_dir)
+            )
             self.container.append_config_item("lxc.mount.entry", xdg_user_dir_entry)
 
         # Setup the mounts for /run/user/$user_id
         run_user_entry = "/run/user/%s run/user/%s none rbind,create=dir" % (user_id, user_id)
         self.container.append_config_item("lxc.mount.entry", "tmpfs run tmpfs rw,nodev,noexec,nosuid,size=5242880")
-        self.container.append_config_item("lxc.mount.entry", "none run/user tmpfs rw,nodev,noexec,nosuid,size=104857600,mode=0755,create=dir")
+        self.container.append_config_item("lxc.mount.entry",
+                                          "none run/user tmpfs rw,nodev,noexec,nosuid,size=104857600,mode=0755,create=dir")
         self.container.append_config_item("lxc.mount.entry", run_user_entry)
 
         self.container.append_config_item("lxc.include", "/usr/share/libertine/libertine-lxc.conf")
@@ -318,25 +311,25 @@ class LibertineLXC(object):
             self.container.stop()
 
     def search_package_cache(self, search_string):
-       stop_container = False
+        stop_container = False
 
-       if not self.container.running:
-           if not start_container_for_update(self.container):
-               return (False, "Container did not start")
-           stop_container = True
+        if not self.container.running:
+            if not start_container_for_update(self.container):
+                return (False, "Container did not start")
+            stop_container = True
 
-       retval = self.container.attach_wait(lxc.attach_run_command,
-                                           ["apt-cache", "search", search_string])
+        retval = self.container.attach_wait(lxc.attach_run_command,
+                                            ["apt-cache", "search", search_string])
 
-       if stop_container:
-           self.container.stop()
+        if stop_container:
+            self.container.stop()
 
 
 class LibertineChroot(object):
-    def __init__(self, name):
-        self.name = name
-        self.series = get_container_distro(name)
-        self.chroot_path = os.path.join(get_libertine_container_path(), name, "rootfs")
+    def __init__(self, container_id):
+        self.container_id = container_id
+        self.series = get_container_distro(container_id)
+        self.chroot_path = libertine.utils.get_libertine_container_rootfs_path(container_id)
         os.environ['FAKECHROOT_CMD_SUBST'] = '$FAKECHROOT_CMD_SUBST:/usr/bin/chfn=/bin/true'
         os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
 
@@ -383,7 +376,7 @@ class LibertineChroot(object):
             fd.write(archive + installed_release + "-updates main\n")
             fd.write(archive + installed_release + "-updates universe\n")
 
-        create_libertine_user_data_dir(self.name)
+        create_libertine_user_data_dir(self.container_id)
 
         if installed_release == "trusty":
             print("Additional configuration for Trusty chroot...")
@@ -432,10 +425,10 @@ class LibertineChroot(object):
 
         print("Installing Compiz as the Xmir window manager...")
         self.install_package("compiz")
-        create_compiz_config(self.name)
+        create_compiz_config(self.container_id)
 
         # Check if the container was created as root and chown the user directories as necessary
-        chown_recursive_dirs(get_libertine_user_data_dir(self.name))
+        chown_recursive_dirs(libertine.utils.get_libertine_container_userdata_dir_path(self.container_id))
 
     def update_libertine_container(self):
         if self.series == "trusty":
@@ -489,8 +482,8 @@ class LibertineChroot(object):
 
 
 class LibertineMock(object):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, container_id):
+        self.container_id = container_id
 
     def destroy_libertine_container(self):
         return True
@@ -515,14 +508,14 @@ class LibertineContainer(object):
     """
     A sandbox for DEB-packaged X11-based applications.
     """
-    def __init__(self, name, container_type="lxc"):
+    def __init__(self, container_id, container_type="lxc"):
         super().__init__()
         if container_type == "lxc":
-            self.container = LibertineLXC(name)
+            self.container = LibertineLXC(container_id)
         elif container_type == "chroot":
-            self.container = LibertineChroot(name)
+            self.container = LibertineChroot(container_id)
         elif container_type == "mock":
-            self.container = LibertineMock(name)
+            self.container = LibertineMock(container_id)
         else:
             print("Unsupported container type %s" % container_type)
 
