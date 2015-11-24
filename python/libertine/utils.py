@@ -25,8 +25,12 @@ from gi.repository import Libertine
 
 
 def get_libertine_container_rootfs_path(container_id):
-    return Libertine.container_path(container_id)
+    path = Libertine.container_path(container_id)
 
+    if path is None:
+        path = os.path.join(get_libertine_containers_dir_path(), container_id, 'rootfs')
+
+    return path
 
 def get_libertine_containers_dir_path():
     return basedir.save_cache_path('libertine-container')
@@ -41,7 +45,12 @@ def get_libertine_database_file_path():
 
 
 def get_libertine_container_userdata_dir_path(container_id):
-    return Libertine.container_home_path(container_id)
+    path = Libertine.container_home_path(container_id)
+
+    if path is None:
+        path = os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data', container_id)
+
+    return path
 
 
 def get_user_runtime_dir():
