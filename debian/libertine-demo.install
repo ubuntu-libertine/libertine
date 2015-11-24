@@ -1,3 +1,4 @@
 data/demo/icons/* usr/share/libertine/demo/icons/
 usr/share/applications/demo/* usr/share/applications/
 usr/share/upstart/sessions/puritine-click.conf
+usr/share/click/frameworks/puritine-15.04.1.framework
