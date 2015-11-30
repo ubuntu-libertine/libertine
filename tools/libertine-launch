@@ -25,6 +25,7 @@ import psutil
 import shlex
 import signal
 
+from socket import *
 from subprocess import DEVNULL
 
 home_path = os.environ['HOME']
@@ -47,30 +48,15 @@ def get_container_type(container_id):
 def set_dbus_session_socket_path():
     unique_id = os.environ['DISPLAY'].strip(':')
 
+    if not os.path.exists(libertine.utils.get_libertine_runtime_dir()):
+        os.makedirs(libertine.utils.get_libertine_runtime_dir())
+
     dbus_session_socket_path = (
-        os.path.join(libertine.utils.get_user_runtime_dir(), 'host_dbus_session' + unique_id))
+        os.path.join(libertine.utils.get_libertine_runtime_dir(), 'host_dbus_session' + unique_id))
 
     os.environ['DBUS_SESSION_BUS_ADDRESS'] = "unix:path=" + dbus_session_socket_path
 
     return dbus_session_socket_path
-
-
-def lxc_setup_pulse():
-    pulse_socket_path = os.path.join(libertine.utils.get_user_runtime_dir(), '.pulse_socket')
-
-    lsof_cmd = 'lsof -n %s' % pulse_socket_path
-    args = shlex.split(lsof_cmd)
-    lsof = psutil.Popen(args, stderr=DEVNULL, stdout=DEVNULL)
-    lsof.wait()
-
-    if not os.path.exists(pulse_socket_path) or lsof.returncode == 1:
-        pactl_cmd = (
-            'pactl load-module module-native-protocol-unix auth-anonymous=1 socket=%s'
-            % pulse_socket_path)
-        args = shlex.split(pactl_cmd)
-        psutil.Popen(args).wait()
-
-    os.environ['PULSE_SERVER'] = pulse_socket_path
 
 
 def launch_libertine_session_bridge():
@@ -111,26 +97,46 @@ def build_proot_command(container_id):
 def launch_lxc_application(container_id, app_exec_line):
     container = lxc.Container(container_id, libertine.utils.get_libertine_containers_dir_path())
 
-    if not container.running:
-        if not container.start():
-            print("Container failed to start")
-            return
+    libertine_lxc_mgr_sock = socket(AF_UNIX, SOCK_STREAM)
+    libertine_lxc_mgr_sock.connect(libertine.utils.get_libertine_lxc_socket())
+
+    # Tell libertine-lxc-manager that we are starting a new app
+    message = "start " + container_id
+    libertine_lxc_mgr_sock.send(message.encode())
+
+    # Receive the reply from libertine-lxc-manager
+    data = libertine_lxc_mgr_sock.recv(1024)
+
+    if data.decode() == 'OK':
         if not container.wait("RUNNING", 10):
             print("Container failed to enter the RUNNING state")
             return
 
-    if not container.get_ips(timeout=30):
-        print("Not able to connect to the network.")
+        if not container.get_ips(timeout=30):
+            print("Not able to connect to the network.")
+            return
+
+    else:
+        print("Failure detected from libertine-lxc-manager")
         return
 
     compiz = container.attach(lxc.attach_run_command, "compiz")
 
     # Setup pulse to work inside the container
-    lxc_setup_pulse()
+    os.environ['PULSE_SERVER'] = libertine.utils.get_libertine_lxc_pulse_socket_path()
 
     container.attach_wait(lxc.attach_run_command, app_exec_line)
 
     os.kill(compiz, signal.SIGTERM)
+    os.waitpid(compiz, 0)
+
+    # Tell libertine-lxc-manager that the app has stopped.
+    message = "stop " + container_id
+    libertine_lxc_mgr_sock.send(message.encode())
+
+    # Receive the reply from libertine-lxc-manager (ignore it for now). 
+    data = libertine_lxc_mgr_sock.recv(1024)
+    libertine_lxc_mgr_sock.close()
 
 
 def launch_chroot_application(container_id, app_exec_line):

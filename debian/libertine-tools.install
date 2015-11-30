@@ -1,5 +1,7 @@
 usr/bin/libertine-launch
 usr/bin/libertine-session-bridge
 usr/bin/libertine-container-manager
+usr/bin/libertine-lxc-manager
 usr/share/man
 usr/share/libertine/libertine-lxc.conf
+usr/share/upstart/sessions/libertine-lxc-manager.conf

@@ -1,0 +1,131 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2015 Canonical Ltd.
+# Author: Christopher Townsend <christopher.townsend@canonical.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import libertine.utils
+import lxc
+import os
+import select
+import signal
+import shlex
+import subprocess
+
+from collections import Counter
+from socket import *
+
+
+def lxc_setup_pulse():
+    pulse_socket_path = os.path.join(libertine.utils.get_libertine_runtime_dir(), 'pulse_socket')
+
+    lsof_cmd = 'lsof -n %s' % pulse_socket_path
+    args = shlex.split(lsof_cmd)
+    lsof = subprocess.Popen(args, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+    lsof.wait()
+
+    if not os.path.exists(pulse_socket_path) or lsof.returncode == 1:
+        pactl_cmd = (
+            'pactl load-module module-native-protocol-unix auth-anonymous=1 socket=%s'
+            % pulse_socket_path)
+        args = shlex.split(pactl_cmd)
+        subprocess.Popen(args).wait()
+
+
+def launch_lxc_container(container_id):
+    container = lxc.Container(container_id, libertine.utils.get_libertine_containers_dir_path())
+
+    lxc_setup_pulse()
+
+    if not container.running:
+        if not container.start():
+            print("Container failed to start")
+            return False
+
+    return True
+
+
+def stop_lxc_container(container_id):
+    container = lxc.Container(container_id, libertine.utils.get_libertine_containers_dir_path())
+
+    if container.running:
+        container.stop()
+
+
+def socket_cleanup(signum, frame):
+    libertine_lxc_mgr_socket.close()
+
+
+def process_data(data):
+    msg = data.decode().split(' ')
+    op_code = msg[0]
+    container_id = msg[1]
+
+    if op_code == 'start':
+        if not launch_lxc_container(container_id):
+            return 'FAILED'
+        app_counter[container_id] += 1
+
+    elif op_code == 'stop':
+       app_counter[container_id] -= 1
+
+       if app_counter[container_id] == 0:
+           stop_lxc_container(container_id)
+
+    return 'OK' 
+
+
+def main_loop():
+    while 1:
+        rlist, wlist, elist = select.select(descriptors, [], [])
+
+        for sock in rlist:
+            if sock.fileno() == -1:
+                continue
+
+            if sock == libertine_lxc_mgr_socket:
+                sock_fd = libertine_lxc_mgr_socket.accept()[0]
+                descriptors.append(sock_fd)
+
+            else:
+                data = sock.recv(1024)
+
+                if len(data) == 0:
+                    descriptors.remove(sock)
+                    sock.shutdown(SHUT_RDWR)
+                    sock.close()
+                    continue
+
+
+                message = process_data(data)
+                sock.send(message.encode())
+
+
+if __name__ == '__main__':
+    signal.signal(signal.SIGTERM, socket_cleanup)
+    signal.signal(signal.SIGINT, socket_cleanup)
+
+    if not os.path.exists(libertine.utils.get_libertine_runtime_dir()):
+        os.makedirs(libertine.utils.get_libertine_runtime_dir())
+
+    app_counter = Counter()
+
+    libertine_lxc_mgr_socket = socket(AF_UNIX, SOCK_STREAM)
+    libertine_lxc_mgr_socket.bind(libertine.utils.get_libertine_lxc_socket())
+    libertine_lxc_mgr_socket.listen(20)
+
+    descriptors = [libertine_lxc_mgr_socket]
+
+    main_loop() 

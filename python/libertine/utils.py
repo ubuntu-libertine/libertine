@@ -55,3 +55,15 @@ def get_libertine_container_userdata_dir_path(container_id):
 
 def get_user_runtime_dir():
     return basedir.get_runtime_dir()
+
+
+def get_libertine_runtime_dir():
+    return os.path.join(get_user_runtime_dir(), 'libertine')
+
+
+def get_libertine_lxc_socket():
+    return '\0libertine_lxc_socket'
+
+
+def get_libertine_lxc_pulse_socket_path():
+    return os.path.join(get_libertine_runtime_dir(), 'pulse_socket')
