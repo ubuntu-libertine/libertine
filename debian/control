@@ -23,6 +23,7 @@ Homepage: https://launchpad.net/libertine
 Package: libertine
 Architecture: any
 Depends: libertine-tools,
+         python3-libertine-lxc,
          qml-module-qtquick2,
          qtdeclarative5-ubuntu-ui-toolkit-plugin,
          ${misc:Depends},
@@ -82,25 +83,53 @@ Package: python3-libertine
 Architecture: any
 Section: python
 Multi-Arch: allowed
-Depends: debootstrap,
-         fakechroot,
-         fakeroot,
-         gir1.2-libertine,
-         lxc-templates,
-         proot [amd64 arm64 armhf i386],
+Depends: gir1.2-libertine,
          python3-gi,
+         python3-xdg,
+         ${misc:Depends},
+         ${python3:Depends}
+Recommends: python3-libertine-lxc
+Suggests: python3-libertine-chroot
+Description: Python3 scripts for the Libertine application sandbox
+ Python3 modules for the Libertine application sandbox tools.  Requires at
+ least one of the container back end modules installed to be of any use.
+
+Package: python3-libertine-lxc
+Architecture: any
+Section: python
+Multi-Arch: allowed
+Depends: lxc-templates,
          python3-lxc,
          python3-xdg,
          uidmap,
          ${misc:Depends},
          ${python3:Depends}
 Description: Python3 scripts for the Libertine application sandbox
- Python3 modules for the Libertine application sandbox tools.
+ This package provides the LXC-based container back end module for the
+ Libertine sandbox.  It requires support for unprivileged LXC containers in the
+ Linux kernel.
+
+Package: python3-libertine-chroot
+Architecture: any
+Section: python
+Multi-Arch: allowed
+Depends: debootstrap,
+         fakechroot,
+         fakeroot,
+         proot [amd64 arm64 armhf i386],
+         ${misc:Depends},
+         ${python3:Depends}
+Description: Python3 scripts for the Libertine application sandbox
+ This package provides the chroot-based container back end module for the
+ Libertine sandbox.  This container back end module is intended only for
+ curated containers distributed for devices that do not support unprivileged
+ LXC contaiers.
 
 Package: libertine-demo
 Architecture: any
 Multi-Arch: allowed
 Depends: libertine-tools,
+         python3-libertine-chroot,
          ${misc:Depends}
 Description: Adds desktop files and icon for Unity 8 desktop support
  Add desktop files and icons for the targeted applications needed for legacy

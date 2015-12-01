@@ -1,1 +1,3 @@
-usr/lib/python*/*/libertine
+usr/lib/python*/*/libertine/__init__.py
+usr/lib/python*/*/libertine/Libertine.py
+usr/lib/python*/*/libertine/utils.py
