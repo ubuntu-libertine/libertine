@@ -12,6 +12,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import abc
+import contextlib
 import crypt
 import json
 import lxc
@@ -124,29 +126,6 @@ def create_compiz_config(container_id):
         fd.write("s0_mode = 3")
 
 
-def start_container_for_update(container):
-    if not container.running:
-        print("Starting the container...")
-        if not container.start():
-            print("Container failed to start")
-            return False
-        if not container.wait("RUNNING", 10):
-            print("Container failed to enter the RUNNING state")
-            return False
-
-    if not container.get_ips(timeout=30):
-        print("Not able to connect to the network.")
-        return False
-
-    container.attach_wait(lxc.attach_run_command,
-                          ["umount", "/tmp/.X11-unix"])
-
-    container.attach_wait(lxc.attach_run_command,
-                          ["apt-get", "update"])
-
-    return True
-
-
 def lxc_container(container_id):
     config_path = libertine.utils.get_libertine_containers_dir_path()
     container = lxc.Container(container_id, config_path)
@@ -154,18 +133,126 @@ def lxc_container(container_id):
     return container
 
 
-class LibertineLXC(object):
+def apt_args_for_verbosity_level(verbosity):
+    """
+    Maps numeric verbosity levels onto APT command-line arguments.
+
+    :param verbosity: 0 is quiet, 1 is normal, 2 is incontinent
+    """
+    return {
+            0: '--quiet=2',
+            1: '--assume-yes',
+            2: '--quiet=1 --assume-yes --option APT::Status-Fd=1'
+    }.get(verbosity, '')
+
+
+def apt_command_prefix(verbosity):
+    return '/usr/bin/apt ' + apt_args_for_verbosity_level(verbosity) + ' '
+
+
+class BaseContainer(metaclass=abc.ABCMeta):
+    """
+    An abstract base container to provide common functionality for all
+    concrete container types.
+
+    :param container_id: The machine-readable container name.
+    """
     def __init__(self, container_id):
         self.container_id = container_id
+
+    def create_libertine_container(self, password=None, verbosity=1):
+        pass
+
+    def destroy_libertine_container(self, verbosity=1):
+        pass
+
+    def is_running(self):
+        """
+        Indicates if the container is 'running'. The definition of 'running'
+        depends on the type of the container.
+        """
+        return False
+
+    def start_container(self):
+        """
+        Starts the container.  To start the container means to put it into a
+        'running' state, the meaning of which depends on the type of the
+        container.
+        """
+        pass
+
+    def stop_container(self):
+        """
+        Stops the container.  The opposite of start_container().
+        """
+        pass
+
+    @abc.abstractmethod
+    def run_in_container(self, command_string):
+        """
+        Runs a command inside the container context.
+
+        :param command_string: The command line to execute in the container context.
+        """
+        pass
+
+    def update_packages(self, verbosity=1):
+        """
+        Updates all packages installed in the container.
+
+        :param verbosity: the chattiness of the output on a range from 0 to 2
+        """
+        self.run_in_container(apt_command_prefix(verbosity) + 'update')
+        self.run_in_container(apt_command_prefix(verbosity) + 'upgrade')
+
+    def install_package(self, package_name, verbosity=1):
+        """
+        Installs a named package in the container.
+
+        :param package_name: The name of the package as APT understands it.
+        :param verbosity: the chattiness of the output on a range from 0 to 2
+        """
+        return self.run_in_container(apt_command_prefix(verbosity) + "install --no-install-recommends '" + package_name + "'") == 0
+
+
+class LibertineLXC(BaseContainer):
+    """
+    A concrete container type implemented using an LXC container.
+    """
+
+    def __init__(self, container_id):
+        super().__init__(container_id)
         self.container = lxc_container(container_id)
         self.series = get_container_distro(container_id)
+
+    def is_running(self):
+        return self.container.running
+
+    def start_container(self):
+        if not self.container.running:
+            if not self.container.start():
+                raise RuntimeError("Container failed to start")
+            if not self.container.wait("RUNNING", 10):
+                raise RuntimeError("Container failed to enter the RUNNING state")
+
+        if not self.container.get_ips(timeout=30):
+            raise RuntimeError("Not able to connect to the network.")
+
+        self.run_in_container("umount /tmp/.X11-unix")
+
+    def stop_container(self):
+        self.container.stop()
+
+    def run_in_container(self, command_string):
+        cmd_args = shlex.split(command_string)
+        return self.container.attach_wait(lxc.attach_run_command, cmd_args)
 
     def destroy_libertine_container(self):
         if self.container.defined:
             self.container.stop()
             self.container.destroy()
 
-    def create_libertine_container(self, password=None):
+    def create_libertine_container(self, password=None, verbosity=1):
         if password is None:
             return
 
@@ -211,23 +298,21 @@ class LibertineLXC(object):
         self.create_libertine_config()
 
         if self.container.start():
-            self.container.attach_wait(lxc.attach_run_command,
-                                       ["userdel", "-r", "ubuntu"])
+            self.run_in_container("userdel-r ubuntu")
+            self.run_in_container("useradd -u {} -p {} -G sudo {}".format(str(user_id), crypt.crypt(password), str(username)))
 
-            self.container.attach_wait(lxc.attach_run_command,
-                                       ["useradd", "-u", str(user_id), "-p", crypt.crypt(password),
-                                        "-G", "sudo", str(username)])
+            if verbosity == 1:
+                print("Updating the contents of the container after creation...")
+            self.update_packages(verbosity)
+
+            if verbosity == 1:
+                print("Installing Compiz as the Xmir window manager...")
+            self.install_package('compiz', verbosity)
+            create_compiz_config(self.container.name)
+
+            self.container.stop()
         else:
-            print("Container failed to start.")
-
-        print("Updating the contents of the container after creation...")
-        self.update_libertine_container()
-
-        print("Installing Compiz as the Xmir window manager...")
-        self.install_package('compiz')
-        create_compiz_config(self.container_id)
-
-        self.container.stop()
+            raise RuntimeError("Container failed to start.")
 
     def create_libertine_config(self):
         user_id = os.getuid()
@@ -261,82 +346,35 @@ class LibertineLXC(object):
         # Dump it all to disk
         self.container.save_config()
 
-    def update_libertine_container(self):
-        # Update packages inside the LXC
-        stop_container = not self.container.running
 
-        if not start_container_for_update(self.container):
-            return (False, "Container did not start")
+class LibertineChroot(BaseContainer):
+    """
+    A concrete container type implemented using a plain old chroot.
+    """
 
-        print("Updating packages inside the LXC...")
-
-        self.container.attach_wait(lxc.attach_run_command,
-                                   ["apt-get", "dist-upgrade", "-y"])
-
-        # Stopping the container
-        if stop_container:
-            self.container.stop()
-
-    def install_package(self, package_name):
-        stop_container = False
-
-        if not self.container.running:
-            if not start_container_for_update(self.container):
-                return (False, "Container did not start")
-            stop_container = True
-
-        retval = self.container.attach_wait(lxc.attach_run_command,
-                                            ["apt-get", "install", "-y", package_name])
-
-        if stop_container:
-            self.container.stop()
-
-        if retval != 0:
-            return False
-
-        return True
-
-    def remove_package(self, package_name):
-        stop_container = False
-
-        if not self.container.running:
-            if not start_container_for_update(self.container):
-                return (False, "Container did not start")
-            stop_container = True
-
-        retval = self.container.attach_wait(lxc.attach_run_command,
-                                            ["apt-get", "remove", "-y", package_name])
-
-        if stop_container:
-            self.container.stop()
-
-    def search_package_cache(self, search_string):
-        stop_container = False
-
-        if not self.container.running:
-            if not start_container_for_update(self.container):
-                return (False, "Container did not start")
-            stop_container = True
-
-        retval = self.container.attach_wait(lxc.attach_run_command,
-                                            ["apt-cache", "search", search_string])
-
-        if stop_container:
-            self.container.stop()
-
-
-class LibertineChroot(object):
     def __init__(self, container_id):
-        self.container_id = container_id
+        super().__init__(container_id)
         self.series = get_container_distro(container_id)
         self.chroot_path = libertine.utils.get_libertine_container_rootfs_path(container_id)
         os.environ['FAKECHROOT_CMD_SUBST'] = '$FAKECHROOT_CMD_SUBST:/usr/bin/chfn=/bin/true'
         os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
 
+    def run_in_container(self, command_string):
+        cmd_args = shlex.split(command_string)
+        if self.series == "trusty":
+            proot_cmd = '/usr/bin/proot'
+            if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
+                raise RuntimeError('executable proot not found')
+            command_prefix = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path
+        else:
+            command_prefix = "fakechroot fakeroot chroot " + self.chroot_path
+        args = shlex.split(command_prefix + ' ' + command_string)
+        cmd = subprocess.Popen(args).wait()
+
     def destroy_libertine_container(self):
         shutil.rmtree(self.chroot_path)
 
-    def create_libertine_container(self, password=None):
+    def create_libertine_container(self, password=None, verbosity=1):
         installed_release = self.series
 
         # Create the actual chroot
@@ -370,7 +408,8 @@ class LibertineChroot(object):
         else:
             archive = "deb http://archive.ubuntu.com/ubuntu "
 
-        print("Updating chroot's sources.list entries...")
+        if verbosity == 1:
+            print("Updating chroot's sources.list entries...")
         with open(os.path.join(self.chroot_path, 'etc', 'apt', 'sources.list'), 'a') as fd:
             fd.write(archive + installed_release + " universe\n")
             fd.write(archive + installed_release + "-updates main\n")
@@ -418,97 +457,58 @@ class LibertineChroot(object):
             args = shlex.split(command_line)
             cmd = subprocess.Popen(args).wait()
 
-        print("Updating the contents of the container after creation...")
-        self.update_libertine_container()
+        if verbosity == 1:
+            print("Updating the contents of the container after creation...")
+        self.update_packages(verbosity)
+        self.install_package("libnss-extrausers", verbosity)
 
-        self.install_package("libnss-extrausers")
-
-        print("Installing Compiz as the Xmir window manager...")
-        self.install_package("compiz")
+        if verbosity == 1:
+            print("Installing Compiz as the Xmir window manager...")
+        self.install_package("compiz", verbosity)
         create_compiz_config(self.container_id)
 
         # Check if the container was created as root and chown the user directories as necessary
         chown_recursive_dirs(libertine.utils.get_libertine_container_userdata_dir_path(self.container_id))
 
-    def update_libertine_container(self):
-        if self.series == "trusty":
-            proot_cmd = '/usr/bin/proot'
-            if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
-                raise RuntimeError('executable proot not found')
-            command_line = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path + " apt-get update"
-        else:
-            command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get update"
-        args = shlex.split(command_line)
-        cmd = subprocess.Popen(args).wait()
 
-        if self.series == "trusty":
-            proot_cmd = '/usr/bin/proot'
-            if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
-                raise RuntimeError('executable proot not found')
-            command_line = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path + " apt-get dist-upgrade -y"
-        else:
-            command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get dist-upgrade -y"
-        args = shlex.split(command_line)
-        cmd = subprocess.Popen(args).wait()
-
-    def install_package(self, package_name):
-        if self.series == "trusty":
-            proot_cmd = '/usr/bin/proot'
-            if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
-                raise RuntimeError('executable proot not found')
-            command_line = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path + " apt-get install -y " + package_name
-        else:
-            command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get install -y " + package_name
-        args = shlex.split(command_line)
-        cmd = subprocess.Popen(args)
-        cmd.wait()
-
-        if cmd.returncode != 0:
-            return False
-        else:
-            return True
-
-    def remove_package(self, package_name):
-        command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-get remove -y " + package_name
-        args = shlex.split(command_line)
-        cmd = subprocess.Popen(args)
-        cmd.wait()
-
-    def search_package_cache(self, search_string):
-        command_line = "fakechroot fakeroot chroot " + self.chroot_path + " /usr/bin/apt-cache search " + search_string
-        args = shlex.split(command_line)
-        cmd = subprocess.Popen(args)
-        cmd.wait()
-
-
-class LibertineMock(object):
+class LibertineMock(BaseContainer):
+    """
+    A concrete mock container type.  Used for unit testing.
+    """
     def __init__(self, container_id):
-        self.container_id = container_id
+        super().__init__(container_id)
 
-    def destroy_libertine_container(self):
-        return True
+    def run_in_container(self, command_string):
+        return 0
 
-    def create_libertine_container(self, password=None):
-        return True
 
-    def update_libertine_container(self):
-        return True
+class ContainerRunning(contextlib.ExitStack):
+    """
+    Helper object providing a running container context.
 
-    def install_package(self, package_name):
-        return True
-
-    def remove_package(self, package_name):
-        return True
-
-    def search_package_cache(self, search_string):
-        return True
+    Starts the container running if it's not already running, and shuts it down
+    when the context is destroyed if it was not running at context creation.
+    """
+    def __init__(self, container):
+        super().__init__()
+        if not container.is_running():
+            container.start_container()
+            self.callback(lambda: container.stop_container())
 
 
 class LibertineContainer(object):
     """
     A sandbox for DEB-packaged X11-based applications.
     """
+
     def __init__(self, container_id, container_type="lxc"):
+        """
+        Initializes the container object.
+
+        :param container_id: The machine-readable container name.
+        :param container_type: One of the supported container types (lxc,
+            chroot, mock).
+        """
         super().__init__()
         if container_type == "lxc":
             self.container = LibertineLXC(container_id)
@@ -517,22 +517,50 @@ class LibertineContainer(object):
         elif container_type == "mock":
             self.container = LibertineMock(container_id)
         else:
-            print("Unsupported container type %s" % container_type)
+            raise RuntimeError("Unsupported container type %s" % container_type)
 
     def destroy_libertine_container(self):
+        """
+        Destroys the container and releases all its system resources.
+        """
         self.container.destroy_libertine_container()
 
-    def create_libertine_container(self, password=None):
-        self.container.create_libertine_container(password)
+    def create_libertine_container(self, password=None, verbosity=1):
+        """
+        Creates the container.
+        """
+        self.container.create_libertine_container(password, verbosity)
 
-    def update_libertine_container(self):
-        self.container.update_libertine_container()
+    def update_libertine_container(self, verbosity=1):
+        """
+        Updates the contents of the container.
+        """
+        with ContainerRunning(self.container):
+            self.container.update_packages(verbosity)
 
-    def install_package(self, package_name):
-        return self.container.install_package(package_name)
+    def install_package(self, package_name, verbosity=1):
+        """
+        Installs a package in the container.
+        """
+        with ContainerRunning(self.container):
+            return self.container.install_package(package_name, verbosity)
 
-    def remove_package(self, package_name):
-        self.container.remove_package(package_name)
+    def remove_package(self, package_name, verbosity=1):
+        """
+        Removes a package from the container.
+
+        :param package_name: The name of the package to be removed.
+        :param verbosity: The verbosity level of the progress reporting.
+        """
+        with ContainerRunning(self.container):
+            self.container.run_in_container(apt_command_prefix(verbosity) + "remove '" + package_name + "'") == 0
 
     def search_package_cache(self, search_string):
-        self.container.search_package_cache(search_string)
+        """
+        Searches the container's package cache for a named package.
+
+        :param search_string: the (regex) to use to search the package cache.
+            The regex is quoted to sanitize it.
+        """
+        with ContainerRunning(self.container):
+            self.container.run_in_container("/usr/bin/apt-cache search '" + search_string + "'")

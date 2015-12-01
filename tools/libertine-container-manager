@@ -263,7 +263,7 @@ def create(args):
 
     container = LibertineContainer(args.id, args.type)
     update_container_install_status(args.id, "installing")
-    container.create_libertine_container(password)
+    container.create_libertine_container(password, args.verbosity)
     update_container_install_status(args.id, "ready")
 
 
@@ -295,7 +295,7 @@ def install_package(args):
     container = LibertineContainer(args.id, get_container_type(args.id))
 
     update_package_install_status(args.id, args.package, "installing")
-    if not container.install_package(args.package):
+    if not container.install_package(args.package, args.verbosity):
         delete_package(args.id, args.package)
         sys.exit(1)
 
@@ -314,7 +314,7 @@ def remove_package(args):
         sys.exit(1)
 
     container = LibertineContainer(args.id, get_container_type(args.id))
-    container.remove_package(args.package)
+    container.remove_package(args.package, args.verbosity)
 
     delete_package(args.id, args.package)
 
@@ -338,7 +338,7 @@ def update(args):
         args.id = get_default_container_id()
 
     container = LibertineContainer(args.id, get_container_type(args.id))
-    container.update_libertine_container()
+    container.update_libertine_container(args.verbosity)
 
 
 def list(args):
@@ -349,6 +349,12 @@ def list(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Legacy X application support for Unity 8")
+    parser.add_argument('-q', '--quiet',
+                        action='store_const', dest='verbosity', const=0,
+                        help=('do not print status updates on stdout'))
+    parser.add_argument('-v', '--verbose',
+                        action='store_const', dest='verbosity', const=2,
+                        help=('extra verbose output'))
     subparsers = parser.add_subparsers(dest="subparser_name")
 
     # Handle the create command and its options
@@ -434,4 +440,7 @@ if __name__ == '__main__':
     parser_list.set_defaults(func=list)
 
     args = parser.parse_args()
+    if args.verbosity is None:
+        args.verbosity = 1
+
     args.func(args)
