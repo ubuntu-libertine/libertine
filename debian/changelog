@@ -1,3 +1,29 @@
+libertine (0.99.6+16.04.20151202.1-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * Fix support for LXC based Libertine containers.
+  * Fix issue where container creation fails on the last step when
+    the compizconfig already exists.
+  * Add a new Libertine utils Python3 library that has many of the
+    common functions used by all of the tools and Libertine backend.
+  * Add a Libertine LXC manager that handles when to start and stop
+    a LXC.
+
+  [ Łukasz 'sil2100' Zemczak ]
+  * Add the puritine dummy click framework.
+
+  [ Stephen M. Webb ]
+  * libertine-launch: add command line help and a manpage
+  * refactor container code to deduplicate lx/chroot code and add
+    enhanced progress reporting to package management
+  * refactor lxc and chroot container back ends into separately-installable
+    packages
+
+  [ CI Train Bot ]
+  * New rebuild forced.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Wed, 02 Dec 2015 19:18:35 +0000
+
 libertine (0.99.5+16.04.20151110-0ubuntu1) xenial; urgency=medium
 
   [ Stephen M. Webb ]
