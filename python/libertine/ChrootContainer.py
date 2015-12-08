@@ -18,7 +18,7 @@ import shutil
 import subprocess
 from .Libertine import (
         BaseContainer, get_container_distro, get_host_architecture,
-        create_libertine_user_data_dir, create_compiz_config)
+        create_libertine_user_data_dir)
 from . import utils
 
 
@@ -159,9 +159,8 @@ class LibertineChroot(BaseContainer):
         self.install_package("libnss-extrausers", verbosity)
 
         if verbosity == 1:
-            print("Installing Compiz as the Xmir window manager...")
-        self.install_package("compiz", verbosity)
-        create_compiz_config(self.container_id)
+            print("Installing Matchbox as the Xmir window manager...")
+        self.install_package('matchbox', verbosity)
 
         # Check if the container was created as root and chown the user directories as necessary
         chown_recursive_dirs(utils.get_libertine_container_userdata_dir_path(self.container_id))

@@ -51,27 +51,6 @@ def create_libertine_user_data_dir(container_id):
         os.makedirs(user_data)
 
 
-def create_compiz_config(container_id):
-    compiz_config_dir = os.path.join(libertine.utils.get_libertine_container_userdata_dir_path(container_id),
-                                     '.config', 'compiz-1', 'compizconfig')
-
-    if not os.path.exists(compiz_config_dir):
-        os.makedirs(compiz_config_dir)
-
-    # Create the general Compiz config file
-    with open(os.path.join(compiz_config_dir, 'config'), 'w+') as fd:
-        fd.write("[general]\n")
-        fd.write("profile = Default\n")
-        fd.write("integration = true\n")
-
-    # Create the default profile file
-    with open(os.path.join(compiz_config_dir, 'Default.ini'), 'w+') as fd:
-        fd.write("[core]\n")
-        fd.write("s0_active_plugins = core;place;\n\n")
-        fd.write("[place]\n")
-        fd.write("s0_mode = 3")
-
-
 def apt_args_for_verbosity_level(verbosity):
     """
     Maps numeric verbosity levels onto APT command-line arguments.

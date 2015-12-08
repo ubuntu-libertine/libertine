@@ -120,15 +120,16 @@ def launch_lxc_application(container_id, app_exec_line):
         print("Failure detected from libertine-lxc-manager")
         return
 
-    compiz = container.attach(lxc.attach_run_command, "compiz")
+    matchbox = container.attach(lxc.attach_run_command,
+                                ['matchbox', '-use_titlebar', 'no'])
 
     # Setup pulse to work inside the container
     os.environ['PULSE_SERVER'] = libertine.utils.get_libertine_lxc_pulse_socket_path()
 
     container.attach_wait(lxc.attach_run_command, app_exec_line)
 
-    os.kill(compiz, signal.SIGTERM)
-    os.waitpid(compiz, 0)
+    os.kill(matchbox, signal.SIGTERM)
+    os.waitpid(matchbox, 0)
 
     # Tell libertine-lxc-manager that the app has stopped.
     message = "stop " + container_id
@@ -143,14 +144,14 @@ def launch_chroot_application(container_id, app_exec_line):
     proot_cmd = build_proot_command(container_id)
 
     args = shlex.split(proot_cmd)
-    args.extend(['compiz'])
-    compiz = psutil.Popen(args)
+    args.extend(['matchbox', '-use_titlebar', 'no'])
+    matchbox = psutil.Popen(args)
 
     args = shlex.split(proot_cmd)
     args.extend(app_exec_line)
     psutil.Popen(args).wait()
 
-    for child in compiz.children():
+    for child in matchbox.children():
         child.terminate()
 
 
