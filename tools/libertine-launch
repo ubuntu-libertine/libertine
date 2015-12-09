@@ -121,7 +121,7 @@ def launch_lxc_application(container_id, app_exec_line):
         return
 
     matchbox = container.attach(lxc.attach_run_command,
-                                ['matchbox', '-use_titlebar', 'no'])
+                                ['matchbox-window-manager', '-use_titlebar', 'no'])
 
     # Setup pulse to work inside the container
     os.environ['PULSE_SERVER'] = libertine.utils.get_libertine_lxc_pulse_socket_path()
@@ -144,7 +144,7 @@ def launch_chroot_application(container_id, app_exec_line):
     proot_cmd = build_proot_command(container_id)
 
     args = shlex.split(proot_cmd)
-    args.extend(['matchbox', '-use_titlebar', 'no'])
+    args.extend(['matchbox-window-manager', '-use_titlebar', 'no'])
     matchbox = psutil.Popen(args)
 
     args = shlex.split(proot_cmd)

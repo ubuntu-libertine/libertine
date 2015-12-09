@@ -131,7 +131,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         :param verbosity: the chattiness of the output on a range from 0 to 2
         """
         return self.run_in_container(apt_command_prefix(verbosity) +
-                extra_apt_args + " install --no-install-recommends '" + package_name + "'") == 0
+                extra_apt_args + " install '" + package_name + "'") == 0
 
 
 class LibertineMock(BaseContainer):
