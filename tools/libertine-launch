@@ -31,6 +31,11 @@ from subprocess import DEVNULL
 home_path = os.environ['HOME']
 
 
+def terminate_window_manager(window_manager):
+    for child in window_manager.children():
+        child.terminate()
+
+
 def get_container_type(container_id):
     container_type = ''
 
@@ -134,10 +139,10 @@ def launch_lxc_application(container_id, app_exec_line):
     # Setup pulse to work inside the container
     os.environ['PULSE_SERVER'] = libertine.utils.get_libertine_lxc_pulse_socket_path()
 
-    container.attach_wait(lxc.attach_run_command, app_exec_line)
+    container.attach_wait(lxc.attach_run_command,
+                          ['sudo', '-E', '-u', os.environ['USER']] + app_exec_line)
 
-    os.kill(window_manager, signal.SIGTERM)
-    os.waitpid(window_manager, 0)
+    terminate_window_manager(psutil.Process(window_manager))
 
     # Tell libertine-lxc-manager that the app has stopped.
     message = "stop " + container_id
@@ -159,8 +164,7 @@ def launch_chroot_application(container_id, app_exec_line):
     args.extend(app_exec_line)
     psutil.Popen(args).wait()
 
-    for child in window_manager.children():
-        window_manager.terminate()
+    terminate_window_manager(window_manager)
 
 
 if __name__ == '__main__':
