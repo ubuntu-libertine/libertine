@@ -87,6 +87,7 @@ class LibertineLXC(BaseContainer):
             raise RuntimeError("Not able to connect to the network.")
 
         self.run_in_container("umount /tmp/.X11-unix")
+        self.run_in_container("umount -l /usr/lib/locale")
 
     def stop_container(self):
         self.container.stop()
