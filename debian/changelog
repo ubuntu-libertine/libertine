@@ -1,3 +1,15 @@
+libertine (0.99.7+16.04.20151209-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * Use Matchbox as the window manager instead of Compiz.  Much simpler and cleaner...
+  * Install recommends for packages in the container.
+  * Use Compiz as a fallback window manager if Matchbox is not found in the container. 
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Wed, 09 Dec 2015 17:38:48 +0000
+
 libertine (0.99.6+16.04.20151202.1-0ubuntu1) xenial; urgency=medium
 
   [ Chris Townsend ]
