@@ -38,7 +38,6 @@ Architecture: any
 Depends: lsb-release,
          python3-distro-info,
          python3-libertine,
-         python3-psutil,
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
@@ -85,6 +84,7 @@ Section: python
 Multi-Arch: allowed
 Depends: gir1.2-libertine,
          python3-gi,
+         python3-psutil,
          python3-xdg,
          ${misc:Depends},
          ${python3:Depends}
@@ -99,8 +99,8 @@ Architecture: any
 Section: python
 Multi-Arch: allowed
 Depends: lxc-templates,
+         python3-libertine,
          python3-lxc,
-         python3-xdg,
          uidmap,
          ${misc:Depends},
          ${python3:Depends}
@@ -117,6 +117,7 @@ Depends: debootstrap,
          fakechroot,
          fakeroot,
          proot [amd64 arm64 armhf i386],
+         python3-libertine,
          ${misc:Depends},
          ${python3:Depends}
 Description: Python3 scripts for the Libertine application sandbox

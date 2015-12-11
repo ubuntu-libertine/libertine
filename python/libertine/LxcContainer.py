@@ -15,12 +15,14 @@
 import crypt
 import lxc
 import os
+import psutil
 import shlex
 import subprocess
 from .Libertine import (
         BaseContainer, get_container_distro, get_host_architecture,
         create_libertine_user_data_dir)
 from . import utils
+from socket import *
 
 
 home_path = os.environ['HOME']
@@ -197,3 +199,45 @@ class LibertineLXC(BaseContainer):
         # Dump it all to disk
         self.container.save_config()
 
+    def launch_application(self, app_exec_line):
+        libertine_lxc_mgr_sock = socket(AF_UNIX, SOCK_STREAM)
+        libertine_lxc_mgr_sock.connect(utils.get_libertine_lxc_socket())
+
+        # Tell libertine-lxc-manager that we are starting a new app
+        message = "start " + self.container_id
+        libertine_lxc_mgr_sock.send(message.encode())
+
+        # Receive the reply from libertine-lxc-manager
+        data = libertine_lxc_mgr_sock.recv(1024)
+
+        if data.decode() == 'OK':
+            if not self.container.wait("RUNNING", 10):
+                print("Container failed to enter the RUNNING state")
+                return
+
+            if not self.container.get_ips(timeout=30):
+                print("Not able to connect to the network.")
+                return
+
+        else:
+            print("Failure detected from libertine-lxc-manager")
+            return
+
+        window_manager = self.container.attach(lxc.attach_run_command,
+                                               utils.setup_window_manager(self.container_id))
+
+        # Setup pulse to work inside the container
+        os.environ['PULSE_SERVER'] = utils.get_libertine_lxc_pulse_socket_path()
+
+        self.container.attach_wait(lxc.attach_run_command,
+                                   ['sudo', '-E', '-u', os.environ['USER']] + app_exec_line)
+
+        utils.terminate_window_manager(psutil.Process(window_manager))
+
+        # Tell libertine-lxc-manager that the app has stopped.
+        message = "stop " + self.container_id
+        libertine_lxc_mgr_sock.send(message.encode())
+
+        # Receive the reply from libertine-lxc-manager (ignore it for now). 
+        data = libertine_lxc_mgr_sock.recv(1024)
+        libertine_lxc_mgr_sock.close()

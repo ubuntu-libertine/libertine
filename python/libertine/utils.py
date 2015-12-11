@@ -16,7 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
 import os
+import psutil
 import xdg.BaseDirectory as basedir
 
 from gi import require_version
@@ -65,5 +67,30 @@ def get_libertine_lxc_socket():
     return '\0libertine_lxc_socket'
 
 
+def get_libertine_container_type(container_id):
+    with open(get_libertine_database_file_path()) as fd:
+        container_list = json.load(fd)
+        fd.close()
+
+    for container in container_list["containerList"]:
+        if container["id"] == container_id:
+            return container["type"]
+
+    return ""
+
+
 def get_libertine_lxc_pulse_socket_path():
     return os.path.join(get_libertine_runtime_dir(), 'pulse_socket')
+
+
+def setup_window_manager(container_id):
+    if os.path.exists(os.path.join(get_libertine_container_rootfs_path(container_id),
+                                   'usr', 'bin', 'matchbox-window-manager')):
+        return ['matchbox-window-manager', '-use_titlebar', 'no']
+    else:
+        return ['compiz']
+
+
+def terminate_window_manager(window_manager):
+    for child in window_manager.children():
+        child.terminate()

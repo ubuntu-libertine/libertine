@@ -13,6 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import psutil
 import shlex
 import shutil
 import subprocess
@@ -39,6 +40,36 @@ def chown_recursive_dirs(path):
                 os.chown(os.path.join(root, f), uid, gid)
 
         os.chown(path, uid, gid)
+
+
+def build_proot_command(container_id):
+    proot_cmd = '/usr/bin/proot'
+    if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
+        raise RuntimeError('executable proot not found')
+    proot_cmd += " -R " + utils.get_libertine_container_rootfs_path(container_id)
+
+    # Bind-mount the host's locale(s)
+    proot_cmd += " -b /usr/lib/locale"
+
+    # Bind-mount extrausers on the phone
+    if os.path.exists("/var/lib/extrausers"):
+        proot_cmd += " -b /var/lib/extrausers"
+
+    home_path = os.environ['HOME']
+
+    # Bind-mount common XDG direcotries
+    bind_mounts = (
+        " -b %s:%s"
+        % (utils.get_libertine_container_userdata_dir_path(container_id), home_path)
+    )
+
+    xdg_user_dirs = ['Documents', 'Music', 'Pictures', 'Videos']
+    for user_dir in xdg_user_dirs:
+        user_dir_path = os.path.join(home_path, user_dir)
+        bind_mounts += " -b %s:%s" % (user_dir_path, user_dir_path)
+
+    proot_cmd += bind_mounts
+    return proot_cmd
 
 
 class LibertineChroot(BaseContainer):
@@ -165,3 +196,15 @@ class LibertineChroot(BaseContainer):
         # Check if the container was created as root and chown the user directories as necessary
         chown_recursive_dirs(utils.get_libertine_container_userdata_dir_path(self.container_id))
 
+    def launch_application(self, app_exec_line):
+        proot_cmd = build_proot_command(self.container_id)
+
+        args = shlex.split(proot_cmd)
+        args.extend(utils.setup_window_manager(self.container_id))
+        window_manager = psutil.Popen(args)
+
+        args = shlex.split(proot_cmd)
+        args.extend(app_exec_line)
+        psutil.Popen(args).wait()
+
+        utils.terminate_window_manager(window_manager)

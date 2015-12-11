@@ -229,3 +229,12 @@ class LibertineContainer(object):
         """
         with ContainerRunning(self.container):
             self.container.run_in_container("/usr/bin/apt-cache search '" + search_string + "'")
+
+    def launch_application(self, app_exec_line):
+        """
+        Launches an application in the container.
+
+        :param app_exec_line: the application exec line as passed in by
+            ubuntu-app-launch
+        """
+        self.container.launch_application(app_exec_line) 
