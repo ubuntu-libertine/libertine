@@ -17,9 +17,7 @@ import psutil
 import shlex
 import shutil
 import subprocess
-from .Libertine import (
-        BaseContainer, get_container_distro, get_host_architecture,
-        create_libertine_user_data_dir)
+from .Libertine import BaseContainer
 from . import utils
 
 
@@ -79,14 +77,13 @@ class LibertineChroot(BaseContainer):
 
     def __init__(self, container_id):
         super().__init__(container_id)
-        self.series = get_container_distro(container_id)
         self.chroot_path = utils.get_libertine_container_rootfs_path(container_id)
         os.environ['FAKECHROOT_CMD_SUBST'] = '$FAKECHROOT_CMD_SUBST:/usr/bin/chfn=/bin/true'
         os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
 
     def run_in_container(self, command_string):
         cmd_args = shlex.split(command_string)
-        if self.series == "trusty":
+        if self.get_container_distro(self.container_id) == "trusty":
             proot_cmd = '/usr/bin/proot'
             if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
                 raise RuntimeError('executable proot not found')
@@ -101,7 +98,7 @@ class LibertineChroot(BaseContainer):
         shutil.rmtree(self.chroot_path)
 
     def create_libertine_container(self, password=None, verbosity=1):
-        installed_release = self.series
+        installed_release = self.get_container_distro(self.container_id)
 
         # Create the actual chroot
         if installed_release == "trusty":
@@ -130,7 +127,7 @@ class LibertineChroot(BaseContainer):
                 os.fchmod(fd.fileno(), 0o755)
 
         # Add universe and -updates to the chroot's sources.list
-        if (get_host_architecture() == 'armhf'):
+        if (utils.get_host_architecture() == 'armhf'):
             archive = "deb http://ports.ubuntu.com/ubuntu-ports "
         else:
             archive = "deb http://archive.ubuntu.com/ubuntu "
@@ -142,7 +139,7 @@ class LibertineChroot(BaseContainer):
             fd.write(archive + installed_release + "-updates main\n")
             fd.write(archive + installed_release + "-updates universe\n")
 
-        create_libertine_user_data_dir(self.container_id)
+        utils.create_libertine_user_data_dir(self.container_id)
 
         if installed_release == "trusty":
             print("Additional configuration for Trusty chroot...")

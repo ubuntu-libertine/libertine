@@ -19,6 +19,7 @@
 import json
 import os
 import psutil
+import subprocess
 import xdg.BaseDirectory as basedir
 
 from gi import require_version
@@ -33,6 +34,7 @@ def get_libertine_container_rootfs_path(container_id):
         path = os.path.join(get_libertine_containers_dir_path(), container_id, 'rootfs')
 
     return path
+
 
 def get_libertine_containers_dir_path():
     return basedir.save_cache_path('libertine-container')
@@ -63,20 +65,25 @@ def get_libertine_runtime_dir():
     return os.path.join(get_user_runtime_dir(), 'libertine')
 
 
+def get_host_architecture():
+    dpkg = subprocess.Popen(['dpkg', '--print-architecture'],
+                            stdout=subprocess.PIPE,
+                            universal_newlines=True)
+    if dpkg.wait() != 0:
+        parser.error("Failed to determine the local architecture.")
+
+    return dpkg.stdout.read().strip()
+
+
+def create_libertine_user_data_dir(container_id):
+    user_data = get_libertine_container_userdata_dir_path(container_id)
+
+    if not os.path.exists(user_data):
+        os.makedirs(user_data)
+
+
 def get_libertine_lxc_socket():
     return '\0libertine_lxc_socket'
-
-
-def get_libertine_container_type(container_id):
-    with open(get_libertine_database_file_path()) as fd:
-        container_list = json.load(fd)
-        fd.close()
-
-    for container in container_list["containerList"]:
-        if container["id"] == container_id:
-            return container["type"]
-
-    return ""
 
 
 def get_libertine_lxc_pulse_socket_path():

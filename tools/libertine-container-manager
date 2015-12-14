@@ -247,7 +247,7 @@ def create(args):
 
     add_new_container(args.id, args.name, args.type, args.distro)
 
-    container = LibertineContainer(args.id, args.type)
+    container = LibertineContainer(args.id)
     update_container_install_status(args.id, "installing")
     container.create_libertine_container(password, args.verbosity)
     update_container_install_status(args.id, "ready")
@@ -260,7 +260,7 @@ def destroy(args):
     elif not args.id:
         args.id = get_default_container_id()
 
-    container = LibertineContainer(args.id, libertine.utils.get_libertine_container_type(args.id))
+    container = LibertineContainer(args.id)
     container.destroy_libertine_container()
     delete_container(args.id)
 
@@ -278,7 +278,7 @@ def install_package(args):
 
     add_new_package(args.id, args.package)
 
-    container = LibertineContainer(args.id, libertine.utils.get_libertine_container_type(args.id))
+    container = LibertineContainer(args.id)
 
     update_package_install_status(args.id, args.package, "installing")
     if not container.install_package(args.package, args.verbosity):
@@ -299,7 +299,7 @@ def remove_package(args):
         print("Package \'%s\' is not installed." % args.package)
         sys.exit(1)
 
-    container = LibertineContainer(args.id, libertine.utils.get_libertine_container_type(args.id))
+    container = LibertineContainer(args.id)
     container.remove_package(args.package, args.verbosity)
 
     delete_package(args.id, args.package)
@@ -312,7 +312,7 @@ def search_cache(args):
     elif not args.id:
         args.id = get_default_container_id()
 
-    container = LibertineContainer(args.id, libertine.utils.get_libertine_container_type(args.id))
+    container = LibertineContainer(args.id)
     container.search_package_cache(args.search_string)
 
 
@@ -323,7 +323,7 @@ def update(args):
     elif not args.id:
         args.id = get_default_container_id()
 
-    container = LibertineContainer(args.id, libertine.utils.get_libertine_container_type(args.id))
+    container = LibertineContainer(args.id)
     container.update_libertine_container(args.verbosity)
 
 

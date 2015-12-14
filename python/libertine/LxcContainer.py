@@ -18,9 +18,7 @@ import os
 import psutil
 import shlex
 import subprocess
-from .Libertine import (
-        BaseContainer, get_container_distro, get_host_architecture,
-        create_libertine_user_data_dir)
+from .Libertine import BaseContainer
 from . import utils
 from socket import *
 
@@ -73,7 +71,6 @@ class LibertineLXC(BaseContainer):
     def __init__(self, container_id):
         super().__init__(container_id)
         self.container = lxc_container(container_id)
-        self.series = get_container_distro(container_id)
 
     def is_running(self):
         return self.container.running
@@ -107,7 +104,7 @@ class LibertineLXC(BaseContainer):
         if password is None:
             return
 
-        installed_release = self.series
+        installed_release = self.get_container_distro(self.container_id)
 
         username = os.environ['USER']
         user_id = os.getuid()
@@ -135,10 +132,10 @@ class LibertineLXC(BaseContainer):
                 fd.write("lxc.id_map = u %s %s %s\n" % (user_id + 1, (user_id + 1) + 100000, 65536 - (user_id + 1)))
                 fd.write("lxc.id_map = g %s %s %s\n" % (group_id + 1, (group_id + 1) + 100000, 65536 - (user_id + 1)))
 
-        create_libertine_user_data_dir(self.container_id)
+        utils.create_libertine_user_data_dir(self.container_id)
 
         # Figure out the host architecture
-        architecture = get_host_architecture()
+        architecture = utils.get_host_architecture()
 
         if not self.container.create("download", 0,
                                      {"dist": "ubuntu",

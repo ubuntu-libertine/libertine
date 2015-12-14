@@ -15,40 +15,23 @@
 import abc
 import contextlib
 import json
-import os
-import shlex
-import subprocess
 import libertine.utils
 
 
-def get_container_distro(container_id):
-    container_distro = ""
-
+def get_container_type(container_id):
+    """
+    Retrieves the type of container for a given container ID.
+    :param container_id: The Container ID to search for.
+    """
     with open(libertine.utils.get_libertine_database_file_path()) as fd:
         container_list = json.load(fd)
 
     for container in container_list["containerList"]:
         if container["id"] == container_id:
-            return container["distro"]
+            return container["type"]
 
-    return ""
-
-
-def get_host_architecture():
-    dpkg = subprocess.Popen(['dpkg', '--print-architecture'],
-                            stdout=subprocess.PIPE,
-                            universal_newlines=True)
-    if dpkg.wait() != 0:
-        parser.error("Failed to determine the local architecture.")
-
-    return dpkg.stdout.read().strip()
-
-
-def create_libertine_user_data_dir(container_id):
-    user_data = libertine.utils.get_libertine_container_userdata_dir_path(container_id)
-
-    if not os.path.exists(user_data):
-        os.makedirs(user_data)
+    # Return lxc as the default container type
+    return "lxc"
 
 
 def apt_args_for_verbosity_level(verbosity):
@@ -133,6 +116,20 @@ class BaseContainer(metaclass=abc.ABCMeta):
         return self.run_in_container(apt_command_prefix(verbosity) +
                 extra_apt_args + " install '" + package_name + "'") == 0
 
+    def get_container_distro(self, container_id):
+        """
+        Retrieves the distro code name for a given container ID.
+
+        :param container_id: The Container ID to search for.
+        """
+        with open(libertine.utils.get_libertine_database_file_path()) as fd:
+            container_list = json.load(fd)
+
+        for container in container_list["containerList"]:
+            if container["id"] == container_id:
+                return container["distro"]
+
+        return ""
 
 class LibertineMock(BaseContainer):
     """
@@ -164,15 +161,16 @@ class LibertineContainer(object):
     A sandbox for DEB-packaged X11-based applications.
     """
 
-    def __init__(self, container_id, container_type="lxc"):
+    def __init__(self, container_id):
         """
         Initializes the container object.
 
         :param container_id: The machine-readable container name.
-        :param container_type: One of the supported container types (lxc,
-            chroot, mock).
         """
         super().__init__()
+
+        container_type = get_container_type(container_id)
+
         if container_type == "lxc":
             from  libertine.LxcContainer import LibertineLXC
             self.container = LibertineLXC(container_id)
