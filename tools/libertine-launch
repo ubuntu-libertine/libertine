@@ -56,6 +56,10 @@ if __name__ == '__main__':
     session_bridge = launch_libertine_session_bridge()
 
     container = LibertineContainer(args.container_id) 
-    container.launch_application(args.app_exec_line)
 
-    session_bridge.terminate()
+    try:
+        container.launch_application(args.app_exec_line)
+    except:
+        raise
+    finally:
+        session_bridge.terminate()

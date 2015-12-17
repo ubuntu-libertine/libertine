@@ -27,6 +27,21 @@ require_version('Libertine', '1')
 from gi.repository import Libertine
 
 
+def container_exists(container_id):
+    container_config_file_path = get_libertine_database_file_path()
+ 
+    if os.path.exists(container_config_file_path):
+        with open(get_libertine_database_file_path()) as fd:
+            container_list = json.load(fd)
+
+        if container_list:
+            for container in container_list['containerList']:
+                if container['id'] == container_id:
+                    return True
+
+    return False
+
+
 def get_libertine_container_rootfs_path(container_id):
     path = Libertine.container_path(container_id)
 

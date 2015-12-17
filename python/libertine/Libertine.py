@@ -141,6 +141,12 @@ class LibertineMock(BaseContainer):
     def run_in_container(self, command_string):
         return 0
 
+    def launch_application(self, app_exec_line):
+        import subprocess
+
+        cmd = subprocess.Popen(app_exec_line)
+        cmd.wait()
+
 
 class ContainerRunning(contextlib.ExitStack):
     """
@@ -235,4 +241,7 @@ class LibertineContainer(object):
         :param app_exec_line: the application exec line as passed in by
             ubuntu-app-launch
         """
-        self.container.launch_application(app_exec_line) 
+        if libertine.utils.container_exists(self.container.container_id):
+            self.container.launch_application(app_exec_line) 
+        else:
+            raise RuntimeError("Container with id %s does not exist." % self.container.container_id)

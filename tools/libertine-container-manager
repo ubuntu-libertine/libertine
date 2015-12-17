@@ -89,17 +89,6 @@ def get_distro_codename(distro):
     return None
 
 
-def container_exists(container_id):
-    container_list = read_container_config_file()
-
-    if container_list:
-        for container in container_list['containerList']:
-            if container['id'] == container_id:
-                return True
-
-    return False
-
-
 def update_container_install_status(container_id, new_status):
     container_list = read_container_config_file()
 
@@ -232,7 +221,7 @@ def create(args):
     if not args.name:
         args.name = "Ubuntu \'" + get_distro_codename(args.distro) + "\'"
 
-    if args.id and container_exists(args.id):
+    if args.id and libertine.utils.container_exists(args.id):
         print("Container id \'%s\' is already used." % args.id, file=sys.stderr)
         sys.exit(1)
     elif not args.id:
@@ -254,7 +243,7 @@ def create(args):
 
 
 def destroy(args):
-    if args.id and not container_exists(args.id):
+    if args.id and not libertine.utils.container_exists(args.id):
         print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
         sys.exit(1)
     elif not args.id:
@@ -266,7 +255,7 @@ def destroy(args):
 
 
 def install_package(args):
-    if args.id and not container_exists(args.id):
+    if args.id and not libertine.utils.container_exists(args.id):
         print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
         sys.exit(1)
     elif not args.id:
@@ -289,7 +278,7 @@ def install_package(args):
 
 
 def remove_package(args):
-    if args.id and not container_exists(args.id):
+    if args.id and not libertine.utils.container_exists(args.id):
         print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
         sys.exit(1)
     elif not args.id:
@@ -306,7 +295,7 @@ def remove_package(args):
 
 
 def search_cache(args):
-    if args.id and not container_exists(args.id):
+    if args.id and not libertine.utils.container_exists(args.id):
         print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
         sys.exit(1)
     elif not args.id:
@@ -317,7 +306,7 @@ def search_cache(args):
 
 
 def update(args):
-    if args.id and not container_exists(args.id):
+    if args.id and not libertine.utils.container_exists(args.id):
         print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
         sys.exit(1)
     elif not args.id:
