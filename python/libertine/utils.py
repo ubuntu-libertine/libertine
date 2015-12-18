@@ -73,7 +73,11 @@ def get_libertine_container_userdata_dir_path(container_id):
 
 
 def get_user_runtime_dir():
-    return basedir.get_runtime_dir()
+    try:
+        return basedir.get_runtime_dir()
+    except KeyError:
+        import tempfile
+        return tempfile.mkdtemp()
 
 
 def get_libertine_runtime_dir():

@@ -53,6 +53,9 @@ if __name__ == '__main__':
                             help='exec line')
     args = arg_parser.parse_args()
 
+    if not libertine.utils.container_exists(args.container_id):
+        raise RuntimeError("Container ID %s does not exist." % args.container_id)
+
     session_bridge = launch_libertine_session_bridge()
 
     container = LibertineContainer(args.container_id) 

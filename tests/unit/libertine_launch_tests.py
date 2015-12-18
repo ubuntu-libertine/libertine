@@ -14,7 +14,9 @@
 
 import os
 import shlex
+import shutil
 import subprocess
+import tempfile
 
 from testtools import TestCase
 from testtools.matchers import Equals, NotEquals
@@ -32,15 +34,21 @@ class TestLibertineLaunch(TestCase):
 
         # Set necessary enviroment variables
         os.environ['XDG_DATA_HOME'] = container_config_path
+        os.environ['XDG_RUNTIME_DIR'] = tempfile.mkdtemp()
         os.environ['DISPLAY'] = ':0'
         os.environ['PATH'] = (self.cmake_source_dir + '/tests/mocks:' +
                               self.cmake_source_dir + '/tools:' + os.environ['PATH'])
+
+        self.addCleanup(self.cleanup)
 
         # Make a mock container
         cli_cmd = self.cmake_source_dir + '/tools/libertine-container-manager create -i test -n Test -t mock'
         args = shlex.split(cli_cmd)
         subprocess.Popen(args).wait()
     
+    def cleanup(self):
+        shutil.rmtree(os.environ['XDG_RUNTIME_DIR'])
+
     def test_launch_app_existing_container(self):
         '''
         Base line test to ensure launching an app in an existing container works.
@@ -74,9 +82,9 @@ class TestLibertineLaunch(TestCase):
         p.wait()
 
         self.assertThat(p.returncode, Equals(0))
-        self.assertThat(os.path.exists(os.path.join(self.cmake_binary_dir, 'mock')), Equals(True))
+        self.assertThat(os.path.exists(os.path.join(os.environ['XDG_RUNTIME_DIR'], 'mock')), Equals(True))
 
-        os.remove(os.path.join(self.cmake_binary_dir, 'mock'))
+        os.remove(os.path.join(os.path.join(os.environ['XDG_RUNTIME_DIR'], 'mock')))
 
     def test_launch_bad_app(self):
         '''
