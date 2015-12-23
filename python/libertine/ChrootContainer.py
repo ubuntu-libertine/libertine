@@ -40,36 +40,6 @@ def chown_recursive_dirs(path):
         os.chown(path, uid, gid)
 
 
-def build_proot_command(container_id):
-    proot_cmd = '/usr/bin/proot'
-    if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
-        raise RuntimeError('executable proot not found')
-    proot_cmd += " -R " + utils.get_libertine_container_rootfs_path(container_id)
-
-    # Bind-mount the host's locale(s)
-    proot_cmd += " -b /usr/lib/locale"
-
-    # Bind-mount extrausers on the phone
-    if os.path.exists("/var/lib/extrausers"):
-        proot_cmd += " -b /var/lib/extrausers"
-
-    home_path = os.environ['HOME']
-
-    # Bind-mount common XDG direcotries
-    bind_mounts = (
-        " -b %s:%s"
-        % (utils.get_libertine_container_userdata_dir_path(container_id), home_path)
-    )
-
-    xdg_user_dirs = ['Documents', 'Music', 'Pictures', 'Videos']
-    for user_dir in xdg_user_dirs:
-        user_dir_path = os.path.join(home_path, user_dir)
-        bind_mounts += " -b %s:%s" % (user_dir_path, user_dir_path)
-
-    proot_cmd += bind_mounts
-    return proot_cmd
-
-
 class LibertineChroot(BaseContainer):
     """
     A concrete container type implemented using a plain old chroot.
@@ -77,7 +47,7 @@ class LibertineChroot(BaseContainer):
 
     def __init__(self, container_id):
         super().__init__(container_id)
-        self.chroot_path = utils.get_libertine_container_rootfs_path(container_id)
+        self.container_type = "chroot"
         os.environ['FAKECHROOT_CMD_SUBST'] = '$FAKECHROOT_CMD_SUBST:/usr/bin/chfn=/bin/true'
         os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
 
@@ -87,35 +57,35 @@ class LibertineChroot(BaseContainer):
             proot_cmd = '/usr/bin/proot'
             if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
                 raise RuntimeError('executable proot not found')
-            command_prefix = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path
+            command_prefix = proot_cmd + " -b /usr/lib/locale -S " + self.root_path
         else:
-            command_prefix = "fakechroot fakeroot chroot " + self.chroot_path
+            command_prefix = "fakechroot fakeroot chroot " + self.root_path
         args = shlex.split(command_prefix + ' ' + command_string)
         cmd = subprocess.Popen(args)
         return cmd.wait()
 
     def destroy_libertine_container(self):
-        shutil.rmtree(self.chroot_path)
+        shutil.rmtree(self.root_path)
 
     def create_libertine_container(self, password=None, verbosity=1):
         installed_release = self.get_container_distro(self.container_id)
 
         # Create the actual chroot
         if installed_release == "trusty":
-            command_line = "debootstrap --verbose " + installed_release + " " + self.chroot_path
+            command_line = "debootstrap --verbose " + installed_release + " " + self.root_path
         else:
             command_line = "fakechroot fakeroot debootstrap --verbose --variant=fakechroot {} {}".format(
-                    installed_release, self.chroot_path)
+                    installed_release, self.root_path)
         args = shlex.split(command_line)
         subprocess.Popen(args).wait()
 
         # Remove symlinks as they can ill-behaved recursive behavior in the chroot
         if installed_release != "trusty":
             print("Fixing chroot symlinks...")
-            os.remove(os.path.join(self.chroot_path, 'dev'))
-            os.remove(os.path.join(self.chroot_path, 'proc'))
+            os.remove(os.path.join(self.root_path, 'dev'))
+            os.remove(os.path.join(self.root_path, 'proc'))
 
-            with open(os.path.join(self.chroot_path, 'usr', 'sbin', 'policy-rc.d'), 'w+') as fd:
+            with open(os.path.join(self.root_path, 'usr', 'sbin', 'policy-rc.d'), 'w+') as fd:
                 fd.write("#!/bin/sh\n\n")
                 fd.write("while true; do\n")
                 fd.write("case \"$1\" in\n")
@@ -134,7 +104,7 @@ class LibertineChroot(BaseContainer):
 
         if verbosity == 1:
             print("Updating chroot's sources.list entries...")
-        with open(os.path.join(self.chroot_path, 'etc', 'apt', 'sources.list'), 'a') as fd:
+        with open(os.path.join(self.root_path, 'etc', 'apt', 'sources.list'), 'a') as fd:
             fd.write(archive + installed_release + " universe\n")
             fd.write(archive + installed_release + "-updates main\n")
             fd.write(archive + installed_release + "-updates universe\n")
@@ -147,7 +117,7 @@ class LibertineChroot(BaseContainer):
             proot_cmd = '/usr/bin/proot'
             if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
                 raise RuntimeError('executable proot not found')
-            cmd_line_prefix = proot_cmd + " -b /usr/lib/locale -S " + self.chroot_path
+            cmd_line_prefix = proot_cmd + " -b /usr/lib/locale -S " + self.root_path
 
             command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /etc/init.d/systemd-logind"
             args = shlex.split(command_line)
@@ -193,8 +163,38 @@ class LibertineChroot(BaseContainer):
         # Check if the container was created as root and chown the user directories as necessary
         chown_recursive_dirs(utils.get_libertine_container_userdata_dir_path(self.container_id))
 
+    def _build_proot_command(self):
+        proot_cmd = '/usr/bin/proot'
+        if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
+            raise RuntimeError('executable proot not found')
+
+        proot_cmd += " -R " + self.root_path
+
+        # Bind-mount the host's locale(s)
+        proot_cmd += " -b /usr/lib/locale"
+
+        # Bind-mount extrausers on the phone
+        if os.path.exists("/var/lib/extrausers"):
+            proot_cmd += " -b /var/lib/extrausers"
+
+        home_path = os.environ['HOME']
+
+        # Bind-mount common XDG direcotries
+        bind_mounts = (
+            " -b %s:%s"
+            % (utils.get_libertine_container_userdata_dir_path(self.container_id), home_path)
+        )
+
+        xdg_user_dirs = ['Documents', 'Music', 'Pictures', 'Videos']
+        for user_dir in xdg_user_dirs:
+            user_dir_path = os.path.join(home_path, user_dir)
+            bind_mounts += " -b %s:%s" % (user_dir_path, user_dir_path)
+
+        proot_cmd += bind_mounts
+        return proot_cmd
+
     def launch_application(self, app_exec_line):
-        proot_cmd = build_proot_command(self.container_id)
+        proot_cmd = self._build_proot_command()
 
         args = shlex.split(proot_cmd)
         args.extend(utils.setup_window_manager(self.container_id))

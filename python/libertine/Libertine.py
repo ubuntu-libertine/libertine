@@ -12,6 +12,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from .AppDiscovery import AppLauncherCache
+from gi.repository import Libertine
 import abc
 import contextlib
 import json
@@ -23,12 +25,16 @@ def get_container_type(container_id):
     Retrieves the type of container for a given container ID.
     :param container_id: The Container ID to search for.
     """
-    with open(libertine.utils.get_libertine_database_file_path()) as fd:
-        container_list = json.load(fd)
+    try:
+        with open(libertine.utils.get_libertine_database_file_path()) as fd:
+            container_list = json.load(fd)
 
-    for container in container_list["containerList"]:
-        if container["id"] == container_id:
-            return container["type"]
+        for container in container_list["containerList"]:
+            if container["id"] == container_id:
+                return container["type"]
+
+    except FileNotFoundError:
+        pass
 
     # Return lxc as the default container type
     return "lxc"
@@ -59,7 +65,9 @@ class BaseContainer(metaclass=abc.ABCMeta):
     :param container_id: The machine-readable container name.
     """
     def __init__(self, container_id):
+        self.container_type = 'unknown'
         self.container_id = container_id
+        self.root_path = libertine.utils.get_libertine_container_rootfs_path(self.container_id)
 
     def create_libertine_container(self, password=None, verbosity=1):
         pass
@@ -131,12 +139,24 @@ class BaseContainer(metaclass=abc.ABCMeta):
 
         return ""
 
+    @property
+    def name(self):
+        """
+        The human-readable name of the container.
+        """
+        name = Libertine.container_name(self.container_id)
+        if not name:
+            name = 'Unknown'
+        return name
+
+
 class LibertineMock(BaseContainer):
     """
     A concrete mock container type.  Used for unit testing.
     """
     def __init__(self, container_id):
         super().__init__(container_id)
+        self.container_type = "mock"
 
     def run_in_container(self, command_string):
         return 0
@@ -187,6 +207,22 @@ class LibertineContainer(object):
             self.container = LibertineMock(container_id)
         else:
             raise RuntimeError("Unsupported container type %s" % container_type)
+
+    @property
+    def container_id(self):
+        return self.container.container_id
+
+    @property
+    def name(self):
+        return self.container.name
+
+    @property
+    def container_type(self):
+        return self.container.container_type
+
+    @property
+    def root_path(self):
+        return self.container.root_path
 
     def destroy_libertine_container(self):
         """
@@ -245,3 +281,20 @@ class LibertineContainer(object):
             self.container.launch_application(app_exec_line) 
         else:
             raise RuntimeError("Container with id %s does not exist." % self.container.container_id)
+
+    def list_app_launchers(self, use_json=False):
+        """
+        Enumerates all application launchers (based on .desktop files) available
+        in the container.
+
+        :param use_json: Indicates the returned string should be i JSON format.
+            The default format is some human-readble format.
+        :rtype: A printable string containing a list of application launchers
+            available in the container.
+        """
+        if use_json:
+            return AppLauncherCache(self.container.name,
+                                    self.container.root_path).to_json()
+        else:
+            return str(AppLauncherCache(self.container.name,
+                                        self.container.root_path))

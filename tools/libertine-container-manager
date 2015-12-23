@@ -322,6 +322,17 @@ def list(args):
         print("%s" % container)
 
 
+def list_apps(args):
+    if args.id and not libertine.utils.container_exists(args.id):
+        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
+        sys.exit(1)
+    elif not args.id:
+        args.id = get_default_container_id()
+
+    container = LibertineContainer(args.id)
+    print(container.list_app_launchers(use_json=args.json))
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Legacy X application support for Unity 8")
     parser.add_argument('-q', '--quiet',
@@ -414,6 +425,19 @@ if __name__ == '__main__':
         help=("List all Libertine containers."))
     parser_list.set_defaults(func=list)
 
+    parser_list_apps = subparsers.add_parser(
+        'list-apps',
+        help=("List availsble app launchers in a container."))
+    parser_list_apps.add_argument(
+        '-i', '--id',
+        help=("Container identifier.  Default container is used if omitted."))
+    parser_list_apps.add_argument(
+        '-j', '--json',
+        action='store_true',
+        help=("use JSON output format."))
+    parser_list_apps.set_defaults(func=list_apps)
+
+# Actually parse the args
     args = parser.parse_args()
     if args.verbosity is None:
         args.verbosity = 1

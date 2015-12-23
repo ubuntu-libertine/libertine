@@ -52,11 +52,16 @@ def get_libertine_container_rootfs_path(container_id):
 
 
 def get_libertine_containers_dir_path():
-    return basedir.save_cache_path('libertine-container')
+    xdg_cache_home = os.getenv('XDG_CACHE_HOME',
+                                os.path.join(os.getenv('HOME'), '.cache'))
+
+    return os.path.join(xdg_cache_home, 'libertine-container')
 
 
 def get_libertine_database_dir_path():
-    return os.path.join(basedir.xdg_data_home, 'libertine')
+    xdg_data_home = os.getenv('XDG_DATA_HOME',
+                              os.path.join(os.getenv('HOME'), '.local', 'share'))
+    return os.path.join(xdg_data_home, 'libertine')
 
 
 def get_libertine_database_file_path():

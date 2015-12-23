@@ -30,6 +30,12 @@ set_tests_properties(test_libertine_public_gir
                      PROPERTIES
                      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 
+add_test(test_libertine "/usr/bin/python3" "-m" "testtools.run" "discover" "-s" "${CMAKE_CURRENT_SOURCE_DIR}")
+set_tests_properties(test_libertine
+                     PROPERTIES
+                     ENVIRONMENT
+                     "GI_TYPELIB_PATH=${CMAKE_BINARY_DIR}/liblibertine;LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/liblibertine:${LD_LIBRARY_PATH};PYTHONPATH=${CMAKE_SOURCE_DIR}/python")
+
 add_test(test_libertine_container_manager
   "/usr/bin/python3" "-m" "testtools.run" "libertine_container_manager_tests"
 )

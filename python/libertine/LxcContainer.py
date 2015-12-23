@@ -70,6 +70,7 @@ class LibertineLXC(BaseContainer):
 
     def __init__(self, container_id):
         super().__init__(container_id)
+        self.container_type = "lxc"
         self.container = lxc_container(container_id)
 
     def is_running(self):

@@ -1,3 +1,4 @@
-usr/lib/python*/*/libertine/__init__.py
+usr/lib/python*/*/libertine/AppDiscovery.py
 usr/lib/python*/*/libertine/Libertine.py
 usr/lib/python*/*/libertine/utils.py
+usr/lib/python*/*/libertine/__init__.py
