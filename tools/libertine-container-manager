@@ -339,7 +339,7 @@ if __name__ == '__main__':
     parser_create.add_argument(
         '-i', '--id',
         required=True,
-        help=("Container identifier."))
+        help=("Container identifier. Required."))
     parser_create.add_argument(
         '-t', '--type', default="lxc",
         help=("Type of Libertine container to create. Either 'lxc' or 'chroot'."))
@@ -367,7 +367,7 @@ if __name__ == '__main__':
     parser_install.add_argument(
         '-p', '--package',
         required=True,
-        help=("Name of package to install."))
+        help=("Name of package to install. Required."))
     parser_install.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
@@ -380,7 +380,7 @@ if __name__ == '__main__':
     parser_install.add_argument(
         '-p', '--package',
         required=True,
-        help=("Name of package to install."))
+        help=("Name of package to remove. Required."))
     parser_install.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
@@ -393,7 +393,7 @@ if __name__ == '__main__':
     parser_search.add_argument(
         '-s', '--search-string',
         required=True,
-        help=("String to search for in the package cache."))
+        help=("String to search for in the package cache. Required."))
     parser_search.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))

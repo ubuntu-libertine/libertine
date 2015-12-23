@@ -1,0 +1,179 @@
+.TH libertine-container-manager "1" " December 2015" "libertine-container-manager 0.99" "User Commands"
+
+.SH NAME
+libertine-container-manager \- Manage Libertine containers for supporting legacy X applications on Unity 8
+
+.SH SYNOPSIS
+.B libertine-container-manager
+[ -v | -q ]
+.I command
+[
+.I command_options
+]
+.br
+.B libertine-container-manager
+-h
+.br
+.B libertine-container-manager
+.I command
+-h
+
+.SH DESCRIPTION
+libertine-container-manager is a utility for managing Libertine containers used to support legacy X applications on Unity 8.
+
+It is possible to create new containers, delete containers, update containers, install new packages in a container, remove a package from a container, search for possible packages to install, and list all of the current containers.
+
+.SH OPTIONS
+.TP
+.BR \-q ", " \-\-quiet ""
+do not print status updates on stdout
+.TP
+.BR \-v ", " \-\-verbose ""
+extra verbose output
+.TP
+.BR \-h ", " \-\-help ""
+Print a summary of the command line options and exit.
+
+.SH COMMAND OVERVIEW
+.TP
+.B libertine-container-manager create [options]
+Create a new Libertine container.
+.TP
+.B libertine-container-manager destroy [options]
+Destroy (delete) an existing Liberine container.
+.TP
+.B libertine-container-manager install-package [options]
+Install a package inside an existing Libertine container.
+.TP
+.B libertine-container-manager remove-package [options]
+Remove an installed package inside an existing Libertine container.
+.TP
+.B libertine-container-manager search-cache [options]
+Searches the apt cache inside an existing Libertine container for matches based on the given search string.
+.TP
+.B libertine-container-manager update [options]
+Updates the packages inside an existing Libertine container.
+.TP
+.B libertine-container-manager list [options]
+Lists all existing Libertine containers.
+
+.SH COMMAND REFERENCE
+.TP
+.B libertine-container-manager create [options]
+.TP
+.SS Options:
+.BR \-h ", " \-\-help  ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID, " \-\-id " ID" ""
+.RS 14
+Container identifier. Required.
+.RE
+.IP
+.BR \-t " TYPE, " \-\-type " TYPE" ""
+.RS 14
+Type of Libertine container to create. Either 'lxc' or 'chroot'.
+.RE
+.IP
+.BR \-d " DISTRO, " \-\-distro " DISTRO" ""
+.RS 14
+Ubuntu distro series to create.
+.RE
+.IP
+.BR \-n " NAME, " \-\-name " NAME" ""
+.RS 14
+User friendly container name.
+.RE
+.TP
+.B libertine-container-manager destroy [options]
+.TP
+.SS Options:
+.BR \-h " ," \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID," \-\-id " ID" ""
+.RS 14
+Container identifier.  Default container is used if omitted. 
+.RE
+.TP
+.B libertine-container-manager install-package [options]
+.TP
+.SS Options:
+.BR \-h " ," \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID," \-\-id " ID" "" 
+.RS 14
+Container identifier.  Default container is used if omitted.
+.RE
+.IP
+.BR \-p " PACKAGE, " \-\-package " PACKAGE" ""
+.RS 14
+Name of package to install. Required.
+.RE
+.TP
+.B libertine-container-manager remove-package [options]
+.TP
+.SS Options:
+.BR \-h " ," \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID," \-\-id " ID" ""
+.RS 14
+Container identifier.  Default container is used if omitted.
+.RE
+.IP
+.BR \-p " PACKAGE, " \-\-package " PACKAGE" ""
+.RS 14
+Name of package to remove. Required.
+.RE
+.TP
+.B libertine-container-manager search-cache [options]
+.TP
+.SS Options:
+.BR \-h " ," \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID," \-\-id " ID" ""
+.RS 14
+Container identifier.  Default container is used if omitted.
+.RE
+.IP
+.BR \-s " SEARCH_STRING, " \-\-search-string " SEARCH_STRING" ""
+.RS 14
+String to search for in the package cache. Required.
+.RE
+.TP
+.B libertine-container-manager update [options]
+.TP
+.SS Options:
+.BR \-h " ," \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID," \-\-id " ID" ""
+.RS 14
+Container identifier.  Default container is used if omitted.
+.RE
+.TP
+.B libertine-container-manager list
+.TP
+.SS Options:
+.BR \-h " ," \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.SH SEE ALSO
+.UR https://launchpad.net/libertine
+.BR https://launchpad.net/libertine
