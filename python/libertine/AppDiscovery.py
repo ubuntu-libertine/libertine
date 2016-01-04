@@ -126,7 +126,8 @@ def expand_mime_types(desktop_mime_types):
 
 class AppInfo(object):
 
-    def __init__(self, config_entry, icon_cache):
+    def __init__(self, desktop_file_name, config_entry, icon_cache):
+        self.desktop_file_name = desktop_file_name
         self.name = config_entry.get('Name')
         if not self.name:
             raise RuntimeError("required Name attribute is missing")
@@ -141,6 +142,7 @@ class AppInfo(object):
     def __str__(self):
         with io.StringIO() as ostr:
             print(self.name, file=ostr)
+            print("  desktop_file={}".format(self.desktop_file_name), file=ostr)
             print("  no-display={}".format(self.no_display), file=ostr)
             print("  exec='{}'".format(self.exec_line), file=ostr)
             for icon in self.icons:
@@ -184,7 +186,7 @@ def get_app_info(desktop_path, icon_cache):
             desktop_file.read(desktop_file_name)
             desktop_entry = desktop_file['Desktop Entry']
             if desktop_file_is_showable(desktop_entry):
-                    yield AppInfo(desktop_entry, icon_cache)
+                    yield AppInfo(desktop_file_name, desktop_entry, icon_cache)
         except Exception as ex:
             print("error processing {}: {}".format(desktop_file_name, ex), file=sys.stderr)
 
