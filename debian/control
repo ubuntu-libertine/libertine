@@ -24,7 +24,6 @@ Homepage: https://launchpad.net/libertine
 Package: libertine
 Architecture: any
 Depends: libertine-tools,
-         python3-libertine-lxc,
          qml-module-qtquick2,
          qtdeclarative5-ubuntu-ui-toolkit-plugin,
          ${misc:Depends},
@@ -85,12 +84,11 @@ Section: python
 Multi-Arch: allowed
 Depends: gir1.2-libertine,
          python3-gi,
+         python3-libertine-lxc | python3-libertine-chroot,
          python3-psutil,
          python3-xdg,
          ${misc:Depends},
          ${python3:Depends}
-Recommends: python3-libertine-lxc
-Suggests: python3-libertine-chroot
 Description: Python3 scripts for the Libertine application sandbox
  Python3 modules for the Libertine application sandbox tools.  Requires at
  least one of the container back end modules installed to be of any use.
@@ -99,7 +97,8 @@ Package: python3-libertine-lxc
 Architecture: any
 Section: python
 Multi-Arch: allowed
-Depends: lxc-templates,
+Depends: linux-image-generic (>= 3.13),
+         lxc-templates,
          python3-libertine,
          python3-lxc,
          uidmap,
