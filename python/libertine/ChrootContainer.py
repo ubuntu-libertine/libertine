@@ -194,6 +194,9 @@ class LibertineChroot(BaseContainer):
         return proot_cmd
 
     def launch_application(self, app_exec_line):
+        # FIXME: Disabling seccomp is a temporary measure until we fully understand why we need
+        #        it or figure out when we need it.
+        os.environ['PROOT_NO_SECCOMP'] = '1'
         proot_cmd = self._build_proot_command()
 
         args = shlex.split(proot_cmd)
