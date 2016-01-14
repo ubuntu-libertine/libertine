@@ -97,7 +97,7 @@ Package: python3-libertine-lxc
 Architecture: any
 Section: python
 Multi-Arch: allowed
-Depends: linux-image-generic (>= 3.13),
+Depends: linux-image-generic (>= 3.13) [!powerpc],
          lxc-templates,
          python3-libertine,
          python3-lxc,
