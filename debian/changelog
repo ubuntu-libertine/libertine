@@ -1,3 +1,30 @@
+libertine (0.99.8+16.04.20160114.1-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * Various fixes for making LXC containers work.
+  * Refactor libertine-launch to have no explicit dependencies on
+    either the LXC or chroot backends. Move specific functions to
+    their respective backends.
+  * Refactor the discovery of the type of container being used, so
+    it's taken care inside of the class.
+  * Add new libertine-launch tests.
+  * Allow LXC containers access to /dev/dri devices since some X apps
+    like to talk to them directly.
+  * Fix Depends so that the lxc backend will be installed by default
+    if the kernel supports it. Otherwise, fall back to the chroot
+    backend.
+  * As a temporary fix, disable seccomp when running proot. Fixes
+    incompatible kernels. (LP: #1532856, #1532858)
+
+  [ Stephen M. Webb ]
+  * libertine-container-manager: added list-apps command
+  * python/libertine/AppDiscovery.py: new module for app discovery
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Thu, 14 Jan 2016 18:53:40 +0000
+
 libertine (0.99.7+16.04.20151209-0ubuntu1) xenial; urgency=medium
 
   [ Chris Townsend ]
