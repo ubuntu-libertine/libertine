@@ -22,7 +22,7 @@ import Ubuntu.Components 1.2
 
 Page {
     id: passwordView
-    title: "Password"
+    title: i18n.tr("Password")
 
     signal acceptPassword(string password)
 
@@ -33,7 +33,7 @@ Page {
         wrapMode: Text.Wrap
         horizontalAlignment: Text.AlignHCenter
 
-        text: "Please enter the password for your user:"
+        text: i18n.tr("Please enter the password for your user") + ":"
     }
 
     TextField {
@@ -58,5 +58,9 @@ Page {
             }
             text = ""
         }
+    }
+
+    Component.onCompleted: {
+        passwordInput.forceActiveFocus()
     }
 }

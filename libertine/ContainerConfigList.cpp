@@ -30,6 +30,7 @@
 #include <QtCore/QJsonParseError>
 #include <QtCore/QJsonValue>
 #include <QtCore/QRegExp>
+#include <QtCore/QSettings>
 #include <QtCore/QString>
 
 #include <sys/file.h>
@@ -80,17 +81,11 @@ ContainerConfigList::
 
 
 QString ContainerConfigList::
-addNewContainer(QVariantMap const& image, QString const& type)
+addNewContainer(QString const& type)
 {
-  QString distro_series = image["distro_series"].toString();
-  QString container_id = image["container_id"].toString();
-  QString name = image["name"].toString();
-
-  // Work around for now until we implement host distro discovery
-  if (distro_series.isEmpty())
-  {
-    distro_series = container_id;
-  }
+  QString distro_series = getHostDistroCodename();
+  QString container_id = distro_series;
+  QString name = getHostDistroDescription();
 
   int bis = generate_bis(container_id);
   if (bis > 0)
@@ -239,6 +234,52 @@ getContainerType(QString const& container_id)
     }
   }
   return default_type;
+}
+
+
+QString ContainerConfigList::
+getContainerDistro(QString const& container_id)
+{
+  for (auto const& config: configs_)
+  {
+    if (config->container_id() == container_id)
+    {
+      return config->distro_series();
+    }
+  }
+  return nullptr;
+}
+
+
+QString ContainerConfigList::
+getContainerName(QString const& container_id)
+{
+  for (auto const& config: configs_)
+  {
+    if (config->container_id() == container_id)
+    {
+      return config->name();
+    }
+  }
+  return nullptr;
+}
+
+
+QString ContainerConfigList::
+getHostDistroCodename()
+{
+  QSettings distro_info("/etc/lsb-release", QSettings::NativeFormat);
+
+  return distro_info.value("DISTRIB_CODENAME").toString();
+}
+
+
+QString ContainerConfigList::
+getHostDistroDescription()
+{
+  QSettings distro_info("/etc/lsb-release", QSettings::NativeFormat);
+ 
+  return distro_info.value("DISTRIB_DESCRIPTION").toString().section(' ', 0, 2);
 }
 
 

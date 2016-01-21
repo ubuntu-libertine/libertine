@@ -25,19 +25,17 @@ import Ubuntu.Components.ListItems 1.0 as ListItem
 
 Page {
     id: welcomeView
-    title: "Welcome"
-
-    ImageSource {
-        id: imageSources
-    }
+    title: i18n.tr("Welcome")
 
     function passwordAccepted(password) {
-        var container_id = containerConfigList.addNewContainer(imageSelector.selectedImageSource, "lxc")
+        var container_id = containerConfigList.addNewContainer("lxc")
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Create,
-                                              "containerId": container_id,
-                                              "containerType": "lxc",
-                                              "data": password})
+        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Create,
+                                                  "containerId": container_id,
+                                                  "containerType": "lxc",
+                                                  "data": password})
+        worker.containerDistro = containerConfigList.getContainerDistro(container_id)
+        worker.containerName = containerConfigList.getContainerName(container_id)
         worker.start()
     }
 
@@ -54,7 +52,7 @@ Page {
             wrapMode: Text.Wrap
             horizontalAlignment: Text.AlignHCenter
 
-            text: "Welcome to the Ubuntu Legacy Application Support Manager."
+            text: i18n.tr("Welcome to the Ubuntu Legacy Application Support Manager.")
         }
         Label {
             id: warningMessage
@@ -62,36 +60,9 @@ Page {
             wrapMode: Text.Wrap
             horizontalAlignment: Text.AlignHCenter
 
-            text: "You do not have Legacy Application Support configured at" +
-                  " this time.  Downloading and setting up the required" +
-                  " environment takes some time and network bandwidth."
-        }
-
-        ComboButton {
-            id: imageSelector
-            Layout.alignment: Qt.AlignCenter
-
-            property var selectedImageSource: imageSources.defaultSource()
-            text: selectedImageSource ? selectedImageSource.name : i18n.tr("Select an image")
-
-            Component {
-                id: imageSourceDelegate
-                ListItem.Standard {
-                    text: modelData.name
-                    onClicked: {
-                        imageSelector.text = text
-                        imageSelector.expanded = false
-                        imageSelector.selectedImageSource = modelData
-                        installButton.enabled = true
-                    }
-                }
-            }
-
-            UbuntuListView {
-                id: availableImageSourcesList
-                model: imageSources.loadSources()
-                delegate: imageSourceDelegate
-            }
+            text: i18n.tr("You do not have Legacy Application Support configured at" +
+                          " this time.  Downloading and setting up the required" +
+                          " environment takes some time and network bandwidth.")
         }
 
         Button {
@@ -101,7 +72,6 @@ Page {
 
             text: i18n.tr("Install")
             color: UbuntuColors.green
-            enabled: imageSelector.selectedImageSource
 
             onClicked: {
                 var item = pageStack.push(Qt.resolvedUrl("PasswordView.qml"))

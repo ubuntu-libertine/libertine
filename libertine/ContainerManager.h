@@ -31,6 +31,8 @@ class ContainerManagerWorker
   Q_PROPERTY(ContainerAction containerAction READ container_action WRITE container_action NOTIFY containerActionChanged)
   Q_PROPERTY(QString containerId READ container_id WRITE container_id NOTIFY containerIdChanged)
   Q_PROPERTY(QString containerType READ container_type WRITE container_type NOTIFY containerTypeChanged)
+  Q_PROPERTY(QString containerDistro READ container_distro WRITE container_distro NOTIFY containerDistroChanged)
+  Q_PROPERTY(QString containerName READ container_name WRITE container_name NOTIFY containerNameChanged)
   Q_PROPERTY(QString data READ data WRITE data NOTIFY dataChanged)
 
 public:
@@ -77,6 +79,18 @@ public:
   container_type(QString const& container_type);
 
   QString const&
+  container_distro() const;
+
+  void
+  container_distro(QString const& container_distro);
+
+  QString const&
+  container_name() const;
+
+  void
+  container_name(QString const& container_name);
+
+  QString const&
   data() const;
 
   void
@@ -97,12 +111,16 @@ private:
   ContainerAction container_action_;
   QString container_id_;
   QString container_type_;
+  QString container_distro_;
+  QString container_name_;
   QString data_;
 
 signals:
   void containerActionChanged();
   void containerIdChanged();
   void containerTypeChanged();
+  void containerDistroChanged();
+  void containerNameChanged();
   void dataChanged();
   void finished();
   void finishedDestroy(QString const& container_id);

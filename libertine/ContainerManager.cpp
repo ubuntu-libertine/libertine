@@ -93,6 +93,36 @@ container_type(QString const& container_type)
 
 
 QString const& ContainerManagerWorker::
+container_distro() const
+{ return container_distro_; }
+
+
+void ContainerManagerWorker::
+container_distro(QString const& container_distro)
+{
+  if (container_distro != container_distro_)
+  {
+    container_distro_ = container_distro;
+  }
+}
+
+
+QString const& ContainerManagerWorker::
+container_name() const
+{ return container_name_; }
+
+
+void ContainerManagerWorker::
+container_name(QString const& container_name)
+{
+  if (container_name != container_name_)
+  {
+    container_name_ = container_name;
+  }
+}
+
+
+QString const& ContainerManagerWorker::
 data() const
 { return data_; }
 
@@ -146,7 +176,7 @@ createContainer(QString const& password)
   QString exec_line = libertine_container_manager_tool;
   QStringList args;
 
-  args << "create" << "-i" << container_id_ << "-t" << container_type_ << "-d" << "wily";
+  args << "create" << "-i" << container_id_ << "-t" << container_type_ << "-d" << container_distro_ << "-n" << container_name_;
 
   libertine_cli_tool.start(exec_line, args);
 
@@ -156,7 +186,7 @@ createContainer(QString const& password)
   libertine_cli_tool.write(password.toStdString().c_str()); 
   libertine_cli_tool.closeWriteChannel();
 
-  libertine_cli_tool.waitForFinished();
+  libertine_cli_tool.waitForFinished(-1);
 
   emit finished();
   quit();
@@ -176,7 +206,7 @@ destroyContainer()
   if (!libertine_cli_tool.waitForStarted())
     quit();
 
-  libertine_cli_tool.waitForFinished();
+  libertine_cli_tool.waitForFinished(-1);
 
   emit finishedDestroy(container_id_);
   emit finished();
@@ -201,7 +231,7 @@ installPackage(QString const& package_name)
   if (!libertine_cli_tool.waitForStarted())
     quit();
 
-  libertine_cli_tool.waitForFinished();
+  libertine_cli_tool.waitForFinished(-1);
 
   if (libertine_cli_tool.exitCode() != 0)
   {
@@ -231,7 +261,7 @@ removePackage(QString const& package_name)
   if (!libertine_cli_tool.waitForStarted())
     quit();
 
-  libertine_cli_tool.waitForFinished();
+  libertine_cli_tool.waitForFinished(-1);
 
   if (libertine_cli_tool.exitCode() != 0)
   {
@@ -261,7 +291,7 @@ searchPackageCache(QString const& search_string)
   if (!libertine_cli_tool.waitForStarted())
     quit();
 
-  libertine_cli_tool.waitForFinished();
+  libertine_cli_tool.waitForFinished(-1);
 
   search_output = libertine_cli_tool.readAllStandardOutput();
 
@@ -299,7 +329,7 @@ updateContainer()
   if (!libertine_cli_tool.waitForStarted())
     quit();
 
-  libertine_cli_tool.waitForFinished();
+  libertine_cli_tool.waitForFinished(-1);
 
   emit finished();
   quit();

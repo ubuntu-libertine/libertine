@@ -89,7 +89,7 @@ public:
   ~ContainerConfigList();
 
   Q_INVOKABLE QString
-  addNewContainer(QVariantMap const& image, QString const& type);
+  addNewContainer(QString const& type);
 
   Q_INVOKABLE bool
   deleteContainer(QString const& container_id);
@@ -111,6 +111,12 @@ public:
 
   Q_INVOKABLE QString
   getContainerType(QString const& container_id);
+
+  Q_INVOKABLE QString
+  getContainerDistro(QString const& container_id);
+
+  Q_INVOKABLE QString
+  getContainerName(QString const& container_id);
 
   void
   reloadConfigs();
@@ -189,6 +195,12 @@ private:
 
   int
   getContainerIndex(QString const& container_id);
+
+  QString
+  getHostDistroCodename();
+
+  QString
+  getHostDistroDescription();
 
 private:
   LibertineConfig const* config_;
