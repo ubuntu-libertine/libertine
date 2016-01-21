@@ -123,11 +123,13 @@ namespace {
 
   const static struct { QString string; ContainerConfig::InstallStatus enumeration; } install_status_names[] =
   {
-    { "new",          ContainerConfig::InstallStatus::New        },
-    { "installing",   ContainerConfig::InstallStatus::Installing },
-    { "ready",        ContainerConfig::InstallStatus::Ready      },
-    { "failed",       ContainerConfig::InstallStatus::Failed     },
-    { QString(),      ContainerConfig::InstallStatus::New        }
+    { QObject::tr("new"),          ContainerConfig::InstallStatus::New        },
+    { QObject::tr("installing"),   ContainerConfig::InstallStatus::Installing },
+    { QObject::tr("ready"),        ContainerConfig::InstallStatus::Ready      },
+    { QObject::tr("removing"),     ContainerConfig::InstallStatus::Removing   },
+    { QObject::tr("removed"),      ContainerConfig::InstallStatus::Removed    },
+    { QObject::tr("failed"),       ContainerConfig::InstallStatus::Failed     },
+    { QString(),                   ContainerConfig::InstallStatus::New        }
   };
 
   ContainerConfig::InstallStatus
@@ -328,9 +330,9 @@ distro_series() const
 { return distro_series_; }
 
 
-ContainerConfig::InstallStatus ContainerConfig::
+QString const& ContainerConfig::
 install_status() const
-{ return install_status_; }
+{ return install_status_names[(int)install_status_].string; }
 
 
 void ContainerConfig::
@@ -375,5 +377,3 @@ toJson() const
 
   return json_object;
 }
-
-

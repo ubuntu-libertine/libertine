@@ -62,12 +62,11 @@ class ContainerConfig
   Q_PROPERTY(QString containerId READ container_id)
   Q_PROPERTY(QString name READ name WRITE name NOTIFY nameChanged)
   Q_PROPERTY(QString distroSeries READ distro_series)
-  Q_PROPERTY(InstallStatus installStatus READ install_status WRITE install_status NOTIFY installStatusChanged)
 
 public:
   /** The container's current install state. */
   enum class InstallStatus
-  { New, Installing, Ready, Failed };
+  { New, Installing, Ready, Removing, Removed, Failed };
 
 
 public:
@@ -96,7 +95,7 @@ public:
   QString const&
   distro_series() const;
 
-  InstallStatus
+  QString const&
   install_status() const;
 
   void

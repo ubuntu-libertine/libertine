@@ -57,11 +57,13 @@ Page {
                         description: i18n.tr("Delete Container")
                         onTriggered: {
                             var comp = Qt.createComponent("ContainerManager.qml")
-                            var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Destroy,
-                                                                  "containerId": containerId,
-                                                                  "containerType": containerConfigList.getContainerType(containerId)})
+                            var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Destroy,
+                                                                      "containerId": containerId,
+                                                                      "containerType": containerConfigList.getContainerType(containerId)})
                             worker.finishedDestroy.connect(deleteContainer)
                             worker.start()
+                            mainView.currentContainer = containerId
+                            pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"))
                         }
                     }
                 ]
@@ -74,7 +76,8 @@ Page {
                         text: i18n.tr("info")
                         description: i18n.tr("Container Info")
                         onTriggered: {
-                            console.log("info for container " + containerId)
+                            mainView.currentContainer = containerId
+                            pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"))
                         }
                     },
                     Action {

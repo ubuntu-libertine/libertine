@@ -91,8 +91,8 @@ public:
   Q_INVOKABLE QString
   addNewContainer(QString const& type);
 
-  Q_INVOKABLE bool
-  deleteContainer(QString const& container_id);
+  Q_INVOKABLE void
+  deleteContainer();
 
   Q_INVOKABLE void
   addNewApp(QString const& container_id,
@@ -117,6 +117,9 @@ public:
 
   Q_INVOKABLE QString
   getContainerName(QString const& container_id);
+
+  Q_INVOKABLE QString
+  getContainerStatus(QString const& container_id);
 
   void
   reloadConfigs();

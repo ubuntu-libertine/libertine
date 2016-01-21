@@ -34,7 +34,7 @@ TEST(LibertineContainerConfig, constructFromScalars)
   EXPECT_EQ(container_config.name(),           "name");
   EXPECT_EQ(container_config.container_type(), "type");
   EXPECT_EQ(container_config.distro_series(),  "distro");
-  EXPECT_EQ(container_config.install_status(), ContainerConfig::InstallStatus::New);
+  EXPECT_EQ(container_config.install_status(), "new");
 }
 
 /** Verify constructing a ContainerConfig from JSON DTRT. */
@@ -60,7 +60,7 @@ TEST(LibertineContainerConfig, constructFromJson)
   EXPECT_EQ(container_config.container_id().toStdString(),   "wily3");
   EXPECT_EQ(container_config.name().toStdString(),           "Wily Werewolf");
   EXPECT_EQ(container_config.distro_series().toStdString(),  "wily");
-  EXPECT_EQ(container_config.install_status(), ContainerConfig::InstallStatus::Ready);
+  EXPECT_EQ(container_config.install_status(), "ready");
   EXPECT_EQ(container_config.container_apps().empty(), true);
 }
 

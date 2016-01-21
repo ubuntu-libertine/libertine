@@ -36,6 +36,7 @@ Page {
                                                   "data": password})
         worker.containerDistro = containerConfigList.getContainerDistro(container_id)
         worker.containerName = containerConfigList.getContainerName(container_id)
+        mainView.currentContainer = container_id
         worker.start()
     }
 

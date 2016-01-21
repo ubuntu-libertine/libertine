@@ -94,45 +94,22 @@ addNewContainer(QString const& type)
     name = QString("%1 (%2)").arg(name).arg(bis);
   }
 
-  beginInsertRows(QModelIndex(), rowCount(), rowCount());
   configs_.append(new ContainerConfig(container_id, name, type, distro_series, this));
   if (this->size() == 1)
     default_container_id_ = container_id;
 
-  endInsertRows();
+  beginResetModel();
+  endResetModel();
 
   return container_id;
 }
 
 
-bool ContainerConfigList::
-deleteContainer(QString const& container_id)
+void ContainerConfigList::
+deleteContainer()
 {
-  bool found = false;
-  int index = -1;
-
-  index = getContainerIndex(container_id);
-
-  if (index > -1)
-  {
-    found = true;
-
-    beginRemoveRows(QModelIndex(), index, index);
-    configs_.removeAt(index);
-
-    if ((default_container_id_ == container_id) && !configs_.empty())
-    {
-      default_container_id_ = configs_.front()->container_id();
-    }
-    else if (configs_.empty())
-    {
-      default_container_id_ = "";
-    }
-
-    endRemoveRows();
-  }
-
-  return found;
+  beginResetModel();
+  endResetModel();  
 }
 
 
@@ -266,6 +243,20 @@ getContainerName(QString const& container_id)
 
 
 QString ContainerConfigList::
+getContainerStatus(QString const& container_id)
+{
+  for (auto const& config: configs_)
+  {
+    if (config->container_id() == container_id)
+    {
+      return config->install_status();
+    }
+  }
+  return nullptr;
+}
+
+
+QString ContainerConfigList::
 getHostDistroCodename()
 {
   QSettings distro_info("/etc/lsb-release", QSettings::NativeFormat);
@@ -371,7 +362,7 @@ data(QModelIndex const& index, int role) const
         result = configs_[index.row()]->distro_series();
         break;
       case DataRole::InstallStatus:
-        result = static_cast<int>(configs_[index.row()]->install_status());
+        result = configs_[index.row()]->install_status();
         break;
       case DataRole::Error:
         break;

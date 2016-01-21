@@ -55,6 +55,7 @@ Page {
                 passwordView.acceptPassword(text)
                 pageStack.clear()
                 pageStack.push(Qt.resolvedUrl("ContainersView.qml"))
+                pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"))
             }
             text = ""
         }
