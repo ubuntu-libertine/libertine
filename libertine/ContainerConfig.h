@@ -31,7 +31,7 @@ class ContainerApps
 
 public:
   enum class AppStatus
-  { New, Installing, Installed, Failed };
+  { New, Installing, Installed, Failed, Removing, Removed };
 
 public:
   ContainerApps(QString const& package_name,
@@ -42,7 +42,7 @@ public:
   QString const&
   package_name() const;
 
-  AppStatus
+  QString const&
   app_status() const;
 
 private:

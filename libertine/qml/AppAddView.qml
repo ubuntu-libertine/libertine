@@ -27,7 +27,6 @@ Page {
     title: i18n.tr("Install Apps")
     property var search_comp: null
     property var search_obj: null
-    property var current_package: null
 
     Label {
         id: searchPackageMessage
@@ -92,10 +91,10 @@ Page {
             if (!containerConfigList.isAppInstalled(mainView.currentContainer, text)) {
                 containerAppsList.addNewApp(mainView.currentContainer, text)
                 installPackage(text)
-                appInstallMessage.text = i18n.tr("Installing ") + text + i18n.tr("...")
-                appInstallMessage.visible = true
-                current_package = appName.text
-                appName.text = ""
+                containerAppsList.setContainerApps(mainView.currentContainer)
+                mainView.currentPackage = text
+                pageStack.pop()
+                pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"))
             }
             else {
                 appInstallMessage.text = i18n.tr("Package ") + text + i18n.tr(" already installed. Please try a different package name.")
@@ -180,27 +179,11 @@ Page {
 
     function installPackage(package_name) {
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Install,
-                                              "containerId": mainView.currentContainer,
-                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                              "data": package_name})
-        worker.finishedInstall.connect(finishedInstall)
+        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Install,
+                                                  "containerId": mainView.currentContainer,
+                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer),
+                                                  "data": package_name})
         worker.start()
-    }
-
-    function finishedInstall(result, error_msg) {
-        if (result) {
-            if (appAddView) {
-                pageStack.pop()
-            }
-        }
-        else {
-            if (appAddView) {
-                containerAppsList.removeApp(mainView.currentContainer, current_package)
-                appInstallMessage.text = error_msg
-                appInstallMessage.visible = true
-            }
-        }
     }
 
     function searchPackage(search_string) {

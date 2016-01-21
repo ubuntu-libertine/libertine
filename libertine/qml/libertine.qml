@@ -27,6 +27,7 @@ MainView {
     width:  units.gu(90)
     height: units.gu(75)
     property var currentContainer: undefined
+    property var currentPackage: undefined
 
     PageStack {
         id: pageStack

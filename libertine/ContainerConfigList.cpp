@@ -32,6 +32,8 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QString>
 
+#include <sys/file.h>
+
 
 const QString ContainerConfigList::Json_container_list = "containerList";
 const QString ContainerConfigList::Json_default_container = "defaultContainer";
@@ -68,35 +70,7 @@ ContainerConfigList(LibertineConfig const* config,
 : QAbstractListModel(parent)
 , config_(config)
 {
-  QFile config_file(config_->containers_config_file_name());
-
-  if (config_file.exists())
-  {
-    if (!config_file.open(QIODevice::ReadOnly))
-    {
-      qWarning() << "could not open containers config file " << config_file.fileName();
-    }
-    else
-    {
-      QJsonParseError parse_error;
-      QJsonDocument json = QJsonDocument::fromJson(config_file.readAll(), &parse_error);
-      if (parse_error.error)
-      {
-        qWarning() << "error parsing containers config file: " << parse_error.errorString();
-      }
-      if (!json.object().empty())
-      {
-        default_container_id_ = json.object()[Json_default_container].toString();
-
-        QJsonArray container_list = json.object()[Json_container_list].toArray();
-        for (auto const& config: container_list)
-        {
-          QJsonObject containerConfig = config.toObject();
-          configs_.append(new ContainerConfig(containerConfig, this));
-        }
-      }
-    }
-  }
+  load_config();
 }
 
 
@@ -181,15 +155,6 @@ addNewApp(QString const& container_id, QString const& package_name)
 }
 
 
-void ContainerConfigList::
-removeApp(QString const& container_id, int index)
-{
-  int container_index = getContainerIndex(container_id);
-
-  configs_.at(container_index)->container_apps().removeAt(index);
-}
-
-
 QList<ContainerApps*> * ContainerConfigList::
 getAppsForContainer(QString const& container_id)
 {
@@ -225,30 +190,33 @@ isAppInstalled(QString const& container_id, QString const& package_name)
 }
 
 
+QString ContainerConfigList::
+getAppStatus(QString const& container_id, QString const& package_name)
+{
+  for (auto const& config: configs_)
+  {
+    if (config->container_id() == container_id)
+    {
+      for (auto const& app: config->container_apps())
+      {
+        if (app->package_name() == package_name)
+        {
+          return app->app_status();
+        }
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+
 int ContainerConfigList::
 getContainerIndex(QString const& container_id)
 {
   for (int i = 0; i < rowCount(); ++i)
   {
     if (configs_.at(i)->container_id() == container_id)
-    {
-      return i;
-    }
-  }
-
-  return -1;
-}
-
-
-int ContainerConfigList::
-getAppIndex(QString const& container_id, QString const& package_name)
-{
-  int container_index = getContainerIndex(container_id);
-  auto const& apps = configs_.at(container_index)->container_apps();
-
-  for (int i = 0; i < apps.count(); ++i)
-  {
-    if (apps.at(i)->package_name() == package_name)
     {
       return i;
     }
@@ -271,6 +239,15 @@ getContainerType(QString const& container_id)
     }
   }
   return default_type;
+}
+
+
+void ContainerConfigList::
+reloadConfigs()
+{
+  load_config();
+
+  emit configChanged();
 }
 
 
@@ -387,3 +364,60 @@ generate_bis(QString const& id)
   return bis;
 }
 
+
+void ContainerConfigList::
+clear_config()
+{
+  for (auto const& config: configs_)
+  {
+    qDeleteAll(config->container_apps());
+    config->container_apps().clear();
+  }
+
+  qDeleteAll(configs_);
+  configs_.clear();
+}
+
+
+void ContainerConfigList::
+load_config()
+{
+  QFile config_file(config_->containers_config_file_name());
+
+  if (config_file.exists())
+  {
+    if (!config_file.open(QIODevice::ReadOnly))
+    {
+      qWarning() << "could not open containers config file " << config_file.fileName();
+    }
+    else if (config_file.size() != 0)
+    {
+      QJsonParseError parse_error;
+
+      flock(config_file.handle(), LOCK_EX);
+      QJsonDocument json = QJsonDocument::fromJson(config_file.readAll(), &parse_error);
+      flock(config_file.handle(), LOCK_UN);
+
+      if (parse_error.error)
+      {
+        qWarning() << "error parsing containers config file: " << parse_error.errorString();
+      }
+      if (!json.object().empty())
+      {
+        default_container_id_ = json.object()[Json_default_container].toString();
+
+        if (!configs_.empty())
+        {
+          clear_config();
+        }
+
+        QJsonArray container_list = json.object()[Json_container_list].toArray();
+        for (auto const& config: container_list)
+        {
+          QJsonObject containerConfig = config.toObject();
+          configs_.append(new ContainerConfig(containerConfig, this));
+        }
+      }
+    }
+  }
+}

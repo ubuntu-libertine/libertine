@@ -42,24 +42,18 @@ setContainerApps(QString const& container_id)
 void ContainerAppsList::
 addNewApp(QString const& container_id, QString const& package_name)
 {
-  beginInsertRows(QModelIndex(), rowCount(), rowCount());
-
   container_config_list_->addNewApp(container_id, package_name);
 
-  endInsertRows();
+  beginResetModel();
+  endResetModel();
 }
 
 
 void ContainerAppsList::
-removeApp(QString const& container_id, QString const& package_name)
+removeApp()
 {
-  int index = container_config_list_->getAppIndex(container_id, package_name);
-
-  beginRemoveRows(QModelIndex(), index, index);
-
-  container_config_list_->removeApp(container_id, index);
-
-  endRemoveRows();
+  beginResetModel();
+  endResetModel();
 }
 
 
@@ -103,7 +97,7 @@ data(QModelIndex const& index, int role) const
         result = (*apps_)[index.row()]->package_name();
         break;
       case DataRole::AppStatus:
-        result = static_cast<int>((*apps_)[index.row()]->app_status());
+        result = (*apps_)[index.row()]->app_status();
         break;
       case DataRole::Error:
         break;

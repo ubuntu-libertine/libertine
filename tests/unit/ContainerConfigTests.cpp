@@ -89,7 +89,7 @@ TEST(LibertineContainerConfig, constructFromJsonWithOneApp)
 
   EXPECT_EQ(container_config.container_apps().empty(), false);
   EXPECT_EQ(container_config.container_apps()[0]->package_name(), "firefox");
-  EXPECT_EQ(container_config.container_apps()[0]->app_status(), ContainerApps::AppStatus::Installed);
+  EXPECT_EQ(container_config.container_apps()[0]->app_status(), "installed");
 }
 
 TEST(LibertineContainerConfig, constructFromJsonWithTwoApps)
@@ -121,7 +121,7 @@ TEST(LibertineContainerConfig, constructFromJsonWithTwoApps)
 
   EXPECT_EQ(container_config.container_apps().empty(), false);
   EXPECT_EQ(container_config.container_apps()[0]->package_name(), "firefox");
-  EXPECT_EQ(container_config.container_apps()[0]->app_status(), ContainerApps::AppStatus::Installed);
+  EXPECT_EQ(container_config.container_apps()[0]->app_status(), "installed");
   EXPECT_EQ(container_config.container_apps()[1]->package_name(), "xterm");
-  EXPECT_EQ(container_config.container_apps()[1]->app_status(), ContainerApps::AppStatus::New);
+  EXPECT_EQ(container_config.container_apps()[1]->app_status(), "new");
 }

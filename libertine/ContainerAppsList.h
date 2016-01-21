@@ -62,7 +62,7 @@ public:
   addNewApp(QString const& container_id, QString const& package_name);
 
   Q_INVOKABLE void
-  removeApp(QString const& container_id, QString const& package_name);
+  removeApp();
 
   Q_INVOKABLE bool
   empty() const noexcept;

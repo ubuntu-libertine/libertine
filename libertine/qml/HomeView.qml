@@ -77,8 +77,9 @@ Page {
                         text: i18n.tr("delete")
                         description: i18n.tr("Remove Package")
                         onTriggered: {
+                            mainView.currentPackage = packageName
                             removePackage(packageName)
-                            containerAppsList.removeApp(mainView.currentContainer, packageName)
+                            pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"))
                         }
                     }
                 ]
@@ -90,7 +91,9 @@ Page {
                         text: i18n.tr("info")
                         description: i18n.tr("Package Info")
                         onTriggered: {
-                            console.log("info for package " + packageName)
+                            containerAppsList.setContainerApps(mainView.currentContainer)
+                            mainView.currentPackage = packageName
+                            pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"))
                         }
                     }
                 ]
@@ -100,18 +103,24 @@ Page {
 
     function updateContainer() {
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Update,
-                                              "containerId": mainView.currentContainer,
-                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer)})
+        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Update,
+                                                  "containerId": mainView.currentContainer,
+                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer)})
         worker.start()
     }
 
     function removePackage(packageName) {
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(null, {"containerAction": ContainerManagerWorker.Remove,
-                                              "containerId": mainView.currentContainer,
-                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                              "data": packageName})
+        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Remove,
+                                                  "containerId": mainView.currentContainer,
+                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer),
+                                                  "data": packageName})
+        worker.finishedRemove.connect(finishedRemove)
         worker.start()
     }
+
+    function finishedRemove(result, errorMsg) {
+        containerAppsList.removeApp()
+    }
+        
 }

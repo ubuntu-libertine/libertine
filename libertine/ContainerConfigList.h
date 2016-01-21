@@ -98,10 +98,6 @@ public:
   addNewApp(QString const& container_id,
             QString const& package_name);
 
-  void
-  removeApp(QString const& container_id,
-            int index);
-
   QList<ContainerApps*> *
   getAppsForContainer(QString const& container_id);
 
@@ -109,12 +105,15 @@ public:
   isAppInstalled(QString const& container_id,
                  QString const& package_name);
 
-  int
-  getAppIndex(QString const& container_id,
-              QString const& package_name);
+  Q_INVOKABLE QString
+  getAppStatus(QString const& container_id,
+               QString const& package_name);
 
   Q_INVOKABLE QString
   getContainerType(QString const& container_id);
+
+  void
+  reloadConfigs();
 
   QJsonObject
   toJson() const;
@@ -171,6 +170,9 @@ signals:
   void
   defaultContainerChanged();
 
+  void
+  configChanged();
+
 private:
   /**
    * Generates a bis (suffix) that can be used to distinguish between otherwise
@@ -178,6 +180,12 @@ private:
    */
   int
   generate_bis(QString const& distro_series);
+
+  void
+  clear_config();
+
+  void
+  load_config();
 
   int
   getContainerIndex(QString const& container_id);

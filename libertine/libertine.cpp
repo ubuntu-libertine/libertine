@@ -95,6 +95,9 @@ Libertine(int argc, char* argv[])
   qmlRegisterType<ContainerManagerWorker>("Libertine", 1, 0, "ContainerManagerWorker");
   qmlRegisterType<PasswordHelper>("Libertine", 1, 0, "PasswordHelper");
 
+  watcher_.addPath(config_.data()->containers_config_file_name());
+  connect(&watcher_, SIGNAL(fileChanged(QString)), SLOT(reload_config(QString)));
+
   if (main_qml_source_file_.isEmpty())
   {
     qWarning() << "Can not locate " << s_main_QML_source_file;
@@ -134,3 +137,11 @@ initialize_view()
   connect(view_.engine(), SIGNAL(quit()), SLOT(quit()));
 }
 
+
+void Libertine::
+reload_config(const QString& path)
+{
+  Q_UNUSED(path)
+
+  containers_->reloadConfigs();
+}

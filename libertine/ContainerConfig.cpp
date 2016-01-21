@@ -157,11 +157,13 @@ namespace {
 
   const static struct { QString string; ContainerApps::AppStatus enumeration; } app_status_names[] =
   {
-    { "new",        ContainerApps::AppStatus::New        },
-    { "installing", ContainerApps::AppStatus::Installing },
-    { "installed",  ContainerApps::AppStatus::Installed  },
-    { "failed",     ContainerApps::AppStatus::Failed     },
-    { QString(),    ContainerApps::AppStatus::New        }
+    { QObject::tr("new"),        ContainerApps::AppStatus::New        },
+    { QObject::tr("installing"), ContainerApps::AppStatus::Installing },
+    { QObject::tr("installed"),  ContainerApps::AppStatus::Installed  },
+    { QObject::tr("failed"),     ContainerApps::AppStatus::Failed     },
+    { QObject::tr("removing"),   ContainerApps::AppStatus::Removing   },
+    { QObject::tr("removed"),    ContainerApps::AppStatus::Removed    },
+    { QString(),                 ContainerApps::AppStatus::New        }
   };
 
   QString
@@ -253,9 +255,9 @@ package_name() const
 { return package_name_; }
 
 
-ContainerApps::AppStatus ContainerApps::
+QString const& ContainerApps::
 app_status() const
-{ return app_status_; }
+{ return app_status_names[(int)app_status_].string; }
 
 
 ContainerConfig::

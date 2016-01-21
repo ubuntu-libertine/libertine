@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import fcntl
 import json
 import libertine.utils
 import lsb_release
@@ -36,8 +37,6 @@ def read_container_config_file():
         with open(container_config_file, 'r') as fd:
             container_list = json.load(fd)
 
-        fd.close()
-
     return container_list
 
 
@@ -45,10 +44,10 @@ def write_container_config_file(container_list):
     container_config_file = libertine.utils.get_libertine_database_file_path()
 
     with open(container_config_file, 'w') as fd:
+        fcntl.lockf(fd, fcntl.LOCK_EX)
         json.dump(container_list, fd, sort_keys=True, indent=4)
         fd.write('\n')
-
-    fd.close()
+        fcntl.lockf(fd, fcntl.LOCK_UN)
 
 
 def get_default_container_id():
@@ -289,7 +288,10 @@ def remove_package(args):
         sys.exit(1)
 
     container = LibertineContainer(args.id)
+    update_package_install_status(args.id, args.package, "removing")
+
     container.remove_package(args.package, args.verbosity)
+    update_package_install_status(args.id, args.package, "removed")
 
     delete_package(args.id, args.package)
 
