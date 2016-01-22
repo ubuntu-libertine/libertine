@@ -298,3 +298,15 @@ class LibertineContainer(object):
         else:
             return str(AppLauncherCache(self.container.name,
                                         self.container.root_path))
+
+    def exec_command(self, exec_line):
+        """
+        Runs an arbitrary application in the container.  Mainly used for status
+        reporting, etc. in the container.
+
+        :param exec_line: The exec line to run inside the container.  For
+            example, 'apt-cache policy package-foo'
+        :rtype: The output of the given command.
+        """
+        with ContainerRunning(self.container):
+            self.container.run_in_container(exec_line)
