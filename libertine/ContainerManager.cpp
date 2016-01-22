@@ -163,6 +163,10 @@ run()
       updateContainer();
       break;
 
+    case ContainerAction::Exec:
+      runCommand(data_);
+      break;
+
     default:
       break;
   }
@@ -332,5 +336,29 @@ updateContainer()
   libertine_cli_tool.waitForFinished(-1);
 
   emit finished();
+  quit();
+}
+
+
+void ContainerManagerWorker::
+runCommand(QString const& command_line)
+{
+  QProcess libertine_cli_tool;
+  QString exec_line = libertine_container_manager_tool;
+  QStringList args;
+  QByteArray command_output;
+
+  args << "exec" << "-i" << container_id_ << "-c" << command_line;
+
+  libertine_cli_tool.start(exec_line, args);
+
+  if (!libertine_cli_tool.waitForStarted())
+    quit();
+
+  libertine_cli_tool.waitForFinished(-1);
+
+  command_output = libertine_cli_tool.readAllStandardOutput();
+
+  emit finishedCommand(QString(command_output));
   quit();
 }

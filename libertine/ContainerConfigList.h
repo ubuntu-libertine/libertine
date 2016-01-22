@@ -110,6 +110,9 @@ public:
                QString const& package_name);
 
   Q_INVOKABLE QString
+  getAppVersion(QString const& app_info);
+
+  Q_INVOKABLE QString
   getContainerType(QString const& container_id);
 
   Q_INVOKABLE QString
@@ -195,9 +198,6 @@ private:
 
   void
   load_config();
-
-  int
-  getContainerIndex(QString const& container_id);
 
   QString
   getHostDistroCodename();

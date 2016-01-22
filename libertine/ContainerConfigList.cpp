@@ -183,19 +183,13 @@ getAppStatus(QString const& container_id, QString const& package_name)
 }
 
 
-int ContainerConfigList::
-getContainerIndex(QString const& container_id)
+QString ContainerConfigList::
+getAppVersion(QString const& app_info)
 {
-  for (int i = 0; i < rowCount(); ++i)
-  {
-    if (configs_.at(i)->container_id() == container_id)
-    {
-      return i;
-    }
-  }
+  QStringList info = app_info.split('\n');
 
-  return -1;
-}
+  return info.at(1).section(": ", 1, 1);
+} 
 
 
 QString ContainerConfigList::

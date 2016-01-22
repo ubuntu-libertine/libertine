@@ -46,7 +46,8 @@ public:
     Install,
     Remove,
     Search,
-    Update
+    Update,
+    Exec
   };
 
 public:
@@ -106,6 +107,7 @@ private:
   void removePackage(QString const& package_name);
   void searchPackageCache(QString const& search_string);
   void updateContainer();
+  void runCommand(QString const& command_line);
 
 private:
   ContainerAction container_action_;
@@ -127,6 +129,7 @@ signals:
   void finishedInstall(bool result, QString const& error_msg);
   void finishedRemove(bool result, QString const& error_msg);
   void finishedSearch(bool result, QList<QString> packageList);
+  void finishedCommand(QString const& command_output);
 };
 
 #endif /* CONTAINER_CONTAINERMANAGER_H_ */
