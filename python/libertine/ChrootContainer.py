@@ -197,6 +197,11 @@ class LibertineChroot(BaseContainer):
         # FIXME: Disabling seccomp is a temporary measure until we fully understand why we need
         #        it or figure out when we need it.
         os.environ['PROOT_NO_SECCOMP'] = '1'
+
+        # Workaround issue where a custom dconf profile is on the machine
+        if 'DCONF_PROFILE' in os.environ:
+            del os.environ['DCONF_PROFILE']
+
         proot_cmd = self._build_proot_command()
 
         args = shlex.split(proot_cmd)
