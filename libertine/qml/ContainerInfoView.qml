@@ -47,7 +47,7 @@ Page {
     Label {
         id: containerDistro
         anchors.top: containerName.bottom
-        text: i18n.tr("Distrobution: ") + containerDistroText
+        text: i18n.tr("Distribution: ") + containerDistroText
         fontSize: "large"
     }
        
