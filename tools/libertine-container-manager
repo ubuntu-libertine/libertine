@@ -67,7 +67,10 @@ def get_host_distro_release():
     return distinfo.get('CODENAME', 'n/a')
 
 
-def is_distro_valid(distro):
+def is_distro_valid(distro, force):
+    if force:
+       return UbuntuDistroInfo().valid(distro)
+
     supported_distros = UbuntuDistroInfo().supported()
 
     try:
@@ -210,7 +213,7 @@ def delete_package(container_id, package_name):
 def create(args):
     password = None
 
-    if args.distro and not is_distro_valid(args.distro):
+    if args.distro and not is_distro_valid(args.distro, args.force):
         print("Invalid distro %s" % args.distro, file=sys.stderr)
         sys.exit(1)
 
@@ -376,6 +379,10 @@ if __name__ == '__main__':
     parser_create.add_argument(
         '-n', '--name',
         help=("User friendly container name."))
+    parser_create.add_argument(
+        '--force', action='store_true',
+        help=("Force the installation of the given valid Ubuntu distro even if "
+              "it is no longer supported."))
     parser_create.set_defaults(func=create)
 
     # Handle the destroy command and its options
