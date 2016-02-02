@@ -1,3 +1,31 @@
+libertine (0.99.9+16.04.20160128-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * puritine-click.conf: Instead of just creating the user-data dir,
+    we should actually copy the contents of the click package's user-data
+    in case there are things in it we need. 
+  * GUI: Add a page to the GUI to display basic package info for a
+    container.
+  * GUI: When using the GUI to install a container, remove the whole
+    concept of choosing a distro and just use the host's installed distro
+    as the container's distro. (LP: #1533731)
+  * GUI: Add an info page for containers that reports various information
+    about the chosen container.
+  * libertine-container-manager: Add option to run arbitrary commands
+    in a container.
+  * GUI: Get the package version from the container when viewing the
+    package info page.
+  * python/libertine/ChrootContainer.py: Workaround issue where a custom
+    dconf profile is on a machine.  Of course the profile is not in the
+    chroot, so it messes up some applications. (LP: #1536311)
+  * debian/control: Revert r155 as this has an unintended effect of pulling
+    in the kernel on phones when it's not needed.
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Thu, 28 Jan 2016 17:57:04 +0000
+
 libertine (0.99.8+16.04.20160114.1-0ubuntu1) xenial; urgency=medium
 
   [ Chris Townsend ]
