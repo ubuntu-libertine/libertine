@@ -191,6 +191,11 @@ class LibertineChroot(BaseContainer):
             bind_mounts += " -b %s:%s" % (user_dir_path, user_dir_path)
 
         proot_cmd += bind_mounts
+
+        user_dconf_path = os.path.join(home_path, '.config', 'dconf')
+        if os.path.exists(user_dconf_path):
+            proot_cmd += " -b %s" % user_donf_path
+
         return proot_cmd
 
     def launch_application(self, app_exec_line):
