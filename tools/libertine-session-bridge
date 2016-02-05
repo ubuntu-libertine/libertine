@@ -83,7 +83,12 @@ def main_loop():
     signal.signal(signal.SIGINT, socket_cleanup)
 
     while 1:
-        rlist, wlist, elist = select.select(descriptors, [], [])
+        try:
+            rlist, wlist, elist = select.select(descriptors, [], [])
+        except InterruptedError:
+            continue
+        except:
+            break
 
         for sock in rlist:
             if sock.fileno() == -1:

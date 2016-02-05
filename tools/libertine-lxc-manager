@@ -89,7 +89,12 @@ def process_data(data):
 
 def main_loop():
     while 1:
-        rlist, wlist, elist = select.select(descriptors, [], [])
+        try:
+            rlist, wlist, elist = select.select(descriptors, [], [])
+        except InterruptedError:
+            continue
+        except:
+            break
 
         for sock in rlist:
             if sock.fileno() == -1:
