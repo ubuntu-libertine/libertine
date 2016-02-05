@@ -63,6 +63,13 @@ def lxc_container(container_id):
     return container
 
 
+def get_host_timezone():
+    with open(os.path.join('/', 'etc', 'timezone'), 'r') as fd:
+        host_timezone = fd.read().strip('\n')
+
+    return host_timezone
+
+
 class LibertineLXC(BaseContainer):
     """
     A concrete container type implemented using an LXC container.
@@ -75,6 +82,17 @@ class LibertineLXC(BaseContainer):
 
     def is_running(self):
         return self.container.running
+
+    def timezone_needs_update(self):
+        host_timezone = get_host_timezone()
+
+        with open(os.path.join(self.root_path, 'etc', 'timezone'), 'r') as fd:
+            container_timezone = fd.read().strip('\n')
+
+        if host_timezone == container_timezone:
+            return False
+        else:
+            return True
 
     def start_container(self):
         if not self.container.running:
@@ -95,6 +113,15 @@ class LibertineLXC(BaseContainer):
     def run_in_container(self, command_string):
         cmd_args = shlex.split(command_string)
         return self.container.attach_wait(lxc.attach_run_command, cmd_args)
+
+    def update_packages(self, verbosity=1):
+        if self.timezone_needs_update():
+            self.run_in_container("bash -c \'echo \"{}\" >/etc/timezone\'".format(
+                                  get_host_timezone()))
+            self.run_in_container("rm -f /etc/localtime")
+            self.run_in_container("dpkg-reconfigure -f noninteractive tzdata")
+
+        super().update_packages(verbosity)
 
     def destroy_libertine_container(self):
         if self.container.defined:
