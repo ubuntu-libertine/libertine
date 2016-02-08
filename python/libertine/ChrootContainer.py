@@ -194,7 +194,7 @@ class LibertineChroot(BaseContainer):
 
         user_dconf_path = os.path.join(home_path, '.config', 'dconf')
         if os.path.exists(user_dconf_path):
-            proot_cmd += " -b %s" % user_donf_path
+            proot_cmd += " -b %s" % user_dconf_path
 
         return proot_cmd
 
