@@ -1,3 +1,23 @@
+libertine (0.99.10+16.04.20160208.1-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * data/libertine-lxc.conf: Remove the /etc/timezone & /etc/localtime
+    bind-mounts. (LP: #1541524)
+  * Add exception handling around the select calls to avoid "crashes" in
+    the programs. (LP: #1541584)
+  * Bind mount ~/.config/dconf/ so apps that programs that use it can read
+    the correct gsettings data. (LP: #1535421)
+  * libertine-container-manager: Add new "--force" option to force installation
+    of Ubuntu distros that are no longer supported.
+
+  [ Stephen M. Webb ]
+  * fixed a spelling mistake in the container info page.
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Mon, 08 Feb 2016 17:09:06 +0000
+
 libertine (0.99.9+16.04.20160128-0ubuntu1) xenial; urgency=medium
 
   [ Chris Townsend ]
