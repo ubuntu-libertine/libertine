@@ -1,11 +1,11 @@
 [Desktop Entry]
 Version=1.0
-Name="Libertine"
-Comment="Legacy Application Sandbox"
+Name=Libertine
+Comment=Legacy Application Sandbox
 Exec=libertine
 Terminal=false
 Type=Application
 Icon=/usr/share/libertine/libertine_64.png
 Categories=
-GenericName="Application Sandbox"
+GenericName=Application Sandbox
 X-Ubuntu-Touch=true
