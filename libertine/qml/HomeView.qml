@@ -43,8 +43,10 @@ Page {
 	ActionSelectionPopover {
 	    actions: ActionList {
 		Action {
-		    text: "App Sources"
-		    onTriggered: print(text)
+		    text: "Configure Container"
+		    onTriggered: {
+                        pageStack.push(Qt.resolvedUrl("ConfigureContainer.qml"))
+                    }
 		}
                 Action {
                     text: "Update Container"

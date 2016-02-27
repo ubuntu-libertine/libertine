@@ -32,6 +32,7 @@
 #include <QtCore/QRegExp>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
+#include <QtCore/QSysInfo>
 
 #include <sys/file.h>
 
@@ -237,6 +238,20 @@ getContainerName(QString const& container_id)
 
 
 QString ContainerConfigList::
+getContainerMultiarchSupport(QString const& container_id)
+{
+  for (auto const& config: configs_)
+  {
+    if (config->container_id() == container_id)
+    {
+      return config->multiarch_support();
+    }
+  }
+  return nullptr;
+}
+
+
+QString ContainerConfigList::
 getContainerStatus(QString const& container_id)
 {
   for (auto const& config: configs_)
@@ -247,6 +262,13 @@ getContainerStatus(QString const& container_id)
     }
   }
   return nullptr;
+}
+
+
+QString ContainerConfigList::
+getHostArchitecture()
+{
+  return QSysInfo::currentCpuArchitecture();
 }
 
 

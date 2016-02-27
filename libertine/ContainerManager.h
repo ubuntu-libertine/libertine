@@ -21,6 +21,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QThread>
 
 class ContainerManagerWorker
@@ -34,6 +35,7 @@ class ContainerManagerWorker
   Q_PROPERTY(QString containerDistro READ container_distro WRITE container_distro NOTIFY containerDistroChanged)
   Q_PROPERTY(QString containerName READ container_name WRITE container_name NOTIFY containerNameChanged)
   Q_PROPERTY(QString data READ data WRITE data NOTIFY dataChanged)
+  Q_PROPERTY(QStringList data_list READ data_list WRITE data_list NOTIFY dataListChanged) 
 
 public:
   static const QString libertine_container_manager_tool;
@@ -47,7 +49,8 @@ public:
     Remove,
     Search,
     Update,
-    Exec
+    Exec,
+    Configure
   };
 
 public:
@@ -59,6 +62,10 @@ public:
                          QString const& container_id,
                          QString const& container_type,
                          QString const& data);
+  ContainerManagerWorker(ContainerAction container_action,
+                         QString const& container_id,
+                         QString const& container_type,
+                         QStringList data_list);
   ~ContainerManagerWorker();
 
   ContainerAction
@@ -97,6 +104,12 @@ public:
   void
   data(QString const& data);
 
+  QStringList
+  data_list();
+
+  void
+  data_list(QStringList data_list);
+
 protected:
   void run() Q_DECL_OVERRIDE;
 
@@ -108,6 +121,7 @@ private:
   void searchPackageCache(QString const& search_string);
   void updateContainer();
   void runCommand(QString const& command_line);
+  void configureContainer(QStringList configure_command);
 
 private:
   ContainerAction container_action_;
@@ -116,6 +130,7 @@ private:
   QString container_distro_;
   QString container_name_;
   QString data_;
+  QStringList data_list_;
 
 signals:
   void containerActionChanged();
@@ -124,6 +139,7 @@ signals:
   void containerDistroChanged();
   void containerNameChanged();
   void dataChanged();
+  void dataListChanged();
   void finished();
   void finishedDestroy(QString const& container_id);
   void finishedInstall(bool result, QString const& error_msg);

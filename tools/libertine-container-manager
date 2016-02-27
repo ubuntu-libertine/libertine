@@ -102,6 +102,31 @@ def update_container_install_status(container_id, new_status):
             break
 
 
+def update_container_multiarch_support(container_id, multiarch):
+    container_list = read_container_config_file()
+
+    if multiarch == 'enabled' and libertine.utils.get_host_architecture() == 'i386':
+        multiarch = 'disabled'
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            container['multiarch'] = multiarch
+
+            write_container_config_file(container_list)
+            break
+
+
+def get_container_multiarch_support(container_id):
+    container_list = read_container_config_file()
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            if not 'multiarch' in container:
+                return 'disabled'
+            else:
+                return container['multiarch']
+
+
 def add_new_container(id, name, type, distro):
     if not os.path.exists(libertine.utils.get_libertine_database_dir_path()):
         os.makedirs(libertine.utils.get_libertine_database_dir_path())
@@ -237,10 +262,15 @@ def create(args):
             password = sys.stdin.readline().rstrip()
 
     add_new_container(args.id, args.name, args.type, args.distro)
+    
+    multiarch = 'disabled'
+    if args.multiarch:
+        multiarch = 'enabled'
+    update_container_multiarch_support(args.id, multiarch)
 
     container = LibertineContainer(args.id)
     update_container_install_status(args.id, "installing")
-    container.create_libertine_container(password, args.verbosity)
+    container.create_libertine_container(password, args.multiarch, args.verbosity)
     update_container_install_status(args.id, "ready")
 
 
@@ -352,6 +382,29 @@ def exec(args):
     container.exec_command(args.command)
 
 
+def configure(args):
+    if args.id and not libertine.utils.container_exists(args.id):
+        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
+        sys.exit(1)
+    elif not args.id:
+        args.id = get_default_container_id()
+
+    container = LibertineContainer(args.id)
+
+    if args.multiarch and libertine.utils.get_host_architecture() == 'amd64':
+        multiarch = 'disabled'
+        if args.multiarch == 'enable':
+            multiarch = 'enabled'
+
+        current_multiarch = get_container_multiarch_support(args.id)
+        if current_multiarch == multiarch:
+            print("i386 multiarch support is already %s" % multiarch)
+            sys.exit(0)
+
+        container.configure_command('multiarch', args.multiarch)
+        update_container_multiarch_support(args.id, multiarch)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Legacy X application support for Unity 8")
     parser.add_argument('-q', '--quiet',
@@ -383,6 +436,10 @@ if __name__ == '__main__':
         '--force', action='store_true',
         help=("Force the installation of the given valid Ubuntu distro even if "
               "it is no longer supported."))
+    parser_create.add_argument(
+        '-m', '--multiarch', action='store_true',
+        help=("Add i386 support to amd64 Libertine containers.  This option has "
+              "no effect when the Libertine container is i386."))
     parser_create.set_defaults(func=create)
 
     # Handle the destroy command and its options
@@ -448,6 +505,7 @@ if __name__ == '__main__':
         help=("List all Libertine containers."))
     parser_list.set_defaults(func=list)
 
+    # Handle the list-apps command and its options
     parser_list_apps = subparsers.add_parser(
         'list-apps',
         help=("List available app launchers in a container."))
@@ -460,6 +518,7 @@ if __name__ == '__main__':
         help=("use JSON output format."))
     parser_list_apps.set_defaults(func=list_apps)
 
+    # Handle the execute command and it's options
     parser_exec = subparsers.add_parser(
         'exec',
         help=("Run an arbitrary command in the specified Libertine container."))
@@ -471,7 +530,22 @@ if __name__ == '__main__':
         help=("The command to run in the specified container."))
     parser_exec.set_defaults(func=exec)
 
-# Actually parse the args
+    # Handle the configure command and it's options
+    parser_configure = subparsers.add_parser(
+        'configure',
+        help=("Configure various options in the specified Libertine container."))
+    parser_configure.add_argument(
+        '-i', '--id',
+        help=("Container identifier.  Default container is used if omitted."))
+    parser_configure.add_argument(
+        '-m', '--multiarch',
+        choices=['enable', 'disable'],
+        help=("Enables or disables i386 multiarch support for amd64 Libertine "
+              "containers.   This option has no effect when the Libertine "
+              "container is i386."))
+    parser_configure.set_defaults(func=configure)
+
+    # Actually parse the args
     args = parser.parse_args()
     if args.verbosity is None:
         args.verbosity = 1

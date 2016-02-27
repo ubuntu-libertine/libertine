@@ -128,7 +128,7 @@ class LibertineLXC(BaseContainer):
             self.container.stop()
             self.container.destroy()
 
-    def create_libertine_container(self, password=None, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         if password is None:
             return
 
@@ -179,6 +179,11 @@ class LibertineLXC(BaseContainer):
         self.run_in_container("userdel -r ubuntu")
         self.run_in_container("useradd -u {} -p {} -G sudo {}".format(
                 str(user_id), crypt.crypt(password), str(username)))
+
+        if multiarch and architecture == 'amd64':
+            if verbosity == 1:
+                print("Adding i386 multiarch support...")
+            self.run_in_container("dpkg --add-architecture i386")
 
         if verbosity == 1:
             print("Updating the contents of the container after creation...")

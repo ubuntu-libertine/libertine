@@ -119,10 +119,16 @@ public:
   getContainerDistro(QString const& container_id);
 
   Q_INVOKABLE QString
+  getContainerMultiarchSupport(QString const& container_id);
+
+  Q_INVOKABLE QString
   getContainerName(QString const& container_id);
 
   Q_INVOKABLE QString
   getContainerStatus(QString const& container_id);
+
+  Q_INVOKABLE QString
+  getHostArchitecture();
 
   void
   reloadConfigs();

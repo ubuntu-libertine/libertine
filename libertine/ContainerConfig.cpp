@@ -121,6 +121,27 @@ namespace {
     return distro_series;
   }
 
+  QString
+  extract_multiarch_support_from_json(QJsonObject const& json_object)
+  {
+    QString multiarch_support("disabled");
+    QJsonValue value = json_object["multiarch"];
+    if (value != QJsonValue::Undefined)
+    {
+      QJsonValue::Type value_type = value.type();
+      if (value_type == QJsonValue::String)
+      {
+        QString s = value.toString();
+        if (s.length() > 0)
+        {
+          multiarch_support = s;
+        }
+      }
+    }
+
+    return multiarch_support;
+  }
+
   const static struct { QString string; ContainerConfig::InstallStatus enumeration; } install_status_names[] =
   {
     { QObject::tr("new"),          ContainerConfig::InstallStatus::New        },
@@ -292,6 +313,7 @@ ContainerConfig(QJsonObject const& json_object,
 , container_name_(extract_container_name_from_json(json_object, container_id_))
 , container_type_(extract_container_type_from_json(json_object, container_id_))
 , distro_series_(extract_distro_series_from_json(json_object, container_id_))
+, multiarch_support_(extract_multiarch_support_from_json(json_object))
 , install_status_(extract_install_status_from_json(json_object))
 , container_apps_(extract_container_apps_from_json(json_object))
 { }
@@ -328,6 +350,11 @@ container_type() const
 QString const& ContainerConfig::
 distro_series() const
 { return distro_series_; }
+
+
+QString const& ContainerConfig::
+multiarch_support() const
+{ return multiarch_support_; }
 
 
 QString const& ContainerConfig::

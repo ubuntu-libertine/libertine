@@ -52,6 +52,18 @@ ContainerManagerWorker(ContainerAction container_action,
 
 
 ContainerManagerWorker::
+ContainerManagerWorker(ContainerAction container_action,
+                       QString const& container_id,
+                       QString const& container_type,
+                       QStringList data_list)
+: container_action_(container_action)
+, container_id_(container_id)
+, container_type_(container_type)
+, data_list_(data_list)
+{ }
+
+
+ContainerManagerWorker::
 ~ContainerManagerWorker()
 { }
 
@@ -134,6 +146,18 @@ data(QString const& data)
 }
 
 
+QStringList ContainerManagerWorker::
+data_list()
+{ return data_list_; }
+
+
+void ContainerManagerWorker::
+data_list(QStringList data_list)
+{
+  data_list_ = data_list;
+}
+
+
 void ContainerManagerWorker::
 run()
 {
@@ -165,6 +189,10 @@ run()
 
     case ContainerAction::Exec:
       runCommand(data_);
+      break;
+
+    case ContainerAction::Configure:
+      configureContainer(data_list_);
       break;
 
     default:
@@ -360,5 +388,26 @@ runCommand(QString const& command_line)
   command_output = libertine_cli_tool.readAllStandardOutput();
 
   emit finishedCommand(QString(command_output));
+  quit();
+}
+
+
+void ContainerManagerWorker::
+configureContainer(QStringList configure_command)
+{
+  QProcess libertine_cli_tool;
+  QString exec_line = libertine_container_manager_tool;
+  QStringList args;
+
+  args << "configure" << "-i" << container_id_ << configure_command.at(0) << configure_command.mid(1);
+
+    libertine_cli_tool.start(exec_line, args);
+
+  if (!libertine_cli_tool.waitForStarted())
+    quit();
+
+  libertine_cli_tool.waitForFinished(-1);
+
+  emit finished();
   quit();
 }

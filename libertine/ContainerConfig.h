@@ -96,6 +96,9 @@ public:
   distro_series() const;
 
   QString const&
+  multiarch_support() const;
+
+  QString const&
   install_status() const;
 
   void
@@ -116,6 +119,7 @@ private:
   QString               container_name_;
   QString               container_type_;
   QString               distro_series_;
+  QString               multiarch_support_;
   InstallStatus         install_status_;
   QList<ContainerApps*> container_apps_;
 };

@@ -69,7 +69,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         self.container_id = container_id
         self.root_path = libertine.utils.get_libertine_container_rootfs_path(self.container_id)
 
-    def create_libertine_container(self, password=None, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         pass
 
     def destroy_libertine_container(self, verbosity=1):
@@ -123,6 +123,20 @@ class BaseContainer(metaclass=abc.ABCMeta):
         """
         return self.run_in_container(apt_command_prefix(verbosity) +
                 extra_apt_args + " install '" + package_name + "'") == 0
+
+    def configure_command(self, command, *args, verbosity=1):
+        """
+        Configures the container based on what the command is.
+
+        :param command: The configuration command to run.
+        :param *args: List of arguments used for the given configuration command
+        """
+        if command == 'multiarch':
+            if args[0] == 'enable':
+                self.run_in_container("dpkg --add-architecture i386")
+            else:
+                self.run_in_container(apt_command_prefix(verbosity) + "purge \".*:i386\"")
+                self.run_in_container("dpkg --remove-architecture i386")
 
     def get_container_distro(self, container_id):
         """
@@ -230,11 +244,11 @@ class LibertineContainer(object):
         """
         self.container.destroy_libertine_container()
 
-    def create_libertine_container(self, password=None, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         """
         Creates the container.
         """
-        self.container.create_libertine_container(password, verbosity)
+        self.container.create_libertine_container(password, multiarch, verbosity)
 
     def update_libertine_container(self, verbosity=1):
         """
@@ -310,3 +324,7 @@ class LibertineContainer(object):
         """
         with ContainerRunning(self.container):
             self.container.run_in_container(exec_line)
+
+    def configure_command(self, command, *args):
+        with ContainerRunning(self.container):
+            self.container.configure_command(command, *args)
