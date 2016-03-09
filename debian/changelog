@@ -1,3 +1,22 @@
+libertine (0.99.11+16.04.20160302-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * Add a way to call Xmir with different options than what is hardcoded in 
+    ubuntu-app-launch. (LP: #1542028)
+  * Use '-title @' Xmir option to set proper XMir window titles.
+  * Add ability to enable or disable i386 multiarch support in a Libertine
+    container. (LP: #1518812)
+
+  [ Stephen M. Webb ]
+  * libertine-demo: do not remove the ContainersConfig file if there are still
+    containers.
+  * remove the unnecessary quotes from the .desktop file.
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Wed, 02 Mar 2016 22:06:45 +0000
+
 libertine (0.99.10+16.04.20160208.1-0ubuntu1) xenial; urgency=medium
 
   [ Chris Townsend ]
