@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include "libertine/ContainerManager.h"
 #include "libertine/ContainerAppsList.h"
+#include "libertine/ContainerArchivesList.h"
 #include "libertine/ContainerConfig.h"
 #include "libertine/ContainerConfigList.h"
 #include "libertine/libertine.h"
@@ -105,6 +106,7 @@ Libertine(int argc, char* argv[])
 
   containers_ = new ContainerConfigList(config_.data(), this);
   container_apps_ = new ContainerAppsList(containers_, this);
+  container_archives_ = new ContainerArchivesList(containers_, this);
   password_helper_ = new PasswordHelper();
 
   initialize_view();
@@ -131,6 +133,7 @@ initialize_view()
   QQmlContext* ctxt = view_.rootContext();
   ctxt->setContextProperty("containerConfigList", containers_);
   ctxt->setContextProperty("containerAppsList", container_apps_);
+  ctxt->setContextProperty("containerArchivesList", container_archives_);
   ctxt->setContextProperty("passwordHelper", password_helper_);
 
   view_.setSource(QUrl::fromLocalFile(main_qml_source_file_));

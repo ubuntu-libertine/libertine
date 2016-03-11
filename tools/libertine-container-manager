@@ -127,6 +127,64 @@ def get_container_multiarch_support(container_id):
                 return container['multiarch']
 
 
+def update_archive_install_status(container_id, archive_name, new_status):
+    container_list = read_container_config_file()
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            for archive in container['extraArchives']:
+                if archive['archiveName'] == archive_name:
+                    archive['archiveStatus'] = new_status
+                    write_container_config_file(container_list)
+                    return
+
+
+def add_container_archive(container_id, archive_name):
+    container_list = read_container_config_file()
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            archive_obj = {'archiveName': archive_name, 'archiveStatus': 'new'}
+
+            if 'extraArchives' not in container:
+                container['extraArchives'] = [archive_obj]
+            else:
+                container['extraArchives'].append(archive_obj)
+
+            write_container_config_file(container_list)
+            break
+
+
+def delete_container_archive(container_id, archive_name):
+    container_list = read_container_config_file()
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            for archive in container['extraArchives']:
+                if archive['archiveName'] == archive_name:
+                    container['extraArchives'].remove(archive)
+                    write_container_config_file(container_list)
+                    return
+
+    print("%s does not exist." % archive_name)
+    sys.exit(1)
+
+
+def archive_exists(container_id, archive_name):
+    container_list = read_container_config_file()
+
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            if 'extraArchives' not in container:
+                return False
+            else:
+                for archive in container['extraArchives']:
+                    if archive['archiveName'] == archive_name:
+                        return True
+
+    return False
+
+
 def add_new_container(id, name, type, distro):
     if not os.path.exists(libertine.utils.get_libertine_database_dir_path()):
         os.makedirs(libertine.utils.get_libertine_database_dir_path())
@@ -379,7 +437,7 @@ def exec(args):
 
     container = LibertineContainer(args.id)
 
-    container.exec_command(args.command)
+    sys.exit(container.exec_command(args.command))
 
 
 def configure(args):
@@ -399,10 +457,35 @@ def configure(args):
         current_multiarch = get_container_multiarch_support(args.id)
         if current_multiarch == multiarch:
             print("i386 multiarch support is already %s" % multiarch)
-            sys.exit(0)
+            sys.exit(1)
 
         container.configure_command('multiarch', args.multiarch)
         update_container_multiarch_support(args.id, multiarch)
+
+    elif args.add_archive:
+        if archive_exists(args.id, args.add_archive):
+            print("%s already added in container." % args.add_archive)
+            sys.exit(1)
+
+        add_container_archive(args.id, args.add_archive)
+        update_archive_install_status(args.id, args.add_archive, 'installing')
+        if container.configure_command('add-archive', args.add_archive) != 0:
+            delete_container_archive(args.id, args.add_archive)
+            sys.exit(1)
+
+        update_archive_install_status(args.id, args.add_archive, 'installed')
+
+
+    elif args.delete_archive:
+        if not archive_exists(args.id, args.delete_archive):
+            print("%s is not added in container." % args.delete_archive)
+            sys.exit(1)
+
+        update_archive_install_status(args.id, args.delete_archive, 'removing')
+        if container.configure_command('delete-archive', args.delete_archive) != 0:
+            sys.exit(1)
+
+        delete_container_archive(args.id, args.delete_archive)
 
 
 if __name__ == '__main__':
@@ -543,6 +626,16 @@ if __name__ == '__main__':
         help=("Enables or disables i386 multiarch support for amd64 Libertine "
               "containers.   This option has no effect when the Libertine "
               "container is i386."))
+    parser_configure.add_argument(
+        '-a', '--add-archive',
+        metavar='Archive name',
+        help=("Adds an archive (PPA) in the specified Libertine container.  Needs to be "
+              "in the form of \"ppa:user/ppa-name\"."))
+    parser_configure.add_argument(
+        '-d', '--delete-archive',
+        metavar='Archive name',
+        help=("Deletes an existing archive (PPA) in the specified Libertine container.  "
+              "Needs to be in the form of \"ppa:user/ppa-name\"."))
     parser_configure.set_defaults(func=configure)
 
     # Actually parse the args

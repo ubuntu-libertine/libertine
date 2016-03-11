@@ -11,6 +11,7 @@ add_library(
   ${libertine_src}/ContainerConfig.cpp
   ${libertine_src}/ContainerManager.cpp
   ${libertine_src}/ContainerAppsList.cpp
+  ${libertine_src}/ContainerArchivesList.cpp
   ${libertine_src}/PasswordHelper.cpp
 )
 set_target_properties(libertine-common PROPERTIES

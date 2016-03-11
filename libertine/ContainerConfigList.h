@@ -25,6 +25,7 @@
 
 
 class ContainerApps;
+class ContainerArchives;
 class ContainerConfig;
 class LibertineConfig;
 
@@ -111,6 +112,9 @@ public:
 
   Q_INVOKABLE QString
   getAppVersion(QString const& app_info);
+
+  QList<ContainerArchives*> *
+  getArchivesForContainer(QString const& container_id);
 
   Q_INVOKABLE QString
   getContainerType(QString const& container_id);

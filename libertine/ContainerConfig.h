@@ -24,18 +24,17 @@
 #include <QtCore/QString>
 
 
+enum class CurrentStatus { New, Installing, Installed, Failed, Removing, Removed };
+
+
 class ContainerApps
 : public QObject
 {
   Q_OBJECT
 
 public:
-  enum class AppStatus
-  { New, Installing, Installed, Failed, Removing, Removed };
-
-public:
   ContainerApps(QString const& package_name,
-                AppStatus app_status,
+                CurrentStatus app_status,
                 QObject* parent = nullptr);
   ~ContainerApps();
 
@@ -46,8 +45,31 @@ public:
   app_status() const;
 
 private:
-  QString   package_name_;
-  AppStatus app_status_;
+  QString       package_name_;
+  CurrentStatus app_status_;
+};
+
+
+class ContainerArchives
+: public QObject
+{
+  Q_OBJECT
+
+public:
+  ContainerArchives(QString const& archive_name,
+                    CurrentStatus archive_status,
+                    QObject* parent = nullptr);
+  ~ContainerArchives();
+
+  QString const&
+  archive_name() const;
+
+  QString const&
+  archive_status() const;
+
+private:
+  QString archive_name_;
+  CurrentStatus archive_status_;
 };
 
 
@@ -107,6 +129,9 @@ public:
   QList<ContainerApps*> &
   container_apps();
 
+  QList<ContainerArchives*> &
+  container_archives();
+
   QJsonObject
   toJson() const;
 
@@ -115,13 +140,14 @@ signals:
   void installStatusChanged();
 
 private:
-  QString               container_id_;
-  QString               container_name_;
-  QString               container_type_;
-  QString               distro_series_;
-  QString               multiarch_support_;
-  InstallStatus         install_status_;
-  QList<ContainerApps*> container_apps_;
+  QString                   container_id_;
+  QString                   container_name_;
+  QString                   container_type_;
+  QString                   distro_series_;
+  QString                   multiarch_support_;
+  InstallStatus             install_status_;
+  QList<ContainerApps*>     container_apps_;
+  QList<ContainerArchives*> container_archives_;
 };
 
 #endif /* CONTAINER_CONTAINERCONFIG_H */

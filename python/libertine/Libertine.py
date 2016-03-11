@@ -18,6 +18,7 @@ import abc
 import contextlib
 import json
 import libertine.utils
+import os
 
 
 def get_container_type(container_id):
@@ -133,10 +134,20 @@ class BaseContainer(metaclass=abc.ABCMeta):
         """
         if command == 'multiarch':
             if args[0] == 'enable':
-                self.run_in_container("dpkg --add-architecture i386")
+                return self.run_in_container("dpkg --add-architecture i386")
             else:
                 self.run_in_container(apt_command_prefix(verbosity) + "purge \".*:i386\"")
-                self.run_in_container("dpkg --remove-architecture i386")
+                return self.run_in_container("dpkg --remove-architecture i386")
+
+        elif command == 'add-archive':
+            if not os.path.exists(os.path.join(self.root_path, 'usr', 'bin', 'add-apt-repository')):
+                self.update_packages(verbosity)
+                self.install_package("software-properties-common", verbosity)
+
+            return self.run_in_container("add-apt-repository -y " + args[0])
+
+        elif command == 'delete-archive':
+            return self.run_in_container("add-apt-repository -y -r " + args[0])
 
     def get_container_distro(self, container_id):
         """
@@ -323,8 +334,8 @@ class LibertineContainer(object):
         :rtype: The output of the given command.
         """
         with ContainerRunning(self.container):
-            self.container.run_in_container(exec_line)
+            return self.container.run_in_container(exec_line)
 
     def configure_command(self, command, *args):
         with ContainerRunning(self.container):
-            self.container.configure_command(command, *args)
+            return self.container.configure_command(command, *args)

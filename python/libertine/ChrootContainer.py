@@ -96,7 +96,7 @@ class LibertineChroot(BaseContainer):
                 fd.write("done\n")
                 os.fchmod(fd.fileno(), 0o755)
 
-        # Add universe and -updates to the chroot's sources.list
+        # Add universe, multiverse, and -updates to the chroot's sources.list
         if (utils.get_host_architecture() == 'armhf'):
             archive = "deb http://ports.ubuntu.com/ubuntu-ports "
         else:
@@ -105,9 +105,11 @@ class LibertineChroot(BaseContainer):
         if verbosity == 1:
             print("Updating chroot's sources.list entries...")
         with open(os.path.join(self.root_path, 'etc', 'apt', 'sources.list'), 'a') as fd:
-            fd.write(archive + installed_release + " universe\n")
             fd.write(archive + installed_release + "-updates main\n")
+            fd.write(archive + installed_release + " universe\n")
             fd.write(archive + installed_release + "-updates universe\n")
+            fd.write(archive + installed_release + " multiverse\n")
+            fd.write(archive + installed_release + "-updates multiverse\n")
 
         utils.create_libertine_user_data_dir(self.container_id)
 
@@ -155,6 +157,7 @@ class LibertineChroot(BaseContainer):
             print("Updating the contents of the container after creation...")
         self.update_packages(verbosity)
         self.install_package("libnss-extrausers", verbosity)
+        self.install_package("software-properties-common", verbosity)
 
         if verbosity == 1:
             print("Installing Matchbox as the Xmir window manager...")

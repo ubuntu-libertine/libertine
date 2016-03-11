@@ -1,5 +1,5 @@
 /**
- * @file configureContainer.qml
+ * @file ConfigureContainer.qml
  * @brief Libertine configure container view
  */
 /*
@@ -19,51 +19,49 @@
 import Libertine 1.0
 import QtQuick 2.4
 import Ubuntu.Components 1.2
+import Ubuntu.Components.ListItems 1.2 as ListItem
 
 
 Page {
     id: configureView
     title: i18n.tr("Configure ") + mainView.currentContainer
 
-    Item {
-        visible: containerConfigList.getHostArchitecture() == 'x86_64' ? true : false
-        CheckBox {
-            id: multiarchCheckBox
-            anchors {
-                left: parent.left
-                top: parent.top
-                leftMargin: configureView.leftMargin
-            }
-            checked: containerConfigList.getContainerMultiarchSupport(mainView.currentContainer) == 'enabled' ? true : false
-            onClicked: {
-                var comp = Qt.createComponent("ContainerManager.qml")
-                if (multiarchCheckBox.checked) {
-                    var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
-                                                              "containerId": mainView.currentContainer,
-                                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                                              "data_list": ["--multiarch", "enable"]})
-                    worker.start()
+    Column {
+        anchors.left: parent.left
+        anchors.right: parent.right
+
+        ListItem.Standard {
+            visible: containerConfigList.getHostArchitecture() == 'x86_64' ? true : false
+            control: CheckBox {
+                checked: containerConfigList.getContainerMultiarchSupport(mainView.currentContainer) == 'enabled' ? true : false
+                onClicked: {
+                    var comp = Qt.createComponent("ContainerManager.qml")
+                    if (multiarchCheckBox.checked) {
+                        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
+                                                                  "containerId": mainView.currentContainer,
+                                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer),
+                                                                  "data_list": ["--multiarch", "enable"]})
+                        worker.start()
+                    }
+                    else {
+                        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
+                                                                  "containerId": mainView.currentContainer,
+                                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer),
+                                                                  "data_list": ["--multiarch", "disable"]})
+                        worker.start()
+                   }
                 }
-                else {
-                    var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
-                                                              "containerId": mainView.currentContainer,
-                                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                                              "data_list": ["--multiarch", "disable"]})
-                    worker.start()
-               }
-            }
-        }
-        Label {
-            anchors {
-                left: multiarchCheckBox.right
-                right: parent.right
-                top: parent.bottom
-                verticalCenter: parent.verticalCenter
-                leftMargin: units.gu(2)
-                rightMargin: configureView.rightMargin
             }
             text: i18n.tr("i386 multiarch support")
         }
 
+        ListItem.SingleValue {
+            text: i18n.tr("Additional archives and PPAs")
+            progression: true
+            onClicked: {
+                containerArchivesList.setContainerArchives(mainView.currentContainer)
+                pageStack.push(Qt.resolvedUrl("ExtraArchivesView.qml"))
+            }
+        }
     }
 }

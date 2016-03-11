@@ -395,6 +395,9 @@ runCommand(QString const& command_line)
 void ContainerManagerWorker::
 configureContainer(QStringList configure_command)
 {
+  QByteArray error_msg;
+  bool result = true;
+
   QProcess libertine_cli_tool;
   QString exec_line = libertine_container_manager_tool;
   QStringList args;
@@ -408,6 +411,13 @@ configureContainer(QStringList configure_command)
 
   libertine_cli_tool.waitForFinished(-1);
 
+  if (libertine_cli_tool.exitCode() != 0)
+  {
+    error_msg = libertine_cli_tool.readAllStandardOutput();
+    result = false;
+  }
+
+  emit finishedConfigure(result, QString(error_msg));
   emit finished();
   quit();
 }

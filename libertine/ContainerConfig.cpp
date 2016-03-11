@@ -178,15 +178,15 @@ namespace {
     return ContainerConfig::InstallStatus::New;
   }
 
-  const static struct { QString string; ContainerApps::AppStatus enumeration; } app_status_names[] =
+  const static struct { QString string; CurrentStatus enumeration; } status_names[] =
   {
-    { QObject::tr("new"),        ContainerApps::AppStatus::New        },
-    { QObject::tr("installing"), ContainerApps::AppStatus::Installing },
-    { QObject::tr("installed"),  ContainerApps::AppStatus::Installed  },
-    { QObject::tr("failed"),     ContainerApps::AppStatus::Failed     },
-    { QObject::tr("removing"),   ContainerApps::AppStatus::Removing   },
-    { QObject::tr("removed"),    ContainerApps::AppStatus::Removed    },
-    { QString(),                 ContainerApps::AppStatus::New        }
+    { QObject::tr("new"),        CurrentStatus::New        },
+    { QObject::tr("installing"), CurrentStatus::Installing },
+    { QObject::tr("installed"),  CurrentStatus::Installed  },
+    { QObject::tr("failed"),     CurrentStatus::Failed     },
+    { QObject::tr("removing"),   CurrentStatus::Removing   },
+    { QObject::tr("removed"),    CurrentStatus::Removed    },
+    { QString(),                 CurrentStatus::New        }
   };
 
   QString
@@ -207,10 +207,10 @@ namespace {
     return package_name;
   }
 
-  ContainerApps::AppStatus
+  CurrentStatus
   extract_app_status_from_json(QJsonObject const& json_object)
   {
-    ContainerApps::AppStatus app_status = ContainerApps::AppStatus::New;
+    CurrentStatus app_status = CurrentStatus::New;
 
     QJsonValue value = json_object["appStatus"];
     if (value != QJsonValue::Undefined)
@@ -221,7 +221,7 @@ namespace {
         QString s = value.toString();
         if (s.length() > 0)
         {
-          for (auto const& name: app_status_names)
+          for (auto const& name: status_names)
           {
             if (0 == s.compare(name.string, Qt::CaseInsensitive))
             {
@@ -241,7 +241,7 @@ namespace {
   {
     QList<ContainerApps*> container_apps;
     QString package_name;
-    ContainerApps::AppStatus app_status;
+    CurrentStatus app_status;
 
     QJsonArray installed_apps = json_object["installedApps"].toArray();
 
@@ -255,12 +255,78 @@ namespace {
     }
     return container_apps;
   }
+
+  QString
+  extract_archive_name_from_json(QJsonObject const& json_object)
+  {
+    QString archive_name;
+
+    QJsonValue value = json_object["archiveName"];
+    if (value != QJsonValue::Undefined)
+    {
+      QJsonValue::Type value_type = value.type();
+      if (value_type == QJsonValue::String)
+      {
+        archive_name = value.toString();
+      }
+    }
+
+    return archive_name;
+  }
+
+  CurrentStatus
+  extract_archive_status_from_json(QJsonObject const& json_object)
+  {
+    CurrentStatus archive_status = CurrentStatus::New;
+
+    QJsonValue value = json_object["archiveStatus"];
+    if (value != QJsonValue::Undefined)
+    {
+      QJsonValue::Type value_type = value.type();
+      if (value_type == QJsonValue::String)
+      {
+        QString s = value.toString();
+        if (s.length() > 0)
+        {
+          for (auto const& name: status_names)
+          {
+            if (0 == s.compare(name.string, Qt::CaseInsensitive))
+            {
+              archive_status = name.enumeration;
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    return archive_status;
+  }
+
+  QList<ContainerArchives*>
+  extract_container_archives_from_json(QJsonObject const& json_object)
+  {
+    QList<ContainerArchives*> container_archives;
+    QString archive_name;
+    CurrentStatus archive_status;
+
+    QJsonArray extra_archives = json_object["extraArchives"].toArray();
+
+    for (auto const& archive: extra_archives)
+    {
+      archive_name = extract_archive_name_from_json(archive.toObject());
+      archive_status = extract_archive_status_from_json(archive.toObject());
+
+      container_archives.append(new ContainerArchives(archive_name, archive_status));
+    }
+    return container_archives;
+  }
 } // anonymous namespace
 
 
 ContainerApps::
 ContainerApps(QString const& package_name,
-              ContainerApps::AppStatus app_status,
+              CurrentStatus app_status,
               QObject* parent)
 : QObject(parent)
 , package_name_(package_name)
@@ -280,7 +346,32 @@ package_name() const
 
 QString const& ContainerApps::
 app_status() const
-{ return app_status_names[(int)app_status_].string; }
+{ return status_names[(int)app_status_].string; }
+
+
+ContainerArchives::
+ContainerArchives(QString const& archive_name,
+                  CurrentStatus archive_status,
+                  QObject* parent)
+: QObject(parent)
+, archive_name_(archive_name)
+, archive_status_(archive_status)
+{ }
+
+
+ContainerArchives::
+~ContainerArchives()
+{ }
+
+
+QString const& ContainerArchives::
+archive_name() const
+{ return archive_name_; }
+
+
+QString const& ContainerArchives::
+archive_status() const
+{ return status_names[(int)archive_status_].string; }
 
 
 ContainerConfig::
@@ -316,6 +407,7 @@ ContainerConfig(QJsonObject const& json_object,
 , multiarch_support_(extract_multiarch_support_from_json(json_object))
 , install_status_(extract_install_status_from_json(json_object))
 , container_apps_(extract_container_apps_from_json(json_object))
+, container_archives_(extract_container_archives_from_json(json_object))
 { }
 
 
@@ -375,12 +467,19 @@ container_apps()
 { return container_apps_; }
 
 
+QList<ContainerArchives*> & ContainerConfig::
+container_archives()
+{ return container_archives_; }
+
+
 QJsonObject ContainerConfig::
 toJson() const
 {
   QJsonObject json_object,
-              app_object;
-  QJsonArray apps;
+              app_object,
+              archive_object;
+  QJsonArray apps,
+             archives;
 
   json_object["id"] = container_id_;
   json_object["name"] = container_name_;
@@ -397,10 +496,17 @@ toJson() const
   for (auto const& container_app: container_apps_)
   {
     app_object["packageName"] = container_app->package_name();
-    app_object["appStatus"] = app_status_names[0].string;
+    app_object["appStatus"] = status_names[0].string;
     apps.append(app_object);
   }
   json_object["installedApps"] = apps;
+
+  for (auto const& container_archive: container_archives_)
+  {
+    archive_object["archiveName"] = container_archive->archive_name();
+    archives.append(archive_object);
+  }
+  json_object["extraArchives"] = archives;
 
   return json_object;
 }

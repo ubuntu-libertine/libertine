@@ -189,6 +189,8 @@ class LibertineLXC(BaseContainer):
             print("Updating the contents of the container after creation...")
         self.update_packages(verbosity)
 
+        self.install_package("software-properties-common", verbosity)
+
         if verbosity == 1:
             print("Installing Matchbox as the Xmir window manager...")
         self.install_package('matchbox', verbosity=verbosity)

@@ -121,7 +121,7 @@ addNewApp(QString const& container_id, QString const& package_name)
   {
     if (config->container_id() == container_id)
     {
-      config->container_apps().append(new ContainerApps(package_name, ContainerApps::AppStatus::New, this));
+      config->container_apps().append(new ContainerApps(package_name, CurrentStatus::New, this));
       break;
     }
   }
@@ -191,6 +191,20 @@ getAppVersion(QString const& app_info)
 
   return info.at(1).section(": ", 1, 1);
 } 
+
+
+QList<ContainerArchives*> * ContainerConfigList::
+getArchivesForContainer(QString const& container_id)
+{
+  for (auto const& config: configs_)
+  {
+    if (config->container_id() == container_id)
+    {
+      return &(config->container_archives());
+    }
+  }
+  return nullptr;
+}
 
 
 QString ContainerConfigList::

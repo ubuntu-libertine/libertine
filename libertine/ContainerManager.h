@@ -146,6 +146,7 @@ signals:
   void finishedRemove(bool result, QString const& error_msg);
   void finishedSearch(bool result, QList<QString> packageList);
   void finishedCommand(QString const& command_output);
+  void finishedConfigure(bool result, QString const& error_msg);
 };
 
 #endif /* CONTAINER_CONTAINERMANAGER_H_ */
