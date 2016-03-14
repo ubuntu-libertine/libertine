@@ -67,8 +67,9 @@ class LibertineChroot(BaseContainer):
     def destroy_libertine_container(self):
         shutil.rmtree(self.root_path)
 
-    def create_libertine_container(self, password=None, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         installed_release = self.get_container_distro(self.container_id)
+        architecture = utils.get_host_architecture()
 
         # Create the actual chroot
         if installed_release == "trusty":
@@ -152,6 +153,11 @@ class LibertineChroot(BaseContainer):
             command_line = cmd_line_prefix + " ln -s /bin/true /usr/sbin/rsyslogd"
             args = shlex.split(command_line)
             cmd = subprocess.Popen(args).wait()
+
+        if multiarch and architecture == 'amd64':
+            if verbosity == 1:
+                print("Adding i386 multiarch support...")
+            self.run_in_container("dpkg --add-architecture i386")
 
         if verbosity == 1:
             print("Updating the contents of the container after creation...")
