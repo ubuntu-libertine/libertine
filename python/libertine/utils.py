@@ -125,3 +125,7 @@ def setup_window_manager(container_id):
 def terminate_window_manager(window_manager):
     for child in window_manager.children():
         child.terminate()
+        child.wait()
+
+    window_manager.terminate()
+    window_manager.wait()
