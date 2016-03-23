@@ -228,7 +228,7 @@ class LibertineLXC(BaseContainer):
         self.container.append_config_item("lxc.mount.entry", user_dconf_entry)
 
         # Setup the mounts for /run/user/$user_id
-        run_user_entry = "/run/user/%s run/user/%s none rbind,create=dir" % (user_id, user_id)
+        run_user_entry = "/run/user/%s run/user/%s none rbind,optional,create=dir" % (user_id, user_id)
         self.container.append_config_item("lxc.mount.entry", "tmpfs run tmpfs rw,nodev,noexec,nosuid,size=5242880")
         self.container.append_config_item("lxc.mount.entry",
                                           "none run/user tmpfs rw,nodev,noexec,nosuid,size=104857600,mode=0755,create=dir")
