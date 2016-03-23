@@ -1,3 +1,20 @@
+libertine (0.99.12+16.04.20160321-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * Enable feature to add and remove extra archives in the container. This is
+    for PPA's only right now. (LP: #1541901)
+  * When killing processes in the container, need to wait() after terminating
+    processes and to actually terminate and wait() on the main process.  Caused
+    app launching issues in LXC based containers. (LP: #1558588)
+
+  [ Stephen M. Webb ]
+  * add multiarch support to chroot containers too. (LP: #1556303)
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Mon, 21 Mar 2016 12:59:04 +0000
+
 libertine (0.99.11+16.04.20160302-0ubuntu1) xenial; urgency=medium
 
   [ Chris Townsend ]
