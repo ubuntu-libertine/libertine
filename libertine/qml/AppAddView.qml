@@ -101,7 +101,7 @@ Page {
                 pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"), {install_signal: install_signal})
             }
             else {
-                appInstallMessage.text = i18n.tr("Package ") + package_name + i18n.tr(" already installed. Please try a different package name.")
+                appInstallMessage.text = i18n.tr("Package %1 already installed. Please try a different package name.").arg(text)
                 appInstallMessage.visible = true
                 appName.text = ""
             }  
@@ -220,7 +220,7 @@ Page {
             search_obj = search_comp.createObject(appAddView, {"model": packageListModel})
         }
         else {
-            searchInstallMessage.text = i18n.tr("No search results for " + searchString.text + ".")
+            searchInstallMessage.text = i18n.tr("No search results for %1.").arg(searchString.text)
             searchInstallMessage.visible = true
         }
             

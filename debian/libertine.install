@@ -2,3 +2,4 @@ usr/bin/libertine
 usr/share/applications/libertine.desktop
 usr/share/libertine/libertine_64.png
 usr/share/libertine/qml/*
+usr/share/locale/*/LC_MESSAGES

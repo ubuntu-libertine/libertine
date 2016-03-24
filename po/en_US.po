@@ -1,0 +1,273 @@
+# English translations for libertine package.
+# Copyright (C) 2016 Canonical Ltd.
+# This file is distributed under the same license as the PACKAGE package.
+# Chris Townsend <christopher.townsend@canonical.com>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-03-24 09:24-0400\n"
+"PO-Revision-Date: 2016-03-21 10:21-0400\n"
+"Last-Translator: Chris Townsend <christopher.townsend@canonical.com>\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../libertine/qml/ExtraArchivesView.qml:34
+msgid "Add a new PPA"
+msgstr ""
+
+#: ../libertine/qml/ExtraArchivesView.qml:43
+msgid "Add additional PPA"
+msgstr ""
+
+#: ../libertine/qml/ExtraArchivesView.qml:133
+msgid "Adding archive failed"
+msgstr ""
+
+#: ../libertine/qml/ExtraArchivesView.qml:26
+msgid "Additional Archives and PPAs"
+msgstr ""
+
+#: ../libertine/qml/ConfigureContainer.qml:59
+msgid "Additional archives and PPAs"
+msgstr ""
+
+#: ../libertine/qml/ExtraArchivesView.qml:62
+msgid "Cancel"
+msgstr ""
+
+#: ../libertine/qml/HomeView.qml:27
+msgid "Classic Apps - %1"
+msgstr "Classic Apps - %1"
+
+#: ../libertine/qml/ConfigureContainer.qml:27
+msgid "Configure %1"
+msgstr "Configure %1"
+
+#: ../libertine/qml/HomeView.qml:46
+msgid "Configure Container"
+msgstr "Configure Container"
+
+#: ../libertine/qml/ContainersView.qml:86
+msgid "Container Apps"
+msgstr "Container Apps"
+
+#: ../libertine/qml/ContainersView.qml:77
+msgid "Container Info"
+msgstr "Container Info"
+
+#: ../libertine/qml/ContainerInfoView.qml:27
+msgid "Container information for %1"
+msgstr "Container information for %1"
+
+#: ../libertine/qml/ContainersView.qml:57
+msgid "Delete Container"
+msgstr "Delete Container"
+
+#: ../libertine/qml/ExtraArchivesView.qml:137
+msgid "Dismiss"
+msgstr ""
+
+#: ../libertine/qml/ContainerInfoView.qml:50
+msgid "Distribution: %1"
+msgstr "Distribution: %1"
+
+#: ../libertine/qml/ExtraArchivesView.qml:44
+msgid "Enter name of PPA in the form ppa:user/ppa-name:"
+msgstr ""
+
+#: ../libertine/qml/AppAddView.qml:163
+msgid "Enter package name"
+msgstr ""
+
+#: ../libertine/qml/AppAddView.qml:164
+#, fuzzy
+msgid "Enter the exact package name to install."
+msgstr "Please enter the exact package name of the app to install:"
+
+#: ../libertine/qml/PackageInfoView.qml:52
+msgid "Failure reason: "
+msgstr ""
+
+#: ../libertine/qml/ContainerInfoView.qml:36
+msgid "ID: %1"
+msgstr "ID: %1"
+
+#: ../libertine/qml/PackageInfoView.qml:27
+msgid "Information for the %1 package"
+msgstr "Information for the %1 package"
+
+#: ../libertine/qml/WelcomeView.qml:72
+msgid "Install"
+msgstr "Install"
+
+#: ../libertine/qml/AppAddView.qml:27
+msgid "Install Apps"
+msgstr "Install Apps"
+
+#: ../libertine/qml/SearchResults.qml:19
+msgid "Install Package"
+msgstr "Install Package"
+
+#: ../libertine/qml/PackageInfoView.qml:45
+msgid "Install status: %1"
+msgstr "Install status: %1"
+
+#: ../libertine/qml/ContainersView.qml:30
+msgid "My Containers"
+msgstr "My Containers"
+
+#: ../libertine/qml/ContainerInfoView.qml:43
+msgid "Name: %1"
+msgstr "Name: %1"
+
+#: ../libertine/qml/AppAddView.qml:223
+msgid "No search results for %1."
+msgstr "No search results for %1."
+
+#: ../libertine/qml/ExtraArchivesView.qml:54
+msgid "OK"
+msgstr ""
+
+#: ../libertine/qml/PackageInfoView.qml:32
+msgid "Obtaining package version…"
+msgstr "Obtaining package version…"
+
+#: ../libertine/qml/AppAddView.qml:104
+msgid "Package %1 already installed. Please try a different package name."
+msgstr "Package %1 already installed. Please try a different package name."
+
+#: ../libertine/qml/HomeView.qml:106
+msgid "Package Info"
+msgstr "Package Info"
+
+#: ../libertine/qml/PackageInfoView.qml:38
+msgid "Package version: %1"
+msgstr "Package version: %1"
+
+#: ../libertine/qml/PasswordView.qml:25
+msgid "Password"
+msgstr "Password"
+
+#: ../libertine/qml/AppAddView.qml:41
+msgid "Please enter a package name to search for:"
+msgstr "Please enter a package name to search for:"
+
+#: ../libertine/qml/AppAddView.qml:75
+#, fuzzy
+msgid ""
+"Please enter the exact package name or path to a Debian package to install:"
+msgstr "Please enter the exact package name of the app to install:"
+
+#: ../libertine/qml/PasswordView.qml:36
+msgid "Please enter the password for your user: "
+msgstr "Please enter the password for your user: "
+
+#: ../libertine/qml/HomeView.qml:92
+msgid "Remove Package"
+msgstr "Remove Package"
+
+#: ../libertine/qml/ExtraArchivesView.qml:97
+msgid "Remove extra archive"
+msgstr ""
+
+#: ../libertine/qml/AppAddView.qml:138
+msgid "Search for package"
+msgstr ""
+
+#: ../libertine/qml/AppAddView.qml:139
+msgid "Search for packages in archives based on the search string entered."
+msgstr ""
+
+#: ../libertine/qml/ContainerInfoView.qml:57
+msgid "Status: %1"
+msgstr "Status: %1"
+
+#: ../libertine/qml/HomeView.qml:58
+msgid "Switch Container"
+msgstr "Switch Container"
+
+#: ../libertine/qml/HomeView.qml:52
+msgid "Update Container"
+msgstr "Update Container"
+
+#: ../libertine/qml/WelcomeView.qml:28
+msgid "Welcome"
+msgstr "Welcome"
+
+#: ../libertine/qml/WelcomeView.qml:56
+msgid "Welcome to the Ubuntu Legacy Application Support Manager."
+msgstr "Welcome to the Ubuntu Legacy Application Support Manager."
+
+#: ../libertine/qml/WelcomeView.qml:64
+msgid ""
+"You do not have Legacy Application Support configured at this time.  "
+"Downloading and setting up the required environment takes some time and "
+"network bandwidth."
+msgstr ""
+"You do not have Legacy Application Support configured at this time.  "
+"Downloading and setting up the required environment takes some time and "
+"network bandwidth."
+
+#: ../libertine/qml/ExtraArchivesView.qml:33
+msgid "add"
+msgstr ""
+
+#: ../libertine/qml/ContainersView.qml:56 ../libertine/qml/HomeView.qml:91
+msgid "delete"
+msgstr "delete"
+
+#: ../libertine/qml/ContainersView.qml:85
+msgid "edit"
+msgstr "edit"
+
+#: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:186
+#: ../libertine/qml/PackageInfoView.qml:94
+msgid "failed"
+msgstr "failed"
+
+#: ../libertine/qml/ConfigureContainer.qml:55
+msgid "i386 multiarch support"
+msgstr "i386 multiarch support"
+
+#: ../libertine/qml/ContainersView.qml:76 ../libertine/qml/HomeView.qml:105
+msgid "info"
+msgstr "info"
+
+#: ../libertine/ContainerConfig.cpp:185
+msgid "installed"
+msgstr "installed"
+
+#: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:184
+#: ../libertine/qml/ExtraArchivesView.qml:80
+msgid "installing"
+msgstr "installing"
+
+#: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:183
+msgid "new"
+msgstr "new"
+
+#: ../libertine/ContainerConfig.cpp:149
+msgid "ready"
+msgstr "ready"
+
+#: ../libertine/qml/ExtraArchivesView.qml:96
+#, fuzzy
+msgid "remove"
+msgstr "removed"
+
+#: ../libertine/ContainerConfig.cpp:151 ../libertine/ContainerConfig.cpp:188
+#: ../libertine/qml/PackageInfoView.qml:84
+#: ../libertine/qml/ContainerInfoView.qml:72
+msgid "removed"
+msgstr "removed"
+
+#: ../libertine/ContainerConfig.cpp:150 ../libertine/ContainerConfig.cpp:187
+#: ../libertine/qml/ExtraArchivesView.qml:81
+msgid "removing"
+msgstr "removing"

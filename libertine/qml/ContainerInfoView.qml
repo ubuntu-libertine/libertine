@@ -24,7 +24,7 @@ import Ubuntu.Components 1.2
 
 Page {
     id: containerInfoView
-    title: i18n.tr("Container information for ") + mainView.currentContainer
+    title: i18n.tr("Container information for %1").arg(mainView.currentContainer)
     property string currentContainer: mainView.currentContainer
     property string containerDistroText: containerConfigList.getContainerDistro(currentContainer)
     property string containerNameText: containerConfigList.getContainerName(currentContainer)
@@ -33,28 +33,28 @@ Page {
 
     Label {
         id: containerId
-        text: i18n.tr("ID: ") + containerIdText
+        text: i18n.tr("ID: %1").arg(containerIdText)
         fontSize: "large"
     }
 
     Label {
         id: containerName
         anchors.top: containerId.bottom
-        text: i18n.tr("Name: ") + containerNameText
+        text: i18n.tr("Name: %1").arg(containerNameText)
         fontSize: "large"
     }
 
     Label {
         id: containerDistro
         anchors.top: containerName.bottom
-        text: i18n.tr("Distribution: ") + containerDistroText
+        text: i18n.tr("Distribution: %1").arg(containerDistroText)
         fontSize: "large"
     }
        
     Label {
         id: containerStatus
         anchors.top: containerDistro.bottom
-        text: i18n.tr("Status: ") + statusText
+        text: i18n.tr("Status: %1").arg(statusText)
         fontSize: "large"
     }
 
@@ -69,7 +69,7 @@ Page {
     function reloadStatus() {
         statusText = containerConfigList.getContainerStatus(currentContainer) 
         if (!statusText) {
-            statusText = "removed"
+            statusText = i18n.tr("removed")
         }
     }
 }

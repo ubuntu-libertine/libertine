@@ -33,7 +33,7 @@ Page {
         wrapMode: Text.Wrap
         horizontalAlignment: Text.AlignHCenter
 
-        text: i18n.tr("Please enter the password for your user") + ":"
+        text: i18n.tr("Please enter the password for your user: ")
     }
 
     TextField {

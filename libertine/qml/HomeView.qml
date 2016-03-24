@@ -24,7 +24,7 @@ import Ubuntu.Components.Popups 1.0
 
 Page {
     id: homeView
-    title: i18n.tr("Classic Apps") + " - " + mainView.currentContainer
+    title: i18n.tr("Classic Apps - %1").arg(mainView.currentContainer)
 
     head.actions: [
         Action {
@@ -43,19 +43,19 @@ Page {
 	ActionSelectionPopover {
 	    actions: ActionList {
 		Action {
-		    text: "Configure Container"
+		    text: i18n.tr("Configure Container")
 		    onTriggered: {
                         pageStack.push(Qt.resolvedUrl("ConfigureContainer.qml"))
                     }
 		}
                 Action {
-                    text: "Update Container"
+                    text: i18n.tr("Update Container")
                     onTriggered: {
                         updateContainer()
                     }
                 }
 		Action {
-		    text: "Switch Container"
+		    text: i18n.tr("Switch Container")
 		    onTriggered: {
                         pageStack.pop()
                         pageStack.push(Qt.resolvedUrl("ContainersView.qml"))

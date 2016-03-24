@@ -24,7 +24,7 @@ import Ubuntu.Components.ListItems 1.2 as ListItem
 
 Page {
     id: configureView
-    title: i18n.tr("Configure ") + mainView.currentContainer
+    title: i18n.tr("Configure %1").arg(mainView.currentContainer)
 
     Column {
         anchors.left: parent.left

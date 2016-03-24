@@ -61,9 +61,7 @@ Page {
             wrapMode: Text.Wrap
             horizontalAlignment: Text.AlignHCenter
 
-            text: i18n.tr("You do not have Legacy Application Support configured at" +
-                          " this time.  Downloading and setting up the required" +
-                          " environment takes some time and network bandwidth.")
+            text: i18n.tr("You do not have Legacy Application Support configured at this time.  Downloading and setting up the required environment takes some time and network bandwidth.")
         }
 
         Button {

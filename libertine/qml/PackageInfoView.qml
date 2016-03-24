@@ -24,25 +24,25 @@ import Ubuntu.Components 1.2
 
 Page {
     id: packageInfoView
-    title: i18n.tr("Information for the ") + mainView.currentPackage + i18n.tr(" package")
+    title: i18n.tr("Information for the %1 package").arg(mainView.currentPackage)
     property string currentContainer: mainView.currentContainer
     property var currentPackage: mainView.currentPackage
     property var statusText: containerConfigList.getAppStatus(currentContainer, currentPackage)
     property var failureReasonText: null
-    property var packageVersionText: i18n.tr("Obtaining package version...")
+    property var packageVersionText: i18n.tr("Obtaining package version…")
     property var worker: null
     property var install_signal: null
 
     Label {
         id: packageVersion
-        text: i18n.tr("Package version: ") + packageVersionText
+        text: i18n.tr("Package version: %1").arg(packageVersionText)
         fontSize: "large"
     }
 
     Label {
         id: packageStatus
         anchors.top: packageVersion.bottom
-        text: i18n.tr("Install status: ") + statusText
+        text: i18n.tr("Install status: %1").arg(statusText)
         fontSize: "large"
     }
 
@@ -81,7 +81,7 @@ Page {
         statusText = containerConfigList.getAppStatus(currentContainer, currentPackage) 
 
         if (!statusText) {
-            statusText = "removed"
+            statusText = i18n.tr("removed")
         }
     }
 
