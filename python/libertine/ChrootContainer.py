@@ -22,15 +22,15 @@ from . import utils
 
 
 def chown_recursive_dirs(path):
-    uid = None
-    gid = None
+    uid = 0
+    gid = 0
 
     if 'SUDO_UID' in os.environ:
         uid = int(os.environ['SUDO_UID'])
     if 'SUDO_GID' in os.environ:
         gid = int(os.environ['SUDO_GID'])
 
-    if uid is not None and gid is not None:
+    if uid != 0 and gid != 0:
         for root, dirs, files in os.walk(path):
             for d in dirs:
                 os.chown(os.path.join(root, d), uid, gid)

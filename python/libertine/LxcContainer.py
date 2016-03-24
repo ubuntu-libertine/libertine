@@ -58,6 +58,9 @@ def get_lxc_default_config_path():
 
 def lxc_container(container_id):
     config_path = utils.get_libertine_containers_dir_path()
+    if not os.path.exists(config_path):
+        os.makedirs(config_path)
+
     container = lxc.Container(container_id, config_path)
 
     return container
@@ -145,7 +148,7 @@ class LibertineLXC(BaseContainer):
         config_file = "%s/default.conf" % config_path
 
         if not os.path.exists(config_path):
-            os.mkdir(config_path)
+            os.makedirs(config_path)
 
         if not os.path.exists(config_file):
             with open(config_file, "w+") as fd:

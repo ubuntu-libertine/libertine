@@ -313,7 +313,9 @@ def create(args):
         args.id = get_unique_container_id(distro)
 
     if args.type == "lxc":
-        if sys.stdin.isatty():
+        if args.password:
+            password = args.password
+        elif sys.stdin.isatty():
             print("Your user password is required for creating a Libertine container.")
             password = getpass.getpass()
         else:
@@ -523,6 +525,10 @@ if __name__ == '__main__':
         '-m', '--multiarch', action='store_true',
         help=("Add i386 support to amd64 Libertine containers.  This option has "
               "no effect when the Libertine container is i386."))
+    parser_create.add_argument(
+        '--password',
+        help=("Pass in the user's password when creating an LXC container.  This "
+              "is intended for testing only and is very insecure."))
     parser_create.set_defaults(func=create)
 
     # Handle the destroy command and its options
