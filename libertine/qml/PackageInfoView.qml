@@ -28,8 +28,10 @@ Page {
     property string currentContainer: mainView.currentContainer
     property var currentPackage: mainView.currentPackage
     property var statusText: containerConfigList.getAppStatus(currentContainer, currentPackage)
+    property var failureReasonText: null
     property var packageVersionText: i18n.tr("Obtaining package version...")
     property var worker: null
+    property var install_signal: null
 
     Label {
         id: packageVersion
@@ -44,7 +46,18 @@ Page {
         fontSize: "large"
     }
 
+    Label {
+        id: failureReason
+        anchors.top: packageStatus.bottom
+        text: i18n.tr("Failure reason: ") + failureReasonText
+        fontSize: "large"
+        visible: false
+    }
+
     Component.onCompleted: {
+        if (install_signal) {
+            install_signal.connect(installFinished)
+        }
         containerConfigList.configChanged.connect(reloadStatus)
         var command = "apt-cache policy " + currentPackage
         var comp = Qt.createComponent("ContainerManager.qml")
@@ -59,6 +72,9 @@ Page {
     Component.onDestruction: {
         containerConfigList.configChanged.disconnect(reloadStatus)
         worker.finishedCommand.disconnect(getPackageVersion)
+        if (install_signal) {
+            install_signal.disconnect(installFinished)
+        }
     }
 
     function reloadStatus() {
@@ -72,4 +88,13 @@ Page {
     function getPackageVersion(command_output) {
         packageVersionText = containerConfigList.getAppVersion(command_output)
     }
+
+   function installFinished(success, error_msg) {
+       if (!success) {
+           statusText = i18n.tr("failed")
+           failureReasonText = error_msg
+           failureReason.visible = true
+       }
+       install_signal.disconnect(installFinished)
+   }
 }

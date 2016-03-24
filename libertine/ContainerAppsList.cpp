@@ -36,13 +36,6 @@ void ContainerAppsList::
 setContainerApps(QString const& container_id)
 {
   apps_ = container_config_list_->getAppsForContainer(container_id);
-}
-
-
-void ContainerAppsList::
-addNewApp(QString const& container_id, QString const& package_name)
-{
-  container_config_list_->addNewApp(container_id, package_name);
 
   beginResetModel();
   endResetModel();

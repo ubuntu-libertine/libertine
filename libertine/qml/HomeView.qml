@@ -3,7 +3,7 @@
  * @brief Libertine container apps view
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -65,6 +65,18 @@ Page {
 	}
     }
 
+    Component.onCompleted: {
+        containerConfigList.configChanged.connect(reloadAppList)
+    }
+
+    Component.onDestruction: {
+        containerConfigList.configChanged.disconnect(reloadAppList)
+    }
+
+    function reloadAppList() {
+        containerAppsList.setContainerApps(mainView.currentContainer)
+    }
+
     UbuntuListView {
         anchors.fill: parent
         model: containerAppsList
@@ -93,7 +105,6 @@ Page {
                         text: i18n.tr("info")
                         description: i18n.tr("Package Info")
                         onTriggered: {
-                            containerAppsList.setContainerApps(mainView.currentContainer)
                             mainView.currentPackage = packageName
                             pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"))
                         }

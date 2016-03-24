@@ -1,4 +1,4 @@
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2106 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -19,6 +19,7 @@ import contextlib
 import json
 import libertine.utils
 import os
+import shutil
 
 
 def get_container_type(container_id):
@@ -76,6 +77,29 @@ class BaseContainer(metaclass=abc.ABCMeta):
     def destroy_libertine_container(self, verbosity=1):
         pass
 
+    def copy_package_to_container(self, package_path):
+        """
+        Copies a Debian package from the host to a pre-determined place
+        in a container.
+
+        :param package_path: The full path to the Debian package located
+                             on the host.
+        """
+        if os.path.exists(os.path.join(self.root_path, 'tmp', package_path.split('/')[-1])):
+            return False
+
+        shutil.copy2(package_path, os.path.join(self.root_path, 'tmp'))
+        return True
+
+    def delete_package_in_container(self, package_path):
+        """
+        Deletes a previously copied in Debian package in a container.
+
+        :param package_path: The full path to the Debian package located
+                             on the host.
+        """
+        os.remove(os.path.join(self.root_path, 'tmp', package_path.split('/')[-1]))
+
     def is_running(self):
         """
         Indicates if the container is 'running'. The definition of 'running'
@@ -119,11 +143,27 @@ class BaseContainer(metaclass=abc.ABCMeta):
         """
         Installs a named package in the container.
 
-        :param package_name: The name of the package as APT understands it.
+        :param package_name: The name of the package as APT understands it or
+                             a full path to a Debian package on the host.
         :param verbosity: the chattiness of the output on a range from 0 to 2
         """
-        return self.run_in_container(apt_command_prefix(verbosity) +
-                extra_apt_args + " install '" + package_name + "'") == 0
+        if package_name.endswith('.deb'):
+            delete_package = self.copy_package_to_container(package_name)
+
+            self.run_in_container('ls -la ' + os.environ['HOME'])
+            self.run_in_container('dpkg -i ' +
+                os.path.join('/', 'tmp', package_name.split('/')[-1]))
+
+            ret = self.run_in_container(apt_command_prefix(verbosity) +
+                    extra_apt_args + " install -f") == 0
+
+            if delete_package:
+                self.delete_package_in_container(package_name)
+
+            return ret
+        else:
+            return self.run_in_container(apt_command_prefix(verbosity) +
+                    extra_apt_args + " install '" + package_name + "'") == 0
 
     def configure_command(self, command, *args, verbosity=1):
         """
@@ -283,7 +323,8 @@ class LibertineContainer(object):
         :param verbosity: The verbosity level of the progress reporting.
         """
         with ContainerRunning(self.container):
-            self.container.run_in_container(apt_command_prefix(verbosity) + "remove '" + package_name + "'") == 0
+            self.container.run_in_container(apt_command_prefix(verbosity) + "purge '" + package_name + "'") == 0
+            self.container.run_in_container(apt_command_prefix(verbosity) + "autoremove --purge") == 0
 
     def search_package_cache(self, search_string):
         """

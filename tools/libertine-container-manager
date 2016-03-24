@@ -25,6 +25,7 @@ import getpass
 import os
 import sys
 
+from apt.debfile import DebPackage
 from distro_info import UbuntuDistroInfo, DistroDataOutdated
 from libertine import LibertineContainer
 
@@ -355,20 +356,29 @@ def install_package(args):
     elif not args.id:
         args.id = get_default_container_id()
 
-    if package_exists(args.id, args.package):
-        print("Package \'%s\' is already installed." % args.package)
+    if args.package.endswith('.deb'):
+        if os.path.exists(args.package):
+            package = DebPackage(args.package).pkgname
+        else:
+            print("%s does not exist." % args.package)
+            sys.exit(1)
+    else:
+        package = args.package
+
+    if package_exists(args.id, package):
+        print("Package \'%s\' is already installed." % package)
         sys.exit(1)
 
-    add_new_package(args.id, args.package)
+    add_new_package(args.id, package)
 
     container = LibertineContainer(args.id)
 
-    update_package_install_status(args.id, args.package, "installing")
+    update_package_install_status(args.id, package, "installing")
     if not container.install_package(args.package, args.verbosity):
-        delete_package(args.id, args.package)
+        delete_package(args.id, package)
         sys.exit(1)
 
-    update_package_install_status(args.id, args.package, "installed")
+    update_package_install_status(args.id, package, "installed")
 
 
 def remove_package(args):
@@ -547,7 +557,7 @@ if __name__ == '__main__':
     parser_install.add_argument(
         '-p', '--package',
         required=True,
-        help=("Name of package to install. Required."))
+        help=("Name of package to install or full path to a Debian package. Required."))
     parser_install.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))

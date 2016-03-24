@@ -3,7 +3,7 @@
  * @brief Libertine Manager list of containers configurations
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -29,6 +29,7 @@
 #include <QtCore/QJsonObject>
 #include <QtCore/QJsonParseError>
 #include <QtCore/QJsonValue>
+#include <QtCore/QProcess>
 #include <QtCore/QRegExp>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
@@ -114,20 +115,6 @@ deleteContainer()
 }
 
 
-void ContainerConfigList::
-addNewApp(QString const& container_id, QString const& package_name)
-{
-  for (auto const& config: configs_)
-  {
-    if (config->container_id() == container_id)
-    {
-      config->container_apps().append(new ContainerApps(package_name, CurrentStatus::New, this));
-      break;
-    }
-  }
-}
-
-
 QList<ContainerApps*> * ContainerConfigList::
 getAppsForContainer(QString const& container_id)
 {
@@ -187,12 +174,49 @@ getAppStatus(QString const& container_id, QString const& package_name)
 QString ContainerConfigList::
 getAppVersion(QString const& app_info)
 {
-  QStringList info = app_info.split('\n');
+  if (app_info.startsWith("N:") || app_info.isEmpty())
+  {
+    return QString("Cannot determine package version.");
+  }
+  else
+  {
+    QStringList info = app_info.split('\n');
 
-  return info.at(1).section(": ", 1, 1);
+    return info.at(1).section(": ", 1, 1);
+  }
 } 
 
 
+bool ContainerConfigList::
+isValidDebianPackage(QString const& package_string)
+{
+  return (package_string.endsWith(".deb") &&
+          QFile::exists(package_string));
+}
+
+
+QString ContainerConfigList::
+getDebianPackageName(QString const& package_path)
+{
+  QProcess cmd;
+  QString exec_line("dpkg-deb");
+  QStringList args;
+  QByteArray package_name;
+
+  args << "-f" << package_path << "Package";
+
+  cmd.start(exec_line, args);
+
+  if (!cmd.waitForStarted())
+    return QString(package_name);
+
+  cmd.waitForFinished(-1);
+
+  package_name = cmd.readAllStandardOutput();
+
+  return QString(package_name.trimmed());
+}
+  
 QList<ContainerArchives*> * ContainerConfigList::
 getArchivesForContainer(QString const& container_id)
 {

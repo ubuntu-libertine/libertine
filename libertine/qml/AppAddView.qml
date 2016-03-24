@@ -3,7 +3,7 @@
  * @brief Libertine app add view
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -18,7 +18,7 @@
  */
 import Libertine 1.0
 import QtQuick 2.4
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.1
 import Ubuntu.Components 1.2
 
 
@@ -27,6 +27,7 @@ Page {
     title: i18n.tr("Install Apps")
     property var search_comp: null
     property var search_obj: null
+    property var install_signal: null
 
     Label {
         id: searchPackageMessage
@@ -71,7 +72,7 @@ Page {
         wrapMode: Text.Wrap
         horizontalAlignment: Text.AlignHCenter
 
-        text: i18n.tr("Please enter the exact package name of the app to install:")
+        text: i18n.tr("Please enter the exact package name or path to a Debian package to install:")
     }
 
     TextField {
@@ -88,16 +89,19 @@ Page {
         width: parent.width - anchors.margins * 2
 
         onAccepted: {
-            if (!containerConfigList.isAppInstalled(mainView.currentContainer, text)) {
-                containerAppsList.addNewApp(mainView.currentContainer, text)
+            var package_name = text
+            if (containerConfigList.isValidDebianPackage(text)) {
+                package_name = containerConfigList.getDebianPackageName(text)
+            }
+            if (!containerConfigList.isAppInstalled(mainView.currentContainer, package_name)) {
                 installPackage(text)
                 containerAppsList.setContainerApps(mainView.currentContainer)
-                mainView.currentPackage = text
+                mainView.currentPackage = package_name
                 pageStack.pop()
-                pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"))
+                pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"), {install_signal: install_signal})
             }
             else {
-                appInstallMessage.text = i18n.tr("Package ") + text + i18n.tr(" already installed. Please try a different package name.")
+                appInstallMessage.text = i18n.tr("Package ") + package_name + i18n.tr(" already installed. Please try a different package name.")
                 appInstallMessage.visible = true
                 appName.text = ""
             }  
@@ -130,8 +134,10 @@ Page {
 
     head.actions: [
         Action {
-	    iconName: "search"
-	    onTriggered: {
+            iconName: "search"
+            text: i18n.tr("Search for package")
+            description: i18n.tr("Search for packages in archives based on the search string entered.")
+            onTriggered: {
                 if (search_obj) {
                     search_obj.destroy()
                     packageListModel.clear()
@@ -151,9 +157,11 @@ Page {
                 searchString.visible = true
                 searchString.forceActiveFocus()
             }
-	},
+        },
         Action {
             iconName: "settings"
+            text: i18n.tr("Enter package name")
+            description: i18n.tr("Enter the exact package name to install.")
             onTriggered: {
                 if (search_obj) {
                     search_obj.destroy()
@@ -183,6 +191,7 @@ Page {
                                                   "containerId": mainView.currentContainer,
                                                   "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                                   "data": package_name})
+        install_signal = worker.finishedInstall
         worker.start()
     }
 

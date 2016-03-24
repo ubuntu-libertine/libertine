@@ -3,7 +3,7 @@
  * @brief Libertine Manager list of containers configurations
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -95,10 +95,6 @@ public:
   Q_INVOKABLE void
   deleteContainer();
 
-  Q_INVOKABLE void
-  addNewApp(QString const& container_id,
-            QString const& package_name);
-
   QList<ContainerApps*> *
   getAppsForContainer(QString const& container_id);
 
@@ -112,6 +108,12 @@ public:
 
   Q_INVOKABLE QString
   getAppVersion(QString const& app_info);
+
+  Q_INVOKABLE bool
+  isValidDebianPackage(QString const& package_string);
+
+  Q_INVOKABLE QString
+  getDebianPackageName(QString const& package_path);
 
   QList<ContainerArchives*> *
   getArchivesForContainer(QString const& container_id);

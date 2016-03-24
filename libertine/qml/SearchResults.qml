@@ -19,7 +19,6 @@ UbuntuListView {
                     description: i18n.tr("Install Package")
                     onTriggered: {
                          if (!containerConfigList.isAppInstalled(mainView.currentContainer, model.package_name)) {
-                             containerAppsList.addNewApp(mainView.currentContainer, model.package_name)
                              installPackage(model.package_name)
                          }
                     }

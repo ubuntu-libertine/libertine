@@ -10,6 +10,7 @@ Build-Depends: cmake,
                libgtest-dev,
                libpam0g-dev,
                lsb-release,
+               python3-apt,
                python3-dev,
                python3-distro-info,
                python3-gi,
@@ -37,6 +38,7 @@ Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
 Package: libertine-tools
 Architecture: any
 Depends: lsb-release,
+         python3-apt,
          python3-distro-info,
          python3-libertine,
          ${misc:Depends},
