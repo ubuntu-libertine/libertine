@@ -23,6 +23,7 @@ import libertine.utils
 import lsb_release
 import getpass
 import os
+import platform
 import sys
 
 from apt.debfile import DebPackage
@@ -60,6 +61,13 @@ def get_default_container_id():
         default_container_id = container_list['defaultContainer']
 
     return default_container_id
+
+
+def select_container_type():
+    if (platform.release() < "3.13"):
+        return "chroot"
+    else:
+        return "lxc"
 
 
 def get_host_distro_release():
@@ -301,19 +309,24 @@ def create(args):
         print("Invalid distro %s" % args.distro, file=sys.stderr)
         sys.exit(1)
 
-    if not args.distro:
-        args.distro = get_host_distro_release()
-
-    if not args.name:
-        args.name = "Ubuntu \'" + get_distro_codename(args.distro) + "\'"
-
     if args.id and libertine.utils.container_exists(args.id):
         print("Container id \'%s\' is already used." % args.id, file=sys.stderr)
         sys.exit(1)
     elif not args.id:
         args.id = get_unique_container_id(distro)
 
-    if args.type == "lxc":
+    if not args.distro:
+        args.distro = get_host_distro_release()
+
+    if not args.name:
+        args.name = "Ubuntu \'" + get_distro_codename(args.distro) + "\'"
+
+    if not args.type:
+        container_type = select_container_type()
+    else:
+        container_type = args.type
+
+    if container_type == "lxc":
         if args.password:
             password = args.password
         elif sys.stdin.isatty():
@@ -322,7 +335,7 @@ def create(args):
         else:
             password = sys.stdin.readline().rstrip()
 
-    add_new_container(args.id, args.name, args.type, args.distro)
+    add_new_container(args.id, args.name, container_type, args.distro)
     
     multiarch = 'disabled'
     if args.multiarch:
@@ -521,7 +534,7 @@ if __name__ == '__main__':
         required=True,
         help=("Container identifier. Required."))
     parser_create.add_argument(
-        '-t', '--type', default="lxc",
+        '-t', '--type',
         help=("Type of Libertine container to create. Either 'lxc' or 'chroot'."))
     parser_create.add_argument(
         '-d', '--distro',

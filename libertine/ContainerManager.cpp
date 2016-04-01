@@ -208,7 +208,7 @@ createContainer(QString const& password)
   QString exec_line = libertine_container_manager_tool;
   QStringList args;
 
-  args << "create" << "-i" << container_id_ << "-t" << container_type_ << "-d" << container_distro_ << "-n" << container_name_;
+  args << "create" << "-i" << container_id_ << "-d" << container_distro_ << "-n" << container_name_;
 
   libertine_cli_tool.start(exec_line, args);
 

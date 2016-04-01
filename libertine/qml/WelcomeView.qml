@@ -32,7 +32,7 @@ Page {
         var comp = Qt.createComponent("ContainerManager.qml")
         var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Create,
                                                   "containerId": container_id,
-                                                  "containerType": "lxc",
+                                                  "containerType": null,
                                                   "data": password})
         worker.containerDistro = containerConfigList.getContainerDistro(container_id)
         worker.containerName = containerConfigList.getContainerName(container_id)
