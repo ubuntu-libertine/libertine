@@ -105,6 +105,7 @@ class LibertineLXC(BaseContainer):
                 raise RuntimeError("Container failed to enter the RUNNING state")
 
         if not self.container.get_ips(timeout=30):
+            self.stop_container()
             raise RuntimeError("Not able to connect to the network.")
 
         self.run_in_container("umount /tmp/.X11-unix")
@@ -133,7 +134,7 @@ class LibertineLXC(BaseContainer):
 
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         if password is None:
-            return
+            return False
 
         installed_release = self.get_container_distro(self.container_id)
 
@@ -172,13 +173,20 @@ class LibertineLXC(BaseContainer):
                                      {"dist": "ubuntu",
                                       "release": installed_release,
                                       "arch": architecture}):
+            print("Failed to create container")
             return False
 
         self.create_libertine_config()
 
         if verbosity == 1:
             print("starting container ...")
-        self.start_container()
+        try:
+            self.start_container()
+        except RuntimeError as e:
+            print("Container failed to start: %s" % e)
+            self.destroy_libertine_container()
+            return False
+
         self.run_in_container("userdel -r ubuntu")
         self.run_in_container("useradd -u {} -p {} -G sudo {}".format(
                 str(user_id), crypt.crypt(password), str(username)))
@@ -192,15 +200,23 @@ class LibertineLXC(BaseContainer):
             print("Updating the contents of the container after creation...")
         self.update_packages(verbosity)
 
-        self.install_package("software-properties-common", verbosity)
+        if not self.install_package("software-properties-common", verbosity):
+            print("Failure installing software-properties-common during container creation")
+            self.destroy_libertine_container()
+            return False
 
         if verbosity == 1:
             print("Installing Matchbox as the Xmir window manager...")
-        self.install_package('matchbox', verbosity=verbosity)
+        if not self.install_package('matchbox', verbosity=verbosity):
+            print("Failure installing matchbox during container creation")
+            self.destroy_libertine_container()
+            return False
 
         if verbosity == 1:
             print("stopping container ...")
         self.stop_container()
+
+        return True
 
     def create_libertine_config(self):
         user_id = os.getuid()

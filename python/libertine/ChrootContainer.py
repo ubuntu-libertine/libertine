@@ -78,7 +78,13 @@ class LibertineChroot(BaseContainer):
             command_line = "fakechroot fakeroot debootstrap --verbose --variant=fakechroot {} {}".format(
                     installed_release, self.root_path)
         args = shlex.split(command_line)
-        subprocess.Popen(args).wait()
+        cmd = subprocess.Popen(args)
+        cmd.wait()
+
+        if cmd.returncode != 0:
+            print("Failed to create container")
+            self.destroy_libertine_container()
+            return False
 
         # Remove symlinks as they can ill-behaved recursive behavior in the chroot
         if installed_release != "trusty":
@@ -162,15 +168,28 @@ class LibertineChroot(BaseContainer):
         if verbosity == 1:
             print("Updating the contents of the container after creation...")
         self.update_packages(verbosity)
-        self.install_package("libnss-extrausers", verbosity)
-        self.install_package("software-properties-common", verbosity)
+
+        if not self.install_package("libnss-extrausers", verbosity):
+            print("Failure installing libnss-extrausers during container creation")
+            self.destroy_libertine_container()
+            return False
+
+        if not self.install_package("software-properties-common", verbosity):
+            print("Failure installing software-properties-common during container creation")
+            self.destroy_libertine_container()
+            return False
 
         if verbosity == 1:
             print("Installing Matchbox as the Xmir window manager...")
-        self.install_package('matchbox', verbosity)
+        if not self.install_package('matchbox', verbosity):
+            print("Failure installing matchbox during container creation")
+            self.destroy_libertine_container()
+            return False
 
         # Check if the container was created as root and chown the user directories as necessary
         chown_recursive_dirs(utils.get_libertine_container_userdata_dir_path(self.container_id))
+
+        return True
 
     def _build_proot_command(self):
         proot_cmd = '/usr/bin/proot'

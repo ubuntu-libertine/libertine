@@ -223,6 +223,9 @@ class LibertineMock(BaseContainer):
         super().__init__(container_id)
         self.container_type = "mock"
 
+    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
+        return True
+
     def run_in_container(self, command_string):
         return 0
 
@@ -299,7 +302,7 @@ class LibertineContainer(object):
         """
         Creates the container.
         """
-        self.container.create_libertine_container(password, multiarch, verbosity)
+        return self.container.create_libertine_container(password, multiarch, verbosity)
 
     def update_libertine_container(self, verbosity=1):
         """
