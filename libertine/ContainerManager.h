@@ -34,6 +34,7 @@ class ContainerManagerWorker
   Q_PROPERTY(QString containerType READ container_type WRITE container_type NOTIFY containerTypeChanged)
   Q_PROPERTY(QString containerDistro READ container_distro WRITE container_distro NOTIFY containerDistroChanged)
   Q_PROPERTY(QString containerName READ container_name WRITE container_name NOTIFY containerNameChanged)
+  Q_PROPERTY(bool containerMultiarch READ container_multiarch WRITE container_multiarch)
   Q_PROPERTY(QString data READ data WRITE data NOTIFY dataChanged)
   Q_PROPERTY(QStringList data_list READ data_list WRITE data_list NOTIFY dataListChanged) 
 
@@ -98,6 +99,12 @@ public:
   void
   container_name(QString const& container_name);
 
+  bool
+  container_multiarch();
+
+  void
+  container_multiarch(bool container_multiarch);
+
   QString const&
   data() const;
 
@@ -129,6 +136,7 @@ private:
   QString container_type_;
   QString container_distro_;
   QString container_name_;
+  bool container_multiarch_;
   QString data_;
   QStringList data_list_;
 

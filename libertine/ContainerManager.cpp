@@ -134,6 +134,21 @@ container_name(QString const& container_name)
 }
 
 
+bool ContainerManagerWorker::
+container_multiarch()
+{ return container_multiarch_; }
+
+
+void ContainerManagerWorker::
+container_multiarch(bool container_multiarch)
+{
+  if (container_multiarch != container_multiarch_)
+  {
+    container_multiarch_ = container_multiarch;
+  }
+}
+
+
 QString const& ContainerManagerWorker::
 data() const
 { return data_; }
@@ -209,6 +224,9 @@ createContainer(QString const& password)
   QStringList args;
 
   args << "create" << "-i" << container_id_ << "-d" << container_distro_ << "-n" << container_name_;
+
+  if (container_multiarch_)
+    args << "-m";
 
   libertine_cli_tool.start(exec_line, args);
 

@@ -82,26 +82,34 @@ ContainerConfigList::
 { }
 
 
+void ContainerConfigList::
+reloadContainerList()
+{
+  beginResetModel();
+  endResetModel();  
+}
+
+
 QString ContainerConfigList::
-addNewContainer(QString const& type)
+addNewContainer(QString const& type, QString name)
 {
   QString distro_series = getHostDistroCodename();
   QString container_id = distro_series;
-  QString name = getHostDistroDescription();
 
   int bis = generate_bis(container_id);
   if (bis > 0)
   {
     container_id = QString("%1-%2").arg(container_id).arg(bis);
-    name = QString("%1 (%2)").arg(name).arg(bis);
+    if (name.isEmpty())
+    {
+        name = getHostDistroDescription();
+        name = QString("%1 (%2)").arg(name).arg(bis);
+    }
   }
 
   configs_.append(new ContainerConfig(container_id, name, type, distro_series, this));
   if (this->size() == 1)
     default_container_id_ = container_id;
-
-  beginResetModel();
-  endResetModel();
 
   return container_id;
 }

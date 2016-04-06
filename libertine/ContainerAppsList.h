@@ -59,7 +59,7 @@ public:
   setContainerApps(QString const& container_id);
 
   Q_INVOKABLE void
-  removeApp();
+  reloadAppsList();
 
   Q_INVOKABLE bool
   empty() const noexcept;

@@ -19,7 +19,7 @@
 import Libertine 1.0
 import QtQuick 2.4
 import Ubuntu.Components 1.2
-import Ubuntu.Components.Popups 1.0
+import Ubuntu.Components.Popups 1.2
 
 
 Page {
@@ -29,7 +29,7 @@ Page {
     head.actions: [
         Action {
 	    iconName: "add"
-	    onTriggered: pageStack.push(Qt.resolvedUrl("AppAddView.qml"))
+	    onTriggered: PopupUtils.open(addAppsMenu, homeView)
 	},
         Action {
 	    id: settingsButton
@@ -37,6 +37,62 @@ Page {
 	    onTriggered: PopupUtils.open(settingsMenu, homeView)
 	}
     ]
+
+    Component {
+        id: enterPackagePopup
+        Dialog {
+            id: enterPackageDialog
+            title: i18n.tr("Install new package")
+            text: i18n.tr("Enter exact package name or full path to a Debian package file")
+
+            Label {
+                id: appExistsWarning
+                wrapMode: Text.Wrap
+                visible: false
+            }
+
+            TextField {
+                id: enterPackageInput
+                placeholderText: i18n.tr("Package name or Debian package path")
+                onAccepted: okButton.clicked()
+            }
+
+            Row {
+                spacing: units.gu(1)
+
+                Button {
+                    id: okButton
+                    text: i18n.tr("OK")
+                    color: UbuntuColors.green
+                    width: (parent.width - parent.spacing) / 2
+                    onClicked: {
+                        if (enterPackageInput.text != "") {
+                            if (!containerConfigList.isAppInstalled(mainView.currentContainer, enterPackageInput.text)) {
+                                installPackage(enterPackageInput.text)
+                                mainView.currentPackage = enterPackageInput.text
+                                PopupUtils.close(enterPackageDialog)
+                            }
+                            else {
+                                appExistsWarning.text = i18n.tr("The %1 package is already installed. Please try a different package name.").arg(enterPackageInput.text)
+                                appExistsWarning.visible = true
+                                enterPackageInput.text = "" 
+                            }
+                        }
+                    }
+                }
+
+                Button {
+                    id: cancelButton
+                    text: i18n.tr("Cancel")
+                    color: UbuntuColors.red
+                    width: (parent.width - parent.spacing) / 2
+                    onClicked: PopupUtils.close(enterPackageDialog)
+                }
+            }
+
+            Component.onCompleted: enterPackageInput.forceActiveFocus()
+        }
+    }
 
     Component {
 	id: settingsMenu
@@ -65,6 +121,27 @@ Page {
 	}
     }
 
+    Component {
+        id: addAppsMenu
+        ActionSelectionPopover {
+            id: addAppsActions
+            actions: ActionList {
+                Action {
+                    text: i18n.tr("Enter package name or Debian file")
+                    onTriggered: {
+                        PopupUtils.open(enterPackagePopup)
+                    }
+                }
+                Action {
+                    text: i18n.tr("Search archives for a package")
+                    onTriggered: {
+                        PopupUtils.open(Qt.resolvedUrl("SearchPackagesDialog.qml"))
+                    }
+                }
+            }
+        }
+    }
+
     Component.onCompleted: {
         containerConfigList.configChanged.connect(reloadAppList)
     }
@@ -81,8 +158,20 @@ Page {
         anchors.fill: parent
         model: containerAppsList
         delegate: ListItem {
+            ActivityIndicator {
+                id: appActivity
+                anchors.verticalCenter: parent.verticalCenter
+                visible: (appStatus === i18n.tr("installing") ||
+                          appStatus === i18n.tr("removing")) ? true : false
+                running: appActivity.visible
+            }
             Label {
                 text: packageName
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    left: appActivity.running ? appActivity.right : parent.left
+                    leftMargin: units.gu(2)
+                }
             }
             leadingActions: ListItemActions {
                 actions: [
@@ -122,18 +211,21 @@ Page {
         worker.start()
     }
 
+    function installPackage(package_name) {
+        var comp = Qt.createComponent("ContainerManager.qml")
+        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Install,
+                                                  "containerId": mainView.currentContainer,
+                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer),
+                                                  "data": package_name})
+        worker.start()
+    }
+
     function removePackage(packageName) {
         var comp = Qt.createComponent("ContainerManager.qml")
         var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Remove,
                                                   "containerId": mainView.currentContainer,
                                                   "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                                   "data": packageName})
-        worker.finishedRemove.connect(finishedRemove)
         worker.start()
     }
-
-    function finishedRemove(result, errorMsg) {
-        containerAppsList.removeApp()
-    }
-        
 }

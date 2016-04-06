@@ -89,8 +89,12 @@ public:
    */
   ~ContainerConfigList();
 
+  Q_INVOKABLE void
+  reloadContainerList();
+
   Q_INVOKABLE QString
-  addNewContainer(QString const& type);
+  addNewContainer(QString const& type,
+                  QString name);
 
   Q_INVOKABLE void
   deleteContainer();

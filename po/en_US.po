@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-24 09:24-0400\n"
+"POT-Creation-Date: 2016-03-24 10:25-0400\n"
 "PO-Revision-Date: 2016-03-21 10:21-0400\n"
 "Last-Translator: Chris Townsend <christopher.townsend@canonical.com>\n"
 "Language-Team: English\n"
@@ -37,7 +37,14 @@ msgstr ""
 msgid "Additional archives and PPAs"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:62
+#: ../libertine/qml/ContainerPasswordDialog.qml:27
+msgid "Authentication required"
+msgstr ""
+
+#: ../libertine/qml/SearchPackagesDialog.qml:57
+#: ../libertine/qml/ContainerPasswordDialog.qml:70
+#: ../libertine/qml/HomeView.qml:86 ../libertine/qml/ExtraArchivesView.qml:62
+#: ../libertine/qml/ContainerOptionsDialog.qml:75
 msgid "Cancel"
 msgstr ""
 
@@ -49,23 +56,33 @@ msgstr "Classic Apps - %1"
 msgid "Configure %1"
 msgstr "Configure %1"
 
-#: ../libertine/qml/HomeView.qml:46
+#: ../libertine/qml/HomeView.qml:102
 msgid "Configure Container"
 msgstr "Configure Container"
 
-#: ../libertine/qml/ContainersView.qml:86
+#: ../libertine/qml/ContainerOptionsDialog.qml:28
+#, fuzzy
+msgid "Configure options for container creation."
+msgstr "Configure Container"
+
+#: ../libertine/qml/ContainersView.qml:96
 msgid "Container Apps"
 msgstr "Container Apps"
 
-#: ../libertine/qml/ContainersView.qml:77
+#: ../libertine/qml/ContainersView.qml:87
 msgid "Container Info"
 msgstr "Container Info"
+
+#: ../libertine/qml/ContainerOptionsDialog.qml:27
+#, fuzzy
+msgid "Container Options"
+msgstr "Container Apps"
 
 #: ../libertine/qml/ContainerInfoView.qml:27
 msgid "Container information for %1"
 msgstr "Container information for %1"
 
-#: ../libertine/qml/ContainersView.qml:57
+#: ../libertine/qml/ContainersView.qml:69
 msgid "Delete Container"
 msgstr "Delete Container"
 
@@ -77,17 +94,22 @@ msgstr ""
 msgid "Distribution: %1"
 msgstr "Distribution: %1"
 
+#: ../libertine/qml/HomeView.qml:46
+#, fuzzy
+msgid "Enter exact package name or full path to a Debian package file"
+msgstr "Please enter the exact package name of the app to install:"
+
 #: ../libertine/qml/ExtraArchivesView.qml:44
 msgid "Enter name of PPA in the form ppa:user/ppa-name:"
 msgstr ""
 
-#: ../libertine/qml/AppAddView.qml:163
-msgid "Enter package name"
+#: ../libertine/qml/ContainerOptionsDialog.qml:50
+msgid "Enter or name for the container or leave blank for default name"
 msgstr ""
 
-#: ../libertine/qml/AppAddView.qml:164
+#: ../libertine/qml/HomeView.qml:130
 #, fuzzy
-msgid "Enter the exact package name to install."
+msgid "Enter package name or Debian file"
 msgstr "Please enter the exact package name of the app to install:"
 
 #: ../libertine/qml/PackageInfoView.qml:52
@@ -102,23 +124,28 @@ msgstr "ID: %1"
 msgid "Information for the %1 package"
 msgstr "Information for the %1 package"
 
-#: ../libertine/qml/WelcomeView.qml:72
+#: ../libertine/qml/WelcomeView.qml:58
 msgid "Install"
 msgstr "Install"
 
-#: ../libertine/qml/AppAddView.qml:27
-msgid "Install Apps"
-msgstr "Install Apps"
-
-#: ../libertine/qml/SearchResults.qml:19
+#: ../libertine/qml/SearchResults.qml:42
 msgid "Install Package"
+msgstr "Install Package"
+
+#: ../libertine/qml/HomeView.qml:45
+#, fuzzy
+msgid "Install new package"
 msgstr "Install Package"
 
 #: ../libertine/qml/PackageInfoView.qml:45
 msgid "Install status: %1"
 msgstr "Install status: %1"
 
-#: ../libertine/qml/ContainersView.qml:30
+#: ../libertine/qml/ContainerPasswordDialog.qml:36
+msgid "Invalid password entered"
+msgstr ""
+
+#: ../libertine/qml/ContainersView.qml:31
 msgid "My Containers"
 msgstr "My Containers"
 
@@ -126,11 +153,15 @@ msgstr "My Containers"
 msgid "Name: %1"
 msgstr "Name: %1"
 
-#: ../libertine/qml/AppAddView.qml:223
-msgid "No search results for %1."
+#: ../libertine/qml/SearchResultsView.qml:49
+#, fuzzy
+msgid "No Search Results Found"
 msgstr "No search results for %1."
 
-#: ../libertine/qml/ExtraArchivesView.qml:54
+#: ../libertine/qml/SearchPackagesDialog.qml:39
+#: ../libertine/qml/ContainerPasswordDialog.qml:52
+#: ../libertine/qml/HomeView.qml:65 ../libertine/qml/ExtraArchivesView.qml:54
+#: ../libertine/qml/ContainerOptionsDialog.qml:64
 msgid "OK"
 msgstr ""
 
@@ -138,37 +169,27 @@ msgstr ""
 msgid "Obtaining package version…"
 msgstr "Obtaining package version…"
 
-#: ../libertine/qml/AppAddView.qml:104
-msgid "Package %1 already installed. Please try a different package name."
-msgstr "Package %1 already installed. Please try a different package name."
-
-#: ../libertine/qml/HomeView.qml:106
+#: ../libertine/qml/HomeView.qml:195
 msgid "Package Info"
 msgstr "Package Info"
+
+#: ../libertine/qml/SearchResultsView.qml:28
+msgid "Package Search Results"
+msgstr ""
+
+#: ../libertine/qml/HomeView.qml:56
+msgid "Package name or Debian package path"
+msgstr ""
 
 #: ../libertine/qml/PackageInfoView.qml:38
 msgid "Package version: %1"
 msgstr "Package version: %1"
 
-#: ../libertine/qml/PasswordView.qml:25
-msgid "Password"
-msgstr "Password"
+#: ../libertine/qml/ContainerPasswordDialog.qml:28
+msgid "Password is required to create a Libertine container"
+msgstr ""
 
-#: ../libertine/qml/AppAddView.qml:41
-msgid "Please enter a package name to search for:"
-msgstr "Please enter a package name to search for:"
-
-#: ../libertine/qml/AppAddView.qml:75
-#, fuzzy
-msgid ""
-"Please enter the exact package name or path to a Debian package to install:"
-msgstr "Please enter the exact package name of the app to install:"
-
-#: ../libertine/qml/PasswordView.qml:36
-msgid "Please enter the password for your user: "
-msgstr "Please enter the password for your user: "
-
-#: ../libertine/qml/HomeView.qml:92
+#: ../libertine/qml/HomeView.qml:181
 msgid "Remove Package"
 msgstr "Remove Package"
 
@@ -176,35 +197,81 @@ msgstr "Remove Package"
 msgid "Remove extra archive"
 msgstr ""
 
-#: ../libertine/qml/AppAddView.qml:138
-msgid "Search for package"
+#: ../libertine/qml/SearchResultsView.qml:64
+msgid "Return to Apps Page"
 msgstr ""
 
-#: ../libertine/qml/AppAddView.qml:139
-msgid "Search for packages in archives based on the search string entered."
+#: ../libertine/qml/PackageExistsDialog.qml:43
+#, fuzzy
+msgid "Return to search results"
+msgstr "No search results for %1."
+
+#: ../libertine/qml/SearchResultsView.qml:38
+msgid "Search"
 msgstr ""
+
+#: ../libertine/qml/SearchResultsView.qml:54
+msgid "Search Again"
+msgstr ""
+
+#: ../libertine/qml/PackageExistsDialog.qml:33
+msgid "Search again"
+msgstr ""
+
+#: ../libertine/qml/PackageExistsDialog.qml:29
+msgid "Search again or return to search results."
+msgstr ""
+
+#: ../libertine/qml/HomeView.qml:136
+msgid "Search archives for a package"
+msgstr ""
+
+#: ../libertine/qml/SearchPackagesDialog.qml:27
+msgid "Search archives for packages"
+msgstr ""
+
+#: ../libertine/qml/SearchPackagesDialog.qml:26
+#: ../libertine/qml/SearchResultsView.qml:39
+msgid "Search for packages"
+msgstr ""
+
+#: ../libertine/qml/SearchResultsView.qml:90
+#, fuzzy
+msgid "Searching for packages…"
+msgstr "Obtaining package version…"
 
 #: ../libertine/qml/ContainerInfoView.qml:57
 msgid "Status: %1"
 msgstr "Status: %1"
 
-#: ../libertine/qml/HomeView.qml:58
+#: ../libertine/qml/HomeView.qml:114
 msgid "Switch Container"
 msgstr "Switch Container"
 
-#: ../libertine/qml/HomeView.qml:52
+#: ../libertine/qml/PackageExistsDialog.qml:28
+#, fuzzy
+msgid "The %1 package is already installed."
+msgstr "Please enter the exact package name of the app to install:"
+
+#: ../libertine/qml/HomeView.qml:76
+#, fuzzy
+msgid ""
+"The %1 package is already installed. Please try a different package name."
+msgstr "Package %1 already installed. Please try a different package name."
+
+#: ../libertine/qml/HomeView.qml:108
 msgid "Update Container"
 msgstr "Update Container"
 
-#: ../libertine/qml/WelcomeView.qml:28
+#: ../libertine/qml/WelcomeView.qml:27
 msgid "Welcome"
 msgstr "Welcome"
 
-#: ../libertine/qml/WelcomeView.qml:56
+#: ../libertine/qml/WelcomeView.qml:42
 msgid "Welcome to the Ubuntu Legacy Application Support Manager."
 msgstr "Welcome to the Ubuntu Legacy Application Support Manager."
 
-#: ../libertine/qml/WelcomeView.qml:64
+#: ../libertine/qml/WelcomeView.qml:50
 msgid ""
 "You do not have Legacy Application Support configured at this time.  "
 "Downloading and setting up the required environment takes some time and "
@@ -218,11 +285,16 @@ msgstr ""
 msgid "add"
 msgstr ""
 
-#: ../libertine/qml/ContainersView.qml:56 ../libertine/qml/HomeView.qml:91
+#: ../libertine/qml/ContainerOptionsDialog.qml:56
+#, fuzzy
+msgid "container name"
+msgstr "Container Info"
+
+#: ../libertine/qml/ContainersView.qml:68 ../libertine/qml/HomeView.qml:180
 msgid "delete"
 msgstr "delete"
 
-#: ../libertine/qml/ContainersView.qml:85
+#: ../libertine/qml/ContainersView.qml:95
 msgid "edit"
 msgstr "edit"
 
@@ -232,10 +304,11 @@ msgid "failed"
 msgstr "failed"
 
 #: ../libertine/qml/ConfigureContainer.qml:55
+#: ../libertine/qml/ContainerOptionsDialog.qml:40
 msgid "i386 multiarch support"
 msgstr "i386 multiarch support"
 
-#: ../libertine/qml/ContainersView.qml:76 ../libertine/qml/HomeView.qml:105
+#: ../libertine/qml/ContainersView.qml:86 ../libertine/qml/HomeView.qml:194
 msgid "info"
 msgstr "info"
 
@@ -244,6 +317,7 @@ msgid "installed"
 msgstr "installed"
 
 #: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:184
+#: ../libertine/qml/ContainersView.qml:51 ../libertine/qml/HomeView.qml:164
 #: ../libertine/qml/ExtraArchivesView.qml:80
 msgid "installing"
 msgstr "installing"
@@ -251,6 +325,11 @@ msgstr "installing"
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:183
 msgid "new"
 msgstr "new"
+
+#: ../libertine/qml/ContainerPasswordDialog.qml:41
+#, fuzzy
+msgid "password"
+msgstr "Password"
 
 #: ../libertine/ContainerConfig.cpp:149
 msgid "ready"
@@ -268,6 +347,20 @@ msgid "removed"
 msgstr "removed"
 
 #: ../libertine/ContainerConfig.cpp:150 ../libertine/ContainerConfig.cpp:187
+#: ../libertine/qml/ContainersView.qml:52 ../libertine/qml/HomeView.qml:165
 #: ../libertine/qml/ExtraArchivesView.qml:81
 msgid "removing"
 msgstr "removing"
+
+#: ../libertine/qml/SearchPackagesDialog.qml:31
+msgid "search"
+msgstr ""
+
+#~ msgid "Install Apps"
+#~ msgstr "Install Apps"
+
+#~ msgid "Please enter a package name to search for:"
+#~ msgstr "Please enter a package name to search for:"
+
+#~ msgid "Please enter the password for your user: "
+#~ msgstr "Please enter the password for your user: "

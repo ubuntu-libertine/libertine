@@ -3,7 +3,7 @@
  * @brief Libertine containers view
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -19,6 +19,7 @@
 import Libertine 1.0
 import QtQuick 2.4
 import Ubuntu.Components 1.2
+import Ubuntu.Components.Popups 1.2
 
 
 /**
@@ -29,14 +30,13 @@ Page {
     id: containersView
     title: i18n.tr("My Containers")
 
-    function deleteContainer(containerId) {
-        containerConfigList.deleteContainer(containerId)
-    }
-
     head.actions: [
         Action {
             iconName: "add"
-            onTriggered: pageStack.push(Qt.resolvedUrl("WelcomeView.qml"))
+            onTriggered: {
+                var popup = PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
+                popup.passwordDialogSignal.connect(showPasswordDialog)
+            }
         }
     ]
 
@@ -45,8 +45,20 @@ Page {
         model: containerConfigList
 
         delegate: ListItem {
+            ActivityIndicator {
+                id: containerActivity
+                anchors.verticalCenter: parent.verticalCenter
+                visible: (installStatus === i18n.tr("installing") ||
+                          installStatus === i18n.tr("removing")) ? true : false
+                running: containerActivity.visible
+            }
             Label {
                 text: name
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    left: containerActivity.running ? containerActivity.right : parent.left
+                    leftMargin: units.gu(2)
+                }
             }
 
             leadingActions: ListItemActions {
@@ -60,10 +72,8 @@ Page {
                             var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Destroy,
                                                                       "containerId": containerId,
                                                                       "containerType": containerConfigList.getContainerType(containerId)})
-                            worker.finishedDestroy.connect(deleteContainer)
                             worker.start()
                             mainView.currentContainer = containerId
-                            pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"))
                         }
                     }
                 ]
@@ -94,5 +104,21 @@ Page {
                 ]
             }
         }
+    }
+
+    Component.onCompleted: {
+        containerConfigList.configChanged.connect(updateContainerList)
+    }
+    
+    Component.onDestruction: {
+        containerConfigList.configChanged.disconnect(updateContainerList)
+    }
+
+    function updateContainerList() {
+        containerConfigList.reloadContainerList()
+    }
+
+    function showPasswordDialog(enableMultiarch, containerName) {
+        PopupUtils.open(Qt.resolvedUrl("ContainerPasswordDialog.qml"), null, {"enableMultiarch": enableMultiarch, "containerName": containerName})
     }
 }

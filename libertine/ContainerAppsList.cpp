@@ -37,13 +37,12 @@ setContainerApps(QString const& container_id)
 {
   apps_ = container_config_list_->getAppsForContainer(container_id);
 
-  beginResetModel();
-  endResetModel();
+  reloadAppsList();
 }
 
 
 void ContainerAppsList::
-removeApp()
+reloadAppsList()
 {
   beginResetModel();
   endResetModel();
