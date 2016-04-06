@@ -35,7 +35,8 @@ def read_container_config_file():
     container_list = {}
     container_config_file = libertine.utils.get_libertine_database_file_path()
 
-    if os.path.exists(container_config_file):
+    if (os.path.exists(container_config_file) and
+        os.path.getsize(container_config_file) != 0):
         with open(container_config_file, 'r') as fd:
             container_list = json.load(fd)
 

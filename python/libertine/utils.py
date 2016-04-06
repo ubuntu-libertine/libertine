@@ -30,7 +30,8 @@ from gi.repository import Libertine
 def container_exists(container_id):
     container_config_file_path = get_libertine_database_file_path()
  
-    if os.path.exists(container_config_file_path):
+    if (os.path.exists(container_config_file_path) and
+        os.path.getsize(container_config_file_path) != 0):
         with open(get_libertine_database_file_path()) as fd:
             container_list = json.load(fd)
 

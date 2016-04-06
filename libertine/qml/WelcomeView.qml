@@ -59,10 +59,13 @@ Page {
             color: UbuntuColors.green
 
             onClicked: {
-                PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
+                var popup = PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
+                popup.passwordDialogSignal.connect(showPasswordDialog)
             }
-
         }
     }
 
+    function showPasswordDialog(enableMultiarch, containerName) {
+        PopupUtils.open(Qt.resolvedUrl("ContainerPasswordDialog.qml"), null, {"enableMultiarch": enableMultiarch, "containerName": containerName})
+    }
 }
