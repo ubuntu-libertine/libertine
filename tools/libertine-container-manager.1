@@ -1,4 +1,4 @@
-.TH libertine-container-manager "1" " December 2015" "libertine-container-manager 0.99" "User Commands"
+.TH libertine-container-manager "1" " April 2016" "libertine-container-manager 0.99" "User Commands"
 
 .SH NAME
 libertine-container-manager \- Manage Libertine containers for supporting legacy X applications on Unity 8
@@ -56,6 +56,15 @@ Updates the packages inside an existing Libertine container.
 .TP
 .B libertine-container-manager list [options]
 Lists all existing Libertine containers.
+.TP
+.B libertine-container-manager list-apps [options]
+Lists available app launchers in a container.
+.TP
+.B libertine-container-manager exec [options]
+Runs an arbitrary command in the specified Libertine container.
+.TP
+.B libertine-container-manager configure [options]
+Configures various options in the specified Libertine container.
 
 .SH COMMAND REFERENCE
 .TP
@@ -77,6 +86,11 @@ Container identifier. Required.
 Type of Libertine container to create. Either 'lxc' or 'chroot'.
 .RE
 .IP
+.BR \-\-password " password" ""
+.RS 14
+User's password for creating LXC containers. Intended for testing only.
+.RE
+.IP
 .BR \-d " DISTRO, " \-\-distro " DISTRO" ""
 .RS 14
 Ubuntu distro series to create.
@@ -86,31 +100,43 @@ Ubuntu distro series to create.
 .RS 14
 User friendly container name.
 .RE
+.IP
+.BR \-\-force ""
+.RS 14
+Force installation of unsupported distro.
+.RE
+.IP
+.BR \-m ", " \-\-multiarch ""
+.RS 14
+Enable i386 support.
+.RE
 .TP
+
 .B libertine-container-manager destroy [options]
 .TP
 .SS Options:
-.BR \-h " ," \-\-help ""
+.BR \-h " , " \-\-help ""
 .RS 14
 Prints help for this command and exits.
 .RE
 .IP
-.BR \-i " ID," \-\-id " ID" ""
+.BR \-i " ID, " \-\-id " ID" ""
 .RS 14
-Container identifier.  Default container is used if omitted. 
+Container identifier. Default container is used if omitted.
 .RE
 .TP
+
 .B libertine-container-manager install-package [options]
 .TP
 .SS Options:
-.BR \-h " ," \-\-help ""
+.BR \-h ", " \-\-help ""
 .RS 14
 Prints help for this command and exits.
 .RE
 .IP
-.BR \-i " ID," \-\-id " ID" "" 
+.BR \-i " ID, " \-\-id " ID" ""
 .RS 14
-Container identifier.  Default container is used if omitted.
+Container identifier. Default container is used if omitted.
 .RE
 .IP
 .BR \-p " PACKAGE, " \-\-package " PACKAGE" ""
@@ -118,17 +144,18 @@ Container identifier.  Default container is used if omitted.
 Name of package to install. Required.
 .RE
 .TP
+
 .B libertine-container-manager remove-package [options]
 .TP
 .SS Options:
-.BR \-h " ," \-\-help ""
+.BR \-h ", " \-\-help ""
 .RS 14
 Prints help for this command and exits.
 .RE
 .IP
-.BR \-i " ID," \-\-id " ID" ""
+.BR \-i " ID, " \-\-id " ID" ""
 .RS 14
-Container identifier.  Default container is used if omitted.
+Container identifier. Default container is used if omitted.
 .RE
 .IP
 .BR \-p " PACKAGE, " \-\-package " PACKAGE" ""
@@ -136,17 +163,18 @@ Container identifier.  Default container is used if omitted.
 Name of package to remove. Required.
 .RE
 .TP
+
 .B libertine-container-manager search-cache [options]
 .TP
 .SS Options:
-.BR \-h " ," \-\-help ""
+.BR \-h ", " \-\-help ""
 .RS 14
 Prints help for this command and exits.
 .RE
 .IP
-.BR \-i " ID," \-\-id " ID" ""
+.BR \-i " ID, " \-\-id " ID" ""
 .RS 14
-Container identifier.  Default container is used if omitted.
+Container identifier. Default container is used if omitted.
 .RE
 .IP
 .BR \-s " SEARCH_STRING, " \-\-search-string " SEARCH_STRING" ""
@@ -154,26 +182,97 @@ Container identifier.  Default container is used if omitted.
 String to search for in the package cache. Required.
 .RE
 .TP
+
 .B libertine-container-manager update [options]
 .TP
 .SS Options:
-.BR \-h " ," \-\-help ""
+.BR \-h ", " \-\-help ""
 .RS 14
 Prints help for this command and exits.
 .RE
 .IP
-.BR \-i " ID," \-\-id " ID" ""
+.BR \-i " ID, " \-\-id " ID" ""
 .RS 14
-Container identifier.  Default container is used if omitted.
+Container identifier. Default container is used if omitted.
 .RE
 .TP
+
 .B libertine-container-manager list
 .TP
 .SS Options:
-.BR \-h " ," \-\-help ""
+.BR \-h ", " \-\-help ""
 .RS 14
 Prints help for this command and exits.
 .RE
+.TP
+
+.B libertine-container-manager list-apps [options]
+.TP
+.SS Options:
+.BR \-h ", " \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID, " \-\-id " ID" ""
+.RS 14
+Container identifier. Default container is used if omitted.
+.RE
+.IP
+.BR \-j ", " \-\-json ""
+.RS 14
+Uses JSON output format.
+.RE
+.TP
+
+.B libertine-container-manager exec [options]
+.TP
+.SS Options:
+.BR \-h ", " \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID, " \-\-id " ID" ""
+.RS 14
+Container identifier. Default container is used if omitted.
+.RE
+.IP
+.BR \-C " COMMAND, " \-\-command " COMMAND" ""
+.RS 14
+The command to be executed.
+.RE
+.TP
+
+.B libertine-container-manager configure [options]
+.TP
+.SS Options:
+.BR \-h ", " \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID, " \-\-id " ID" ""
+.RS 14
+Container identifier. Default container is used if omitted.
+.RE
+.IP
+.BR \-m ", " \-\-multiarch ""
+.RS 14
+Enable i386 support.
+.RE
+.IP
+.BR \-a " ARCHIVE_NAME, " \-\-add-archive " ARCHIVE_NAME" ""
+.RS 14
+Adds an archive to the specified container. Format like "ppa:user/ppa-name".
+.RE
+.IP
+.BR \-d " ARCHIVE_NAME, " \-\-delete-archive " ARCHIVE_NAME" ""
+.RS 14
+Deletes an archive to the specified container. Format like "ppa:user/ppa-name".
+.RE
+.TP
+
 .SH SEE ALSO
 .UR https://launchpad.net/libertine
 .BR https://launchpad.net/libertine
