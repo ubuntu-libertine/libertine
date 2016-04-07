@@ -54,10 +54,7 @@ class LibertineChroot(BaseContainer):
     def run_in_container(self, command_string):
         cmd_args = shlex.split(command_string)
         if self.get_container_distro(self.container_id) == "trusty":
-            proot_cmd = '/usr/bin/proot'
-            if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
-                raise RuntimeError('executable proot not found')
-            command_prefix = proot_cmd + " -b /usr/lib/locale -S " + self.root_path
+            command_prefix = self._build_privileged_proot_cmd()
         else:
             command_prefix = "fakechroot fakeroot chroot " + self.root_path
         args = shlex.split(command_prefix + ' ' + command_string)
@@ -123,10 +120,7 @@ class LibertineChroot(BaseContainer):
         if installed_release == "trusty":
             print("Additional configuration for Trusty chroot...")
 
-            proot_cmd = '/usr/bin/proot'
-            if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
-                raise RuntimeError('executable proot not found')
-            cmd_line_prefix = proot_cmd + " -b /usr/lib/locale -S " + self.root_path
+            cmd_line_prefix = self._build_privileged_proot_cmd()
 
             command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /etc/init.d/systemd-logind"
             args = shlex.split(command_line)
@@ -191,6 +185,19 @@ class LibertineChroot(BaseContainer):
 
         return True
 
+    def update_packages(self, verbosity=1):
+        super().update_packages(verbosity)
+
+        self._run_ldconfig(verbosity)
+
+    def install_package(self, package_name, verbosity=1, extra_apt_args=""):
+        returncode = super().install_package(package_name, verbosity, extra_apt_args)
+
+        if returncode:
+            self._run_ldconfig(verbosity)
+
+        return returncode
+
     def _build_proot_command(self):
         proot_cmd = '/usr/bin/proot'
         if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
@@ -226,6 +233,15 @@ class LibertineChroot(BaseContainer):
 
         return proot_cmd
 
+    def _build_privileged_proot_cmd(self):
+        proot_cmd = '/usr/bin/proot'
+        if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
+            raise RuntimeError('executable proot not found')
+
+        proot_cmd += " -b /usr/lib/locale -S " + self.root_path
+
+        return proot_cmd
+
     def launch_application(self, app_exec_line):
         # FIXME: Disabling seccomp is a temporary measure until we fully understand why we need
         #        it or figure out when we need it.
@@ -246,3 +262,12 @@ class LibertineChroot(BaseContainer):
         psutil.Popen(args).wait()
 
         utils.terminate_window_manager(window_manager)
+
+    def _run_ldconfig(self, verbosity=1):
+        if verbosity == 1:
+            print("Refreshing the container's dynamic linker run-time bindings...")
+
+        command_line = self._build_privileged_proot_cmd() + " ldconfig.REAL"
+
+        args = shlex.split(command_line)
+        subprocess.Popen(args).wait()
