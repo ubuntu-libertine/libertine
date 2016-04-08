@@ -174,7 +174,10 @@ class BaseContainer(metaclass=abc.ABCMeta):
         """
         if command == 'multiarch':
             if args[0] == 'enable':
-                return self.run_in_container("dpkg --add-architecture i386")
+                ret = self.run_in_container("dpkg --add-architecture i386")
+                if ret or ret == 0:
+                    self.run_in_container(apt_command_prefix(verbosity) + '--force-yes update')
+                return ret
             else:
                 self.run_in_container(apt_command_prefix(verbosity) + "purge \".*:i386\"")
                 return self.run_in_container("dpkg --remove-architecture i386")

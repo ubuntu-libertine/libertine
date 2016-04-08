@@ -36,7 +36,7 @@ Page {
                 checked: containerConfigList.getContainerMultiarchSupport(mainView.currentContainer) == 'enabled' ? true : false
                 onClicked: {
                     var comp = Qt.createComponent("ContainerManager.qml")
-                    if (multiarchCheckBox.checked) {
+                    if (checked) {
                         var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
                                                                   "containerId": mainView.currentContainer,
                                                                   "containerType": containerConfigList.getContainerType(mainView.currentContainer),
