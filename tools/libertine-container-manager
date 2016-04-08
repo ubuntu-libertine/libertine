@@ -65,10 +65,14 @@ def get_default_container_id():
 
 
 def select_container_type():
-    if (platform.release() < "3.13"):
-        return "chroot"
-    else:
+    kernel_release = platform.release().split('.')
+
+    if int(kernel_release[0]) >= 4:
         return "lxc"
+    elif int(kernel_release[0]) == 3 and int(kernel_release[1]) >= 13:
+        return "lxc"
+    else:
+        return "chroot"
 
 
 def get_host_distro_release():
