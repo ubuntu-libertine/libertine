@@ -20,6 +20,7 @@ import Libertine 1.0
 import QtQuick 2.4
 import QtQuick.Layouts 1.0
 import Ubuntu.Components 1.2
+import Ubuntu.Components.ListItems 1.2 as ListItem
 
 
 Page {
@@ -28,30 +29,51 @@ Page {
     property string currentContainer: mainView.currentContainer
     property var currentPackage: mainView.currentPackage
     property var statusText: containerConfigList.getAppStatus(currentContainer, currentPackage)
-    property var failureReasonText: null
+    property var failureReasonText: ""
     property var packageVersionText: i18n.tr("Obtaining package version…")
     property var worker: null
     property var install_signal: null
 
-    Label {
-        id: packageVersion
-        text: i18n.tr("Package version: %1").arg(packageVersionText)
-        fontSize: "large"
-    }
 
-    Label {
-        id: packageStatus
-        anchors.top: packageVersion.bottom
-        text: i18n.tr("Install status: %1").arg(statusText)
-        fontSize: "large"
-    }
+    Flickable {
+        anchors.fill: parent
+        contentHeight: contentItem.childrenRect.height
+        boundsBehavior: (contentHeight > packageInfoView.height) ?
+                            Flickable.DragAndOvershootBounds :
+                            Flickable.StopAtBounds
+        flickableDirection: Flickable.VerticalFlick
 
-    Label {
-        id: failureReason
-        anchors.top: packageStatus.bottom
-        text: i18n.tr("Failure reason: ") + failureReasonText
-        fontSize: "large"
-        visible: false
+        Column {
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            ListItem.Standard {
+                text: i18n.tr("Package version")
+                control: Label {
+                    text: packageVersionText
+                }
+            }
+
+            ListItem.Standard {
+                text: i18n.tr("Install status")
+                control: Label {
+                    text: statusText
+                }
+            }
+
+            ListItem.Standard {
+                id: failureReason
+                text: i18n.tr("Failure reason")
+                visible: false
+                control: Label {
+                    text: failureReasonText
+                    wrapMode: Text.Wrap
+                    width: parent.parent.width/2
+                    horizontalAlignment: Qt.AlignRight
+                    onHeightChanged: updateFailureReasonHeight()
+                }
+            }
+        }
     }
 
     Component.onCompleted: {
@@ -77,8 +99,12 @@ Page {
         }
     }
 
+    function updateFailureReasonHeight() {
+      failureReason.height = Math.max(failureReason.control.height + 10, 48)
+    }
+
     function reloadStatus() {
-        statusText = containerConfigList.getAppStatus(currentContainer, currentPackage) 
+        statusText = containerConfigList.getAppStatus(currentContainer, currentPackage)
 
         if (!statusText) {
             statusText = i18n.tr("removed")

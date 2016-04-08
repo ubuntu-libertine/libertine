@@ -20,6 +20,7 @@ import Libertine 1.0
 import QtQuick 2.4
 import QtQuick.Layouts 1.0
 import Ubuntu.Components 1.2
+import Ubuntu.Components.ListItems 1.2 as ListItem
 
 
 Page {
@@ -31,31 +32,46 @@ Page {
     property string containerIdText: currentContainer
     property var statusText: containerConfigList.getContainerStatus(currentContainer)
 
-    Label {
-        id: containerId
-        text: i18n.tr("ID: %1").arg(containerIdText)
-        fontSize: "large"
-    }
+    Flickable {
+        anchors.fill: parent
+        contentHeight: contentItem.childrenRect.height
+        boundsBehavior: (contentHeight > containerInfoView.height) ?
+                            Flickable.DragAndOvershootBounds :
+                            Flickable.StopAtBounds
+        flickableDirection: Flickable.VerticalFlick
 
-    Label {
-        id: containerName
-        anchors.top: containerId.bottom
-        text: i18n.tr("Name: %1").arg(containerNameText)
-        fontSize: "large"
-    }
+        Column {
+            anchors.left: parent.left
+            anchors.right: parent.right
 
-    Label {
-        id: containerDistro
-        anchors.top: containerName.bottom
-        text: i18n.tr("Distribution: %1").arg(containerDistroText)
-        fontSize: "large"
-    }
-       
-    Label {
-        id: containerStatus
-        anchors.top: containerDistro.bottom
-        text: i18n.tr("Status: %1").arg(statusText)
-        fontSize: "large"
+            ListItem.Standard {
+                text: i18n.tr("ID")
+                control: Label {
+                    text: containerIdText
+                }
+            }
+
+            ListItem.Standard {
+                text: i18n.tr("Name")
+                control: Label {
+                    text: containerNameText
+                }
+            }
+
+            ListItem.Standard {
+                text: i18n.tr("Distribution")
+                control: Label {
+                    text: containerDistroText
+                }
+            }
+
+            ListItem.Standard {
+                text: i18n.tr("Status")
+                control: Label {
+                    text: statusText
+                }
+            }
+        }
     }
 
     Component.onCompleted: {
@@ -67,7 +83,7 @@ Page {
     }
 
     function reloadStatus() {
-        statusText = containerConfigList.getContainerStatus(currentContainer) 
+        statusText = containerConfigList.getContainerStatus(currentContainer)
         if (!statusText) {
             statusText = i18n.tr("removed")
         }
