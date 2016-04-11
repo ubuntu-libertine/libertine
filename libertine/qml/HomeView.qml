@@ -133,6 +133,13 @@ Page {
                     }
                 }
                 Action {
+                    text: i18n.tr("Choose Debian package to install")
+                    onTriggered: {
+                        var packages = containerConfigList.getDebianPackageFiles()
+                        pageStack.push(Qt.resolvedUrl("DebianPackagePicker.qml"), {packageList: packages}) 
+                   }
+                }
+                Action {
                     text: i18n.tr("Search archives for a package")
                     onTriggered: {
                         PopupUtils.open(Qt.resolvedUrl("SearchPackagesDialog.qml"))

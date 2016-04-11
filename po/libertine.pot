@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-03-24 10:25-0400\n"
+"POT-Creation-Date: 2016-04-08 16:01-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgid "new"
 msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:184
-#: ../libertine/qml/ContainersView.qml:51 ../libertine/qml/HomeView.qml:164
+#: ../libertine/qml/ContainersView.qml:51 ../libertine/qml/HomeView.qml:171
 #: ../libertine/qml/ExtraArchivesView.qml:80
 msgid "installing"
 msgstr ""
@@ -32,19 +32,19 @@ msgid "ready"
 msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:150 ../libertine/ContainerConfig.cpp:187
-#: ../libertine/qml/ContainersView.qml:52 ../libertine/qml/HomeView.qml:165
+#: ../libertine/qml/ContainersView.qml:52 ../libertine/qml/HomeView.qml:172
 #: ../libertine/qml/ExtraArchivesView.qml:81
 msgid "removing"
 msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:151 ../libertine/ContainerConfig.cpp:188
-#: ../libertine/qml/PackageInfoView.qml:84
-#: ../libertine/qml/ContainerInfoView.qml:72
+#: ../libertine/qml/PackageInfoView.qml:110
+#: ../libertine/qml/ContainerInfoView.qml:88
 msgid "removed"
 msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:186
-#: ../libertine/qml/PackageInfoView.qml:94
+#: ../libertine/qml/PackageInfoView.qml:120
 msgid "failed"
 msgstr ""
 
@@ -72,7 +72,7 @@ msgstr ""
 msgid "My Containers"
 msgstr ""
 
-#: ../libertine/qml/ContainersView.qml:68 ../libertine/qml/HomeView.qml:180
+#: ../libertine/qml/ContainersView.qml:68 ../libertine/qml/HomeView.qml:187
 msgid "delete"
 msgstr ""
 
@@ -80,7 +80,7 @@ msgstr ""
 msgid "Delete Container"
 msgstr ""
 
-#: ../libertine/qml/ContainersView.qml:86 ../libertine/qml/HomeView.qml:194
+#: ../libertine/qml/ContainersView.qml:86 ../libertine/qml/HomeView.qml:201
 msgid "info"
 msgstr ""
 
@@ -136,24 +136,24 @@ msgstr ""
 msgid "Cancel"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:27
+#: ../libertine/qml/PackageInfoView.qml:28
 msgid "Information for the %1 package"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:32
+#: ../libertine/qml/PackageInfoView.qml:33
 msgid "Obtaining package version…"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:38
-msgid "Package version: %1"
+#: ../libertine/qml/PackageInfoView.qml:51
+msgid "Package version"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:45
-msgid "Install status: %1"
+#: ../libertine/qml/PackageInfoView.qml:58
+msgid "Install status"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:52
-msgid "Failure reason: "
+#: ../libertine/qml/PackageInfoView.qml:66
+msgid "Failure reason"
 msgstr ""
 
 #: ../libertine/qml/SearchResultsView.qml:28
@@ -181,7 +181,16 @@ msgid "Searching for packages…"
 msgstr ""
 
 #: ../libertine/qml/SearchResults.qml:42
+#: ../libertine/qml/DebianPackagePicker.qml:34
 msgid "Install Package"
+msgstr ""
+
+#: ../libertine/qml/DebianPackagePicker.qml:7
+msgid "Available Debian Packages to Install"
+msgstr ""
+
+#: ../libertine/qml/DebianPackagePicker.qml:53
+msgid "No Debian packages available"
 msgstr ""
 
 #: ../libertine/qml/ContainerPasswordDialog.qml:27
@@ -238,14 +247,18 @@ msgid "Enter package name or Debian file"
 msgstr ""
 
 #: ../libertine/qml/HomeView.qml:136
+msgid "Choose Debian package to install"
+msgstr ""
+
+#: ../libertine/qml/HomeView.qml:143
 msgid "Search archives for a package"
 msgstr ""
 
-#: ../libertine/qml/HomeView.qml:181
+#: ../libertine/qml/HomeView.qml:188
 msgid "Remove Package"
 msgstr ""
 
-#: ../libertine/qml/HomeView.qml:195
+#: ../libertine/qml/HomeView.qml:202
 msgid "Package Info"
 msgstr ""
 
@@ -304,24 +317,24 @@ msgstr ""
 msgid "Install"
 msgstr ""
 
-#: ../libertine/qml/ContainerInfoView.qml:27
+#: ../libertine/qml/ContainerInfoView.qml:28
 msgid "Container information for %1"
 msgstr ""
 
-#: ../libertine/qml/ContainerInfoView.qml:36
-msgid "ID: %1"
+#: ../libertine/qml/ContainerInfoView.qml:48
+msgid "ID"
 msgstr ""
 
-#: ../libertine/qml/ContainerInfoView.qml:43
-msgid "Name: %1"
+#: ../libertine/qml/ContainerInfoView.qml:55
+msgid "Name"
 msgstr ""
 
-#: ../libertine/qml/ContainerInfoView.qml:50
-msgid "Distribution: %1"
+#: ../libertine/qml/ContainerInfoView.qml:62
+msgid "Distribution"
 msgstr ""
 
-#: ../libertine/qml/ContainerInfoView.qml:57
-msgid "Status: %1"
+#: ../libertine/qml/ContainerInfoView.qml:69
+msgid "Status"
 msgstr ""
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:27

@@ -23,6 +23,7 @@
 #include <algorithm>
 #include "libertine/ContainerConfig.h"
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
@@ -32,6 +33,7 @@
 #include <QtCore/QProcess>
 #include <QtCore/QRegExp>
 #include <QtCore/QSettings>
+#include <QtCore/QStandardPaths>
 #include <QtCore/QString>
 #include <QtCore/QSysInfo>
 
@@ -224,7 +226,27 @@ getDebianPackageName(QString const& package_path)
 
   return QString(package_name.trimmed());
 }
-  
+
+
+QString ContainerConfigList::
+getDownloadsLocation()
+{
+  return QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+}
+
+
+QStringList ContainerConfigList::
+getDebianPackageFiles()
+{
+  QStringList filters;
+  QDir downloads(getDownloadsLocation());
+
+  filters << "*.deb";
+
+  return downloads.entryList(filters);
+}
+
+
 QList<ContainerArchives*> * ContainerConfigList::
 getArchivesForContainer(QString const& container_id)
 {

@@ -119,6 +119,12 @@ public:
   Q_INVOKABLE QString
   getDebianPackageName(QString const& package_path);
 
+  Q_INVOKABLE QString
+  getDownloadsLocation();
+
+  Q_INVOKABLE QStringList
+  getDebianPackageFiles();
+
   QList<ContainerArchives*> *
   getArchivesForContainer(QString const& container_id);
 

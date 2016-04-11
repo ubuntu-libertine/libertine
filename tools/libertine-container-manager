@@ -376,7 +376,9 @@ def install_package(args):
     elif not args.id:
         args.id = get_default_container_id()
 
-    if args.package.endswith('.deb'):
+    is_debian_package = args.package.endswith('.deb')
+
+    if is_debian_package:
         if os.path.exists(args.package):
             package = DebPackage(args.package).pkgname
         else:
@@ -386,10 +388,11 @@ def install_package(args):
         package = args.package
 
     if package_exists(args.id, package):
-        print("Package \'%s\' is already installed." % package)
-        sys.exit(1)
-
-    add_new_package(args.id, package)
+        if not is_debian_package:
+            print("Package \'%s\' is already installed." % package)
+            sys.exit(1)
+    else:
+        add_new_package(args.id, package)
 
     container = LibertineContainer(args.id)
 
