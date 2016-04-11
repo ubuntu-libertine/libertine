@@ -21,6 +21,7 @@ import os
 import libertine.utils
 import psutil
 import shlex
+import time
 from libertine import LibertineContainer
 
 
@@ -38,11 +39,23 @@ def set_dbus_session_socket_path():
     return dbus_session_socket_path
 
 
-def launch_libertine_session_bridge():
-    libertine_session_bridge_cmd = "libertine-session-bridge " + set_dbus_session_socket_path()
+def launch_libertine_session_bridge(session_socket_path):
+    libertine_session_bridge_cmd = "libertine-session-bridge " + session_socket_path
 
     args = shlex.split(libertine_session_bridge_cmd)
     return psutil.Popen(args)
+
+
+def detect_session_bridge_socket(session_socket_path):
+    retries = 0
+
+    while not os.path.exists(session_socket_path):
+        if retries >= 10:
+            raise RuntimeError("Timeout waiting for Libertine Dbus session bridge socket") 
+        
+        print("Libertine Dbus session bridge socket is not ready.  Waiting...")
+        retries += 1
+        time.sleep(.5)
 
 
 if __name__ == '__main__':
@@ -56,7 +69,11 @@ if __name__ == '__main__':
     if not libertine.utils.container_exists(args.container_id):
         raise RuntimeError("Container ID %s does not exist." % args.container_id)
 
-    session_bridge = launch_libertine_session_bridge()
+    session_socket_path = set_dbus_session_socket_path()
+
+    session_bridge = launch_libertine_session_bridge(session_socket_path)
+
+    detect_session_bridge_socket(session_socket_path)
 
     container = LibertineContainer(args.container_id) 
 
