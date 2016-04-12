@@ -83,7 +83,10 @@ def get_host_distro_release():
 
 def is_distro_valid(distro, force):
     if force:
-       return UbuntuDistroInfo().valid(distro)
+        return UbuntuDistroInfo().valid(distro)
+
+    if distro == get_host_distro_release():
+        return True
 
     supported_distros = UbuntuDistroInfo().supported()
 
