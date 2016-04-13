@@ -3,7 +3,7 @@
  * @brief Threaded Libertine container manager
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -150,8 +150,8 @@ signals:
   void dataListChanged();
   void finished();
   void finishedDestroy(QString const& container_id);
-  void finishedInstall(bool result, QString const& error_msg);
-  void finishedRemove(bool result, QString const& error_msg);
+  void finishedInstall(QString const& package_name, bool result, QString const& error_msg);
+  void finishedRemove(QString const& package_name, bool result, QString const& error_msg);
   void finishedSearch(bool result, QList<QString> packageList);
   void finishedCommand(QString const& command_output);
   void finishedConfigure(bool result, QString const& error_msg);

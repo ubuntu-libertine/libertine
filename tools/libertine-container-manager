@@ -446,7 +446,10 @@ def update(args):
         args.id = get_default_container_id()
 
     container = LibertineContainer(args.id)
+
+    update_container_install_status(args.id, "updating")
     container.update_libertine_container(args.verbosity)
+    update_container_install_status(args.id, "ready")
 
 
 def list(args):

@@ -3,7 +3,7 @@
  * @brief Libertine Manager containers configuration module
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -88,7 +88,7 @@ class ContainerConfig
 public:
   /** The container's current install state. */
   enum class InstallStatus
-  { New, Installing, Ready, Removing, Removed, Failed };
+  { New, Installing, Ready, Updating, Removing, Removed, Failed };
 
 
 public:

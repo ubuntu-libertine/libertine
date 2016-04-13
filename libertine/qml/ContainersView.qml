@@ -45,20 +45,24 @@ Page {
         model: containerConfigList
 
         delegate: ListItem {
-            ActivityIndicator {
-                id: containerActivity
-                anchors.verticalCenter: parent.verticalCenter
-                visible: (installStatus === i18n.tr("installing") ||
-                          installStatus === i18n.tr("removing")) ? true : false
-                running: containerActivity.visible
-            }
             Label {
                 text: name
                 anchors {
                     verticalCenter: parent.verticalCenter
-                    left: containerActivity.running ? containerActivity.right : parent.left
+                    left: parent.left
                     leftMargin: units.gu(2)
                 }
+            }
+            ActivityIndicator {
+                id: containerActivity
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    right: parent.right
+                    rightMargin: units.gu(2)
+                }
+                visible: (installStatus === i18n.tr("installing") ||
+                          installStatus === i18n.tr("removing")) ? true : false
+                running: containerActivity.visible
             }
 
             leadingActions: ListItemActions {
@@ -94,6 +98,8 @@ Page {
                         iconName: "edit"
                         text: i18n.tr("edit")
                         description: i18n.tr("Container Apps")
+                        visible: (installStatus === i18n.tr("ready") ||
+                                  installStatus === i18n.tr("updating")) ? true : false
                         onTriggered: {
                             mainView.currentContainer = containerId
                             containerAppsList.setContainerApps(mainView.currentContainer)

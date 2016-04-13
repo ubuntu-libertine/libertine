@@ -24,7 +24,7 @@ import Ubuntu.Components.Popups 1.2
 
 Page {
     id: homeView
-    title: i18n.tr("Classic Apps - %1").arg(mainView.currentContainer)
+    title: i18n.tr("Classic Apps - %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
 
     head.actions: [
         Action {
@@ -99,15 +99,15 @@ Page {
 	ActionSelectionPopover {
 	    actions: ActionList {
 		Action {
-		    text: i18n.tr("Configure Container")
+		    text: i18n.tr("Manage Container")
 		    onTriggered: {
-                        pageStack.push(Qt.resolvedUrl("ConfigureContainer.qml"))
+                        pageStack.push(Qt.resolvedUrl("ManageContainer.qml"))
                     }
 		}
                 Action {
-                    text: i18n.tr("Update Container")
+                    text: i18n.tr("Container Information")
                     onTriggered: {
-                        updateContainer()
+                        pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"))
                     }
                 }
 		Action {
@@ -159,26 +159,34 @@ Page {
 
     function reloadAppList() {
         containerAppsList.setContainerApps(mainView.currentContainer)
+
+        appsList.visible = !containerAppsList.empty()  ? true : false
     }
 
     UbuntuListView {
+        id: appsList
         anchors.fill: parent
         model: containerAppsList
+        visible: !containerAppsList.empty()  ? true : false
         delegate: ListItem {
-            ActivityIndicator {
-                id: appActivity
-                anchors.verticalCenter: parent.verticalCenter
-                visible: (appStatus === i18n.tr("installing") ||
-                          appStatus === i18n.tr("removing")) ? true : false
-                running: appActivity.visible
-            }
             Label {
                 text: packageName
                 anchors {
                     verticalCenter: parent.verticalCenter
-                    left: appActivity.running ? appActivity.right : parent.left
+                    left: parent.left
                     leftMargin: units.gu(2)
                 }
+            }
+            ActivityIndicator {
+                id: appActivity
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    right: parent.right
+                    rightMargin: units.gu(2)
+                }
+                visible: (appStatus === i18n.tr("installing") ||
+                          appStatus === i18n.tr("removing")) ? true : false
+                running: appActivity.visible
             }
             leadingActions: ListItemActions {
                 actions: [
@@ -189,7 +197,6 @@ Page {
                         onTriggered: {
                             mainView.currentPackage = packageName
                             removePackage(packageName)
-                            pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"))
                         }
                     }
                 ]
@@ -210,12 +217,14 @@ Page {
         }
     }
 
-    function updateContainer() {
-        var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Update,
-                                                  "containerId": mainView.currentContainer,
-                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer)})
-        worker.start()
+    Label {
+        id: emptyLabel
+        anchors.centerIn: parent
+        visible: !appsList.visible
+        wrapMode: Text.Wrap
+        width: parent.width
+        horizontalAlignment: Text.AlignHCenter
+        text: i18n.tr("No packages are installed")
     }
 
     function installPackage(package_name) {
@@ -224,6 +233,7 @@ Page {
                                                   "containerId": mainView.currentContainer,
                                                   "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                                   "data": package_name})
+        worker.finishedInstall.connect(mainView.packageInstallFinished)
         worker.start()
     }
 
@@ -233,6 +243,7 @@ Page {
                                                   "containerId": mainView.currentContainer,
                                                   "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                                   "data": packageName})
+        worker.finishedRemove.connect(mainView.packageRemoveFinished)
         worker.start()
     }
 }

@@ -3,7 +3,7 @@
  * @brief Threaded Libertine container manager
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -289,7 +289,7 @@ installPackage(QString const& package_name)
     result = false;
   }
 
-  emit finishedInstall(result, QString(error_msg));
+  emit finishedInstall(package_name, result, QString(error_msg));
   emit finished();
   quit();
 }
@@ -319,7 +319,7 @@ removePackage(QString const& package_name)
     result = false;
   }
 
-  emit finishedRemove(result, QString(error_msg));
+  emit finishedRemove(package_name, result, QString(error_msg));
   emit finished();
   quit();
 }

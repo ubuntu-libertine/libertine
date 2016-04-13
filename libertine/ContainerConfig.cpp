@@ -3,7 +3,7 @@
  * @brief Libertine Manager containers configuration module
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -147,6 +147,7 @@ namespace {
     { QObject::tr("new"),          ContainerConfig::InstallStatus::New        },
     { QObject::tr("installing"),   ContainerConfig::InstallStatus::Installing },
     { QObject::tr("ready"),        ContainerConfig::InstallStatus::Ready      },
+    { QObject::tr("updating"),     ContainerConfig::InstallStatus::Updating   },
     { QObject::tr("removing"),     ContainerConfig::InstallStatus::Removing   },
     { QObject::tr("removed"),      ContainerConfig::InstallStatus::Removed    },
     { QObject::tr("failed"),       ContainerConfig::InstallStatus::Failed     },

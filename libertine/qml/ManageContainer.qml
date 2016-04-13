@@ -1,6 +1,6 @@
 /**
- * @file ConfigureContainer.qml
- * @brief Libertine configure container view
+ * @file ManageContainer.qml
+ * @brief Libertine manage container view
  */
 /*
  * Copyright 2016 Canonical Ltd
@@ -23,8 +23,8 @@ import Ubuntu.Components.ListItems 1.2 as ListItem
 
 
 Page {
-    id: configureView
-    title: i18n.tr("Configure %1").arg(mainView.currentContainer)
+    id: manageView
+    title: i18n.tr("Manage %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
 
     Column {
         anchors.left: parent.left
@@ -62,6 +62,55 @@ Page {
                 containerArchivesList.setContainerArchives(mainView.currentContainer)
                 pageStack.push(Qt.resolvedUrl("ExtraArchivesView.qml"))
             }
+        }
+
+        ListItem.Standard {
+            control: Button {
+                id: updateButton
+                text: i18n.tr("Update…")
+                visible: (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("ready")) ? true : false
+                onClicked: {
+                    updateContainer()
+                }
+            }
+            ActivityIndicator {
+                id: updateActivity
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    right: parent.right
+                    rightMargin: units.gu(2)
+                }
+                visible: (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("updating")) ? true : false
+                running: updateActivity.visible
+            }
+            text: i18n.tr("Update container")
+        }   
+    }
+
+    Component.onCompleted: {
+        containerConfigList.configChanged.connect(updateStatus)
+    }
+
+    Component.onDestruction: {
+        containerConfigList.configChanged.disconnect(updateStatus)
+    }
+
+    function updateContainer() {
+        var comp = Qt.createComponent("ContainerManager.qml")
+        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Update,
+                                                  "containerId": mainView.currentContainer,
+                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer)})
+        worker.start()
+    }
+
+    function updateStatus() {
+        if (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("updating")) {
+            updateButton.visible = false
+            updateActivity.visible = true
+        }
+        else if (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("ready")) {
+            updateButton.visible = true
+            updateActivity.visible = false
         }
     }
 }

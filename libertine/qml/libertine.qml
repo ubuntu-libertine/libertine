@@ -3,7 +3,7 @@
  * @brief Libertine app main view.
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -18,6 +18,7 @@
  */
 import QtQuick 2.4
 import Ubuntu.Components 1.2
+import Ubuntu.Components.Popups 1.2
 
 
 MainView {
@@ -28,6 +29,9 @@ MainView {
     height: units.gu(75)
     property var currentContainer: undefined
     property var currentPackage: undefined
+
+    signal packageInstallFinished(string package_name, bool result, string message)
+    signal packageRemoveFinished(string package_name, bool result, string message)
 
     PageStack {
         id: pageStack
@@ -45,6 +49,20 @@ MainView {
         }
         else {
             pageStack.push(Qt.resolvedUrl("WelcomeView.qml"))
+        }
+    }
+
+    onPackageInstallFinished: {
+        if (!result) {
+           PopupUtils.open(Qt.resolvedUrl("PackageOperationFailureDialog.qml"), null,
+                                          {"package_name": package_name, "error_msg": message, "operation": i18n.tr("installing")})
+        }
+    }
+
+    onPackageRemoveFinished: {
+        if (!result) {
+           PopupUtils.open(Qt.resolvedUrl("PackageOperationFailureDialog.qml"), null,
+                           {"package_name": package_name, "error_msg": message, "operation": i18n.tr("removing")})
         }
     }
 }

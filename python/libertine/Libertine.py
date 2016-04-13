@@ -56,7 +56,7 @@ def apt_args_for_verbosity_level(verbosity):
 
 
 def apt_command_prefix(verbosity):
-    return '/usr/bin/apt ' + apt_args_for_verbosity_level(verbosity) + ' '
+    return '/usr/bin/apt ' + apt_args_for_verbosity_level(verbosity) + ' --option Apt::Cmd::Disable-Script-Warning=true '
 
 
 class BaseContainer(metaclass=abc.ABCMeta):

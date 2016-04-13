@@ -72,22 +72,27 @@ Page {
     UbuntuListView {
         id: extraArchiveList
         anchors.fill: parent
+        visible: !containerArchivesList.empty() ? true : false
         model: containerArchivesList
         delegate: ListItem {
-            ActivityIndicator {
-                id: extraArchiveActivity
-                anchors.verticalCenter: parent.verticalCenter
-                visible: (archiveStatus === i18n.tr("installing") ||
-                          archiveStatus === i18n.tr("removing")) ? true : false
-                running: extraArchiveActivity.visible
-            }
             Label {
                 anchors {
                     verticalCenter: parent.verticalCenter
-                    left: extraArchiveActivity.running ? extraArchiveActivity.right : parent.left
+                    left: parent.left
                     leftMargin: units.gu(2)
                 }
                 text: archiveName
+            }
+            ActivityIndicator {
+                id: extraArchiveActivity
+                anchors {
+                    verticalCenter: parent.verticalCenter
+                    right: parent.right
+                    rightMargin: units.gu(2)
+                }
+                visible: (archiveStatus === i18n.tr("installing") ||
+                          archiveStatus === i18n.tr("removing")) ? true : false
+                running: extraArchiveActivity.visible
             }
             leadingActions: ListItemActions {
                 actions: [
@@ -102,6 +107,16 @@ Page {
                 ]
             }
         }
+    }
+
+     Label {
+        id: emptyLabel
+        anchors.centerIn: parent
+        visible: !extraArchiveList.visible  ? true : false
+        wrapMode: Text.Wrap
+        width: parent.width
+        horizontalAlignment: Text.AlignHCenter
+        text: i18n.tr("No additional archives and PPA's have been added")
     }
 
     function addArchive(archive) {
@@ -154,6 +169,8 @@ Page {
 
     function reloadArchives() {
         containerArchivesList.setContainerArchives(mainView.currentContainer)
+
+        extraArchiveList.visible = !containerArchivesList.empty() ? true : false
     }
 
     function finishedConfigure(result, error_msg) {

@@ -83,6 +83,8 @@ Page {
         anchors {
             top: parent.top
             topMargin: units.gu(2)
+            left: parent.left
+            leftMargin: units.gu(2)
         }
     }
     Label {

@@ -25,7 +25,7 @@ import Ubuntu.Components.ListItems 1.2 as ListItem
 
 Page {
     id: containerInfoView
-    title: i18n.tr("Container information for %1").arg(mainView.currentContainer)
+    title: i18n.tr("Container information for %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
     property string currentContainer: mainView.currentContainer
     property string containerDistroText: containerConfigList.getContainerDistro(currentContainer)
     property string containerNameText: containerConfigList.getContainerName(currentContainer)

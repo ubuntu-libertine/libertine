@@ -1,9 +1,9 @@
 /**
- * @file ContainerApps.qml
- * @brief Libertine container apps data source
+ * @file PackageOperationFailureDialog.qml
+ * @brief Libertine package operation failure dialog
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -17,11 +17,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.4
+import Ubuntu.Components 1.2
+import Ubuntu.Components.Popups 1.2
 
-Item {
-    function are_apps_installed(containerId) {
-        var documentIds = {}
+Dialog {
+    id: packageOperationFailedDialog
+    property var package_name: null
+    property var error_msg: null
+    property var operation: null // Either "installing" or "removing"
 
-        return documentIds.length > 0
+    title: i18n.tr("Failure %1 the %2 package.").arg(operation).arg(package_name)
+    text: error_msg
+
+    Button {
+        text: i18n.tr("Dismiss")
+        onClicked: PopupUtils.close(packageOperationFailedDialog)
     }
 }
