@@ -1,3 +1,40 @@
+libertine (1.0.0+16.04.20160411-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * Bind-mount /dev/snd inside LXC container to allow Pulse inside the container
+    to work. (LP: #1559087)
+  * Fixes needed for using in the Jenkaas smoke testing harness from
+    lp:libertine-testing.
+  * Support installing Debian packages located on the host into the Libertine
+    container. (LP: #1541904)
+  * Support localization of GUI strings through Launchpad translations.
+    (LP: #1550486)
+  * Catch container creation errors and remove the ContainersConfig.json entry
+    when those occur. (LP: #1561962)
+  * Automatically figure out the correct container type based on the running
+    kernel version if the --type option is not given at container creation time.
+    (LP: #1561703)
+  * Many GUI improvements that should make navigating easier and more intuitive.
+  * Run ldconfig.REAL inside chroot based containers after doing updates and
+    installing packages. This fixes the issue of missing .so's when applications
+    run. (LP: #1566844)
+  * Add a file chooser for selecting Debian packages. This file chooser only looks
+    in the XDG Download dir (ie, ~/Downloads). (LP: #1555820)
+  * Wait for the Libertine Dbus session bridge socket to exist before launching any
+    apps in the container. (LP: #1566834)
+  * Bump version to 1.0.0.
+
+  [ Larry Price ]
+  * Update man page for new options and commands implemented in libertine-
+    container-manager, plus add simple man pages for other libertine tools.
+  * Update Container Info and Package Info UI to use a gridview to display
+    information.
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Mon, 11 Apr 2016 16:05:03 +0000
+
 libertine (0.99.12+16.04.20160321-0ubuntu1) xenial; urgency=medium
 
   [ Chris Townsend ]
