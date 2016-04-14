@@ -688,4 +688,7 @@ if __name__ == '__main__':
     if args.verbosity is None:
         args.verbosity = 1
 
-    args.func(args)
+    if args.subparser_name == None:
+        parser.print_help()
+    else:
+        args.func(args)
