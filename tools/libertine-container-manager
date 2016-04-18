@@ -531,6 +531,11 @@ def configure(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Legacy X application support for Unity 8")
+
+    if not os.geteuid():
+        print("Please do not run %s using sudo" % parser.prog)
+        sys.exit(1)
+
     parser.add_argument('-q', '--quiet',
                         action='store_const', dest='verbosity', const=0,
                         help=('do not print status updates on stdout'))

@@ -19,10 +19,18 @@
 #include "libertine/config.h"
 #include "libertine/libertine.h"
 
+#include <unistd.h>
+#include <QtCore/QDebug>
 
 int
 main(int argc, char* argv[])
 {
+  if (!geteuid())
+  {
+    qWarning() << "Please do not run " LIBERTINE_APPLICATION_NAME " using \'sudo\'.";
+    exit(1);
+  }
+
   Libertine app(argc, argv);
   return app.exec();
 }
