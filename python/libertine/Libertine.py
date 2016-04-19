@@ -59,6 +59,11 @@ def apt_command_prefix(verbosity):
     return '/usr/bin/apt ' + apt_args_for_verbosity_level(verbosity) + ' --option Apt::Cmd::Disable-Script-Warning=true '
 
 
+def handle_runtime_error(error):
+    print("%s" % error)
+    return False
+
+
 class BaseContainer(metaclass=abc.ABCMeta):
     """
     An abstract base container to provide common functionality for all
@@ -311,15 +316,21 @@ class LibertineContainer(object):
         """
         Updates the contents of the container.
         """
-        with ContainerRunning(self.container):
-            self.container.update_packages(verbosity)
+        try:
+            with ContainerRunning(self.container):
+                self.container.update_packages(verbosity)
+        except RuntimeError as e:
+            return handle_runtime_error(e)
 
     def install_package(self, package_name, verbosity=1):
         """
         Installs a package in the container.
         """
-        with ContainerRunning(self.container):
-            return self.container.install_package(package_name, verbosity)
+        try:
+            with ContainerRunning(self.container):
+                return self.container.install_package(package_name, verbosity)
+        except RuntimeError as e:
+            return handle_runtime_error(e)
 
     def remove_package(self, package_name, verbosity=1):
         """
@@ -328,9 +339,13 @@ class LibertineContainer(object):
         :param package_name: The name of the package to be removed.
         :param verbosity: The verbosity level of the progress reporting.
         """
-        with ContainerRunning(self.container):
-            self.container.run_in_container(apt_command_prefix(verbosity) + "purge '" + package_name + "'") == 0
-            self.container.run_in_container(apt_command_prefix(verbosity) + "autoremove --purge") == 0
+        try:
+            with ContainerRunning(self.container):
+                if not self.container.run_in_container(apt_command_prefix(verbosity) + "purge '" + package_name + "'") == 0:
+                    return False
+                return self.container.run_in_container(apt_command_prefix(verbosity) + "autoremove --purge") == 0
+        except RuntimeError as e:
+            return handle_runtime_error(e)
 
     def search_package_cache(self, search_string):
         """
@@ -339,8 +354,11 @@ class LibertineContainer(object):
         :param search_string: the (regex) to use to search the package cache.
             The regex is quoted to sanitize it.
         """
-        with ContainerRunning(self.container):
-            self.container.run_in_container("/usr/bin/apt-cache search '" + search_string + "'")
+        try:
+            with ContainerRunning(self.container):
+                self.container.run_in_container("/usr/bin/apt-cache search '" + search_string + "'")
+        except RuntimeError as e:
+            return handle_runtime_error(e)
 
     def launch_application(self, app_exec_line):
         """
@@ -380,9 +398,15 @@ class LibertineContainer(object):
             example, 'apt-cache policy package-foo'
         :rtype: The output of the given command.
         """
-        with ContainerRunning(self.container):
-            return self.container.run_in_container(exec_line)
+        try:
+            with ContainerRunning(self.container):
+                return self.container.run_in_container(exec_line)
+        except RuntimeError as e:
+            return handle_runtime_error(e)
 
     def configure_command(self, command, *args):
-        with ContainerRunning(self.container):
-            return self.container.configure_command(command, *args)
+        try:
+            with ContainerRunning(self.container):
+                return self.container.configure_command(command, *args)
+        except RuntimeError as e:
+            return handle_runtime_error(e)

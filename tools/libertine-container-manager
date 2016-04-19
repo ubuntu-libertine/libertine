@@ -421,7 +421,10 @@ def remove_package(args):
     container = LibertineContainer(args.id)
     update_package_install_status(args.id, args.package, "removing")
 
-    container.remove_package(args.package, args.verbosity)
+    if not container.remove_package(args.package, args.verbosity):
+        update_package_install_status(args.id, package, "installed")
+        sys.exit(1)
+
     update_package_install_status(args.id, args.package, "removed")
 
     delete_package(args.id, args.package)
@@ -435,7 +438,8 @@ def search_cache(args):
         args.id = get_default_container_id()
 
     container = LibertineContainer(args.id)
-    container.search_package_cache(args.search_string)
+    if not container.search_package_cache(args.search_string):
+        sys.exit(1)
 
 
 def update(args):
@@ -448,7 +452,10 @@ def update(args):
     container = LibertineContainer(args.id)
 
     update_container_install_status(args.id, "updating")
-    container.update_libertine_container(args.verbosity)
+    if not container.update_libertine_container(args.verbosity):
+        update_container_install_status(args.id, "ready")
+        sys.exit(1)
+
     update_container_install_status(args.id, "ready")
 
 
@@ -500,7 +507,9 @@ def configure(args):
             print("i386 multiarch support is already %s" % multiarch)
             sys.exit(1)
 
-        container.configure_command('multiarch', args.multiarch)
+        if not container.configure_command('multiarch', args.multiarch):
+            sys.exit(1)
+
         update_container_multiarch_support(args.id, multiarch)
 
     elif args.add_archive:
