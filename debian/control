@@ -44,7 +44,6 @@ Depends: lsb-release,
          python3-apt,
          python3-distro-info,
          python3-libertine,
-         xmir,
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
