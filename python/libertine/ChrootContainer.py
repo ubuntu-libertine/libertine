@@ -199,8 +199,8 @@ class LibertineChroot(BaseContainer):
         return returncode
 
     def _build_proot_command(self):
-        proot_cmd = '/usr/bin/proot'
-        if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
+        proot_cmd = shutil.which('proot')
+        if not proot_cmd:
             raise RuntimeError('executable proot not found')
 
         proot_cmd += " -R " + self.root_path
@@ -234,8 +234,8 @@ class LibertineChroot(BaseContainer):
         return proot_cmd
 
     def _build_privileged_proot_cmd(self):
-        proot_cmd = '/usr/bin/proot'
-        if not os.path.isfile(proot_cmd) or not os.access(proot_cmd, os.X_OK):
+        proot_cmd = shutil.which('proot')
+        if not proot_cmd:
             raise RuntimeError('executable proot not found')
 
         proot_cmd += " -b /usr/lib/locale -S " + self.root_path
