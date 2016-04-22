@@ -56,7 +56,9 @@ def apt_args_for_verbosity_level(verbosity):
 
 
 def apt_command_prefix(verbosity):
-    return '/usr/bin/apt ' + apt_args_for_verbosity_level(verbosity) + ' --option Apt::Cmd::Disable-Script-Warning=true '
+    return '/usr/bin/apt-get ' + apt_args_for_verbosity_level(verbosity) + \
+           ' --option Apt::Cmd::Disable-Script-Warning=true --option Dpkg::Progress-Fancy=1' + \
+           ' --option Apt::Color=1 '
 
 
 def handle_runtime_error(error):
@@ -341,7 +343,7 @@ class LibertineContainer(object):
         """
         try:
             with ContainerRunning(self.container):
-                if not self.container.run_in_container(apt_command_prefix(verbosity) + "purge '" + package_name + "'") == 0:
+                if self.container.run_in_container(apt_command_prefix(verbosity) + "purge '" + package_name + "'") != 0:
                     return False
                 return self.container.run_in_container(apt_command_prefix(verbosity) + "autoremove --purge") == 0
         except RuntimeError as e:
@@ -368,7 +370,7 @@ class LibertineContainer(object):
             ubuntu-app-launch
         """
         if libertine.utils.container_exists(self.container.container_id):
-            self.container.launch_application(app_exec_line) 
+            self.container.launch_application(app_exec_line)
         else:
             raise RuntimeError("Container with id %s does not exist." % self.container.container_id)
 

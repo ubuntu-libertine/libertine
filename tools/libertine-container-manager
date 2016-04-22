@@ -422,7 +422,7 @@ def remove_package(args):
     update_package_install_status(args.id, args.package, "removing")
 
     if not container.remove_package(args.package, args.verbosity):
-        update_package_install_status(args.id, package, "installed")
+        update_package_install_status(args.id, args.package, "installed")
         sys.exit(1)
 
     update_package_install_status(args.id, args.package, "removed")
