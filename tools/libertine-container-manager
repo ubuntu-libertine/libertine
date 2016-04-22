@@ -31,6 +31,40 @@ from distro_info import UbuntuDistroInfo, DistroDataOutdated
 from libertine import LibertineContainer
 
 
+def find_duplicate_container_entry(container_list, container_id):
+    for container in container_list['containerList']:
+        if container['id'] == container_id:
+            return container
+
+    return None
+ 
+
+def merge_container_config_files(filepath):
+    merged_json = []
+    main_config = read_container_config_file()
+
+    with open(filepath, 'r') as fd:
+        merge_source = json.load(fd)
+
+    if "containerList" in main_config:
+        # Finds any duplicate entries and assumes we want to update the main config
+        # with entries from the merge source.
+        for i, container in enumerate(main_config['containerList']):
+            merge_container = find_duplicate_container_entry(merge_source, container['id'])
+            if merge_container:
+                 main_config['containerList'][i] = merge_container
+                 merge_source['containerList'].remove(merge_container)
+ 
+        # Merges in any remaining non-duplicate entries.
+        for container in merge_source['containerList']:
+            main_config['containerList'].append(container)
+
+    else:
+        main_config = merge_source
+
+    write_container_config_file(main_config)
+
+
 def read_container_config_file():
     container_list = {}
     container_config_file = libertine.utils.get_libertine_database_file_path()
@@ -538,6 +572,10 @@ def configure(args):
         delete_container_archive(args.id, args.delete_archive)
 
 
+def merge(args):
+    merge_container_config_files(args.file)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Legacy X application support for Unity 8")
 
@@ -551,7 +589,9 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose',
                         action='store_const', dest='verbosity', const=2,
                         help=('extra verbose output'))
-    subparsers = parser.add_subparsers(dest="subparser_name")
+    subparsers = parser.add_subparsers(dest="subparser_name", 
+                                       title="subcommands",
+                                       metavar='create, destroy, install-package, remove-package, search-cache, update, list, list-apps, configure')
 
     # Handle the create command and its options
     parser_create = subparsers.add_parser(
@@ -607,17 +647,17 @@ if __name__ == '__main__':
     parser_install.set_defaults(func=install_package)
 
     # Handle the remove-package command and its options
-    parser_install = subparsers.add_parser(
+    parser_remove = subparsers.add_parser(
         'remove-package',
         help=("Remove a package in the specified Libertine container."))
-    parser_install.add_argument(
+    parser_remove.add_argument(
         '-p', '--package',
         required=True,
         help=("Name of package to remove. Required."))
-    parser_install.add_argument(
+    parser_remove.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
-    parser_install.set_defaults(func=remove_package)
+    parser_remove.set_defaults(func=remove_package)
 
     # Handle the search-cache command and its options
     parser_search = subparsers.add_parser(
@@ -663,7 +703,8 @@ if __name__ == '__main__':
     # Handle the execute command and it's options
     parser_exec = subparsers.add_parser(
         'exec',
-        help=("Run an arbitrary command in the specified Libertine container."))
+        add_help=False)
+        #help=("Run an arbitrary command in the specified Libertine container."))
     parser_exec.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
@@ -696,6 +737,15 @@ if __name__ == '__main__':
         help=("Deletes an existing archive (PPA) in the specified Libertine container.  "
               "Needs to be in the form of \"ppa:user/ppa-name\"."))
     parser_configure.set_defaults(func=configure)
+
+    # Handle merging another ContainersConfig.json file into the main ContainersConfig.json file
+    parser_merge = subparsers.add_parser(
+        'merge-configs',
+        add_help=False)
+    parser_merge.add_argument(
+        '-f', '--file',
+        required=True)
+    parser_merge.set_defaults(func=merge)
 
     # Actually parse the args
     args = parser.parse_args()
