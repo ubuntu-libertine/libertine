@@ -1,3 +1,32 @@
+libertine (1.0.1+16.04.20160425-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * Allow an explicitly set distro during the create operation if it matches the
+    host's distro even if the distro is technically end-of-life. (LP: #1569397)
+  * More Libertine GUI improvements.
+  * Check to make sure a subcommand was given and if not, print out the usage.
+    (LP: #1539104)
+  * Check to see if CLI and GUI is ran using sudo and if so, print a message and
+    exit. (LP: #1570548)
+  * Catch runtime errors raised when starting a container so a crash file is not
+    generated and to tell the GUI that there was an error so the user can be
+    presented a proper notification. (LP: #1539105)
+  * Use shutil.which() instead of hardcoded path for detecting if proot is on the
+    system. Fixes alternate $PATH locations such as in a snap. (LP: #1572591)
+  * Add a 'merge-configs' command to l-c-m which allows merging a specified
+    ContainersConfig.json file with the existing config file. (LP: #1566391)
+  * Have the Puritine click linking occur before Unity 8 is started to avoid having
+    a 0-byte ContainersConfig.json file from being created. (LP: #1573266)
+
+  [ Larry Price ]
+  * Fixing infinite package removal on error caused by bad apt command and variable
+    access. (LP: #1573201)
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Mon, 25 Apr 2016 18:46:21 +0000
+
 libertine (1.0.0+16.04.20160411-0ubuntu1) xenial; urgency=medium
 
   [ Chris Townsend ]
