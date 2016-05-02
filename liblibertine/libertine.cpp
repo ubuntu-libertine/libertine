@@ -20,11 +20,12 @@
 #include "liblibertine/libertine.h"
 #include "libertine/ContainerConfigList.h"
 #include "libertine/LibertineConfig.h"
-#include <cstdlib>
 
 namespace
 {
-constexpr auto DESKTOP_EXTENSION = ".desktop";
+constexpr auto DESKTOP_EXTENSION   = ".desktop";
+constexpr auto GLOBAL_APPLICATIONS = "usr/share/applications";
+constexpr auto LOCAL_APPLICATIONS  = ".local/share/applications";
 
 GError*
 list_apps_from_path(gchar* path, const gchar* container_id, GArray* apps)
@@ -65,7 +66,7 @@ libertine_list_apps_for_container(const gchar* container_id)
   GError* error = nullptr;
   GArray* apps = g_array_new(TRUE, TRUE, sizeof(gchar*));
 
-  auto globalPath = g_build_filename("/", g_strdup(path), "usr/share/applications", nullptr);
+  auto globalPath = g_build_filename("/", g_strdup(path), GLOBAL_APPLICATIONS, nullptr);
   error = list_apps_from_path(globalPath, container_id, apps);
   if (error != nullptr)
   {
@@ -77,13 +78,16 @@ libertine_list_apps_for_container(const gchar* container_id)
   }
   g_free(globalPath);
 
-  auto localPath = g_build_filename("/", g_strdup(path), getenv("HOME"), ".local/share/applications", nullptr);
-  error = list_apps_from_path(localPath, container_id, apps);
+  auto home_path = libertine_container_home_path(container_id);
+  auto local_path = g_build_filename(home_path, LOCAL_APPLICATIONS, nullptr);
+  g_free(home_path);
+
+  error = list_apps_from_path(local_path, container_id, apps);
   if (error != nullptr)
   {
     g_error_free(error); // free error, but return previously found apps
   }
-  g_free(localPath);
+  g_free(local_path);
 
   g_free(path);
   return (gchar**)g_array_free(apps, FALSE);
