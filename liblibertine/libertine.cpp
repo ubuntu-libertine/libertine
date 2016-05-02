@@ -20,41 +20,73 @@
 #include "liblibertine/libertine.h"
 #include "libertine/ContainerConfigList.h"
 #include "libertine/LibertineConfig.h"
+#include <cstdlib>
 
-
-gchar **
-libertine_list_apps_for_container(const gchar * container_id)
+namespace
 {
-  g_return_val_if_fail(container_id != NULL, NULL);
-  gchar * path = NULL;
-  path = libertine_container_path(container_id);
-  GArray * apps = g_array_new(TRUE, TRUE, sizeof(gchar *));
-  GError **error = NULL;
+constexpr auto DESKTOP_EXTENSION = ".desktop";
 
-  gchar * fullpath = g_strjoin("/", g_strdup(path), "usr/share/applications", NULL);
-
-  GDir * dir = g_dir_open(fullpath, 0, error);
-  g_return_val_if_fail(dir != NULL, NULL);
-  
-  const gchar * files;
-  while ((files = g_dir_read_name(dir)) != NULL)
+GError*
+list_apps_from_path(gchar* path, const gchar* container_id, GArray* apps)
+{
+  GError* error = nullptr;
+  GDir * dir = g_dir_open(path, 0, &error);
+  if (error != nullptr)
   {
-    gchar *file = g_build_filename(fullpath, files, NULL);
-    if (g_file_test(file, G_FILE_TEST_IS_REGULAR))
+    return error;
+  }
+
+  const gchar * files;
+  while ((files = g_dir_read_name(dir)) != nullptr)
+  {
+    gchar *file = g_build_filename(path, files, nullptr);
+    if (g_file_test(file, G_FILE_TEST_IS_REGULAR) && g_str_has_suffix(files, DESKTOP_EXTENSION))
     {
-      gchar * basename = g_path_get_basename(file);
-      gchar ** name = g_strsplit(basename, ".", 0);
-      gchar * app_id = g_strjoin("_", g_strdup(container_id), name[0], "0.0", NULL);
+      auto name = g_strdup(files);
+      name[strlen(name)-strlen(DESKTOP_EXTENSION)] = 0; // truncate the file extension
+
+      gchar * app_id = g_strjoin("_", g_strdup(container_id), name, "0.0", nullptr);
       g_array_append_val(apps, app_id);
-      g_strfreev(name);
-      g_free(basename);
+      g_free(name);
     }
     g_free(file);
   }
 
   g_dir_close(dir);
+  return nullptr;
+}
+}
+
+gchar**
+libertine_list_apps_for_container(const gchar* container_id)
+{
+  g_return_val_if_fail(container_id != nullptr, nullptr);
+  gchar* path = libertine_container_path(container_id);
+  GError* error = nullptr;
+  GArray* apps = g_array_new(TRUE, TRUE, sizeof(gchar*));
+
+  auto globalPath = g_build_filename("/", g_strdup(path), "usr/share/applications", nullptr);
+  error = list_apps_from_path(globalPath, container_id, apps);
+  if (error != nullptr)
+  {
+    g_array_free(apps, FALSE);
+    g_free(globalPath);
+    g_free(path);
+    g_error_free(error);
+    return nullptr;
+  }
+  g_free(globalPath);
+
+  auto localPath = g_build_filename("/", g_strdup(path), getenv("HOME"), ".local/share/applications", nullptr);
+  error = list_apps_from_path(localPath, container_id, apps);
+  if (error != nullptr)
+  {
+    g_error_free(error); // free error, but return previously found apps
+  }
+  g_free(localPath);
+
   g_free(path);
-  return (gchar **)g_array_free(apps, FALSE);
+  return (gchar**)g_array_free(apps, FALSE);
 }
 
 gchar **
