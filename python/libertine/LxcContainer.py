@@ -108,8 +108,10 @@ class LibertineLXC(BaseContainer):
             self.stop_container()
             raise RuntimeError("Not able to connect to the network.")
 
-        self.run_in_container("umount /tmp/.X11-unix")
-        self.run_in_container("umount -l /usr/lib/locale")
+        if self.run_in_container("mountpoint -q /tmp/.X11-unix") == 0:
+            self.run_in_container("umount /tmp/.X11-unix")
+        if self.run_in_container("mountpoint -q /usr/lib/locale") == 0:
+            self.run_in_container("umount -l /usr/lib/locale")
 
     def stop_container(self):
         self.container.stop()
@@ -297,6 +299,6 @@ class LibertineLXC(BaseContainer):
         message = "stop " + self.container_id
         libertine_lxc_mgr_sock.send(message.encode())
 
-        # Receive the reply from libertine-lxc-manager (ignore it for now). 
+        # Receive the reply from libertine-lxc-manager (ignore it for now).
         data = libertine_lxc_mgr_sock.recv(1024)
         libertine_lxc_mgr_sock.close()
