@@ -77,6 +77,8 @@ class BaseContainer(metaclass=abc.ABCMeta):
         self.container_type = 'unknown'
         self.container_id = container_id
         self.root_path = libertine.utils.get_libertine_container_rootfs_path(self.container_id)
+        self.default_packages = ['matchbox', 'libnss-extrausers', 'software-properties-common',
+                                 'humanity-icon-theme']
 
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         pass

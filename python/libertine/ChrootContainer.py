@@ -163,22 +163,11 @@ class LibertineChroot(BaseContainer):
             print("Updating the contents of the container after creation...")
         self.update_packages(verbosity)
 
-        if not self.install_package("libnss-extrausers", verbosity):
-            print("Failure installing libnss-extrausers during container creation")
-            self.destroy_libertine_container()
-            return False
-
-        if not self.install_package("software-properties-common", verbosity):
-            print("Failure installing software-properties-common during container creation")
-            self.destroy_libertine_container()
-            return False
-
-        if verbosity == 1:
-            print("Installing Matchbox as the Xmir window manager...")
-        if not self.install_package('matchbox', verbosity):
-            print("Failure installing matchbox during container creation")
-            self.destroy_libertine_container()
-            return False
+        for package in self.default_packages:
+            if not self.install_package(package, verbosity):
+                print("Failure installing %s during container creation" % package)
+                self.destroy_libertine_container()
+                return False
 
         # Check if the container was created as root and chown the user directories as necessary
         chown_recursive_dirs(utils.get_libertine_container_userdata_dir_path(self.container_id))
