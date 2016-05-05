@@ -8,3 +8,7 @@ install(FILES puritine-click.conf libertine-lxc-manager.conf libertine-xmir.conf
         DESTINATION ${CMAKE_INSTALL_DATADIR}/upstart/sessions)
 install(FILES puritine-15.04.1.framework
         DESTINATION ${CMAKE_INSTALL_DATADIR}/click/frameworks)
+
+configure_file("libertine-tools.click-hook.in"
+  "${CMAKE_SOURCE_DIR}/debian/libertine-tools.click-hook"
+  @ONLY)

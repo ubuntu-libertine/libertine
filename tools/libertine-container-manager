@@ -37,7 +37,7 @@ def find_duplicate_container_entry(container_list, container_id):
             return container
 
     return None
- 
+
 
 def merge_container_config_files(filepath):
     merged_json = []
@@ -54,7 +54,7 @@ def merge_container_config_files(filepath):
             if merge_container:
                  main_config['containerList'][i] = merge_container
                  merge_source['containerList'].remove(merge_container)
- 
+
         # Merges in any remaining non-duplicate entries.
         for container in merge_source['containerList']:
             main_config['containerList'].append(container)
@@ -378,7 +378,7 @@ def create(args):
             password = sys.stdin.readline().rstrip()
 
     add_new_container(args.id, args.name, container_type, args.distro)
-    
+
     multiarch = 'disabled'
     if args.multiarch:
         multiarch = 'enabled'

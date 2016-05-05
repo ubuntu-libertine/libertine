@@ -2,7 +2,8 @@ Source: libertine
 Section: utils
 Priority: extra
 Maintainer: Ubuntu Developers <ubuntu-devel-discuss@lists.ubuntu.com>
-Build-Depends: cmake,
+Build-Depends: click-dev,
+               cmake,
                cmake-extras,
                debhelper (>= 9),
                dh-translations,

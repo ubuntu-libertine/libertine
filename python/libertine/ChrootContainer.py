@@ -62,7 +62,8 @@ class LibertineChroot(BaseContainer):
         return cmd.wait()
 
     def destroy_libertine_container(self):
-        shutil.rmtree(self.root_path)
+        container_root = os.path.join(utils.get_libertine_containers_dir_path(), self.container_id)
+        shutil.rmtree(container_root)
 
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         installed_release = self.get_container_distro(self.container_id)
