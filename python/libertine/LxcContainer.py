@@ -284,8 +284,10 @@ class LibertineLXC(BaseContainer):
         # Setup pulse to work inside the container
         os.environ['PULSE_SERVER'] = utils.get_libertine_lxc_pulse_socket_path()
 
+        app_launch_cmd = "sudo -E -u " + os.environ['USER'] + " env PATH=" + os.environ['PATH']
+        cmd = shlex.split(app_launch_cmd)
         self.container.attach_wait(lxc.attach_run_command,
-                                   ['sudo', '-E', '-u', os.environ['USER']] + app_exec_line)
+                                   cmd + app_exec_line)
 
         utils.terminate_window_manager(psutil.Process(window_manager))
 
