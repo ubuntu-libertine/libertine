@@ -69,6 +69,11 @@ if __name__ == '__main__':
     if not libertine.utils.container_exists(args.container_id):
         raise RuntimeError("Container ID %s does not exist." % args.container_id)
 
+    # remove problematic environment variables
+    for e in ['QT_QPA_PLATFORM', 'LD_LIBRARY_PATH', 'FAKECHROOT_BASE', 'FAKECHROOT_CMD_SUBST']:
+        if e in os.environ:
+            del os.environ[e]
+
     session_socket_path = set_dbus_session_socket_path()
 
     session_bridge = launch_libertine_session_bridge(session_socket_path)
