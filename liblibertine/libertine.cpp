@@ -70,11 +70,10 @@ libertine_list_apps_for_container(const gchar* container_id)
   error = list_apps_from_path(globalPath, container_id, apps);
   if (error != nullptr)
   {
-    g_array_free(apps, FALSE);
     g_free(globalPath);
     g_free(path);
     g_error_free(error);
-    return nullptr;
+    return (gchar**)g_array_free(apps, FALSE);
   }
   g_free(globalPath);
 
