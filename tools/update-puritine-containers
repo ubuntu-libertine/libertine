@@ -58,10 +58,13 @@ def find_removed_puritine_symlinks(puritine_symlink_farm_list):
 
 
 def find_new_or_updated_puritine_symlinks(puritine_symlink_farm_list):
-    symlinks = [f for f in os.scandir(puritine_hook_dir) if f.is_symlink()]
+    symlinks = os.listdir(puritine_hook_dir)
 
     for symlink in symlinks:
-        puritine_click_path = os.path.join(puritine_hook_dir, symlink.name)
+        puritine_click_path = os.path.join(puritine_hook_dir, symlink)
+        if not os.path.islink(puritine_click_path):
+            continue
+
         config_file_path = os.path.join(puritine_click_path, puritine_click_config_file)
 
         with open(config_file_path, 'r') as fd:
@@ -73,12 +76,12 @@ def find_new_or_updated_puritine_symlinks(puritine_symlink_farm_list):
 
         if symlink_name:
             # Package exists and symlink name is the same- no update
-            if symlink_name == symlink.name:
+            if symlink_name == symlink:
                 continue
             else:
-                puritine_symlink_farm_list['customContainers'][index]['symlinkName'] = symlink.name
+                puritine_symlink_farm_list['customContainers'][index]['symlinkName'] = symlink
         else:
-            symlink_obj = {'symlinkName': symlink.name, 'id': container_id}
+            symlink_obj = {'symlinkName': symlink, 'id': container_id}
             if 'customContainers' not in puritine_symlink_farm_list:
                 puritine_symlink_farm_list['customContainers'] = [symlink_obj]
             else:
@@ -114,9 +117,11 @@ def find_new_or_updated_puritine_symlinks(puritine_symlink_farm_list):
     return puritine_symlink_farm_list
 
 
-with open(puritine_symlink_farm_file, 'r') as fd:
-    puritine_symlink_farm_list = {}
-    if os.path.getsize(puritine_symlink_farm_file) != 0:
+puritine_symlink_farm_list = {}
+
+if (os.path.exists(puritine_symlink_farm_file) and
+    os.path.getsize(puritine_symlink_farm_file) != 0):
+    with open(puritine_symlink_farm_file, 'r') as fd:
         puritine_symlink_farm_list = json.load(fd)
 
 puritine_symlink_farm_list = find_new_or_updated_puritine_symlinks(puritine_symlink_farm_list)
