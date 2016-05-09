@@ -18,23 +18,25 @@
  */
 import Libertine 1.0
 import QtQuick 2.4
-import Ubuntu.Components 1.2
-import Ubuntu.Components.Popups 1.2
+import Ubuntu.Components 1.3
+import Ubuntu.Components.Popups 1.3
 
 Page {
     id: extraArchiveView
-    title: i18n.tr("Additional Archives and PPAs")
+    header: PageHeader {
+        id: pageHeader
+        title: i18n.tr("Additional Archives and PPAs")
+        trailingActionBar.actions: [
+            Action {
+                iconName: "add"
+                text: i18n.tr("add")
+                description: i18n.tr("Add a new PPA")
+                onTriggered: PopupUtils.open(addArchivePopup)
+            }
+        ]
+    }
     property var archive_name: null
     property var worker: null
-
-    head.actions: [
-        Action {
-            iconName: "add"
-            text: i18n.tr("add")
-            description: i18n.tr("Add a new PPA")
-            onTriggered: PopupUtils.open(addArchivePopup)
-        }
-    ]
 
     Component {
         id: addArchivePopup
@@ -71,7 +73,10 @@ Page {
 
     UbuntuListView {
         id: extraArchiveList
-        anchors.fill: parent
+        anchors {
+            topMargin: pageHeader.height
+            fill: parent
+        }
         visible: !containerArchivesList.empty() ? true : false
         model: containerArchivesList
         delegate: ListItem {

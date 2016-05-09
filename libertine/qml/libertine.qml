@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import QtQuick 2.4
-import Ubuntu.Components 1.2
-import Ubuntu.Components.Popups 1.2
+import Ubuntu.Components 1.3
+import Ubuntu.Components.Popups 1.3
 
 
 MainView {
@@ -40,12 +40,12 @@ MainView {
     Component.onCompleted: {
         mainView.currentContainer = containerConfigList.defaultContainerId
 
-        if (mainView.currentContainer) {
-            containerAppsList.setContainerApps(mainView.currentContainer)
-            pageStack.push(Qt.resolvedUrl("HomeView.qml"))
-        }
-        else if (!containerConfigList.empty()) {
+        if (!containerConfigList.empty()) {
             pageStack.push(Qt.resolvedUrl("ContainersView.qml"))
+            if (mainView.currentContainer) {
+                containerAppsList.setContainerApps(mainView.currentContainer)
+                pageStack.push(Qt.resolvedUrl("HomeView.qml"))
+            }
         }
         else {
             pageStack.push(Qt.resolvedUrl("WelcomeView.qml"))

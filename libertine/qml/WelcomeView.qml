@@ -18,13 +18,21 @@
  */
 import QtQuick 2.4
 import QtQuick.Layouts 1.0
-import Ubuntu.Components 1.2
-import Ubuntu.Components.Popups 1.2
+import Ubuntu.Components 1.3
+import Ubuntu.Components.Popups 1.3
 
 
 Page {
     id: welcomeView
-    title: i18n.tr("Welcome")
+    header: PageHeader {
+        title: i18n.tr("Welcome")
+        leadingActionBar.actions: [
+            Action {
+                iconName: "back"
+                visible: false
+            }
+        ]
+    }
 
     ColumnLayout {
         spacing: units.gu(2)

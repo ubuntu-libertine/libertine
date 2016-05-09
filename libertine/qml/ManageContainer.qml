@@ -18,73 +18,86 @@
  */
 import Libertine 1.0
 import QtQuick 2.4
-import Ubuntu.Components 1.2
-import Ubuntu.Components.ListItems 1.2 as ListItem
+import Ubuntu.Components 1.3
+import Ubuntu.Components.ListItems 1.3 as ListItem
 
 
 Page {
     id: manageView
-    title: i18n.tr("Manage %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
+    header: PageHeader {
+        id: pageHeader
+        title: i18n.tr("Manage %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
+    }
 
-    Column {
-        anchors.left: parent.left
-        anchors.right: parent.right
+    Flickable {
+        anchors {
+            topMargin: pageHeader.height
+            fill: parent
+        }
+        contentHeight: contentItem.childrenRect.height
+        boundsBehavior: Flickable.DragAndOvershootBounds
+        flickableDirection: Flickable.VerticalFlick
 
-        ListItem.Standard {
-            visible: containerConfigList.getHostArchitecture() == 'x86_64' ? true : false
-            control: CheckBox {
-                checked: containerConfigList.getContainerMultiarchSupport(mainView.currentContainer) == 'enabled' ? true : false
-                onClicked: {
-                    var comp = Qt.createComponent("ContainerManager.qml")
-                    if (checked) {
-                        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
-                                                                  "containerId": mainView.currentContainer,
-                                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                                                  "data_list": ["--multiarch", "enable"]})
-                        worker.start()
+        Column {
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            ListItem.Standard {
+                visible: containerConfigList.getHostArchitecture() == 'x86_64' ? true : false
+                control: CheckBox {
+                    checked: containerConfigList.getContainerMultiarchSupport(mainView.currentContainer) == 'enabled' ? true : false
+                    onClicked: {
+                        var comp = Qt.createComponent("ContainerManager.qml")
+                        if (checked) {
+                            var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
+                                                               "containerId": mainView.currentContainer,
+                                                               "containerType": containerConfigList.getContainerType(mainView.currentContainer),
+                                                               "data_list": ["--multiarch", "enable"]})
+                            worker.start()
+                        }
+                        else {
+                            var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
+                                                               "containerId": mainView.currentContainer,
+                                                               "containerType": containerConfigList.getContainerType(mainView.currentContainer),
+                                                               "data_list": ["--multiarch", "disable"]})
+                            worker.start()
+                        }
                     }
-                    else {
-                        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
-                                                                  "containerId": mainView.currentContainer,
-                                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                                                  "data_list": ["--multiarch", "disable"]})
-                        worker.start()
-                   }
                 }
+                text: i18n.tr("i386 multiarch support")
             }
-            text: i18n.tr("i386 multiarch support")
-        }
 
-        ListItem.SingleValue {
-            text: i18n.tr("Additional archives and PPAs")
-            progression: true
-            onClicked: {
-                containerArchivesList.setContainerArchives(mainView.currentContainer)
-                pageStack.push(Qt.resolvedUrl("ExtraArchivesView.qml"))
-            }
-        }
-
-        ListItem.Standard {
-            control: Button {
-                id: updateButton
-                text: i18n.tr("Update…")
-                visible: (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("ready")) ? true : false
+            ListItem.SingleValue {
+                text: i18n.tr("Additional archives and PPAs")
+                progression: true
                 onClicked: {
-                    updateContainer()
+                    containerArchivesList.setContainerArchives(mainView.currentContainer)
+                    pageStack.push(Qt.resolvedUrl("ExtraArchivesView.qml"))
                 }
             }
-            ActivityIndicator {
-                id: updateActivity
-                anchors {
-                    verticalCenter: parent.verticalCenter
-                    right: parent.right
-                    rightMargin: units.gu(2)
+
+            ListItem.Standard {
+                control: Button {
+                    id: updateButton
+                    text: i18n.tr("Update…")
+                    visible: (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("ready")) ? true : false
+                    onClicked: {
+                        updateContainer()
+                    }
                 }
-                visible: (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("updating")) ? true : false
-                running: updateActivity.visible
+                ActivityIndicator {
+                    id: updateActivity
+                    anchors {
+                        verticalCenter: parent.verticalCenter
+                        right: parent.right
+                        rightMargin: units.gu(2)
+                    }
+                    visible: (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("updating")) ? true : false
+                    running: updateActivity.visible
+                }
+                text: i18n.tr("Update container")
             }
-            text: i18n.tr("Update container")
-        }   
+        }
     }
 
     Component.onCompleted: {

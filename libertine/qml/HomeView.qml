@@ -18,25 +18,27 @@
  */
 import Libertine 1.0
 import QtQuick 2.4
-import Ubuntu.Components 1.2
-import Ubuntu.Components.Popups 1.2
+import Ubuntu.Components 1.3
+import Ubuntu.Components.Popups 1.3
 
 
 Page {
     id: homeView
-    title: i18n.tr("Classic Apps - %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
-
-    head.actions: [
-        Action {
-	    iconName: "add"
-	    onTriggered: PopupUtils.open(addAppsMenu, homeView)
-	},
-        Action {
-	    id: settingsButton
-	    iconName: "settings"
-	    onTriggered: PopupUtils.open(settingsMenu, homeView)
-	}
-    ]
+    header: PageHeader {
+        id: pageHeader
+        title: i18n.tr("Classic Apps - %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
+        trailingActionBar.actions: [
+            Action {
+                id: settingsButton
+                iconName: "settings"
+                onTriggered: PopupUtils.open(settingsMenu, homeView)
+            },
+            Action {
+                iconName: "add"
+                onTriggered: PopupUtils.open(addAppsMenu, homeView)
+            }
+        ]
+    }
 
     Component {
         id: enterPackagePopup
@@ -165,7 +167,10 @@ Page {
 
     UbuntuListView {
         id: appsList
-        anchors.fill: parent
+        anchors {
+            topMargin: pageHeader.height
+            fill: parent
+        }
         model: containerAppsList
         visible: !containerAppsList.empty()  ? true : false
         delegate: ListItem {

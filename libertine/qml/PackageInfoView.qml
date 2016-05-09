@@ -19,13 +19,16 @@
 import Libertine 1.0
 import QtQuick 2.4
 import QtQuick.Layouts 1.0
-import Ubuntu.Components 1.2
-import Ubuntu.Components.ListItems 1.2 as ListItem
+import Ubuntu.Components 1.3
+import Ubuntu.Components.ListItems 1.3 as ListItem
 
 
 Page {
     id: packageInfoView
-    title: i18n.tr("Information for the %1 package").arg(mainView.currentPackage)
+    header: PageHeader {
+        id: pageHeader
+        title: i18n.tr("Information for the %1 package").arg(mainView.currentPackage)
+    }
     property string currentContainer: mainView.currentContainer
     property var currentPackage: mainView.currentPackage
     property var statusText: containerConfigList.getAppStatus(currentContainer, currentPackage)
@@ -34,7 +37,10 @@ Page {
 
 
     Flickable {
-        anchors.fill: parent
+        anchors {
+            topMargin: pageHeader.height
+            fill: parent
+        }
         contentHeight: contentItem.childrenRect.height
         boundsBehavior: (contentHeight > packageInfoView.height) ?
                             Flickable.DragAndOvershootBounds :

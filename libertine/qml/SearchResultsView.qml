@@ -19,28 +19,31 @@
 import Libertine 1.0
 import QtQuick 2.4
 import QtQuick.Layouts 1.0
-import Ubuntu.Components 1.2
-import Ubuntu.Components.Popups 1.2
+import Ubuntu.Components 1.3
+import Ubuntu.Components.Popups 1.3
 
 
 Page {
     id: searchResultsView
-    title: i18n.tr("Package Search Results")
+    header: PageHeader {
+        id: pageHeader
+        z: 1000
+        title: i18n.tr("Package Search Results")
+        trailingActionBar.actions: [
+            Action {
+                iconName: "search"
+                text: i18n.tr("Search")
+                description: i18n.tr("Search for packages")
+
+                onTriggered: doSearch()
+            }
+        ]
+    }
     objectName: "searchResultsView"
     property var search_string: null
     property var search_comp: null
     property var search_obj: null
     signal doSearch
-
-    head.actions: [
-        Action {
-            iconName: "search"
-            text: i18n.tr("Search")
-            description: i18n.tr("Search for packages")
-
-            onTriggered: doSearch()
-        }
-    ]
 
     Component {
         id: noResultsPopup
@@ -82,7 +85,7 @@ Page {
         running: searchActivity.visible
         anchors {
             top: parent.top
-            topMargin: units.gu(2)
+            topMargin: units.gu(2) + pageHeader.height
             left: parent.left
             leftMargin: units.gu(2)
         }
@@ -95,7 +98,7 @@ Page {
             left: searchActivity.right
             top: parent.top
             leftMargin: units.gu(2)
-            topMargin: units.gu(2)
+            topMargin: units.gu(2) + pageHeader.height
         }
     }
 

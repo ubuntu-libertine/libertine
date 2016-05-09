@@ -18,12 +18,16 @@
  */
 
 import QtQuick 2.4
-import Ubuntu.Components 1.2
+import Ubuntu.Components 1.3
 
 
 Page {
     id: debianPackagePicker
-    title: i18n.tr("Available Debian Packages to Install")
+    header: PageHeader {
+        id: pageHeader
+        title: i18n.tr("Available Debian Packages to Install")
+    }
+
     property var packageList: null
 
     ListModel {
@@ -32,7 +36,10 @@ Page {
 
     UbuntuListView {
         id: listView
-        anchors.fill: parent
+        anchors {
+            topMargin: pageHeader.height
+            fill: parent
+        }
         model: packageListModel
         visible: packageList.length > 0  ? true : false
 

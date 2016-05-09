@@ -18,8 +18,8 @@
  */
 import Libertine 1.0
 import QtQuick 2.4
-import Ubuntu.Components 1.2
-import Ubuntu.Components.Popups 1.2
+import Ubuntu.Components 1.3
+import Ubuntu.Components.Popups 1.3
 
 
 /**
@@ -28,20 +28,31 @@ import Ubuntu.Components.Popups 1.2
  */
 Page {
     id: containersView
-    title: i18n.tr("My Containers")
-
-    head.actions: [
-        Action {
-            iconName: "add"
-            onTriggered: {
-                var popup = PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
-                popup.passwordDialogSignal.connect(showPasswordDialog)
+    header: PageHeader {
+        id: pageHeader
+        title: i18n.tr("My Containers")
+        trailingActionBar.actions: [
+            Action {
+                iconName: "add"
+                onTriggered: {
+                    var popup = PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
+                    popup.passwordDialogSignal.connect(showPasswordDialog)
+                }
             }
-        }
-    ]
+        ]
+        leadingActionBar.actions: [
+            Action {
+                iconName: "back"
+                visible: false
+            }
+        ]
+    }
 
     UbuntuListView {
-        anchors.fill: parent
+        anchors {
+            topMargin: pageHeader.height
+            fill: parent
+        }
         model: containerConfigList
 
         delegate: ListItem {
@@ -103,7 +114,6 @@ Page {
                         onTriggered: {
                             mainView.currentContainer = containerId
                             containerAppsList.setContainerApps(mainView.currentContainer)
-                            pageStack.pop()
                             pageStack.push(Qt.resolvedUrl("HomeView.qml"))
                         }
                     }
