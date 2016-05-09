@@ -1,3 +1,27 @@
+libertine (1.0.2+16.04.20160506-0ubuntu1) xenial; urgency=medium
+
+  [ Chris Townsend ]
+  * Make a list of packages to install during container creation and also
+    include the humanity-icon-them as one of them. (LP: #1578353)
+  * Add a Click package hook for handling bespoke Puritine container installs
+    This handles multiple Puritine-type containers installed on the same system.
+    (LP: #1576356) (LP: #1576406)
+
+  [ Larry Price ]
+  * Updating liblibertine to search local applications directory for desktop apps.
+    This is to make it easier for u-a-l and ContentHub to find a complete set of
+    available launchable applications.
+
+  [ Ted Gould ]
+  * Add a Click package hook for handling bespoke Puritine container installs
+    This handles multiple Puritine-type containers installed on the same system.
+    (LP: #1576356) (LP: #1576406)
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Ted Gould <ted@gould.cx>  Fri, 06 May 2016 13:43:30 +0000
+
 libertine (1.0.1+16.04.20160425-0ubuntu1) xenial; urgency=medium
 
   [ Chris Townsend ]
