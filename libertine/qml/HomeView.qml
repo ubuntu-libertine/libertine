@@ -173,6 +173,12 @@ Page {
         }
         model: containerAppsList
         visible: !containerAppsList.empty()  ? true : false
+
+        function info(packageName) {
+            mainView.currentPackage = packageName
+            pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"))
+        }
+
         delegate: ListItem {
             Label {
                 text: packageName
@@ -193,6 +199,11 @@ Page {
                           appStatus === i18n.tr("removing")) ? true : false
                 running: appActivity.visible
             }
+
+            onClicked: {
+                appsList.info(packageName);
+            }
+
             leadingActions: ListItemActions {
                 actions: [
                     Action {
@@ -213,8 +224,7 @@ Page {
                         text: i18n.tr("info")
                         description: i18n.tr("Package Info")
                         onTriggered: {
-                            mainView.currentPackage = packageName
-                            pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"))
+                            appsList.info(packageName)
                         }
                     }
                 ]

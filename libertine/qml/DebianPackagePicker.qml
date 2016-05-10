@@ -43,6 +43,11 @@ Page {
         model: packageListModel
         visible: packageList.length > 0  ? true : false
 
+        function install(fileName) {
+            pageStack.pop()
+            pageStack.currentPage.installPackage(containerConfigList.getDownloadsLocation() + "/" + fileName)
+        }
+
         delegate: ListItem {
             id: packageItem
             Label {
@@ -53,15 +58,18 @@ Page {
                     leftMargin: units.gu(2)
                 }
             }
+
+            onClicked: {
+                listView.install(model.file_name)
+            }
+
             trailingActions: ListItemActions {
                 actions: [
                     Action {
                         iconName: "select"
                         description: i18n.tr("Install Package")
                         onTriggered: {
-                            var package_path = containerConfigList.getDownloadsLocation() + "/" + model.file_name
-                            pageStack.pop()
-                            pageStack.currentPage.installPackage(package_path)
+                            listView.install(model.file_name)
                         }
                     }
                 ]

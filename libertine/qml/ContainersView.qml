@@ -49,11 +49,18 @@ Page {
     }
 
     UbuntuListView {
+        id: containersList
         anchors {
             topMargin: pageHeader.height
             fill: parent
         }
         model: containerConfigList
+
+        function edit(containerId) {
+            mainView.currentContainer = containerId
+            containerAppsList.setContainerApps(mainView.currentContainer)
+            pageStack.push(Qt.resolvedUrl("HomeView.qml"))
+        }
 
         delegate: ListItem {
             Label {
@@ -75,6 +82,8 @@ Page {
                           installStatus === i18n.tr("removing")) ? true : false
                 running: containerActivity.visible
             }
+
+            onClicked: { containersList.edit(containerId) }
 
             leadingActions: ListItemActions {
                 actions: [
@@ -112,9 +121,7 @@ Page {
                         visible: (installStatus === i18n.tr("ready") ||
                                   installStatus === i18n.tr("updating")) ? true : false
                         onTriggered: {
-                            mainView.currentContainer = containerId
-                            containerAppsList.setContainerApps(mainView.currentContainer)
-                            pageStack.push(Qt.resolvedUrl("HomeView.qml"))
+                            containersList.edit(containerId)
                         }
                     }
                 ]

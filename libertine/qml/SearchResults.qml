@@ -27,6 +27,16 @@ UbuntuListView {
         topMargin: pageHeader.height
         fill: parent
     }
+
+    function install(packageName) {
+        if (!containerConfigList.isAppInstalled(mainView.currentContainer, packageName)) {
+            pageStack.pop()
+            pageStack.currentPage.installPackage(packageName)
+        }
+        else {
+            PopupUtils.open(Qt.resolvedUrl("PackageExistsDialog.qml"), null, {"package_name": packageName})
+        }
+    }
     
     delegate: ListItem {
         id: packageItem
@@ -38,19 +48,18 @@ UbuntuListView {
                 leftMargin: units.gu(2)
             }
         }
+
+        onClicked: {
+            listView.install(model.package_name)
+        }
+
         trailingActions: ListItemActions {
             actions: [
                 Action {
                     iconName: "select"
                     description: i18n.tr("Install Package")
                     onTriggered: {
-                         if (!containerConfigList.isAppInstalled(mainView.currentContainer, model.package_name)) {
-                             pageStack.pop()
-                             pageStack.currentPage.installPackage(model.package_name)
-                         }
-                         else {
-                             PopupUtils.open(Qt.resolvedUrl("PackageExistsDialog.qml"), null, {"package_name": model.package_name})
-                         }
+                        listView.install(model.package_name)
                     }
                 }
             ]

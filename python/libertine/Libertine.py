@@ -360,7 +360,7 @@ class LibertineContainer(object):
         """
         try:
             with ContainerRunning(self.container):
-                self.container.run_in_container("/usr/bin/apt-cache search '" + search_string + "'")
+                return self.container.run_in_container("/usr/bin/apt-cache search '" + search_string + "'")
         except RuntimeError as e:
             return handle_runtime_error(e)
 
