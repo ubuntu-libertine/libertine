@@ -295,6 +295,6 @@ class LibertineLXC(BaseContainer):
         message = "stop " + self.container_id
         libertine_lxc_mgr_sock.send(message.encode())
 
-        # Receive the reply from libertine-lxc-manager (ignore it for now).
+        # Receive the reply from libertine-lxc-manager (ignore it for now). 
         data = libertine_lxc_mgr_sock.recv(1024)
         libertine_lxc_mgr_sock.close()

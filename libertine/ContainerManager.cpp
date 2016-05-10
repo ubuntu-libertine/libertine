@@ -19,8 +19,23 @@
 #include "libertine/ContainerManager.h"
 
 #include <QtCore/QProcess>
+#include <iostream>
+namespace
+{
+static const QString FAILED_TO_START = QObject::tr("%1 failed to start");
+static const QString PACKAGE_INSTALLATION_FAILED = QObject::tr("Installation of package %1 failed");
+static const QString PACKAGE_REMOVAL_FAILED = QObject::tr("Removal of package %1 failed");
+static const QString PACKAGE_SEARCH_FAILED = QObject::tr("Searching for query %1 failed");
+static const QString CONTAINER_UPDATE_FAILED = QObject::tr("Updating container %1 failed");
+static const QString RUN_COMMAND_FAILED = QObject::tr("Running command %1 failed");
+static const QString CONTAINER_CONFIGURE_FAILED = QObject::tr("Attempt to configure container %1 failed");
 
-
+static const QString readAllStdOutOrStdErr(QProcess& proc)
+{
+  auto out = proc.readAllStandardOutput();
+  return out.isEmpty() ? proc.readAllStandardError() : out;
+}
+}
 const QString ContainerManagerWorker::libertine_container_manager_tool = "libertine-container-manager";
 
 
@@ -226,19 +241,24 @@ createContainer(QString const& password)
   args << "create" << "-i" << container_id_ << "-d" << container_distro_ << "-n" << container_name_;
 
   if (container_multiarch_)
+  {
     args << "-m";
+  }
 
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
+  {
+    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
     quit();
+    return;
+  }
 
-  libertine_cli_tool.write(password.toStdString().c_str()); 
+  libertine_cli_tool.write(password.toStdString().c_str());
   libertine_cli_tool.closeWriteChannel();
 
   libertine_cli_tool.waitForFinished(-1);
 
-  emit finished();
   quit();
 }
 
@@ -254,12 +274,15 @@ destroyContainer()
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
+  {
+    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
     quit();
+    return;
+  }
 
   libertine_cli_tool.waitForFinished(-1);
 
   emit finishedDestroy(container_id_);
-  emit finished();
   quit();
 }
 
@@ -267,9 +290,6 @@ destroyContainer()
 void ContainerManagerWorker::
 installPackage(QString const& package_name)
 {
-  QByteArray error_msg;
-  bool result = true;
-
   QProcess libertine_cli_tool;
   QString exec_line = libertine_container_manager_tool;
   QStringList args;
@@ -279,18 +299,16 @@ installPackage(QString const& package_name)
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
+  {
+    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
     quit();
-
+    return;
+  }
   libertine_cli_tool.waitForFinished(-1);
-
   if (libertine_cli_tool.exitCode() != 0)
   {
-    error_msg = libertine_cli_tool.readAllStandardError();
-    result = false;
+    emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), libertine_cli_tool.readAllStandardError());
   }
-
-  emit finishedInstall(package_name, result, QString(error_msg));
-  emit finished();
   quit();
 }
 
@@ -298,9 +316,6 @@ installPackage(QString const& package_name)
 void ContainerManagerWorker::
 removePackage(QString const& package_name)
 {
-  QByteArray error_msg;
-  bool result = true;
-
   QProcess libertine_cli_tool;
   QString exec_line = libertine_container_manager_tool;
   QStringList args;
@@ -309,18 +324,19 @@ removePackage(QString const& package_name)
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
-    quit();
-
-  libertine_cli_tool.waitForFinished(-1);
-
-  if (libertine_cli_tool.exitCode() != 0)
   {
-    error_msg = libertine_cli_tool.readAllStandardError();
-    result = false;
+    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAllStandardError());
+    quit();
+    return;
   }
 
-  emit finishedRemove(package_name, result, QString(error_msg));
-  emit finished();
+  libertine_cli_tool.waitForFinished(-1);
+  if (libertine_cli_tool.exitCode() != 0)
+  {
+    emit error(PACKAGE_REMOVAL_FAILED.arg(package_name), readAllStdOutOrStdErr(libertine_cli_tool));
+    quit();
+    return;
+  }
   quit();
 }
 
@@ -333,34 +349,42 @@ searchPackageCache(QString const& search_string)
   QStringList args;
   QByteArray search_output;
   QList<QString> packageList;
-  bool result = true;
 
   args << "search-cache" << "-i" << container_id_ << "-s" << search_string;
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
+  {
+    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
     quit();
+    return;
+  }
 
   libertine_cli_tool.waitForFinished(-1);
-
-  search_output = libertine_cli_tool.readAllStandardOutput();
-
-  if (search_output.isEmpty())
+  if (libertine_cli_tool.exitCode() != 0)
   {
-    result = false;
+    QString err(libertine_cli_tool.readAllStandardError());
+    if (!err.isEmpty())
+    {
+      emit error(PACKAGE_SEARCH_FAILED.arg(search_string), err);
+      quit();
+      return;
+    }
+    // if there is no error message, there probably were no packages found
+    // continue to return an empty list
   }
   else
   {
+    search_output = libertine_cli_tool.readAllStandardOutput();
     QList<QByteArray> packages = search_output.split('\n');
 
-    foreach (const QByteArray &package, packages)
+    for (const auto& package: packages)
     {
       packageList.append(QString(package));
     }
   }
 
-  emit finishedSearch(result, packageList);
-  emit finished();
+  emit finishedSearch(packageList);
   quit();
 }
 
@@ -377,11 +401,20 @@ updateContainer()
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
+  {
+    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
     quit();
+    return;
+  }
 
   libertine_cli_tool.waitForFinished(-1);
+  if (libertine_cli_tool.exitCode() != 0)
+  {
+    emit error(CONTAINER_UPDATE_FAILED.arg(container_name_), readAllStdOutOrStdErr(libertine_cli_tool));
+    quit();
+    return;
+  }
 
-  emit finished();
   quit();
 }
 
@@ -390,22 +423,28 @@ void ContainerManagerWorker::
 runCommand(QString const& command_line)
 {
   QProcess libertine_cli_tool;
-  QString exec_line = libertine_container_manager_tool;
+  QString exec_line = libertine_container_manager_tool, command_output, error_msg;
   QStringList args;
-  QByteArray command_output;
 
   args << "exec" << "-i" << container_id_ << "-c" << command_line;
 
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
+  {
+    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
     quit();
-
+    return;
+  }
   libertine_cli_tool.waitForFinished(-1);
+  if (libertine_cli_tool.exitCode() != 0)
+  {
+    emit error(RUN_COMMAND_FAILED.arg(command_line), readAllStdOutOrStdErr(libertine_cli_tool));
+    quit();
+    return;
+  }
 
-  command_output = libertine_cli_tool.readAllStandardOutput();
-
-  emit finishedCommand(QString(command_output));
+  emit finishedCommand(libertine_cli_tool.readAllStandardOutput());
   quit();
 }
 
@@ -413,29 +452,28 @@ runCommand(QString const& command_line)
 void ContainerManagerWorker::
 configureContainer(QStringList configure_command)
 {
-  QByteArray error_msg;
-  bool result = true;
-
   QProcess libertine_cli_tool;
   QString exec_line = libertine_container_manager_tool;
   QStringList args;
 
   args << "configure" << "-i" << container_id_ << configure_command.at(0) << configure_command.mid(1);
 
-    libertine_cli_tool.start(exec_line, args);
+  libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
+  {
+    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
     quit();
+    return;
+  }
 
   libertine_cli_tool.waitForFinished(-1);
 
   if (libertine_cli_tool.exitCode() != 0)
   {
-    error_msg = libertine_cli_tool.readAllStandardOutput();
-    result = false;
+    error(CONTAINER_CONFIGURE_FAILED.arg(container_name_), readAllStdOutOrStdErr(libertine_cli_tool));
   }
 
-  emit finishedConfigure(result, QString(error_msg));
-  emit finished();
+  emit finishedConfigure();
   quit();
 }

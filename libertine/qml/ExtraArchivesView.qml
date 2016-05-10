@@ -37,6 +37,7 @@ Page {
     }
     property var archive_name: null
     property var worker: null
+    signal error(string description, string details)
 
     Component {
         id: addArchivePopup
@@ -131,6 +132,8 @@ Page {
                                               "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                               "data_list": ["--add-archive", archive]})
         worker.finishedConfigure.connect(finishedConfigure)
+        worker.error.connect(sendAddError)
+        error.connect(mainView.error)
         worker.start()
     }
 
@@ -141,23 +144,9 @@ Page {
                                               "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                               "data_list": ["--delete-archive", archive]})
         worker.finishedConfigure.connect(finishedConfigure)
+        worker.error.connect(sendDeleteError)
+        error.connect(mainView.error)
         worker.start()
-    }
-
-    Component {
-        id: addFailedPopup
-
-        Dialog {
-            property var error_msg: null
-            id: addFailedDialog
-            title: i18n.tr("Adding archive failed")
-            text: error_msg
-
-            Button {
-                text: i18n.tr("Dismiss")
-                onClicked: PopupUtils.close(addFailedDialog)
-            }
-        }
     }
 
     Component.onCompleted: {
@@ -167,8 +156,12 @@ Page {
     Component.onDestruction: {
         containerConfigList.configChanged.disconnect(reloadArchives)
 
+        error.disconnect(mainView.error)
+
         if (worker) {
             worker.finishedConfigure.disconnect(finishedConfigure)
+            worker.error.disconnect(sendAddError)
+            worker.error.disconnect(sendDeleteError)
         }
     }
 
@@ -178,12 +171,15 @@ Page {
         extraArchiveList.visible = !containerArchivesList.empty() ? true : false
     }
 
-    function finishedConfigure(result, error_msg) {
-        if (result) {
-            containerArchivesList.setContainerArchives(mainView.currentContainer)
-        }
-        else {
-            PopupUtils.open(addFailedPopup, null, {'error_msg': error_msg})
-        }
-    }  
+    function finishedConfigure() {
+        containerArchivesList.setContainerArchives(mainView.currentContainer)
+    }
+
+    function sendAddError(desc, details) {
+        error(i18n.tr("Adding archive failed"), details)
+    }
+
+    function sendDeleteError(desc, details) {
+        error(i18n.tr("Deleting archive failed"), details)
+    }
 }

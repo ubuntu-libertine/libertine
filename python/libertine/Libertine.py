@@ -404,7 +404,7 @@ class LibertineContainer(object):
         """
         try:
             with ContainerRunning(self.container):
-                return self.container.run_in_container(exec_line)
+                return self.container.run_in_container(exec_line) == 0
         except RuntimeError as e:
             return handle_runtime_error(e)
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-04-22 09:44-0400\n"
+"POT-Creation-Date: 2016-05-09 10:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,37 +17,49 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: ../libertine/ContainerManager.cpp:25
+msgid "%1 failed to start"
+msgstr ""
+
+#: ../libertine/ContainerManager.cpp:26
+msgid "Installation of package %1 failed"
+msgstr ""
+
+#: ../libertine/ContainerManager.cpp:27
+msgid "Removal of package %1 failed"
+msgstr ""
+
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
 msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:185
-#: ../libertine/qml/libertine.qml:58 ../libertine/qml/ContainersView.qml:63
-#: ../libertine/qml/HomeView.qml:187 ../libertine/qml/ExtraArchivesView.qml:93
+#: ../libertine/qml/ContainersView.qml:63 ../libertine/qml/HomeView.qml:187
+#: ../libertine/qml/ExtraArchivesView.qml:94
 msgid "installing"
 msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:101
 #: ../libertine/qml/ManageContainer.qml:71
-#: ../libertine/qml/ManageContainer.qml:111
+#: ../libertine/qml/ManageContainer.qml:112
 msgid "ready"
 msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:102
 #: ../libertine/qml/ManageContainer.qml:83
-#: ../libertine/qml/ManageContainer.qml:107
+#: ../libertine/qml/ManageContainer.qml:108
 msgid "updating"
 msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:151 ../libertine/ContainerConfig.cpp:188
-#: ../libertine/qml/libertine.qml:65 ../libertine/qml/ContainersView.qml:64
-#: ../libertine/qml/HomeView.qml:188 ../libertine/qml/ExtraArchivesView.qml:94
+#: ../libertine/qml/ContainersView.qml:64 ../libertine/qml/HomeView.qml:188
+#: ../libertine/qml/ExtraArchivesView.qml:95
 msgid "removing"
 msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:189
 #: ../libertine/qml/ContainerInfoView.qml:88
-#: ../libertine/qml/PackageInfoView.qml:85
+#: ../libertine/qml/PackageInfoView.qml:91
 msgid "removed"
 msgstr ""
 
@@ -83,15 +95,19 @@ msgstr ""
 #: ../libertine/qml/ContainerOptionsDialog.qml:64
 #: ../libertine/qml/ContainerPasswordDialog.qml:52
 #: ../libertine/qml/SearchPackagesDialog.qml:39
-#: ../libertine/qml/HomeView.qml:65 ../libertine/qml/ExtraArchivesView.qml:54
+#: ../libertine/qml/HomeView.qml:65 ../libertine/qml/ExtraArchivesView.qml:55
 msgid "OK"
 msgstr ""
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:75
 #: ../libertine/qml/ContainerPasswordDialog.qml:70
 #: ../libertine/qml/SearchPackagesDialog.qml:57
-#: ../libertine/qml/HomeView.qml:86 ../libertine/qml/ExtraArchivesView.qml:62
+#: ../libertine/qml/HomeView.qml:86 ../libertine/qml/ExtraArchivesView.qml:63
 msgid "Cancel"
+msgstr ""
+
+#: ../libertine/qml/GenericErrorDialog.qml:32
+msgid "Dismiss"
 msgstr ""
 
 #: ../libertine/qml/SearchResultsView.qml:28
@@ -170,16 +186,6 @@ msgstr ""
 
 #: ../libertine/qml/ContainerInfoView.qml:69
 msgid "Status"
-msgstr ""
-
-#. Either "installing" or "removing"
-#: ../libertine/qml/PackageOperationFailureDialog.qml:29
-msgid "Failure %1 the %2 package."
-msgstr ""
-
-#: ../libertine/qml/PackageOperationFailureDialog.qml:33
-#: ../libertine/qml/ExtraArchivesView.qml:152
-msgid "Dismiss"
 msgstr ""
 
 #: ../libertine/qml/ContainersView.qml:31
@@ -291,20 +297,24 @@ msgstr ""
 msgid "No packages are installed"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:28
+#: ../libertine/qml/PackageInfoView.qml:29
 msgid "Information for the %1 package"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:32
+#: ../libertine/qml/PackageInfoView.qml:33
 msgid "Obtaining package version…"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:49
+#: ../libertine/qml/PackageInfoView.qml:51
 msgid "Package version"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:56
+#: ../libertine/qml/PackageInfoView.qml:58
 msgid "Install status"
+msgstr ""
+
+#: ../libertine/qml/PackageInfoView.qml:100
+msgid "Unknown"
 msgstr ""
 
 #: ../libertine/qml/WelcomeView.qml:27
@@ -330,36 +340,40 @@ msgstr ""
 msgid "Additional Archives and PPAs"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:33
+#: ../libertine/qml/ExtraArchivesView.qml:34
 msgid "add"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:34
+#: ../libertine/qml/ExtraArchivesView.qml:35
 msgid "Add a new PPA"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:43
+#: ../libertine/qml/ExtraArchivesView.qml:44
 msgid "Add additional PPA"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:44
+#: ../libertine/qml/ExtraArchivesView.qml:45
 msgid "Enter name of PPA in the form ppa:user/ppa-name:"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:101
+#: ../libertine/qml/ExtraArchivesView.qml:102
 msgid "remove"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:102
+#: ../libertine/qml/ExtraArchivesView.qml:103
 msgid "Remove extra archive"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:119
+#: ../libertine/qml/ExtraArchivesView.qml:120
 msgid "No additional archives and PPA's have been added"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:148
+#: ../libertine/qml/ExtraArchivesView.qml:174
 msgid "Adding archive failed"
+msgstr ""
+
+#: ../libertine/qml/ExtraArchivesView.qml:178
+msgid "Deleting archive failed"
 msgstr ""
 
 #: ../libertine/qml/PackageExistsDialog.qml:28

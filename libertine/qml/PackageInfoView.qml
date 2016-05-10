@@ -76,12 +76,16 @@ Page {
                                               "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                               "data": command })
         worker.finishedCommand.connect(getPackageVersion)
+        worker.error.connect(mainView.error)
+        worker.error.connect(onError)
         worker.start()
     }
 
     Component.onDestruction: {
         containerConfigList.configChanged.disconnect(reloadStatus)
         worker.finishedCommand.disconnect(getPackageVersion)
+        worker.error.disconnect(mainView.error)
+        worker.error.disconnect(onError)
     }
 
     function reloadStatus() {
@@ -94,5 +98,9 @@ Page {
 
     function getPackageVersion(command_output) {
         packageVersionText = containerConfigList.getAppVersion(command_output)
+    }
+
+    function onError() {
+        packageVersionText = i18n.tr("Unknown")
     }
 }

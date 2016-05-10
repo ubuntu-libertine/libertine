@@ -29,7 +29,7 @@ namespace
 
 struct pam_response *reply;
 
-int function_conversation(int num_msg, const struct pam_message **msg, struct pam_response **resp, void *appdata_ptr)
+int function_conversation(int, const struct pam_message**, struct pam_response **resp, void*)
 {
   *resp = reply;
   return PAM_SUCCESS;

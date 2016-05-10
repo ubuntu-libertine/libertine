@@ -113,6 +113,7 @@ Page {
         var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Update,
                                                   "containerId": mainView.currentContainer,
                                                   "containerType": containerConfigList.getContainerType(mainView.currentContainer)})
+        worker.error.connect(mainView.error);
         worker.start()
     }
 

@@ -191,7 +191,6 @@ getAppVersion(QString const& app_info)
   else
   {
     QStringList info = app_info.split('\n');
-
     return info.at(1).section(": ", 1, 1);
   }
 } 

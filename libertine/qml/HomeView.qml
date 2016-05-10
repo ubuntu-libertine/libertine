@@ -238,7 +238,7 @@ Page {
                                                   "containerId": mainView.currentContainer,
                                                   "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                                   "data": package_name})
-        worker.finishedInstall.connect(mainView.packageInstallFinished)
+        worker.error.connect(mainView.error)
         worker.start()
     }
 
@@ -248,7 +248,7 @@ Page {
                                                   "containerId": mainView.currentContainer,
                                                   "containerType": containerConfigList.getContainerType(mainView.currentContainer),
                                                   "data": packageName})
-        worker.finishedRemove.connect(mainView.packageRemoveFinished)
+        worker.error.connect(mainView.error)
         worker.start()
     }
 }

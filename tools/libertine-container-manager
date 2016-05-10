@@ -519,7 +519,8 @@ def exec(args):
 
     container = LibertineContainer(args.id)
 
-    sys.exit(container.exec_command(args.command))
+    if not container.exec_command(args.command):
+        sys.exit(1)
 
 
 def configure(args):

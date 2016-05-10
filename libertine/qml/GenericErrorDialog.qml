@@ -21,16 +21,15 @@ import Ubuntu.Components 1.3
 import Ubuntu.Components.Popups 1.3
 
 Dialog {
-    id: packageOperationFailedDialog
-    property var package_name: null
-    property var error_msg: null
-    property var operation: null // Either "installing" or "removing"
+    id: genericErrorDialog
+    property var short_description: null
+    property var details: null
 
-    title: i18n.tr("Failure %1 the %2 package.").arg(operation).arg(package_name)
-    text: error_msg
+    title: short_description
+    text: details
 
     Button {
         text: i18n.tr("Dismiss")
-        onClicked: PopupUtils.close(packageOperationFailedDialog)
+        onClicked: PopupUtils.close(genericErrorDialog)
     }
 }

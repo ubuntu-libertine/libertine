@@ -148,13 +148,14 @@ signals:
   void containerNameChanged();
   void dataChanged();
   void dataListChanged();
-  void finished();
   void finishedDestroy(QString const& container_id);
   void finishedInstall(QString const& package_name, bool result, QString const& error_msg);
   void finishedRemove(QString const& package_name, bool result, QString const& error_msg);
-  void finishedSearch(bool result, QList<QString> packageList);
+  void finishedSearch(QList<QString> packageList);
   void finishedCommand(QString const& command_output);
-  void finishedConfigure(bool result, QString const& error_msg);
+  void finishedConfigure();
+
+  void error(const QString& short_description, const QString& details);
 };
 
 #endif /* CONTAINER_CONTAINERMANAGER_H_ */

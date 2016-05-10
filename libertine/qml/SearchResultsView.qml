@@ -124,12 +124,13 @@ Page {
         worker.containerId = mainView.currentContainer
         worker.data = search_string
         worker.finishedSearch.connect(finishedSearch)
+        worker.error.connect(mainView.error)
         worker.start()
-    }     
+    }
 
-    function finishedSearch(result, packageList) {
+    function finishedSearch(packageList) {
         searchActivity.visible = false
-        if (result) {
+        if (packageList.length > 0) {
             for (var i = 0; i < packageList.length; ++i)
             {
                 packageListModel.append({"package_desc": packageList[i], "package_name": packageList[i].split(' ')[0]})

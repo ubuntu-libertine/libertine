@@ -16,6 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 import QtQuick 2.4
 import Ubuntu.Components 1.3
 import Ubuntu.Components.Popups 1.3
@@ -30,8 +31,7 @@ MainView {
     property var currentContainer: undefined
     property var currentPackage: undefined
 
-    signal packageInstallFinished(string package_name, bool result, string message)
-    signal packageRemoveFinished(string package_name, bool result, string message)
+    signal error(string short_description, string details)
 
     PageStack {
         id: pageStack
@@ -52,17 +52,8 @@ MainView {
         }
     }
 
-    onPackageInstallFinished: {
-        if (!result) {
-           PopupUtils.open(Qt.resolvedUrl("PackageOperationFailureDialog.qml"), null,
-                                          {"package_name": package_name, "error_msg": message, "operation": i18n.tr("installing")})
-        }
-    }
-
-    onPackageRemoveFinished: {
-        if (!result) {
-           PopupUtils.open(Qt.resolvedUrl("PackageOperationFailureDialog.qml"), null,
-                           {"package_name": package_name, "error_msg": message, "operation": i18n.tr("removing")})
-        }
+    onError: {
+        PopupUtils.open(Qt.resolvedUrl("GenericErrorDialog.qml"), null,
+                                       {"short_description": short_description, "details": details})
     }
 }
