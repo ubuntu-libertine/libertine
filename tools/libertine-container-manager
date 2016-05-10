@@ -553,12 +553,11 @@ def configure(args):
 
         add_container_archive(args.id, args.add_archive)
         update_archive_install_status(args.id, args.add_archive, 'installing')
-        if container.configure_command('add-archive', args.add_archive) != 0:
+        if container.configure_command('add-archive', args.add_archive) is not 0:
             delete_container_archive(args.id, args.add_archive)
             sys.exit(1)
 
         update_archive_install_status(args.id, args.add_archive, 'installed')
-
 
     elif args.delete_archive:
         if not archive_exists(args.id, args.delete_archive):
@@ -566,7 +565,7 @@ def configure(args):
             sys.exit(1)
 
         update_archive_install_status(args.id, args.delete_archive, 'removing')
-        if container.configure_command('delete-archive', args.delete_archive) != 0:
+        if container.configure_command('delete-archive', args.delete_archive) is not 0:
             sys.exit(1)
 
         delete_container_archive(args.id, args.delete_archive)
@@ -589,7 +588,7 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose',
                         action='store_const', dest='verbosity', const=2,
                         help=('extra verbose output'))
-    subparsers = parser.add_subparsers(dest="subparser_name", 
+    subparsers = parser.add_subparsers(dest="subparser_name",
                                        title="subcommands",
                                        metavar='create, destroy, install-package, remove-package, search-cache, update, list, list-apps, configure')
 
