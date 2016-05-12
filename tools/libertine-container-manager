@@ -486,7 +486,7 @@ def update(args):
     container = LibertineContainer(args.id)
 
     update_container_install_status(args.id, "updating")
-    if not container.update_libertine_container(args.verbosity):
+    if container.update_libertine_container(args.verbosity) is not 0:
         update_container_install_status(args.id, "ready")
         sys.exit(1)
 

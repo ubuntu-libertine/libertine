@@ -127,7 +127,7 @@ class LibertineLXC(BaseContainer):
             self.run_in_container("rm -f /etc/localtime")
             self.run_in_container("dpkg-reconfigure -f noninteractive tzdata")
 
-        super().update_packages(verbosity)
+        return super().update_packages(verbosity)
 
     def destroy_libertine_container(self):
         if self.container.defined:
@@ -295,6 +295,6 @@ class LibertineLXC(BaseContainer):
         message = "stop " + self.container_id
         libertine_lxc_mgr_sock.send(message.encode())
 
-        # Receive the reply from libertine-lxc-manager (ignore it for now). 
+        # Receive the reply from libertine-lxc-manager (ignore it for now).
         data = libertine_lxc_mgr_sock.recv(1024)
         libertine_lxc_mgr_sock.close()

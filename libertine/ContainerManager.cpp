@@ -19,7 +19,7 @@
 #include "libertine/ContainerManager.h"
 
 #include <QtCore/QProcess>
-#include <iostream>
+
 namespace
 {
 static const QString FAILED_TO_START = QObject::tr("%1 failed to start");

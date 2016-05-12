@@ -176,9 +176,9 @@ class LibertineChroot(BaseContainer):
         return True
 
     def update_packages(self, verbosity=1):
-        super().update_packages(verbosity)
-
+        retcode = super().update_packages(verbosity)
         self._run_ldconfig(verbosity)
+        return retcode
 
     def install_package(self, package_name, verbosity=1, extra_apt_args=""):
         returncode = super().install_package(package_name, verbosity, extra_apt_args)

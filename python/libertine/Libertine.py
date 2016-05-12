@@ -146,7 +146,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         :param verbosity: the chattiness of the output on a range from 0 to 2
         """
         self.run_in_container(apt_command_prefix(verbosity) + '--force-yes update')
-        self.run_in_container(apt_command_prefix(verbosity) + '--force-yes upgrade')
+        return self.run_in_container(apt_command_prefix(verbosity) + '--force-yes upgrade')
 
     def install_package(self, package_name, verbosity=1, extra_apt_args=""):
         """
@@ -308,7 +308,7 @@ class LibertineContainer(object):
         """
         Destroys the container and releases all its system resources.
         """
-        self.container.destroy_libertine_container()
+        return self.container.destroy_libertine_container()
 
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         """
@@ -322,7 +322,7 @@ class LibertineContainer(object):
         """
         try:
             with ContainerRunning(self.container):
-                self.container.update_packages(verbosity)
+                return self.container.update_packages(verbosity)
         except RuntimeError as e:
             return handle_runtime_error(e)
 
