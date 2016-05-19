@@ -24,6 +24,8 @@
 #include <QtCore/QStringList>
 #include <QtCore/QThread>
 
+class QProcess;
+
 class ContainerManagerWorker
 : public QThread
 {
@@ -117,6 +119,9 @@ public:
   void
   data_list(QStringList data_list);
 
+public slots:
+  void packageOperationInteraction(const QString& input);
+
 protected:
   void run() Q_DECL_OVERRIDE;
 
@@ -129,6 +134,7 @@ private:
   void updateContainer();
   void runCommand(QString const& command_line);
   void configureContainer(QStringList configure_command);
+  QString monitorOperation(QProcess& op, const QString& package_name);
 
 private:
   ContainerAction container_action_;
@@ -139,6 +145,7 @@ private:
   bool container_multiarch_;
   QString data_;
   QStringList data_list_;
+  QProcess* currentOperation;
 
 signals:
   void containerActionChanged();
@@ -154,6 +161,7 @@ signals:
   void finishedSearch(QList<QString> packageList);
   void finishedCommand(QString const& command_output);
   void finishedConfigure();
+  void updatePackageOperationDetails(const QString& container_id, const QString& package_name, const QString& details);
 
   void error(const QString& short_description, const QString& details);
 };

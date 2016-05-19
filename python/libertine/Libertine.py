@@ -148,7 +148,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         self.run_in_container(apt_command_prefix(verbosity) + '--force-yes update')
         return self.run_in_container(apt_command_prefix(verbosity) + '--force-yes upgrade')
 
-    def install_package(self, package_name, verbosity=1, extra_apt_args=""):
+    def install_package(self, package_name, verbosity=1, readline=False):
         """
         Installs a named package in the container.
 
@@ -163,16 +163,17 @@ class BaseContainer(metaclass=abc.ABCMeta):
             self.run_in_container('dpkg -i ' +
                 os.path.join('/', 'tmp', package_name.split('/')[-1]))
 
-            ret = self.run_in_container(apt_command_prefix(verbosity) +
-                    extra_apt_args + " install -f") == 0
+            ret = self.run_in_container(apt_command_prefix(verbosity) + " install -f") == 0
 
             if delete_package:
                 self.delete_package_in_container(package_name)
 
             return ret
         else:
-            return self.run_in_container(apt_command_prefix(verbosity) +
-                    extra_apt_args + " install '" + package_name + "'") == 0
+            cmd = apt_command_prefix(verbosity) + " install '" + package_name + "'"
+            if readline:
+                cmd = "env DEBIAN_FRONTEND=readline " + cmd
+            return self.run_in_container(cmd) == 0
 
     def configure_command(self, command, *args, verbosity=1):
         """
@@ -326,17 +327,17 @@ class LibertineContainer(object):
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def install_package(self, package_name, verbosity=1):
+    def install_package(self, package_name, verbosity=1, readline=False):
         """
         Installs a package in the container.
         """
         try:
             with ContainerRunning(self.container):
-                return self.container.install_package(package_name, verbosity)
+                return self.container.install_package(package_name, verbosity, readline)
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def remove_package(self, package_name, verbosity=1):
+    def remove_package(self, package_name, verbosity=1, readline=False):
         """
         Removes a package from the container.
 
@@ -345,7 +346,10 @@ class LibertineContainer(object):
         """
         try:
             with ContainerRunning(self.container):
-                if self.container.run_in_container(apt_command_prefix(verbosity) + "purge '" + package_name + "'") != 0:
+                cmd = apt_command_prefix(verbosity) + " purge '" + package_name + "'"
+                if readline:
+                    cmd = "env DEBIAN_FRONTEND=readline " + cmd
+                if self.container.run_in_container(cmd) != 0:
                     return False
                 return self.container.run_in_container(apt_command_prefix(verbosity) + "autoremove --purge") == 0
         except RuntimeError as e:

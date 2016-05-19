@@ -288,13 +288,43 @@ destroyContainer()
 
 
 void ContainerManagerWorker::
+packageOperationInteraction(const QString& input)
+{
+  if (currentOperation != nullptr)
+  {
+    currentOperation->write(input.toUtf8() + "\n");
+  }
+}
+
+
+QString ContainerManagerWorker::
+monitorOperation(QProcess& op, const QString& package_name)
+{
+  QString stdout;
+  currentOperation = &op;
+  while (op.state() == QProcess::Running)
+  {
+    op.waitForFinished(250);
+    auto output = op.readAllStandardOutput();
+    if (!output.isEmpty())
+    {
+      emit updatePackageOperationDetails(container_id_, package_name, output);
+      stdout += output;
+    }
+  }
+  currentOperation = nullptr;
+  return stdout;
+}
+
+
+void ContainerManagerWorker::
 installPackage(QString const& package_name)
 {
   QProcess libertine_cli_tool;
   QString exec_line = libertine_container_manager_tool;
   QStringList args;
 
-  args << "install-package" << "-i" << container_id_ << "-p" << package_name;
+  args << "install-package" << "-i" << container_id_ << "-p" << package_name << "-r";
 
   libertine_cli_tool.start(exec_line, args);
 
@@ -304,7 +334,9 @@ installPackage(QString const& package_name)
     quit();
     return;
   }
-  libertine_cli_tool.waitForFinished(-1);
+
+  monitorOperation(libertine_cli_tool, package_name);
+
   if (libertine_cli_tool.exitCode() != 0)
   {
     emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), libertine_cli_tool.readAllStandardError());
@@ -320,7 +352,7 @@ removePackage(QString const& package_name)
   QString exec_line = libertine_container_manager_tool;
   QStringList args;
 
-  args << "remove-package" << "-i" << container_id_ << "-p" << package_name;
+  args << "remove-package" << "-i" << container_id_ << "-p" << package_name << "-r";
   libertine_cli_tool.start(exec_line, args);
 
   if (!libertine_cli_tool.waitForStarted())
@@ -330,10 +362,15 @@ removePackage(QString const& package_name)
     return;
   }
 
-  libertine_cli_tool.waitForFinished(-1);
+  auto output = monitorOperation(libertine_cli_tool, package_name);
+
   if (libertine_cli_tool.exitCode() != 0)
   {
-    emit error(PACKAGE_REMOVAL_FAILED.arg(package_name), readAllStdOutOrStdErr(libertine_cli_tool));
+    if (output.isEmpty())
+    {
+      output = libertine_cli_tool.readAllStandardError();
+    }
+    emit error(PACKAGE_REMOVAL_FAILED.arg(package_name), output);
     quit();
     return;
   }

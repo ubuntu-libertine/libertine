@@ -26,7 +26,7 @@ Page {
     id: homeView
     header: PageHeader {
         id: pageHeader
-        title: i18n.tr("Classic Apps - %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
+        title: i18n.tr("Classic Apps - %1").arg(containerConfigList.getContainerName(currentContainer))
         trailingActionBar.actions: [
             Action {
                 id: settingsButton
@@ -39,6 +39,7 @@ Page {
             }
         ]
     }
+    property var currentContainer: null
 
     Component {
         id: enterPackagePopup
@@ -69,9 +70,8 @@ Page {
                     width: (parent.width - parent.spacing) / 2
                     onClicked: {
                         if (enterPackageInput.text != "") {
-                            if (!containerConfigList.isAppInstalled(mainView.currentContainer, enterPackageInput.text)) {
+                            if (!containerConfigList.isAppInstalled(currentContainer, enterPackageInput.text)) {
                                 installPackage(enterPackageInput.text)
-                                mainView.currentPackage = enterPackageInput.text
                                 PopupUtils.close(enterPackageDialog)
                             }
                             else {
@@ -97,30 +97,30 @@ Page {
     }
 
     Component {
-	id: settingsMenu
-	ActionSelectionPopover {
-	    actions: ActionList {
-		Action {
-		    text: i18n.tr("Manage Container")
-		    onTriggered: {
+        id: settingsMenu
+        ActionSelectionPopover {
+            actions: ActionList {
+                Action {
+                    text: i18n.tr("Manage Container")
+                    onTriggered: {
                         pageStack.push(Qt.resolvedUrl("ManageContainer.qml"))
                     }
-		}
+                }
                 Action {
                     text: i18n.tr("Container Information")
                     onTriggered: {
                         pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"))
                     }
                 }
-		Action {
-		    text: i18n.tr("Switch Container")
-		    onTriggered: {
+                Action {
+                    text: i18n.tr("Switch Container")
+                    onTriggered: {
                         pageStack.pop()
                         pageStack.push(Qt.resolvedUrl("ContainersView.qml"))
                     }
-		}
-	    }
-	}
+                }
+            }
+        }
     }
 
     Component {
@@ -160,7 +160,7 @@ Page {
     }
 
     function reloadAppList() {
-        containerAppsList.setContainerApps(mainView.currentContainer)
+        containerAppsList.setContainerApps(currentContainer)
 
         appsList.visible = !containerAppsList.empty()  ? true : false
     }
@@ -175,8 +175,7 @@ Page {
         visible: !containerAppsList.empty()  ? true : false
 
         function info(packageName) {
-            mainView.currentPackage = packageName
-            pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"))
+            pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"), {"currentPackage": packageName, "currentContainer": currentContainer})
         }
 
         delegate: ListItem {
@@ -211,7 +210,6 @@ Page {
                         text: i18n.tr("delete")
                         description: i18n.tr("Remove Package")
                         onTriggered: {
-                            mainView.currentPackage = packageName
                             removePackage(packageName)
                         }
                     }
@@ -242,23 +240,28 @@ Page {
         text: i18n.tr("No packages are installed")
     }
 
-    function installPackage(package_name) {
+    function operationSetup(containerId, packageName, containerAction) {
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Install,
-                                                  "containerId": mainView.currentContainer,
-                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                                  "data": package_name})
+        var worker = comp.createObject(mainView, {"containerAction": containerAction,
+                                                  "containerId": containerId,
+                                                  "containerType": containerConfigList.getContainerType(containerId),
+                                                  "data": packageName})
         worker.error.connect(mainView.error)
+        worker.updatePackageOperationDetails.connect(mainView.updatePackageOperationDetails)
+        mainView.packageOperationInteraction.connect(worker.packageOperationInteraction)
+
+        worker.finished.connect(function() {
+            mainView.resetPackageDetails(containerId, packageName)
+        })
+
         worker.start()
     }
 
+    function installPackage(packageName) {
+        operationSetup(currentContainer, packageName, ContainerManagerWorker.Install)
+    }
+
     function removePackage(packageName) {
-        var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Remove,
-                                                  "containerId": mainView.currentContainer,
-                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                                  "data": packageName})
-        worker.error.connect(mainView.error)
-        worker.start()
+        operationSetup(currentContainer, packageName, ContainerManagerWorker.Remove)
     }
 }

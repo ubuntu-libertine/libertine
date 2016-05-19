@@ -29,9 +29,11 @@ MainView {
     width:  units.gu(90)
     height: units.gu(75)
     property var currentContainer: undefined
-    property var currentPackage: undefined
+    property var packageOperationDetails: undefined
 
     signal error(string short_description, string details)
+    signal updatePackageDetails(string container_id, string package_name, string details)
+    signal packageOperationInteraction(string data)
 
     PageStack {
         id: pageStack
@@ -44,7 +46,7 @@ MainView {
             pageStack.push(Qt.resolvedUrl("ContainersView.qml"))
             if (mainView.currentContainer) {
                 containerAppsList.setContainerApps(mainView.currentContainer)
-                pageStack.push(Qt.resolvedUrl("HomeView.qml"))
+                pageStack.push(Qt.resolvedUrl("HomeView.qml"), {"currentContainer": mainView.currentContainer})
             }
         }
         else {
@@ -55,5 +57,33 @@ MainView {
     onError: {
         PopupUtils.open(Qt.resolvedUrl("GenericErrorDialog.qml"), null,
                                        {"short_description": short_description, "details": details})
+    }
+
+    function updatePackageOperationDetails(container_id, package_name, details) {
+        if (!packageOperationDetails) {
+            packageOperationDetails = {}
+        }
+        if (!packageOperationDetails[container_id]) {
+            packageOperationDetails[container_id] = {}
+        }
+        if (!packageOperationDetails[container_id][package_name]) {
+            packageOperationDetails[container_id][package_name] = ""
+        }
+        packageOperationDetails[container_id][package_name] += details
+
+        updatePackageDetails(container_id, package_name, details)
+    }
+
+    function resetPackageDetails(container_id, package_name) {
+        if (packageOperationDetails && packageOperationDetails[container_id] && packageOperationDetails[container_id][package_name]) {
+            delete packageOperationDetails[container_id][package_name]
+        }
+    }
+
+    function getPackageOperationDetails(container_id, package_name) {
+        if (packageOperationDetails && packageOperationDetails[container_id] && packageOperationDetails[container_id][package_name]) {
+            return packageOperationDetails[container_id][package_name]
+        }
+        return ""
     }
 }

@@ -59,7 +59,7 @@ Page {
         function edit(containerId) {
             mainView.currentContainer = containerId
             containerAppsList.setContainerApps(mainView.currentContainer)
-            pageStack.push(Qt.resolvedUrl("HomeView.qml"))
+            pageStack.push(Qt.resolvedUrl("HomeView.qml"), {"currentContainer": mainView.currentContainer})
         }
 
         delegate: ListItem {

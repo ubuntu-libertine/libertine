@@ -27,13 +27,16 @@ Page {
     id: packageInfoView
     header: PageHeader {
         id: pageHeader
-        title: i18n.tr("Information for the %1 package").arg(mainView.currentPackage)
+        title: i18n.tr("Information for the %1 package").arg(currentPackage)
     }
-    property string currentContainer: mainView.currentContainer
-    property var currentPackage: mainView.currentPackage
+    property string currentContainer: null
+    property var currentPackage: null
     property var statusText: containerConfigList.getAppStatus(currentContainer, currentPackage)
     property var packageVersionText: i18n.tr("Obtaining package version…")
+    property string packageOperationDetails: ""
     property var worker: null
+
+    signal sendOperationInteraction(string text)
 
 
     Flickable {
@@ -52,6 +55,7 @@ Page {
             anchors.right: parent.right
 
             ListItem.Standard {
+                id: packageListItem
                 text: i18n.tr("Package version")
                 control: Label {
                     text: packageVersionText
@@ -59,9 +63,31 @@ Page {
             }
 
             ListItem.Standard {
+                id: statusListItem
                 text: i18n.tr("Install status")
                 control: Label {
                     text: statusText
+                }
+            }
+
+            TextArea {
+                id: packageDetailsView
+                visible: text !== ""
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: Math.max(packageInfoView.height - pageHeader.height - packageListItem.height - statusListItem.height - 35, units.gu(35))
+                readOnly: true
+                text: packageOperationDetails
+            }
+
+            TextField {
+                visible: packageDetailsView.visible && (statusText === "installing" || statusText === "removing")
+                anchors.left: parent.left
+                anchors.right: parent.right
+                text: ""
+                onAccepted: {
+                    sendOperationInteraction(text)
+                    text = ""
                 }
             }
         }
@@ -72,10 +98,17 @@ Page {
         var command = "apt-cache policy " + currentPackage
         var comp = Qt.createComponent("ContainerManager.qml")
         worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Exec,
-                                              "containerId": mainView.currentContainer,
-                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer),
+                                              "containerId": currentContainer,
+                                              "containerType": containerConfigList.getContainerType(currentContainer),
                                               "data": command })
         worker.finishedCommand.connect(getPackageVersion)
+
+        packageOperationDetails = mainView.getPackageOperationDetails(currentContainer, currentPackage)
+        packageDetailsView.cursorPosition = packageDetailsView.length
+
+        mainView.updatePackageDetails.connect(updatePackageDetails)
+        sendOperationInteraction.connect(mainView.packageOperationInteraction)
+
         worker.error.connect(mainView.error)
         worker.error.connect(onError)
         worker.start()
@@ -86,6 +119,15 @@ Page {
         worker.finishedCommand.disconnect(getPackageVersion)
         worker.error.disconnect(mainView.error)
         worker.error.disconnect(onError)
+        mainView.updatePackageDetails.disconnect(updatePackageDetails)
+        sendOperationInteraction.disconnect(mainView.packageOperationInteraction)
+    }
+
+    function updatePackageDetails(container_id, package_name, details) {
+        if (container_id === currentContainer && package_name === currentPackage) {
+            packageOperationDetails += details
+            packageDetailsView.cursorPosition = packageDetailsView.length
+        }
     }
 
     function reloadStatus() {
