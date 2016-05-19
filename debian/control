@@ -48,6 +48,8 @@ Depends: lsb-release,
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
+Breaks: libertine-demo
+Replaces: libertine-demo
 Description: CLI tools for running deb-packaged X11 apps on Ubuntu Personal
  Command-line tools that can be used for creating, manipulating, and using
  the Ubuntu Personal sandbox for legacy Deb-packaged X11 applicatons.
