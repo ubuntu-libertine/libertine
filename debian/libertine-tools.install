@@ -8,3 +8,4 @@ usr/share/man
 usr/share/libertine/libertine-lxc.conf
 usr/share/upstart/sessions/libertine-lxc-manager.conf
 usr/share/upstart/sessions/libertine-xmir.conf
+usr/share/click/frameworks/puritine-15.04.1.framework

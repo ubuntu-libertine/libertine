@@ -131,14 +131,4 @@ Description: Python3 scripts for the Libertine application sandbox
  This package provides the chroot-based container back end module for the
  Libertine sandbox.  This container back end module is intended only for
  curated containers distributed for devices that do not support unprivileged
- LXC contaiers.
-
-Package: libertine-demo
-Architecture: any
-Multi-Arch: allowed
-Depends: libertine-tools,
-         python3-libertine-chroot,
-         ${misc:Depends}
-Description: Adds desktop files and icon for Unity 8 desktop support
- Add desktop files and icons for the targeted applications needed for legacy
- X application support on Unity 8.
+ LXC containers.
