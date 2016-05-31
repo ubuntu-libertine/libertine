@@ -49,18 +49,14 @@ Page {
                     onClicked: {
                         var comp = Qt.createComponent("ContainerManager.qml")
                         if (checked) {
-                            var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
-                                                               "containerId": mainView.currentContainer,
-                                                               "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                                               "data_list": ["--multiarch", "enable"]})
-                            worker.start()
+                            comp.createObject(mainView).configureContainer(mainView.currentContainer,
+                                                                           containerConfigList.getContainerName(mainView.currentContainer),
+                                                                           ["--multiarch", "enable"])
                         }
                         else {
-                            var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
-                                                               "containerId": mainView.currentContainer,
-                                                               "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                                               "data_list": ["--multiarch", "disable"]})
-                            worker.start()
+                            comp.createObject(mainView).configureContainer(mainView.currentContainer,
+                                                                           containerConfigList.getContainerName(mainView.currentContainer),
+                                                                           ["--multiarch", "disable"])
                         }
                     }
                 }
@@ -110,11 +106,9 @@ Page {
 
     function updateContainer() {
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Update,
-                                                  "containerId": mainView.currentContainer,
-                                                  "containerType": containerConfigList.getContainerType(mainView.currentContainer)})
+        var worker = comp.createObject(mainView)
         worker.error.connect(mainView.error);
-        worker.start()
+        worker.updateContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer))
     }
 
     function updateStatus() {

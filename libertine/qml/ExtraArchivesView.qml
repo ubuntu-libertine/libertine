@@ -127,26 +127,20 @@ Page {
 
     function addArchive(archive) {
         var comp = Qt.createComponent("ContainerManager.qml")
-        worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
-                                              "containerId": mainView.currentContainer,
-                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                              "data_list": ["--add-archive", archive]})
+        worker = comp.createObject(mainView)
         worker.finishedConfigure.connect(finishedConfigure)
         worker.error.connect(sendAddError)
         error.connect(mainView.error)
-        worker.start()
+        worker.configureContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer), ["--add-archive", archive])
     }
 
     function deleteArchive(archive) {
         var comp = Qt.createComponent("ContainerManager.qml")
-        worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Configure,
-                                              "containerId": mainView.currentContainer,
-                                              "containerType": containerConfigList.getContainerType(mainView.currentContainer),
-                                              "data_list": ["--delete-archive", archive]})
+        worker = comp.createObject(mainView)
         worker.finishedConfigure.connect(finishedConfigure)
         worker.error.connect(sendDeleteError)
         error.connect(mainView.error)
-        worker.start()
+        worker.configureContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer), ["--delete-archive", archive])
     }
 
     Component.onCompleted: {

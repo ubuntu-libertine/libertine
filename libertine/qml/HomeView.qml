@@ -240,28 +240,21 @@ Page {
         text: i18n.tr("No packages are installed")
     }
 
-    function operationSetup(containerId, packageName, containerAction) {
+    function operationSetup() {
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(mainView, {"containerAction": containerAction,
-                                                  "containerId": containerId,
-                                                  "containerType": containerConfigList.getContainerType(containerId),
-                                                  "data": packageName})
+        var worker = comp.createObject(mainView)
         worker.error.connect(mainView.error)
         worker.updatePackageOperationDetails.connect(mainView.updatePackageOperationDetails)
         mainView.packageOperationInteraction.connect(worker.packageOperationInteraction)
-
-        worker.finished.connect(function() {
-            mainView.resetPackageDetails(containerId, packageName)
-        })
-
-        worker.start()
+        worker.packageOperationFinished.connect(mainView.resetPackageDetails)
+        return worker
     }
 
     function installPackage(packageName) {
-        operationSetup(currentContainer, packageName, ContainerManagerWorker.Install)
+        operationSetup().installPackage(currentContainer, packageName)
     }
 
     function removePackage(packageName) {
-        operationSetup(currentContainer, packageName, ContainerManagerWorker.Remove)
+        operationSetup().removePackage(currentContainer, packageName)
     }
 }

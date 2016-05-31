@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-18 15:13-0400\n"
+"POT-Creation-Date: 2016-05-19 14:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,24 +17,32 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../libertine/ContainerManager.cpp:25
+#: ../libertine/ContainerManager.cpp:23
 msgid "%1 failed to start"
 msgstr ""
 
-#: ../libertine/ContainerManager.cpp:26
+#: ../libertine/ContainerManager.cpp:24
 msgid "Installation of package %1 failed"
 msgstr ""
 
-#: ../libertine/ContainerManager.cpp:27
+#: ../libertine/ContainerManager.cpp:25
 msgid "Removal of package %1 failed"
 msgstr ""
 
-#: ../libertine/ContainerManager.cpp:28
+#: ../libertine/ContainerManager.cpp:26
 msgid "Searching for query %1 failed"
 msgstr ""
 
-#: ../libertine/ContainerManager.cpp:29
+#: ../libertine/ContainerManager.cpp:27
 msgid "Updating container %1 failed"
+msgstr ""
+
+#: ../libertine/ContainerManager.cpp:28
+msgid "Creating container %1 failed"
+msgstr ""
+
+#: ../libertine/ContainerManager.cpp:29
+msgid "Destroying container %1 failed"
 msgstr ""
 
 #: ../libertine/ContainerManager.cpp:30
@@ -55,15 +63,15 @@ msgstr ""
 msgid "installing"
 msgstr ""
 
-#: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:121
-#: ../libertine/qml/ManageContainer.qml:83
-#: ../libertine/qml/ManageContainer.qml:125
+#: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:119
+#: ../libertine/qml/ManageContainer.qml:79
+#: ../libertine/qml/ManageContainer.qml:119
 msgid "ready"
 msgstr ""
 
-#: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:122
-#: ../libertine/qml/ManageContainer.qml:95
-#: ../libertine/qml/ManageContainer.qml:121
+#: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:120
+#: ../libertine/qml/ManageContainer.qml:91
+#: ../libertine/qml/ManageContainer.qml:115
 msgid "updating"
 msgstr ""
 
@@ -75,7 +83,7 @@ msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:189
 #: ../libertine/qml/ContainerInfoView.qml:93
-#: ../libertine/qml/PackageInfoView.qml:137
+#: ../libertine/qml/PackageInfoView.qml:131
 msgid "removed"
 msgstr ""
 
@@ -96,7 +104,7 @@ msgid "Configure options for container creation."
 msgstr ""
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:40
-#: ../libertine/qml/ManageContainer.qml:67
+#: ../libertine/qml/ManageContainer.qml:63
 msgid "i386 multiarch support"
 msgstr ""
 
@@ -216,19 +224,19 @@ msgstr ""
 msgid "Delete Container"
 msgstr ""
 
-#: ../libertine/qml/ContainersView.qml:110 ../libertine/qml/HomeView.qml:222
+#: ../libertine/qml/ContainersView.qml:108 ../libertine/qml/HomeView.qml:222
 msgid "info"
 msgstr ""
 
-#: ../libertine/qml/ContainersView.qml:111
+#: ../libertine/qml/ContainersView.qml:109
 msgid "Container Info"
 msgstr ""
 
-#: ../libertine/qml/ContainersView.qml:119
+#: ../libertine/qml/ContainersView.qml:117
 msgid "edit"
 msgstr ""
 
-#: ../libertine/qml/ContainersView.qml:120
+#: ../libertine/qml/ContainersView.qml:118
 msgid "Container Apps"
 msgstr ""
 
@@ -244,15 +252,15 @@ msgstr ""
 msgid "Manage %1"
 msgstr ""
 
-#: ../libertine/qml/ManageContainer.qml:71
+#: ../libertine/qml/ManageContainer.qml:67
 msgid "Additional archives and PPAs"
 msgstr ""
 
-#: ../libertine/qml/ManageContainer.qml:82
+#: ../libertine/qml/ManageContainer.qml:78
 msgid "Update…"
 msgstr ""
 
-#: ../libertine/qml/ManageContainer.qml:98
+#: ../libertine/qml/ManageContainer.qml:94
 msgid "Update container"
 msgstr ""
 
@@ -329,7 +337,7 @@ msgstr ""
 msgid "Install status"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:146
+#: ../libertine/qml/PackageInfoView.qml:140
 msgid "Unknown"
 msgstr ""
 
@@ -384,11 +392,11 @@ msgstr ""
 msgid "No additional archives and PPA's have been added"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:179
+#: ../libertine/qml/ExtraArchivesView.qml:173
 msgid "Adding archive failed"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:183
+#: ../libertine/qml/ExtraArchivesView.qml:177
 msgid "Deleting archive failed"
 msgstr ""
 

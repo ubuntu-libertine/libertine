@@ -93,10 +93,8 @@ Page {
                         description: i18n.tr("Delete Container")
                         onTriggered: {
                             var comp = Qt.createComponent("ContainerManager.qml")
-                            var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Destroy,
-                                                                      "containerId": containerId,
-                                                                      "containerType": containerConfigList.getContainerType(containerId)})
-                            worker.start()
+                            var worker = comp.createObject(mainView)
+                            worker.destroyContainer(containerId)
                             mainView.currentContainer = containerId
                         }
                     }

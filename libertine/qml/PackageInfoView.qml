@@ -97,10 +97,7 @@ Page {
         containerConfigList.configChanged.connect(reloadStatus)
         var command = "apt-cache policy " + currentPackage
         var comp = Qt.createComponent("ContainerManager.qml")
-        worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Exec,
-                                              "containerId": currentContainer,
-                                              "containerType": containerConfigList.getContainerType(currentContainer),
-                                              "data": command })
+        worker = comp.createObject(mainView)
         worker.finishedCommand.connect(getPackageVersion)
 
         packageOperationDetails = mainView.getPackageOperationDetails(currentContainer, currentPackage)
@@ -111,14 +108,11 @@ Page {
 
         worker.error.connect(mainView.error)
         worker.error.connect(onError)
-        worker.start()
+        worker.runCommand(currentContainer, containerConfigList.getContainerName(currentContainer), command)
     }
 
     Component.onDestruction: {
         containerConfigList.configChanged.disconnect(reloadStatus)
-        worker.finishedCommand.disconnect(getPackageVersion)
-        worker.error.disconnect(mainView.error)
-        worker.error.disconnect(onError)
         mainView.updatePackageDetails.disconnect(updatePackageDetails)
         sendOperationInteraction.disconnect(mainView.packageOperationInteraction)
     }

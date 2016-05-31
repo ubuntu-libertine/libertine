@@ -120,12 +120,9 @@ Page {
 
         var comp = Qt.createComponent("ContainerManager.qml")
         var worker = comp.createObject()
-        worker.containerAction = ContainerManagerWorker.Search
-        worker.containerId = mainView.currentContainer
-        worker.data = search_string
         worker.finishedSearch.connect(finishedSearch)
         worker.error.connect(mainView.error)
-        worker.start()
+        worker.searchPackageCache(mainView.currentContainer, search_string)
     }
 
     function finishedSearch(packageList) {

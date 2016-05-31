@@ -18,8 +18,6 @@
  */
 #include "libertine/ContainerManager.h"
 
-#include <QtCore/QProcess>
-
 namespace
 {
 static const QString FAILED_TO_START = QObject::tr("%1 failed to start");
@@ -27,8 +25,11 @@ static const QString PACKAGE_INSTALLATION_FAILED = QObject::tr("Installation of 
 static const QString PACKAGE_REMOVAL_FAILED = QObject::tr("Removal of package %1 failed");
 static const QString PACKAGE_SEARCH_FAILED = QObject::tr("Searching for query %1 failed");
 static const QString CONTAINER_UPDATE_FAILED = QObject::tr("Updating container %1 failed");
+static const QString CONTAINER_CREATE_FAILED = QObject::tr("Creating container %1 failed");
+static const QString CONTAINER_DESTROY_FAILED = QObject::tr("Destroying container %1 failed");
 static const QString RUN_COMMAND_FAILED = QObject::tr("Running command %1 failed");
 static const QString CONTAINER_CONFIGURE_FAILED = QObject::tr("Attempt to configure container %1 failed");
+constexpr auto libertine_container_manager_tool = "libertine-container-manager";
 
 static const QString readAllStdOutOrStdErr(QProcess& proc)
 {
@@ -36,481 +37,207 @@ static const QString readAllStdOutOrStdErr(QProcess& proc)
   return out.isEmpty() ? proc.readAllStandardError() : out;
 }
 }
-const QString ContainerManagerWorker::libertine_container_manager_tool = "libertine-container-manager";
 
 
 ContainerManagerWorker::
 ContainerManagerWorker()
-{ }
-
-
-ContainerManagerWorker::
-ContainerManagerWorker(ContainerAction container_action,
-                       QString const& container_id,
-                       QString const& container_type)
-: container_action_(container_action)
-, container_id_(container_id)
-, container_type_(container_type)
-{ }
-
-
-ContainerManagerWorker::
-ContainerManagerWorker(ContainerAction container_action,
-                       QString const& container_id,
-                       QString const& container_type,
-                       QString const& data)
-: container_action_(container_action)
-, container_id_(container_id)
-, container_type_(container_type)
-, data_(data)
-{ }
-
-
-ContainerManagerWorker::
-ContainerManagerWorker(ContainerAction container_action,
-                       QString const& container_id,
-                       QString const& container_type,
-                       QStringList data_list)
-: container_action_(container_action)
-, container_id_(container_id)
-, container_type_(container_type)
-, data_list_(data_list)
-{ }
+{
+  connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &QObject::deleteLater);
+}
 
 
 ContainerManagerWorker::
 ~ContainerManagerWorker()
-{ }
-
-
-ContainerManagerWorker::ContainerAction ContainerManagerWorker::
-container_action() const
-{ return container_action_; }
-
-
-void ContainerManagerWorker::
-container_action(ContainerAction container_action)
 {
-  container_action_ = container_action;
-}
-
-
-QString const& ContainerManagerWorker::
-container_id() const
-{ return container_id_; }
-
-
-void ContainerManagerWorker::
-container_id(QString const& container_id)
-{
-  container_id_ = container_id;
-}
-
-
-QString const& ContainerManagerWorker::
-container_type() const
-{ return container_type_; }
-
-
-void ContainerManagerWorker::
-container_type(QString const& container_type)
-{
-  container_type_ = container_type;
-}
-
-
-QString const& ContainerManagerWorker::
-container_distro() const
-{ return container_distro_; }
-
-
-void ContainerManagerWorker::
-container_distro(QString const& container_distro)
-{
-  if (container_distro != container_distro_)
+  if (process_.state() == QProcess::Running)
   {
-    container_distro_ = container_distro;
-  }
-}
-
-
-QString const& ContainerManagerWorker::
-container_name() const
-{ return container_name_; }
-
-
-void ContainerManagerWorker::
-container_name(QString const& container_name)
-{
-  if (container_name != container_name_)
-  {
-    container_name_ = container_name;
-  }
-}
-
-
-bool ContainerManagerWorker::
-container_multiarch()
-{ return container_multiarch_; }
-
-
-void ContainerManagerWorker::
-container_multiarch(bool container_multiarch)
-{
-  if (container_multiarch != container_multiarch_)
-  {
-    container_multiarch_ = container_multiarch;
-  }
-}
-
-
-QString const& ContainerManagerWorker::
-data() const
-{ return data_; }
-
-
-void ContainerManagerWorker::
-data(QString const& data)
-{
-  data_ = data;
-}
-
-
-QStringList ContainerManagerWorker::
-data_list()
-{ return data_list_; }
-
-
-void ContainerManagerWorker::
-data_list(QStringList data_list)
-{
-  data_list_ = data_list;
-}
-
-
-void ContainerManagerWorker::
-run()
-{
-  switch(container_action_)
-  {
-    case ContainerAction::Create:
-      createContainer(data_);
-      break;
-
-    case ContainerAction::Destroy:
-      destroyContainer();
-      break;
-
-    case ContainerAction::Install:
-      installPackage(data_);
-      break;
-
-    case ContainerAction::Remove:
-      removePackage(data_);
-      break;
-
-    case ContainerAction::Search:
-      searchPackageCache(data_);
-      break;
-
-    case ContainerAction::Update:
-      updateContainer();
-      break;
-
-    case ContainerAction::Exec:
-      runCommand(data_);
-      break;
-
-    case ContainerAction::Configure:
-      configureContainer(data_list_);
-      break;
-
-    default:
-      break;
+    process_.close();
   }
 }
 
 
 void ContainerManagerWorker::
-createContainer(QString const& password)
+createContainer(const QString& id, const QString& name, const QString& distro, bool multiarch, const QString& password)
 {
-  QProcess libertine_cli_tool;
-  QString exec_line = libertine_container_manager_tool;
-  QStringList args;
+  connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+          [=](int exitCode, QProcess::ExitStatus){
+    if (exitCode != 0)
+    {
+      emit error(CONTAINER_CREATE_FAILED.arg(id), process_.readAllStandardError());
+    }
+  });
+  connect(&process_, &QProcess::started, [=]() {
+    process_.write(password.toUtf8());
+    process_.closeWriteChannel();
+  });
 
-  args << "create" << "-i" << container_id_ << "-d" << container_distro_ << "-n" << container_name_;
-
-  if (container_multiarch_)
+  QStringList args{"create", "-i", id, "-d", distro, "-n", name};
+  if (multiarch)
   {
     args << "-m";
   }
-
-  libertine_cli_tool.start(exec_line, args);
-
-  if (!libertine_cli_tool.waitForStarted())
-  {
-    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
-    quit();
-    return;
-  }
-
-  libertine_cli_tool.write(password.toStdString().c_str());
-  libertine_cli_tool.closeWriteChannel();
-
-  libertine_cli_tool.waitForFinished(-1);
-
-  quit();
+  process_.start(libertine_container_manager_tool, args);
 }
 
 
 void ContainerManagerWorker::
-destroyContainer()
+destroyContainer(const QString& id)
 {
-  QProcess libertine_cli_tool;
-  QString exec_line = libertine_container_manager_tool;
-  QStringList args;
+  connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+          [=](int exitCode, QProcess::ExitStatus){
+    if (exitCode != 0)
+    {
+      emit error(CONTAINER_DESTROY_FAILED.arg(id), process_.readAllStandardError());
+    }
+    emit finishedDestroy(id);
+  });
 
-  args << "destroy" << "-i" << container_id_;
-  libertine_cli_tool.start(exec_line, args);
-
-  if (!libertine_cli_tool.waitForStarted())
-  {
-    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
-    quit();
-    return;
-  }
-
-  libertine_cli_tool.waitForFinished(-1);
-
-  emit finishedDestroy(container_id_);
-  quit();
+  process_.start(libertine_container_manager_tool, QStringList{"destroy", "-i", id});
 }
 
 
 void ContainerManagerWorker::
 packageOperationInteraction(const QString& input)
 {
-  if (currentOperation != nullptr)
+  if (process_.state() == QProcess::Running)
   {
-    currentOperation->write(input.toUtf8() + "\n");
+    process_.write(input.toUtf8() + "\n");
   }
 }
 
 
-QString ContainerManagerWorker::
-monitorOperation(QProcess& op, const QString& package_name)
+void ContainerManagerWorker::
+installPackage(const QString& container_id, const QString& package_name)
 {
-  QString stdout;
-  currentOperation = &op;
-  while (op.state() == QProcess::Running)
-  {
-    op.waitForFinished(250);
-    auto output = op.readAllStandardOutput();
+  connect(&process_, &QProcess::readyRead, [=](){
+    auto output = process_.readAllStandardOutput();
     if (!output.isEmpty())
     {
-      emit updatePackageOperationDetails(container_id_, package_name, output);
-      stdout += output;
+      emit updatePackageOperationDetails(container_id, package_name, output);
+      process_output_ += output;
     }
-  }
-  currentOperation = nullptr;
-  return stdout;
-}
-
-
-void ContainerManagerWorker::
-installPackage(QString const& package_name)
-{
-  QProcess libertine_cli_tool;
-  QString exec_line = libertine_container_manager_tool;
-  QStringList args;
-
-  args << "install-package" << "-i" << container_id_ << "-p" << package_name << "-r";
-
-  libertine_cli_tool.start(exec_line, args);
-
-  if (!libertine_cli_tool.waitForStarted())
-  {
-    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
-    quit();
-    return;
-  }
-
-  monitorOperation(libertine_cli_tool, package_name);
-
-  if (libertine_cli_tool.exitCode() != 0)
-  {
-    emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), libertine_cli_tool.readAllStandardError());
-  }
-  quit();
-}
-
-
-void ContainerManagerWorker::
-removePackage(QString const& package_name)
-{
-  QProcess libertine_cli_tool;
-  QString exec_line = libertine_container_manager_tool;
-  QStringList args;
-
-  args << "remove-package" << "-i" << container_id_ << "-p" << package_name << "-r";
-  libertine_cli_tool.start(exec_line, args);
-
-  if (!libertine_cli_tool.waitForStarted())
-  {
-    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAllStandardError());
-    quit();
-    return;
-  }
-
-  auto output = monitorOperation(libertine_cli_tool, package_name);
-
-  if (libertine_cli_tool.exitCode() != 0)
-  {
-    if (output.isEmpty())
+  });
+  connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+          [=](int exitCode, QProcess::ExitStatus){
+    if (exitCode != 0)
     {
-      output = libertine_cli_tool.readAllStandardError();
+      auto stderr = process_.readAllStandardError();
+      emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), stderr.isEmpty() ? process_output_ : stderr);
     }
-    emit error(PACKAGE_REMOVAL_FAILED.arg(package_name), output);
-    quit();
-    return;
-  }
-  quit();
+     emit packageOperationFinished(container_id, package_name);
+  });
+
+  process_.start(libertine_container_manager_tool, QStringList{"install-package", "-i", container_id, "-p", package_name, "-r"});
 }
 
 
 void ContainerManagerWorker::
-searchPackageCache(QString const& search_string)
+removePackage(const QString& container_id, const QString& package_name)
 {
-  QProcess libertine_cli_tool;
-  QString exec_line = libertine_container_manager_tool;
-  QStringList args;
-  QByteArray search_output;
-  QList<QString> packageList;
-
-  args << "search-cache" << "-i" << container_id_ << "-s" << search_string;
-  libertine_cli_tool.start(exec_line, args);
-
-  if (!libertine_cli_tool.waitForStarted())
-  {
-    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
-    quit();
-    return;
-  }
-
-  libertine_cli_tool.waitForFinished(-1);
-  if (libertine_cli_tool.exitCode() != 0)
-  {
-    QString err(libertine_cli_tool.readAllStandardError());
-    if (!err.isEmpty())
+  connect(&process_, &QProcess::readyRead, [=](){
+    auto output = process_.readAllStandardOutput();
+    if (!output.isEmpty())
     {
-      emit error(PACKAGE_SEARCH_FAILED.arg(search_string), err);
-      quit();
-      return;
+      emit updatePackageOperationDetails(container_id, package_name, output);
+      process_output_ += output;
     }
-    // if there is no error message, there probably were no packages found
-    // continue to return an empty list
-  }
-  else
-  {
-    search_output = libertine_cli_tool.readAllStandardOutput();
-    QList<QByteArray> packages = search_output.split('\n');
-
-    for (const auto& package: packages)
+  });
+  connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+          [=](int exitCode, QProcess::ExitStatus){
+    if (exitCode != 0)
     {
-      packageList.append(QString(package));
+      emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), process_output_.isEmpty() ? process_.readAllStandardError() : process_output_);
     }
-  }
+  });
 
-  emit finishedSearch(packageList);
-  quit();
+  process_.start(libertine_container_manager_tool, QStringList{"remove-package", "-i", container_id, "-p", package_name, "-r"});
 }
 
 
 void ContainerManagerWorker::
-updateContainer()
+searchPackageCache(const QString& container_id, const QString& search_string)
 {
-  QProcess libertine_cli_tool;
-  QString exec_line = libertine_container_manager_tool;
-  QStringList args;
+  connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+          [=](int exitCode, QProcess::ExitStatus){
+    QList<QString> packageList;
+    if (exitCode != 0)
+    {
+      QString err(process_.readAllStandardError());
+      if (!err.isEmpty())
+      {
+        emit error(PACKAGE_SEARCH_FAILED.arg(search_string), err);
+      }
+      // if there is no error message, there probably were no packages found
+      // continue to return an empty list
+    }
+    else
+    {
+      auto search_output = process_.readAllStandardOutput();
+      QList<QByteArray> packages = search_output.split('\n');
 
-  args << "update" << "-i" << container_id_;
+      for (const auto& package: packages)
+      {
+        packageList.append(QString(package));
+      }
+    }
 
-  libertine_cli_tool.start(exec_line, args);
+    emit finishedSearch(packageList);
+  });
 
-  if (!libertine_cli_tool.waitForStarted())
-  {
-    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
-    quit();
-    return;
-  }
-
-  libertine_cli_tool.waitForFinished(-1);
-  if (libertine_cli_tool.exitCode() != 0)
-  {
-    emit error(CONTAINER_UPDATE_FAILED.arg(container_name_), readAllStdOutOrStdErr(libertine_cli_tool));
-    quit();
-    return;
-  }
-
-  quit();
+  process_.start(libertine_container_manager_tool, QStringList{"search-cache", "-i", container_id, "-s", search_string});
 }
 
 
 void ContainerManagerWorker::
-runCommand(QString const& command_line)
+updateContainer(const QString& container_id, const QString& container_name)
 {
-  QProcess libertine_cli_tool;
-  QString exec_line = libertine_container_manager_tool, command_output, error_msg;
-  QStringList args;
+  connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+          [=](int exitCode, QProcess::ExitStatus){
+    if (exitCode != 0)
+    {
+      emit error(CONTAINER_UPDATE_FAILED.arg(container_name), readAllStdOutOrStdErr(process_));
+    }
+  });
 
-  args << "exec" << "-i" << container_id_ << "-c" << command_line;
-
-  libertine_cli_tool.start(exec_line, args);
-
-  if (!libertine_cli_tool.waitForStarted())
-  {
-    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
-    quit();
-    return;
-  }
-  libertine_cli_tool.waitForFinished(-1);
-  if (libertine_cli_tool.exitCode() != 0)
-  {
-    emit error(RUN_COMMAND_FAILED.arg(command_line), readAllStdOutOrStdErr(libertine_cli_tool));
-    quit();
-    return;
-  }
-
-  emit finishedCommand(libertine_cli_tool.readAllStandardOutput());
-  quit();
+  process_.start(libertine_container_manager_tool, QStringList{"update", "-i", container_id});
 }
 
 
 void ContainerManagerWorker::
-configureContainer(QStringList configure_command)
+runCommand(const QString& container_id, const QString& container_name, const QString& command_line)
 {
-  QProcess libertine_cli_tool;
-  QString exec_line = libertine_container_manager_tool;
-  QStringList args;
+  connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+          [=](int exitCode, QProcess::ExitStatus){
+    if (exitCode != 0)
+    {
+      emit error(RUN_COMMAND_FAILED.arg(container_name), readAllStdOutOrStdErr(process_));
+    }
+    else
+    {
+      emit finishedCommand(process_.readAllStandardOutput());
+    }
+  });
 
-  args << "configure" << "-i" << container_id_ << configure_command.at(0) << configure_command.mid(1);
+  process_.start(libertine_container_manager_tool, QStringList{"exec", "-i", container_id, "-c", command_line});
+}
 
-  libertine_cli_tool.start(exec_line, args);
 
-  if (!libertine_cli_tool.waitForStarted())
-  {
-    emit error(FAILED_TO_START.arg(libertine_container_manager_tool), libertine_cli_tool.readAll());
-    quit();
-    return;
-  }
+void ContainerManagerWorker::
+configureContainer(const QString& container_id, const QString& container_name, const QStringList& configure_command)
+{
+  connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+          [=](int exitCode, QProcess::ExitStatus){
+    if (exitCode != 0)
+    {
+      emit error(CONTAINER_CONFIGURE_FAILED.arg(container_name), readAllStdOutOrStdErr(process_));
+    }
+    else
+    {
+      emit finishedConfigure();
+    }
+  });
 
-  libertine_cli_tool.waitForFinished(-1);
-
-  if (libertine_cli_tool.exitCode() != 0)
-  {
-    error(CONTAINER_CONFIGURE_FAILED.arg(container_name_), readAllStdOutOrStdErr(libertine_cli_tool));
-  }
-
-  emit finishedConfigure();
-  quit();
+  QStringList args{"configure", "-i", container_id};
+  args << configure_command.at(0) << configure_command.mid(1);
+  process_.start(libertine_container_manager_tool, args);
 }

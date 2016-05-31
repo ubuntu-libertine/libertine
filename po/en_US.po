@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-18 15:13-0400\n"
+"POT-Creation-Date: 2016-05-19 14:51-0400\n"
 "PO-Revision-Date: 2016-03-21 10:21-0400\n"
 "Last-Translator: Chris Townsend <christopher.townsend@canonical.com>\n"
 "Language-Team: English\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../libertine/ContainerManager.cpp:25
+#: ../libertine/ContainerManager.cpp:23
 msgid "%1 failed to start"
 msgstr ""
 
@@ -29,7 +29,7 @@ msgstr ""
 msgid "Add additional PPA"
 msgstr ""
 
-#: ../libertine/qml/ExtraArchivesView.qml:179
+#: ../libertine/qml/ExtraArchivesView.qml:173
 msgid "Adding archive failed"
 msgstr ""
 
@@ -37,7 +37,7 @@ msgstr ""
 msgid "Additional Archives and PPAs"
 msgstr ""
 
-#: ../libertine/qml/ManageContainer.qml:71
+#: ../libertine/qml/ManageContainer.qml:67
 msgid "Additional archives and PPAs"
 msgstr ""
 
@@ -73,11 +73,11 @@ msgstr "Classic Apps - %1"
 msgid "Configure options for container creation."
 msgstr "Configure Container"
 
-#: ../libertine/qml/ContainersView.qml:120
+#: ../libertine/qml/ContainersView.qml:118
 msgid "Container Apps"
 msgstr "Container Apps"
 
-#: ../libertine/qml/ContainersView.qml:111
+#: ../libertine/qml/ContainersView.qml:109
 msgid "Container Info"
 msgstr "Container Info"
 
@@ -95,13 +95,22 @@ msgstr "Container Apps"
 msgid "Container information for %1"
 msgstr "Container information for %1"
 
+#: ../libertine/ContainerManager.cpp:28
+msgid "Creating container %1 failed"
+msgstr ""
+
 #: ../libertine/qml/ContainersView.qml:93
 msgid "Delete Container"
 msgstr "Delete Container"
 
-#: ../libertine/qml/ExtraArchivesView.qml:183
+#: ../libertine/qml/ExtraArchivesView.qml:177
 msgid "Deleting archive failed"
 msgstr ""
+
+#: ../libertine/ContainerManager.cpp:29
+#, fuzzy
+msgid "Destroying container %1 failed"
+msgstr "Update Container"
 
 #: ../libertine/qml/GenericErrorDialog.qml:32
 msgid "Dismiss"
@@ -157,7 +166,7 @@ msgstr "Install Package"
 msgid "Install status"
 msgstr "Install status: %1"
 
-#: ../libertine/ContainerManager.cpp:26
+#: ../libertine/ContainerManager.cpp:24
 #, fuzzy
 msgid "Installation of package %1 failed"
 msgstr "Install Package"
@@ -234,7 +243,7 @@ msgstr "Package version: %1"
 msgid "Password is required to create a Libertine container"
 msgstr ""
 
-#: ../libertine/ContainerManager.cpp:27
+#: ../libertine/ContainerManager.cpp:25
 msgid "Removal of package %1 failed"
 msgstr ""
 
@@ -293,7 +302,7 @@ msgstr ""
 msgid "Searching for packages…"
 msgstr "Obtaining package version…"
 
-#: ../libertine/ContainerManager.cpp:28
+#: ../libertine/ContainerManager.cpp:26
 msgid "Searching for query %1 failed"
 msgstr ""
 
@@ -317,20 +326,20 @@ msgid ""
 "The %1 package is already installed. Please try a different package name."
 msgstr "Package %1 already installed. Please try a different package name."
 
-#: ../libertine/qml/PackageInfoView.qml:146
+#: ../libertine/qml/PackageInfoView.qml:140
 msgid "Unknown"
 msgstr ""
 
-#: ../libertine/qml/ManageContainer.qml:98
+#: ../libertine/qml/ManageContainer.qml:94
 #, fuzzy
 msgid "Update container"
 msgstr "Update Container"
 
-#: ../libertine/qml/ManageContainer.qml:82
+#: ../libertine/qml/ManageContainer.qml:78
 msgid "Update…"
 msgstr ""
 
-#: ../libertine/ContainerManager.cpp:29
+#: ../libertine/ContainerManager.cpp:27
 #, fuzzy
 msgid "Updating container %1 failed"
 msgstr "Update Container"
@@ -366,7 +375,7 @@ msgstr "Container Info"
 msgid "delete"
 msgstr "delete"
 
-#: ../libertine/qml/ContainersView.qml:119
+#: ../libertine/qml/ContainersView.qml:117
 msgid "edit"
 msgstr "edit"
 
@@ -375,11 +384,11 @@ msgid "failed"
 msgstr "failed"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:40
-#: ../libertine/qml/ManageContainer.qml:67
+#: ../libertine/qml/ManageContainer.qml:63
 msgid "i386 multiarch support"
 msgstr "i386 multiarch support"
 
-#: ../libertine/qml/ContainersView.qml:110 ../libertine/qml/HomeView.qml:222
+#: ../libertine/qml/ContainersView.qml:108 ../libertine/qml/HomeView.qml:222
 msgid "info"
 msgstr "info"
 
@@ -402,9 +411,9 @@ msgstr "new"
 msgid "password"
 msgstr "Password"
 
-#: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:121
-#: ../libertine/qml/ManageContainer.qml:83
-#: ../libertine/qml/ManageContainer.qml:125
+#: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:119
+#: ../libertine/qml/ManageContainer.qml:79
+#: ../libertine/qml/ManageContainer.qml:119
 msgid "ready"
 msgstr "ready"
 
@@ -415,7 +424,7 @@ msgstr "removed"
 
 #: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:189
 #: ../libertine/qml/ContainerInfoView.qml:93
-#: ../libertine/qml/PackageInfoView.qml:137
+#: ../libertine/qml/PackageInfoView.qml:131
 msgid "removed"
 msgstr "removed"
 
@@ -429,9 +438,9 @@ msgstr "removing"
 msgid "search"
 msgstr ""
 
-#: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:122
-#: ../libertine/qml/ManageContainer.qml:95
-#: ../libertine/qml/ManageContainer.qml:121
+#: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:120
+#: ../libertine/qml/ManageContainer.qml:91
+#: ../libertine/qml/ManageContainer.qml:115
 msgid "updating"
 msgstr ""
 

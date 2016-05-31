@@ -86,14 +86,8 @@ Dialog {
     function passwordAccepted(password) {
         var container_id = containerConfigList.addNewContainer("lxc", containerName)
         var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(mainView, {"containerAction": ContainerManagerWorker.Create,
-                                                  "containerId": container_id,
-                                                  "containerType": null,
-                                                  "data": password})
-        worker.containerDistro = containerConfigList.getContainerDistro(container_id)
-        worker.containerName = containerConfigList.getContainerName(container_id)
-        worker.containerMultiarch = enableMultiarch
-        mainView.currentContainer = container_id
-        worker.start()
+        var worker = comp.createObject(mainView)
+        worker.createContainer(container_id, containerConfigList.getContainerName(container_id),
+                               containerConfigList.getContainerDistro(container_id), enableMultiarch, password)
     }
 }
