@@ -100,11 +100,28 @@ def get_host_architecture():
     return dpkg.stdout.read().strip()
 
 
+def get_common_xdg_directories():
+    return ['Documents', 'Music', 'Pictures', 'Videos', 'Downloads']
+
+
 def create_libertine_user_data_dir(container_id):
     user_data = get_libertine_container_userdata_dir_path(container_id)
 
     if not os.path.exists(user_data):
         os.makedirs(user_data)
+
+    config_path = os.path.join(user_data, ".config", "dconf")
+
+    if not os.path.exists(config_path):
+        os.makedirs(config_path)
+
+    xdg_user_dirs = get_common_xdg_directories()
+
+    for xdg_dir in xdg_user_dirs:
+        xdg_path = os.path.join(user_data, xdg_dir)
+
+        if not os.path.exists(xdg_path):
+            os.makedirs(xdg_path)
 
 
 def get_libertine_lxc_socket():

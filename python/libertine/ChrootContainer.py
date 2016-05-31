@@ -210,7 +210,7 @@ class LibertineChroot(BaseContainer):
             % (utils.get_libertine_container_userdata_dir_path(self.container_id), home_path)
         )
 
-        xdg_user_dirs = ['Documents', 'Music', 'Pictures', 'Videos']
+        xdg_user_dirs = utils.get_common_xdg_directories()
         for user_dir in xdg_user_dirs:
             user_dir_path = os.path.join(home_path, user_dir)
             bind_mounts += " -b %s:%s" % (user_dir_path, user_dir_path)

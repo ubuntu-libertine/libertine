@@ -225,7 +225,7 @@ class LibertineLXC(BaseContainer):
         # Bind mount the user's home directory
         self.container.append_config_item("lxc.mount.entry", home_entry)
 
-        xdg_user_dirs = ['Documents', 'Music', 'Pictures', 'Videos']
+        xdg_user_dirs = utils.get_common_xdg_directories()
 
         for user_dir in xdg_user_dirs:
             xdg_user_dir_entry = (
