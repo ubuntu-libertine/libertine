@@ -18,6 +18,7 @@
  */
 #include "libertine/ContainerManager.h"
 
+
 namespace
 {
 static const QString FAILED_TO_START = QObject::tr("%1 failed to start");
@@ -31,10 +32,28 @@ static const QString RUN_COMMAND_FAILED = QObject::tr("Running command %1 failed
 static const QString CONTAINER_CONFIGURE_FAILED = QObject::tr("Attempt to configure container %1 failed");
 constexpr auto libertine_container_manager_tool = "libertine-container-manager";
 
+
 static const QString readAllStdOutOrStdErr(QProcess& proc)
 {
   auto out = proc.readAllStandardOutput();
   return out.isEmpty() ? proc.readAllStandardError() : out;
+}
+
+
+static void pidKiller(const QString& pid, bool shouldKill = true)
+{
+  QProcess list_child_pids;
+  list_child_pids.start("pgrep", QStringList{"-P", pid});
+  list_child_pids.waitForFinished();
+  auto pids = QString::fromUtf8(list_child_pids.readAllStandardOutput()).split('\n', QString::SkipEmptyParts);
+  for (const auto& child: pids)
+  {
+    pidKiller(child);
+  }
+  if (shouldKill)
+  {
+    QProcess::execute("kill " + pid);
+  }
 }
 }
 
@@ -51,6 +70,7 @@ ContainerManagerWorker::
 {
   if (process_.state() == QProcess::Running)
   {
+    pidKiller(QString::number(process_.pid()), false);
     process_.close();
   }
 }
@@ -240,4 +260,11 @@ configureContainer(const QString& container_id, const QString& container_name, c
   QStringList args{"configure", "-i", container_id};
   args << configure_command.at(0) << configure_command.mid(1);
   process_.start(libertine_container_manager_tool, args);
+}
+
+
+void ContainerManagerWorker::
+fixIntegrity()
+{
+  process_.start(libertine_container_manager_tool, QStringList{"fix-integrity"});
 }

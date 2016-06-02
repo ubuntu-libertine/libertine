@@ -402,6 +402,14 @@ def create(args):
     update_container_install_status(args.id, "ready")
 
 
+def destroy_container_by_id(id):
+    container = LibertineContainer(id)
+    update_container_install_status(id, "removing")
+    container.destroy_libertine_container()
+    update_container_install_status(id, "removed")
+    delete_container(id)
+
+
 def destroy(args):
     if args.id and not libertine.utils.container_exists(args.id):
         print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
@@ -409,11 +417,7 @@ def destroy(args):
     elif not args.id:
         args.id = get_default_container_id()
 
-    container = LibertineContainer(args.id)
-    update_container_install_status(args.id, "removing")
-    container.destroy_libertine_container()
-    update_container_install_status(args.id, "removed")
-    delete_container(args.id)
+    destroy_container_by_id(args.id)
 
 
 def install_package(args):
@@ -451,6 +455,21 @@ def install_package(args):
     update_package_install_status(args.id, package, "installed")
 
 
+def remove_package_by_name(container_id, package_name, verbosity=1, readline=False):
+    fallback_status = get_package_install_status(container_id, package_name)
+    update_package_install_status(container_id, package_name, "removing")
+
+    container = LibertineContainer(container_id)
+    if not container.remove_package(package_name, verbosity, readline):
+        update_package_install_status(container_id, package_name, fallback_status)
+        return False
+
+    update_package_install_status(container_id, package_name, "removed")
+    delete_package(container_id, package_name)
+
+    return True
+
+
 def remove_package(args):
     if args.id and not libertine.utils.container_exists(args.id):
         print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
@@ -458,20 +477,12 @@ def remove_package(args):
     elif not args.id:
         args.id = get_default_container_id()
 
-    if not package_exists(args.id, args.package) or get_package_install_status(args.id, args.package) != "installed":
+    if get_package_install_status(args.id, args.package) != 'installed':
         print("Package \'%s\' is not installed." % args.package)
         sys.exit(1)
 
-    container = LibertineContainer(args.id)
-    update_package_install_status(args.id, args.package, "removing")
-
-    if not container.remove_package(args.package, args.verbosity, args.readline):
-        update_package_install_status(args.id, args.package, "installed")
+    if not remove_package_by_name(args.id, args.package, args.verbosity, args.readline):
         sys.exit(1)
-
-    update_package_install_status(args.id, args.package, "removed")
-
-    delete_package(args.id, args.package)
 
 
 def search_cache(args):
@@ -533,6 +544,14 @@ def exec(args):
         sys.exit(1)
 
 
+def delete_archive_by_name(container_id, archive_name):
+    update_archive_install_status(container_id, archive_name, 'removing')
+    if LibertineContainer(container_id).configure_command('delete-archive', archive_name) is not 0:
+        return False
+    delete_container_archive(container_id, archive_name)
+    return True
+
+
 def configure(args):
     if args.id and not libertine.utils.container_exists(args.id):
         print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
@@ -575,15 +594,28 @@ def configure(args):
             print("%s is not added in container." % args.delete_archive)
             sys.exit(1)
 
-        update_archive_install_status(args.id, args.delete_archive, 'removing')
-        if container.configure_command('delete-archive', args.delete_archive) is not 0:
+        if not delete_archive_by_name(args.id, args.delete_archive):
             sys.exit(1)
-
-        delete_container_archive(args.id, args.delete_archive)
 
 
 def merge(args):
     merge_container_config_files(args.file)
+
+
+def fix_integrity(args):
+    for container in read_container_config_file()['containerList']:
+        if container['installStatus'] != 'ready':
+            destroy_container_by_id(container['id'])
+            continue
+        LibertineContainer(container['id']).exec_command('dpkg --configure -a')
+
+        for package in container['installedApps']:
+            if package['appStatus'] != 'installed':
+                remove_package_by_name(container['id'], package['packageName'])
+        if 'extraArchives' in container:
+            for archive in container['extraArchives']:
+                if archive['archiveStatus'] != 'installed':
+                    delete_archive_by_name(container['id'], archive['archiveName'])
 
 
 if __name__ == '__main__':
@@ -762,6 +794,12 @@ if __name__ == '__main__':
         '-f', '--file',
         required=True)
     parser_merge.set_defaults(func=merge)
+
+    # Indiscriminately destroy containers, packages, and archives which are not fully installed
+    parser_integrity = subparsers.add_parser(
+        'fix-integrity',
+        add_help=False)
+    parser_integrity.set_defaults(func=fix_integrity)
 
     # Actually parse the args
     args = parser.parse_args()

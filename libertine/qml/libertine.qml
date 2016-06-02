@@ -40,6 +40,8 @@ MainView {
     }
 
     Component.onCompleted: {
+        Qt.createComponent("ContainerManager.qml").createObject(mainView).fixIntegrity()
+
         mainView.currentContainer = containerConfigList.defaultContainerId
 
         if (!containerConfigList.empty()) {
@@ -60,6 +62,9 @@ MainView {
     }
 
     function updatePackageOperationDetails(container_id, package_name, details) {
+        if (!mainView) {
+            return
+        }
         if (!packageOperationDetails) {
             packageOperationDetails = {}
         }
@@ -75,7 +80,7 @@ MainView {
     }
 
     function resetPackageDetails(container_id, package_name) {
-        if (packageOperationDetails && packageOperationDetails[container_id] && packageOperationDetails[container_id][package_name]) {
+        if (mainView && packageOperationDetails && packageOperationDetails[container_id] && packageOperationDetails[container_id][package_name]) {
             delete packageOperationDetails[container_id][package_name]
         }
     }
