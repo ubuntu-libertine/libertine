@@ -25,18 +25,36 @@ import time
 from libertine import LibertineContainer
 
 
-def set_dbus_session_socket_path():
+def get_session_socket_path(session_socket_name):
     unique_id = os.environ['DISPLAY'].strip(':')
 
     if not os.path.exists(libertine.utils.get_libertine_runtime_dir()):
         os.makedirs(libertine.utils.get_libertine_runtime_dir())
 
-    dbus_session_socket_path = (
-        os.path.join(libertine.utils.get_libertine_runtime_dir(), 'host_dbus_session' + unique_id))
+    session_socket_path = (
+        os.path.join(libertine.utils.get_libertine_runtime_dir(), session_socket_name + unique_id))
 
-    os.environ['DBUS_SESSION_BUS_ADDRESS'] = "unix:path=" + dbus_session_socket_path
+    return session_socket_path
 
-    return dbus_session_socket_path
+
+def get_dbus_session_socket_path():
+    return get_session_socket_path('host_dbus_session')
+
+
+def get_maliit_session_socket_path():
+    return get_session_socket_path('host_maliit_session')
+
+
+def set_env_socket_path(session_socket_path, session_env):
+    os.environ[session_env] = "unix:path=" + session_socket_path
+
+
+def set_dbus_env_socket_path(socket_path):
+    set_env_socket_path(socket_path, 'DBUS_SESSION_BUS_ADDRESS')
+
+
+def set_maliit_env_socket_path(socket_path):
+    set_env_socket_path(socket_path, 'MALIIT_SERVER_ADDRESS')
 
 
 def launch_libertine_session_bridge(session_socket_path):
@@ -74,11 +92,17 @@ if __name__ == '__main__':
         if e in os.environ:
             del os.environ[e]
 
-    session_socket_path = set_dbus_session_socket_path()
+    dbus_socket_path = get_dbus_session_socket_path()
+    maliit_socket_path = get_maliit_session_socket_path()
+    session_bridge_arguments = dbus_socket_path + ' ' + maliit_socket_path
 
-    session_bridge = launch_libertine_session_bridge(session_socket_path)
+    session_bridge = launch_libertine_session_bridge(session_bridge_arguments)
 
-    detect_session_bridge_socket(session_socket_path)
+    set_dbus_env_socket_path(dbus_socket_path)
+    set_maliit_env_socket_path(maliit_socket_path)
+
+    # should detect the maliit socket, but dont know if its around or not here.
+    detect_session_bridge_socket(dbus_socket_path)
 
     container = LibertineContainer(args.container_id) 
 

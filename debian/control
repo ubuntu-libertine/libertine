@@ -22,6 +22,7 @@ Build-Depends: click-dev,
                python3-psutil,
                python3-testtools,
                python3-xdg,
+               python3-dbus,
                qtdeclarative5-dev
 Standards-Version: 3.9.6
 Homepage: https://launchpad.net/libertine
@@ -32,6 +33,7 @@ Depends: libertine-tools,
          python3-libertine-lxc,
          qml-module-qtquick2,
          qtdeclarative5-ubuntu-ui-toolkit-plugin,
+         python3-dbus,
          ${misc:Depends},
          ${shlibs:Depends}
 Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
