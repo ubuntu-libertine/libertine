@@ -1,3 +1,35 @@
+libertine (1.0.4+16.10.20160519-0ubuntu1) yakkety; urgency=medium
+
+  [ Chris Townsend ]
+  * Work around sudo issue where $PATH is not preserved even though the -E
+    (preserve environment) option is used.
+  * Fix the click hook script such that it checks if the json file exists first.
+    Also had to change from using scandir() to listdir() since scandir() is not
+    in the Vivid version of Python.
+
+  [ Larry Price ]
+  * Blacklist Mir-related environment variables that interfere with X apps.
+    (LP: #1540091)
+  * Prevent crash when listing apps from non-existent container.
+  * Update from Ubuntu Components 1.2 to 1.3.
+  * Fix add- and delete-archive error checking when container fails to start.
+    (LP: #1579807)
+  * Show a standard error dialog in more cases when libertine-container-manager
+    has issues.
+  * Default behavior on single tap for Containers, Apps, DEBs, and Search
+    Results. (LP: #1579189)
+  * Update should return its exit code for proper error display in GUI.
+    (LP: #1562139)
+
+  [ Stephen M. Webb ]
+  * Blacklist Mir-related environment variables that interfere with X apps.
+    (LP: #1540091)
+
+  [ CI Train Bot ]
+  * No-change rebuild.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Thu, 19 May 2016 17:53:58 +0000
+
 libertine (1.0.2+16.04.20160506-0ubuntu1) xenial; urgency=medium
 
   [ Chris Townsend ]
