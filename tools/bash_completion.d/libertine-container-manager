@@ -1,0 +1,72 @@
+# Copyright (C) 2016 Canonical Ltd.
+# Author: Larry Price <larry.price@canonical.com>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+_libertine-container-manager()
+{
+    local cur cmd opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    cmd="${COMP_WORDS[1]}"
+
+    if [[ ${cur} == -* ]]; then
+      case "${cmd}" in
+      "install-package" )
+        opts="--help --id --package --readline"
+        ;;
+      "remove-package" )
+        opts="--help --id --package --readline"
+        ;;
+      "create" )
+        opts="--help --id --type --distro --name --force --multiarch --password"
+        ;;
+      "destroy" )
+        opts="--help --id"
+        ;;
+      "search-cache" )
+        opts="--help --id --search-string"
+        ;;
+      "update" )
+        opts="--help --id"
+        ;;
+      "list-apps" )
+        opts="--help --id --json"
+        ;;
+      "list" )
+        opts="--help"
+        ;;
+      "configure" )
+        opts="--help --id --multiarch --add-archive --delete-archive"
+        ;;
+      * )
+        opts="--help --quiet --verbose"
+        ;;
+      esac
+    fi
+
+    if [[ ${cmd} == "configure" && "${COMP_WORDS[COMP_CWORD-1]}" == "--multiarch" ]]; then
+      opts="enable disable"
+    fi
+
+    if [[ -z ${opts} && "${COMP_CWORD}" == "1" ]]; then
+      opts="create destroy install-package remove-package search-cache update list list-apps configure"
+    fi
+
+    if [[ -n "${opts}" ]]; then
+      COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+      return 0
+    fi
+}
+complete -F _libertine-container-manager libertine-container-manager
