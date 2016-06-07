@@ -96,8 +96,7 @@ Page {
     Component.onCompleted: {
         containerConfigList.configChanged.connect(reloadStatus)
         var command = "apt-cache policy " + currentPackage
-        var comp = Qt.createComponent("ContainerManager.qml")
-        worker = comp.createObject(mainView)
+        var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
         worker.finishedCommand.connect(getPackageVersion)
 
         packageOperationDetails = mainView.getPackageOperationDetails(currentContainer, currentPackage)
@@ -133,7 +132,7 @@ Page {
     }
 
     function getPackageVersion(command_output) {
-        packageVersionText = containerConfigList.getAppVersion(command_output)
+        packageVersionText = containerConfigList.getAppVersion(command_output, statusText === "installed")
     }
 
     function onError() {

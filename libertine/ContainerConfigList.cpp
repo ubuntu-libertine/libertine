@@ -39,6 +39,13 @@
 
 #include <sys/file.h>
 
+namespace
+{
+static constexpr auto POLICY_INSTALLED_VERSION_LINE = 1;
+static constexpr auto POLICY_CANDIDATE_VERSION_LINE = 2;
+
+}
+
 
 const QString ContainerConfigList::Json_container_list = "containerList";
 const QString ContainerConfigList::Json_default_container = "defaultContainer";
@@ -182,7 +189,7 @@ getAppStatus(QString const& container_id, QString const& package_name)
 
 
 QString ContainerConfigList::
-getAppVersion(QString const& app_info)
+getAppVersion(QString const& app_info, bool installed)
 {
   if (app_info.startsWith("N:") || app_info.isEmpty())
   {
@@ -191,9 +198,10 @@ getAppVersion(QString const& app_info)
   else
   {
     QStringList info = app_info.split('\n');
-    return info.at(1).section(": ", 1, 1);
+    return info.at(installed ? POLICY_INSTALLED_VERSION_LINE : POLICY_CANDIDATE_VERSION_LINE)
+               .section(": ", 1, 1);
   }
-} 
+}
 
 
 bool ContainerConfigList::

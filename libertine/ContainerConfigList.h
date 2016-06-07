@@ -111,7 +111,7 @@ public:
                QString const& package_name);
 
   Q_INVOKABLE QString
-  getAppVersion(QString const& app_info);
+  getAppVersion(QString const& app_info, bool installed);
 
   Q_INVOKABLE bool
   isValidDebianPackage(QString const& package_string);
