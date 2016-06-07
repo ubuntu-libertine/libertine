@@ -30,6 +30,7 @@ static const QString CONTAINER_CREATE_FAILED = QObject::tr("Creating container %
 static const QString CONTAINER_DESTROY_FAILED = QObject::tr("Destroying container %1 failed");
 static const QString RUN_COMMAND_FAILED = QObject::tr("Running command %1 failed");
 static const QString CONTAINER_CONFIGURE_FAILED = QObject::tr("Attempt to configure container %1 failed");
+static const QString SET_DEFAULT_CONTAINER_FAILED = QObject::tr("Attempt to set container as default failed");
 constexpr auto libertine_container_manager_tool = "libertine-container-manager";
 
 
@@ -267,4 +268,26 @@ void ContainerManagerWorker::
 fixIntegrity()
 {
   process_.start(libertine_container_manager_tool, QStringList{"fix-integrity"});
+}
+
+
+void ContainerManagerWorker::
+setDefaultContainer(const QString& container_id, bool should_clear)
+{
+  connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
+          [=](int exitCode, QProcess::ExitStatus){
+    if (exitCode != 0)
+    {
+      emit error(SET_DEFAULT_CONTAINER_FAILED, readAllStdOutOrStdErr(process_));
+    }
+  });
+
+  if (should_clear)
+  {
+    process_.start(libertine_container_manager_tool, QStringList{"set-default", "-c"});
+  }
+  else
+  {
+    process_.start(libertine_container_manager_tool, QStringList{"set-default", "-i", container_id});
+  }
 }

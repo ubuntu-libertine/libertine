@@ -571,7 +571,7 @@ def configure(args):
             print("i386 multiarch support is already %s" % multiarch)
             sys.exit(1)
 
-        if not container.configure_command('multiarch', args.multiarch):
+        if container.configure_command('multiarch', args.multiarch) is not 0:
             sys.exit(1)
 
         update_container_multiarch_support(args.id, multiarch)
@@ -616,6 +616,22 @@ def fix_integrity(args):
             for archive in container['extraArchives']:
                 if archive['archiveStatus'] != 'installed':
                     delete_archive_by_name(container['id'], archive['archiveName'])
+
+
+def set_default(args):
+    if args.clear:
+        container_list = read_container_config_file()
+        container_list.pop('defaultContainer', None)
+        write_container_config_file(container_list)
+        sys.exit(0)
+
+    if not libertine.utils.container_exists(args.id):
+        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
+        sys.exit(1)
+
+    container_list = read_container_config_file()
+    container_list['defaultContainer'] = args.id
+    write_container_config_file(container_list)
 
 
 if __name__ == '__main__':
@@ -800,6 +816,19 @@ if __name__ == '__main__':
         'fix-integrity',
         add_help=False)
     parser_integrity.set_defaults(func=fix_integrity)
+
+    # Set the default container in ContainersConfig
+    parser_default = subparsers.add_parser(
+        'set-default',
+        help=("Set the default container."))
+    parser_default.add_argument(
+        '-i', '--id',
+        metavar='Container id',
+        help=("Container identifier.  Default container is used if omitted."))
+    parser_default.add_argument(
+        '-c', '--clear', action='store_true',
+        help=("Clear the default container."))
+    parser_default.set_defaults(func=set_default)
 
     # Actually parse the args
     args = parser.parse_args()

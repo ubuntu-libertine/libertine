@@ -28,6 +28,8 @@ Page {
         id: pageHeader
         title: i18n.tr("Manage %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
     }
+    property bool isDefaultContainer: null
+    property bool isMultiarchEnabled: null
 
     Flickable {
         anchors {
@@ -45,7 +47,7 @@ Page {
             ListItem.Standard {
                 visible: containerConfigList.getHostArchitecture() == 'x86_64' ? true : false
                 control: CheckBox {
-                    checked: containerConfigList.getContainerMultiarchSupport(mainView.currentContainer) == 'enabled' ? true : false
+                    checked: isMultiarchEnabled
                     onClicked: {
                         var comp = Qt.createComponent("ContainerManager.qml")
                         if (checked) {
@@ -93,15 +95,33 @@ Page {
                 }
                 text: i18n.tr("Update container")
             }
+
+
+            ListItem.Standard {
+                control: CheckBox {
+                    checked: isDefaultContainer
+                    onClicked: {
+                        var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
+                        worker.error.connect(mainView.error)
+                        var fallback = checked
+                        worker.error.connect(function() {
+                            checked = fallback
+                        })
+                        worker.setDefaultContainer(mainView.currentContainer, !checked)
+                    }
+                }
+                text: i18n.tr("Default container")
+            }
         }
     }
 
     Component.onCompleted: {
-        containerConfigList.configChanged.connect(updateStatus)
+        updateContainerInfo()
+        containerConfigList.configChanged.connect(updateContainerInfo)
     }
 
     Component.onDestruction: {
-        containerConfigList.configChanged.disconnect(updateStatus)
+        containerConfigList.configChanged.disconnect(updateContainerInfo)
     }
 
     function updateContainer() {
@@ -109,6 +129,12 @@ Page {
         var worker = comp.createObject(mainView)
         worker.error.connect(mainView.error);
         worker.updateContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer))
+    }
+
+    function updateContainerInfo() {
+        updateStatus()
+        isDefaultContainer = containerConfigList.defaultContainerId === mainView.currentContainer
+        isMultiarchEnabled = containerConfigList.getContainerMultiarchSupport(mainView.currentContainer) === 'enabled'
     }
 
     function updateStatus() {

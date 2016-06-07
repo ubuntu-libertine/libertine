@@ -65,6 +65,9 @@ Runs an arbitrary command in the specified Libertine container.
 .TP
 .B libertine-container-manager configure [options]
 Configures various options in the specified Libertine container.
+.TP
+.B libertine-container-manager set-default [options]
+Sets default container.
 
 .SH COMMAND REFERENCE
 .TP
@@ -270,6 +273,25 @@ Adds an archive to the specified container. Format like "ppa:user/ppa-name".
 .BR \-d " ARCHIVE_NAME, " \-\-delete-archive " ARCHIVE_NAME" ""
 .RS 14
 Deletes an archive to the specified container. Format like "ppa:user/ppa-name".
+.RE
+.TP
+
+.B libertine-container-manager set-default [options]
+.TP
+.SS Options:
+.BR \-h ", " \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID, " \-\-id " ID" ""
+.RS 14
+Container identifier.
+.RE
+.IP
+.BR \-c ", " \-\-clear ""
+.RS 14
+Clear default container.
 .RE
 .TP
 

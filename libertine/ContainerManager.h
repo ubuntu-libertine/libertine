@@ -43,6 +43,7 @@ public:
   Q_INVOKABLE void runCommand(const QString& container_id, const QString& container_name, const QString& command_line);
   Q_INVOKABLE void configureContainer(const QString& container_id, const QString& container_name, const QStringList& configure_command);
   Q_INVOKABLE void fixIntegrity();
+  Q_INVOKABLE void setDefaultContainer(const QString& container_id, bool should_clear);
 
 public slots:
   void packageOperationInteraction(const QString& input);
