@@ -170,6 +170,12 @@ class LibertineChroot(BaseContainer):
                 self.destroy_libertine_container()
                 return False
 
+        if installed_release == "vivid":
+            if verbosity == 1:
+                print("Installing the Vivid Stable Overlay PPA...")
+            self.run_in_container("add-apt-repository ppa:ci-train-ppa-service/stable-phone-overlay -y")
+            self.update_packages(verbosity)
+
         # Check if the container was created as root and chown the user directories as necessary
         chown_recursive_dirs(utils.get_libertine_container_userdata_dir_path(self.container_id))
 

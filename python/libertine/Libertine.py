@@ -148,7 +148,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         :param verbosity: the chattiness of the output on a range from 0 to 2
         """
         self.run_in_container(apt_command_prefix(verbosity) + '--force-yes update')
-        return self.run_in_container(apt_command_prefix(verbosity) + '--force-yes upgrade')
+        return self.run_in_container(apt_command_prefix(verbosity) + '--force-yes dist-upgrade')
 
     def install_package(self, package_name, verbosity=1, readline=False):
         """
