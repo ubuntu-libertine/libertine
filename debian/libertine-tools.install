@@ -3,7 +3,7 @@ usr/bin/libertine-session-bridge
 usr/bin/libertine-container-manager
 usr/bin/libertine-lxc-manager
 usr/bin/libertine-xmir
-etc/bash_completion.d/libertine-container-manager
+usr/share/bash-completion/completions/libertine-container-manager
 usr/lib/*/libertine/update-puritine-containers
 usr/share/man
 usr/share/libertine/libertine-lxc.conf
