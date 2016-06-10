@@ -80,12 +80,20 @@ ContainerManagerWorker::
 void ContainerManagerWorker::
 createContainer(const QString& id, const QString& name, const QString& distro, bool multiarch, const QString& password)
 {
+  connect(&process_, &QProcess::readyRead, [=](){
+    auto output = process_.readAllStandardOutput();
+    if (!output.isEmpty())
+    {
+      emit updateOperationDetails(id, "", output);
+    }
+  });
   connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
           [=](int exitCode, QProcess::ExitStatus){
     if (exitCode != 0)
     {
       emit error(CONTAINER_CREATE_FAILED.arg(id), process_.readAllStandardError());
     }
+    emit operationFinished(id, "");
   });
   connect(&process_, &QProcess::started, [=]() {
     process_.write(password.toUtf8());
@@ -134,7 +142,7 @@ installPackage(const QString& container_id, const QString& package_name)
     auto output = process_.readAllStandardOutput();
     if (!output.isEmpty())
     {
-      emit updatePackageOperationDetails(container_id, package_name, output);
+      emit updateOperationDetails(container_id, package_name, output);
       process_output_ += output;
     }
   });
@@ -145,7 +153,7 @@ installPackage(const QString& container_id, const QString& package_name)
       auto stderr = process_.readAllStandardError();
       emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), stderr.isEmpty() ? process_output_ : stderr);
     }
-     emit packageOperationFinished(container_id, package_name);
+     emit operationFinished(container_id, package_name);
   });
 
   process_.start(libertine_container_manager_tool, QStringList{"install-package", "-i", container_id, "-p", package_name, "-r"});
@@ -159,7 +167,7 @@ removePackage(const QString& container_id, const QString& package_name)
     auto output = process_.readAllStandardOutput();
     if (!output.isEmpty())
     {
-      emit updatePackageOperationDetails(container_id, package_name, output);
+      emit updateOperationDetails(container_id, package_name, output);
       process_output_ += output;
     }
   });
@@ -169,6 +177,7 @@ removePackage(const QString& container_id, const QString& package_name)
     {
       emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), process_output_.isEmpty() ? process_.readAllStandardError() : process_output_);
     }
+    emit operationFinished(container_id, package_name);
   });
 
   process_.start(libertine_container_manager_tool, QStringList{"remove-package", "-i", container_id, "-p", package_name, "-r"});
@@ -212,12 +221,20 @@ searchPackageCache(const QString& container_id, const QString& search_string)
 void ContainerManagerWorker::
 updateContainer(const QString& container_id, const QString& container_name)
 {
+  connect(&process_, &QProcess::readyRead, [=](){
+    auto output = process_.readAllStandardOutput();
+    if (!output.isEmpty())
+    {
+      emit updateOperationDetails(container_id, "", output);
+    }
+  });
   connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
           [=](int exitCode, QProcess::ExitStatus){
     if (exitCode != 0)
     {
       emit error(CONTAINER_UPDATE_FAILED.arg(container_name), readAllStdOutOrStdErr(process_));
     }
+    emit operationFinished(container_id, "");
   });
 
   process_.start(libertine_container_manager_tool, QStringList{"update", "-i", container_id});
@@ -246,6 +263,13 @@ runCommand(const QString& container_id, const QString& container_name, const QSt
 void ContainerManagerWorker::
 configureContainer(const QString& container_id, const QString& container_name, const QStringList& configure_command)
 {
+  connect(&process_, &QProcess::readyRead, [=](){
+    auto output = process_.readAllStandardOutput();
+    if (!output.isEmpty())
+    {
+      emit updateOperationDetails(container_id, "", output);
+    }
+  });
   connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
           [=](int exitCode, QProcess::ExitStatus){
     if (exitCode != 0)
@@ -256,6 +280,7 @@ configureContainer(const QString& container_id, const QString& container_name, c
     {
       emit finishedConfigure();
     }
+    emit operationFinished(container_id, "");
   });
 
   QStringList args{"configure", "-i", container_id};

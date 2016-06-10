@@ -39,7 +39,7 @@ Page {
             }
         ]
     }
-    property var currentContainer: null
+    property string currentContainer: null
 
     Component {
         id: enterPackagePopup
@@ -103,13 +103,13 @@ Page {
                 Action {
                     text: i18n.tr("Manage Container")
                     onTriggered: {
-                        pageStack.push(Qt.resolvedUrl("ManageContainer.qml"))
+                        pageStack.push(Qt.resolvedUrl("ManageContainer.qml"), {currentContainer: currentContainer})
                     }
                 }
                 Action {
                     text: i18n.tr("Container Information")
                     onTriggered: {
-                        pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"))
+                        pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"), {currentContainer: currentContainer})
                     }
                 }
                 Action {
@@ -244,9 +244,9 @@ Page {
         var comp = Qt.createComponent("ContainerManager.qml")
         var worker = comp.createObject(mainView)
         worker.error.connect(mainView.error)
-        worker.updatePackageOperationDetails.connect(mainView.updatePackageOperationDetails)
+        worker.updateOperationDetails.connect(mainView.updateOperationDetails)
         mainView.packageOperationInteraction.connect(worker.packageOperationInteraction)
-        worker.packageOperationFinished.connect(mainView.resetPackageDetails)
+        worker.operationFinished.connect(mainView.resetOperationDetails)
         return worker
     }
 

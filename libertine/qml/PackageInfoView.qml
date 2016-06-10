@@ -35,6 +35,7 @@ Page {
     property var packageVersionText: i18n.tr("Obtaining package version…")
     property string packageOperationDetails: ""
     property var worker: null
+    property bool showDetails: false
 
     signal sendOperationInteraction(string text)
 
@@ -70,18 +71,33 @@ Page {
                 }
             }
 
+            ListItem.Standard {
+                id: showDetailsView
+                control: Button {
+                    text: enabled ?
+                              showDetails ? i18n.tr('Hide') : i18n.tr('Show')
+                            : i18n.tr('None')
+                    enabled: packageOperationDetails != ""
+                    onClicked: {
+                        showDetails = !showDetails
+                    }
+                }
+                text: i18n.tr("Operation details")
+            }
+
             TextArea {
                 id: packageDetailsView
-                visible: text !== ""
+                visible: showDetails
                 anchors.left: parent.left
                 anchors.right: parent.right
-                height: Math.max(packageInfoView.height - pageHeader.height - packageListItem.height - statusListItem.height - 35, units.gu(35))
+                height: Math.max(packageInfoView.height - pageHeader.height - packageListItem.height - showDetailsView.height - statusListItem.height - 35, units.gu(35))
                 readOnly: true
                 text: packageOperationDetails
             }
 
             TextField {
-                visible: packageDetailsView.visible && (statusText === "installing" || statusText === "removing")
+                id: packageInputField
+                visible: showDetails && (statusText === "installing" || statusText === "removing")
                 anchors.left: parent.left
                 anchors.right: parent.right
                 text: ""
@@ -99,20 +115,22 @@ Page {
         var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
         worker.finishedCommand.connect(getPackageVersion)
 
-        packageOperationDetails = mainView.getPackageOperationDetails(currentContainer, currentPackage)
+        packageOperationDetails = mainView.getOperationDetails(currentContainer, currentPackage)
         packageDetailsView.cursorPosition = packageDetailsView.length
+        if (packageOperationDetails != "") {
+            showDetails = !showDetails
+        }
 
-        mainView.updatePackageDetails.connect(updatePackageDetails)
+        mainView.operationDetailsUpdated.connect(updatePackageDetails)
         sendOperationInteraction.connect(mainView.packageOperationInteraction)
 
-        worker.error.connect(mainView.error)
         worker.error.connect(onError)
         worker.runCommand(currentContainer, containerConfigList.getContainerName(currentContainer), command)
     }
 
     Component.onDestruction: {
         containerConfigList.configChanged.disconnect(reloadStatus)
-        mainView.updatePackageDetails.disconnect(updatePackageDetails)
+        mainView.operationDetailsUpdated.disconnect(updatePackageDetails)
         sendOperationInteraction.disconnect(mainView.packageOperationInteraction)
     }
 
@@ -132,7 +150,9 @@ Page {
     }
 
     function getPackageVersion(command_output) {
-        packageVersionText = containerConfigList.getAppVersion(command_output, statusText === "installed")
+        if (packageInfoView) {
+            packageVersionText = containerConfigList.getAppVersion(command_output, statusText === "installed")
+        }
     }
 
     function onError() {

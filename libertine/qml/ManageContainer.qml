@@ -26,10 +26,11 @@ Page {
     id: manageView
     header: PageHeader {
         id: pageHeader
-        title: i18n.tr("Manage %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
+        title: i18n.tr("Manage %1").arg(containerConfigList.getContainerName(currentContainer))
     }
     property bool isDefaultContainer: null
     property bool isMultiarchEnabled: null
+    property string currentContainer: null
 
     Flickable {
         anchors {
@@ -49,16 +50,19 @@ Page {
                 control: CheckBox {
                     checked: isMultiarchEnabled
                     onClicked: {
-                        var comp = Qt.createComponent("ContainerManager.qml")
+                        var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
+
+                        worker.updateOperationDetails.connect(mainView.updateOperationDetails)
+                        worker.operationFinished.connect(mainView.resetOperationDetails)
+
                         if (checked) {
-                            comp.createObject(mainView).configureContainer(mainView.currentContainer,
-                                                                           containerConfigList.getContainerName(mainView.currentContainer),
-                                                                           ["--multiarch", "enable"])
-                        }
-                        else {
-                            comp.createObject(mainView).configureContainer(mainView.currentContainer,
-                                                                           containerConfigList.getContainerName(mainView.currentContainer),
-                                                                           ["--multiarch", "disable"])
+                            worker.configureContainer(currentContainer,
+                                                      containerConfigList.getContainerName(currentContainer),
+                                                      ["--multiarch", "enable"])
+                        } else {
+                            worker.configureContainer(currentContainer,
+                                                      containerConfigList.getContainerName(currentContainer),
+                                                      ["--multiarch", "disable"])
                         }
                     }
                 }
@@ -69,7 +73,7 @@ Page {
                 text: i18n.tr("Additional archives and PPAs")
                 progression: true
                 onClicked: {
-                    containerArchivesList.setContainerArchives(mainView.currentContainer)
+                    containerArchivesList.setContainerArchives(currentContainer)
                     pageStack.push(Qt.resolvedUrl("ExtraArchivesView.qml"))
                 }
             }
@@ -78,7 +82,7 @@ Page {
                 control: Button {
                     id: updateButton
                     text: i18n.tr("Update…")
-                    visible: (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("ready")) ? true : false
+                    visible: (containerConfigList.getContainerStatus(currentContainer) === i18n.tr("ready")) ? true : false
                     onClicked: {
                         updateContainer()
                     }
@@ -90,7 +94,7 @@ Page {
                         right: parent.right
                         rightMargin: units.gu(2)
                     }
-                    visible: (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("updating")) ? true : false
+                    visible: (containerConfigList.getContainerStatus(currentContainer) === i18n.tr("updating")) ? true : false
                     running: updateActivity.visible
                 }
                 text: i18n.tr("Update container")
@@ -107,7 +111,7 @@ Page {
                         worker.error.connect(function() {
                             checked = fallback
                         })
-                        worker.setDefaultContainer(mainView.currentContainer, !checked)
+                        worker.setDefaultContainer(currentContainer, !checked)
                     }
                 }
                 text: i18n.tr("Default container")
@@ -125,24 +129,27 @@ Page {
     }
 
     function updateContainer() {
-        var comp = Qt.createComponent("ContainerManager.qml")
-        var worker = comp.createObject(mainView)
+        var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
         worker.error.connect(mainView.error);
-        worker.updateContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer))
+
+        worker.updateOperationDetails.connect(mainView.updateOperationDetails)
+        worker.operationFinished.connect(mainView.resetOperationDetails)
+
+        worker.updateContainer(currentContainer, containerConfigList.getContainerName(currentContainer))
     }
 
     function updateContainerInfo() {
         updateStatus()
-        isDefaultContainer = containerConfigList.defaultContainerId === mainView.currentContainer
-        isMultiarchEnabled = containerConfigList.getContainerMultiarchSupport(mainView.currentContainer) === 'enabled'
+        isDefaultContainer = containerConfigList.defaultContainerId === currentContainer
+        isMultiarchEnabled = containerConfigList.getContainerMultiarchSupport(currentContainer) === 'enabled'
     }
 
     function updateStatus() {
-        if (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("updating")) {
+        if (containerConfigList.getContainerStatus(currentContainer) === i18n.tr("updating")) {
             updateButton.visible = false
             updateActivity.visible = true
         }
-        else if (containerConfigList.getContainerStatus(mainView.currentContainer) === i18n.tr("ready")) {
+        else if (containerConfigList.getContainerStatus(currentContainer) === i18n.tr("ready")) {
             updateButton.visible = true
             updateActivity.visible = false
         }

@@ -27,14 +27,16 @@ Page {
     id: containerInfoView
     header: PageHeader {
         id: pageHeader
-        title: i18n.tr("Container information for %1").arg(containerConfigList.getContainerName(mainView.currentContainer))
+        title: i18n.tr("Container information for %1").arg(containerConfigList.getContainerName(currentContainer))
     }
 
-    property string currentContainer: mainView.currentContainer
+    property string currentContainer: null
     property string containerDistroText: containerConfigList.getContainerDistro(currentContainer)
     property string containerNameText: containerConfigList.getContainerName(currentContainer)
     property string containerIdText: currentContainer
     property var statusText: containerConfigList.getContainerStatus(currentContainer)
+    property bool showDetails: false
+    property string operationDetails: ""
 
     Flickable {
         anchors {
@@ -50,6 +52,7 @@ Page {
             anchors.right: parent.right
 
             ListItem.Standard {
+                id: idView
                 text: i18n.tr("ID")
                 control: Label {
                     text: containerIdText
@@ -57,6 +60,7 @@ Page {
             }
 
             ListItem.Standard {
+                id: nameView
                 text: i18n.tr("Name")
                 control: Label {
                     text: containerNameText
@@ -64,6 +68,7 @@ Page {
             }
 
             ListItem.Standard {
+                id: distroView
                 text: i18n.tr("Distribution")
                 control: Label {
                     text: containerDistroText
@@ -71,20 +76,65 @@ Page {
             }
 
             ListItem.Standard {
+                id: statusView
                 text: i18n.tr("Status")
                 control: Label {
                     text: statusText
                 }
+            }
+
+            ListItem.Standard {
+                id: showDetailsView
+                control: Button {
+                    text: enabled ?
+                              showDetails ? i18n.tr('Hide') : i18n.tr('Show')
+                            : i18n.tr('None')
+                    enabled: operationDetails != ""
+                    onClicked: {
+                        showDetails = !showDetails
+                    }
+                }
+                text: i18n.tr("Operation details")
+            }
+
+            TextArea {
+                id: operationDetailsView
+                visible: showDetails
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: Math.max(containerInfoView.height - pageHeader.height - idView.height - nameView.height - distroView.height
+                                                          - statusView.height - showDetailsView.height,
+                                 units.gu(35))
+                readOnly: true
+                text: operationDetails
             }
         }
     }
 
     Component.onCompleted: {
         containerConfigList.configChanged.connect(reloadStatus)
+
+        var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
+
+        operationDetails = mainView.getOperationDetails(currentContainer)
+        operationDetailsView.cursorPosition = operationDetailsView.length
+        if (operationDetails != "") {
+            showDetails = !showDetails
+        }
+
+        mainView.operationDetailsUpdated.connect(updateDetails)
     }
 
     Component.onDestruction: {
+        mainView.operationDetailsUpdated.disconnect(updateDetails)
         containerConfigList.configChanged.disconnect(reloadStatus)
+    }
+
+    function updateDetails(container_id, package_name, details) {
+        if (container_id === currentContainer && package_name === "") {
+            operationDetails += details
+            operationDetailsView.cursorPosition = operationDetailsView.length
+        }
     }
 
     function reloadStatus() {

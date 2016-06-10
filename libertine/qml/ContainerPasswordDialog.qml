@@ -87,6 +87,11 @@ Dialog {
         var container_id = containerConfigList.addNewContainer("lxc", containerName)
         var comp = Qt.createComponent("ContainerManager.qml")
         var worker = comp.createObject(mainView)
+
+        worker.updateOperationDetails.connect(mainView.updateOperationDetails)
+        worker.operationFinished.connect(mainView.resetOperationDetails)
+        worker.error.connect(mainView.error)
+
         worker.createContainer(container_id, containerConfigList.getContainerName(container_id),
                                containerConfigList.getContainerDistro(container_id), enableMultiarch, password)
     }

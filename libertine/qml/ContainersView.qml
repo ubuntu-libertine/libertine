@@ -92,8 +92,7 @@ Page {
                         text: i18n.tr("delete")
                         description: i18n.tr("Delete Container")
                         onTriggered: {
-                            var comp = Qt.createComponent("ContainerManager.qml")
-                            var worker = comp.createObject(mainView)
+                            var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
                             worker.destroyContainer(containerId)
                             mainView.currentContainer = containerId
                         }
@@ -109,7 +108,7 @@ Page {
                         description: i18n.tr("Container Info")
                         onTriggered: {
                             mainView.currentContainer = containerId
-                            pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"))
+                            pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"), {currentContainer: containerId})
                         }
                     },
                     Action {

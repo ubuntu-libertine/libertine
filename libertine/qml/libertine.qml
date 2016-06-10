@@ -29,10 +29,10 @@ MainView {
     width:  units.gu(90)
     height: units.gu(75)
     property var currentContainer: undefined
-    property var packageOperationDetails: undefined
+    property var operationDetails: undefined
 
     signal error(string short_description, string details)
-    signal updatePackageDetails(string container_id, string package_name, string details)
+    signal operationDetailsUpdated(string container_id, string package_name, string details)
     signal packageOperationInteraction(string data)
 
     PageStack {
@@ -48,7 +48,7 @@ MainView {
             pageStack.push(Qt.resolvedUrl("ContainersView.qml"))
             if (mainView.currentContainer) {
                 containerAppsList.setContainerApps(mainView.currentContainer)
-                pageStack.push(Qt.resolvedUrl("HomeView.qml"), {"currentContainer": mainView.currentContainer})
+                pageStack.push(Qt.resolvedUrl("HomeView.qml"), {currentContainer: mainView.currentContainer})
             }
         }
         else {
@@ -61,33 +61,58 @@ MainView {
                                        {"short_description": short_description, "details": details})
     }
 
-    function updatePackageOperationDetails(container_id, package_name, details) {
+    function initializeDetails(container_id, package_name) {
+        if (!operationDetails) {
+            operationDetails = {}
+        }
+        if (!operationDetails[container_id]) {
+            operationDetails[container_id] = {packages: {}, details: ""}
+        }
+        if (!operationDetails[container_id].details) {
+            operationDetails[container_id].details = ""
+        }
+        if (package_name && !operationDetails[container_id].packages[package_name]) {
+            operationDetails[container_id].packages[package_name] = ""
+        }
+    }
+
+    function updateOperationDetails(container_id, package_name, details) {
         if (!mainView) {
             return
         }
-        if (!packageOperationDetails) {
-            packageOperationDetails = {}
-        }
-        if (!packageOperationDetails[container_id]) {
-            packageOperationDetails[container_id] = {}
-        }
-        if (!packageOperationDetails[container_id][package_name]) {
-            packageOperationDetails[container_id][package_name] = ""
-        }
-        packageOperationDetails[container_id][package_name] += details
 
-        updatePackageDetails(container_id, package_name, details)
+        initializeDetails(container_id, package_name)
+
+        if (package_name) {
+            operationDetails[container_id].packages[package_name] += details
+        } else {
+            operationDetails[container_id].details += details
+        }
+
+        operationDetailsUpdated(container_id, package_name, details)
     }
 
-    function resetPackageDetails(container_id, package_name) {
-        if (mainView && packageOperationDetails && packageOperationDetails[container_id] && packageOperationDetails[container_id][package_name]) {
-            delete packageOperationDetails[container_id][package_name]
+    function resetOperationDetails(container_id, package_name) {
+        if (mainView && operationDetails && operationDetails[container_id]) {
+            if (package_name) {
+                if (operationDetails[container_id].packages[package_name]) {
+                    delete operationDetails[container_id].packages[package_name]
+                }
+            } else {
+                delete operationDetails[container_id].details
+            }
         }
     }
 
-    function getPackageOperationDetails(container_id, package_name) {
-        if (packageOperationDetails && packageOperationDetails[container_id] && packageOperationDetails[container_id][package_name]) {
-            return packageOperationDetails[container_id][package_name]
+    function getOperationDetails(container_id, package_name) {
+        if (operationDetails && operationDetails[container_id]) {
+            if (package_name) {
+                if (operationDetails[container_id].packages[package_name]) {
+                    return operationDetails[container_id].packages[package_name]
+                }
+            } else if (operationDetails[container_id].details) {
+                return operationDetails[container_id].details
+            }
         }
         return ""
     }

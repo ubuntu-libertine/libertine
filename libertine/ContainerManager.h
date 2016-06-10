@@ -66,8 +66,8 @@ signals:
   void finishedSearch(QList<QString> packageList);
   void finishedCommand(QString const& command_output);
   void finishedConfigure();
-  void updatePackageOperationDetails(const QString& container_id, const QString& package_name, const QString& details);
-  void packageOperationFinished(const QString& container_id, const QString& package_name);
+  void updateOperationDetails(const QString& container_id, const QString& package_name, const QString& details);
+  void operationFinished(const QString& container_id, const QString& package_name);
 
   void error(const QString& short_description, const QString& details);
 };
