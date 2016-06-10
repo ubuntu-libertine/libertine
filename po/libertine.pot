@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-05-19 14:51-0400\n"
+"POT-Creation-Date: 2016-06-07 07:58-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,42 +16,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-#: ../libertine/ContainerManager.cpp:23
-msgid "%1 failed to start"
-msgstr ""
-
-#: ../libertine/ContainerManager.cpp:24
-msgid "Installation of package %1 failed"
-msgstr ""
-
-#: ../libertine/ContainerManager.cpp:25
-msgid "Removal of package %1 failed"
-msgstr ""
-
-#: ../libertine/ContainerManager.cpp:26
-msgid "Searching for query %1 failed"
-msgstr ""
-
-#: ../libertine/ContainerManager.cpp:27
-msgid "Updating container %1 failed"
-msgstr ""
-
-#: ../libertine/ContainerManager.cpp:28
-msgid "Creating container %1 failed"
-msgstr ""
-
-#: ../libertine/ContainerManager.cpp:29
-msgid "Destroying container %1 failed"
-msgstr ""
-
-#: ../libertine/ContainerManager.cpp:30
-msgid "Running command %1 failed"
-msgstr ""
-
-#: ../libertine/ContainerManager.cpp:31
-msgid "Attempt to configure container %1 failed"
-msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
@@ -82,8 +46,8 @@ msgid "removing"
 msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:189
-#: ../libertine/qml/ContainerInfoView.qml:93
 #: ../libertine/qml/PackageInfoView.qml:131
+#: ../libertine/qml/ContainerInfoView.qml:93
 msgid "removed"
 msgstr ""
 
@@ -95,121 +59,56 @@ msgstr ""
 msgid "installed"
 msgstr ""
 
-#: ../libertine/qml/ContainerOptionsDialog.qml:27
-msgid "Container Options"
+#: ../libertine/ContainerManager.cpp:24
+msgid "%1 failed to start"
 msgstr ""
 
-#: ../libertine/qml/ContainerOptionsDialog.qml:28
-msgid "Configure options for container creation."
+#: ../libertine/ContainerManager.cpp:25
+msgid "Installation of package %1 failed"
 msgstr ""
 
-#: ../libertine/qml/ContainerOptionsDialog.qml:40
-#: ../libertine/qml/ManageContainer.qml:63
-msgid "i386 multiarch support"
+#: ../libertine/ContainerManager.cpp:26
+msgid "Removal of package %1 failed"
 msgstr ""
 
-#: ../libertine/qml/ContainerOptionsDialog.qml:50
-msgid "Enter or name for the container or leave blank for default name"
+#: ../libertine/ContainerManager.cpp:27
+msgid "Searching for query %1 failed"
 msgstr ""
 
-#: ../libertine/qml/ContainerOptionsDialog.qml:56
-msgid "container name"
+#: ../libertine/ContainerManager.cpp:28
+msgid "Updating container %1 failed"
 msgstr ""
 
-#: ../libertine/qml/ContainerOptionsDialog.qml:64
-#: ../libertine/qml/ContainerPasswordDialog.qml:52
-#: ../libertine/qml/SearchPackagesDialog.qml:39
-#: ../libertine/qml/HomeView.qml:68 ../libertine/qml/ExtraArchivesView.qml:57
-msgid "OK"
+#: ../libertine/ContainerManager.cpp:29
+msgid "Creating container %1 failed"
 msgstr ""
 
-#: ../libertine/qml/ContainerOptionsDialog.qml:75
-#: ../libertine/qml/ContainerPasswordDialog.qml:70
-#: ../libertine/qml/SearchPackagesDialog.qml:57
-#: ../libertine/qml/HomeView.qml:88 ../libertine/qml/ExtraArchivesView.qml:65
-msgid "Cancel"
+#: ../libertine/ContainerManager.cpp:30
+msgid "Destroying container %1 failed"
 msgstr ""
 
-#: ../libertine/qml/GenericErrorDialog.qml:32
-msgid "Dismiss"
+#: ../libertine/ContainerManager.cpp:31
+msgid "Running command %1 failed"
 msgstr ""
 
-#: ../libertine/qml/SearchResultsView.qml:31
-msgid "Package Search Results"
+#: ../libertine/ContainerManager.cpp:32
+msgid "Attempt to configure container %1 failed"
 msgstr ""
 
-#: ../libertine/qml/SearchResultsView.qml:35
-msgid "Search"
+#: ../libertine/qml/PackageExistsDialog.qml:28
+msgid "The %1 package is already installed."
 msgstr ""
 
-#: ../libertine/qml/SearchResultsView.qml:36
-#: ../libertine/qml/SearchPackagesDialog.qml:26
-msgid "Search for packages"
+#: ../libertine/qml/PackageExistsDialog.qml:29
+msgid "Search again or return to search results."
 msgstr ""
 
-#: ../libertine/qml/SearchResultsView.qml:52
-msgid "No Search Results Found"
+#: ../libertine/qml/PackageExistsDialog.qml:33
+msgid "Search again"
 msgstr ""
 
-#: ../libertine/qml/SearchResultsView.qml:57
-msgid "Search Again"
-msgstr ""
-
-#: ../libertine/qml/SearchResultsView.qml:67
-msgid "Return to Apps Page"
-msgstr ""
-
-#: ../libertine/qml/SearchResultsView.qml:95
-msgid "Searching for packages…"
-msgstr ""
-
-#: ../libertine/qml/DebianPackagePicker.qml:28
-msgid "Available Debian Packages to Install"
-msgstr ""
-
-#: ../libertine/qml/DebianPackagePicker.qml:70
-#: ../libertine/qml/SearchResults.qml:60
-msgid "Install Package"
-msgstr ""
-
-#: ../libertine/qml/DebianPackagePicker.qml:87
-msgid "No Debian packages available"
-msgstr ""
-
-#: ../libertine/qml/ContainerPasswordDialog.qml:27
-msgid "Authentication required"
-msgstr ""
-
-#: ../libertine/qml/ContainerPasswordDialog.qml:28
-msgid "Password is required to create a Libertine container"
-msgstr ""
-
-#: ../libertine/qml/ContainerPasswordDialog.qml:36
-msgid "Invalid password entered"
-msgstr ""
-
-#: ../libertine/qml/ContainerPasswordDialog.qml:41
-msgid "password"
-msgstr ""
-
-#: ../libertine/qml/ContainerInfoView.qml:30
-msgid "Container information for %1"
-msgstr ""
-
-#: ../libertine/qml/ContainerInfoView.qml:53
-msgid "ID"
-msgstr ""
-
-#: ../libertine/qml/ContainerInfoView.qml:60
-msgid "Name"
-msgstr ""
-
-#: ../libertine/qml/ContainerInfoView.qml:67
-msgid "Distribution"
-msgstr ""
-
-#: ../libertine/qml/ContainerInfoView.qml:74
-msgid "Status"
+#: ../libertine/qml/PackageExistsDialog.qml:43
+msgid "Return to search results"
 msgstr ""
 
 #: ../libertine/qml/ContainersView.qml:33
@@ -240,6 +139,11 @@ msgstr ""
 msgid "Container Apps"
 msgstr ""
 
+#: ../libertine/qml/SearchPackagesDialog.qml:26
+#: ../libertine/qml/SearchResultsView.qml:36
+msgid "Search for packages"
+msgstr ""
+
 #: ../libertine/qml/SearchPackagesDialog.qml:27
 msgid "Search archives for packages"
 msgstr ""
@@ -248,8 +152,76 @@ msgstr ""
 msgid "search"
 msgstr ""
 
+#: ../libertine/qml/SearchPackagesDialog.qml:39
+#: ../libertine/qml/ContainerPasswordDialog.qml:52
+#: ../libertine/qml/HomeView.qml:68 ../libertine/qml/ExtraArchivesView.qml:57
+#: ../libertine/qml/ContainerOptionsDialog.qml:64
+msgid "OK"
+msgstr ""
+
+#: ../libertine/qml/SearchPackagesDialog.qml:57
+#: ../libertine/qml/ContainerPasswordDialog.qml:70
+#: ../libertine/qml/HomeView.qml:88 ../libertine/qml/ExtraArchivesView.qml:65
+#: ../libertine/qml/ContainerOptionsDialog.qml:75
+msgid "Cancel"
+msgstr ""
+
+#: ../libertine/qml/PackageInfoView.qml:30
+msgid "Information for the %1 package"
+msgstr ""
+
+#: ../libertine/qml/PackageInfoView.qml:35
+msgid "Obtaining package version…"
+msgstr ""
+
+#: ../libertine/qml/PackageInfoView.qml:59
+msgid "Package version"
+msgstr ""
+
+#: ../libertine/qml/PackageInfoView.qml:67
+msgid "Install status"
+msgstr ""
+
+#: ../libertine/qml/PackageInfoView.qml:140
+msgid "Unknown"
+msgstr ""
+
+#: ../libertine/qml/SearchResultsView.qml:31
+msgid "Package Search Results"
+msgstr ""
+
+#: ../libertine/qml/SearchResultsView.qml:35
+msgid "Search"
+msgstr ""
+
+#: ../libertine/qml/SearchResultsView.qml:52
+msgid "No Search Results Found"
+msgstr ""
+
+#: ../libertine/qml/SearchResultsView.qml:57
+msgid "Search Again"
+msgstr ""
+
+#: ../libertine/qml/SearchResultsView.qml:67
+msgid "Return to Apps Page"
+msgstr ""
+
+#: ../libertine/qml/SearchResultsView.qml:95
+msgid "Searching for packages…"
+msgstr ""
+
+#: ../libertine/qml/SearchResults.qml:60
+#: ../libertine/qml/DebianPackagePicker.qml:70
+msgid "Install Package"
+msgstr ""
+
 #: ../libertine/qml/ManageContainer.qml:29
 msgid "Manage %1"
+msgstr ""
+
+#: ../libertine/qml/ManageContainer.qml:63
+#: ../libertine/qml/ContainerOptionsDialog.qml:40
+msgid "i386 multiarch support"
 msgstr ""
 
 #: ../libertine/qml/ManageContainer.qml:67
@@ -262,6 +234,30 @@ msgstr ""
 
 #: ../libertine/qml/ManageContainer.qml:94
 msgid "Update container"
+msgstr ""
+
+#: ../libertine/qml/DebianPackagePicker.qml:28
+msgid "Available Debian Packages to Install"
+msgstr ""
+
+#: ../libertine/qml/DebianPackagePicker.qml:87
+msgid "No Debian packages available"
+msgstr ""
+
+#: ../libertine/qml/ContainerPasswordDialog.qml:27
+msgid "Authentication required"
+msgstr ""
+
+#: ../libertine/qml/ContainerPasswordDialog.qml:28
+msgid "Password is required to create a Libertine container"
+msgstr ""
+
+#: ../libertine/qml/ContainerPasswordDialog.qml:36
+msgid "Invalid password entered"
+msgstr ""
+
+#: ../libertine/qml/ContainerPasswordDialog.qml:41
+msgid "password"
 msgstr ""
 
 #: ../libertine/qml/HomeView.qml:29
@@ -321,45 +317,6 @@ msgstr ""
 msgid "No packages are installed"
 msgstr ""
 
-#: ../libertine/qml/PackageInfoView.qml:30
-msgid "Information for the %1 package"
-msgstr ""
-
-#: ../libertine/qml/PackageInfoView.qml:35
-msgid "Obtaining package version…"
-msgstr ""
-
-#: ../libertine/qml/PackageInfoView.qml:59
-msgid "Package version"
-msgstr ""
-
-#: ../libertine/qml/PackageInfoView.qml:67
-msgid "Install status"
-msgstr ""
-
-#: ../libertine/qml/PackageInfoView.qml:140
-msgid "Unknown"
-msgstr ""
-
-#: ../libertine/qml/WelcomeView.qml:28
-msgid "Welcome"
-msgstr ""
-
-#: ../libertine/qml/WelcomeView.qml:50
-msgid "Welcome to the Ubuntu Legacy Application Support Manager."
-msgstr ""
-
-#: ../libertine/qml/WelcomeView.qml:58
-msgid ""
-"You do not have Legacy Application Support configured at this time.  "
-"Downloading and setting up the required environment takes some time and "
-"network bandwidth."
-msgstr ""
-
-#: ../libertine/qml/WelcomeView.qml:66
-msgid "Install"
-msgstr ""
-
 #: ../libertine/qml/ExtraArchivesView.qml:28
 msgid "Additional Archives and PPAs"
 msgstr ""
@@ -400,18 +357,61 @@ msgstr ""
 msgid "Deleting archive failed"
 msgstr ""
 
-#: ../libertine/qml/PackageExistsDialog.qml:28
-msgid "The %1 package is already installed."
+#: ../libertine/qml/GenericErrorDialog.qml:32
+msgid "Dismiss"
 msgstr ""
 
-#: ../libertine/qml/PackageExistsDialog.qml:29
-msgid "Search again or return to search results."
+#: ../libertine/qml/WelcomeView.qml:28
+msgid "Welcome"
 msgstr ""
 
-#: ../libertine/qml/PackageExistsDialog.qml:33
-msgid "Search again"
+#: ../libertine/qml/WelcomeView.qml:50
+msgid "Welcome to the Ubuntu Legacy Application Support Manager."
 msgstr ""
 
-#: ../libertine/qml/PackageExistsDialog.qml:43
-msgid "Return to search results"
+#: ../libertine/qml/WelcomeView.qml:58
+msgid ""
+"You do not have Legacy Application Support configured at this time.  "
+"Downloading and setting up the required environment takes some time and "
+"network bandwidth."
+msgstr ""
+
+#: ../libertine/qml/WelcomeView.qml:66
+msgid "Install"
+msgstr ""
+
+#: ../libertine/qml/ContainerInfoView.qml:30
+msgid "Container information for %1"
+msgstr ""
+
+#: ../libertine/qml/ContainerInfoView.qml:53
+msgid "ID"
+msgstr ""
+
+#: ../libertine/qml/ContainerInfoView.qml:60
+msgid "Name"
+msgstr ""
+
+#: ../libertine/qml/ContainerInfoView.qml:67
+msgid "Distribution"
+msgstr ""
+
+#: ../libertine/qml/ContainerInfoView.qml:74
+msgid "Status"
+msgstr ""
+
+#: ../libertine/qml/ContainerOptionsDialog.qml:27
+msgid "Container Options"
+msgstr ""
+
+#: ../libertine/qml/ContainerOptionsDialog.qml:28
+msgid "Configure options for container creation."
+msgstr ""
+
+#: ../libertine/qml/ContainerOptionsDialog.qml:50
+msgid "Enter or name for the container or leave blank for default name"
+msgstr ""
+
+#: ../libertine/qml/ContainerOptionsDialog.qml:56
+msgid "container name"
 msgstr ""
