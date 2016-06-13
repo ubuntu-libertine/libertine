@@ -18,6 +18,8 @@ import os
 import psutil
 import shlex
 import subprocess
+import tempfile
+
 from .Libertine import BaseContainer
 from . import utils
 from socket import *
@@ -82,6 +84,9 @@ class LibertineLXC(BaseContainer):
         super().__init__(container_id)
         self.container_type = "lxc"
         self.container = lxc_container(container_id)
+        self.lxc_log_file = os.path.join(tempfile.mkdtemp(), 'lxc-start.log')
+        self.container.append_config_item("lxc.logfile", self.lxc_log_file)
+        self.container.append_config_item("lxc.logpriority", "3")
 
     def is_running(self):
         return self.container.running
@@ -100,8 +105,10 @@ class LibertineLXC(BaseContainer):
     def start_container(self):
         if not self.container.running:
             if not self.container.start():
+                self._dump_lxc_log()
                 raise RuntimeError("Container failed to start")
             if not self.container.wait("RUNNING", 10):
+                self._dump_lxc_log()
                 raise RuntimeError("Container failed to enter the RUNNING state")
 
         if not self.container.get_ips(timeout=30):
@@ -298,3 +305,8 @@ class LibertineLXC(BaseContainer):
         # Receive the reply from libertine-lxc-manager (ignore it for now).
         data = libertine_lxc_mgr_sock.recv(1024)
         libertine_lxc_mgr_sock.close()
+
+    def _dump_lxc_log(self):
+        with open(self.lxc_log_file, 'r') as fd:
+            for line in fd:
+                print(line.lstrip())
