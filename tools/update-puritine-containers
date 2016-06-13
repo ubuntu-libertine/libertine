@@ -119,6 +119,9 @@ def find_new_or_updated_puritine_symlinks(puritine_symlink_farm_list):
 
 puritine_symlink_farm_list = {}
 
+if not os.path.exists(puritine_hook_dir):
+    os.makedirs(puritine_hook_dir)
+
 if (os.path.exists(puritine_symlink_farm_file) and
     os.path.getsize(puritine_symlink_farm_file) != 0):
     with open(puritine_symlink_farm_file, 'r') as fd:
