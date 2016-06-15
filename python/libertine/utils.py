@@ -19,6 +19,7 @@
 import json
 import os
 import psutil
+import shlex
 import subprocess
 import xdg.BaseDirectory as basedir
 
@@ -150,3 +151,14 @@ def terminate_window_manager(window_manager):
 
     window_manager.terminate()
     window_manager.wait()
+
+
+def refresh_libertine_scope():
+    scopes_object_path = "/com/canonical/unity/scopes"
+    invalidate_signal = "com.canonical.unity.scopes.InvalidateResults"
+    libertine_scope_id = "libertine-scope.ubuntu_libertine-scope"
+
+    gdbus_cmd = ("gdbus emit --session --object-path %s --signal %s %s" %
+                 (scopes_object_path, invalidate_signal, libertine_scope_id))
+
+    subprocess.Popen(shlex.split(gdbus_cmd))

@@ -401,6 +401,8 @@ def create(args):
         sys.exit(1)
     update_container_install_status(args.id, "ready")
 
+    libertine.utils.refresh_libertine_scope()
+
 
 def destroy_container_by_id(id):
     container = LibertineContainer(id)
@@ -418,6 +420,8 @@ def destroy(args):
         args.id = get_default_container_id()
 
     destroy_container_by_id(args.id)
+
+    libertine.utils.refresh_libertine_scope()
 
 
 def install_package(args):
@@ -454,6 +458,8 @@ def install_package(args):
 
     update_package_install_status(args.id, package, "installed")
 
+    libertine.utils.refresh_libertine_scope()
+
 
 def remove_package_by_name(container_id, package_name, verbosity=1, readline=False):
     fallback_status = get_package_install_status(container_id, package_name)
@@ -483,6 +489,8 @@ def remove_package(args):
 
     if not remove_package_by_name(args.id, args.package, args.verbosity, args.readline):
         sys.exit(1)
+
+    libertine.utils.refresh_libertine_scope()
 
 
 def search_cache(args):

@@ -43,7 +43,8 @@ Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
 
 Package: libertine-tools
 Architecture: any
-Depends: lsb-release,
+Depends: libglib2.0-bin,
+         lsb-release,
          python3-apt,
          python3-distro-info,
          python3-libertine,
