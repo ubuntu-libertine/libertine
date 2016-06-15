@@ -29,7 +29,7 @@ from gi.repository import Libertine
 
 def container_exists(container_id):
     container_config_file_path = get_libertine_database_file_path()
- 
+
     if (os.path.exists(container_config_file_path) and
         os.path.getsize(container_config_file_path) != 0):
         with open(get_libertine_database_file_path()) as fd:
@@ -132,9 +132,12 @@ def get_libertine_lxc_pulse_socket_path():
     return os.path.join(get_libertine_runtime_dir(), 'pulse_socket')
 
 
-def setup_window_manager(container_id):
+def setup_window_manager(container_id, enable_toolbars=False):
     if os.path.exists(os.path.join(get_libertine_container_rootfs_path(container_id),
                                    'usr', 'bin', 'matchbox-window-manager')):
+        if enable_toolbars:
+            return ['matchbox-window-manager']
+
         return ['matchbox-window-manager', '-use_titlebar', 'no']
     else:
         return ['compiz']

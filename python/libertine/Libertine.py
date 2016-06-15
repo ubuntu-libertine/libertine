@@ -80,7 +80,10 @@ class BaseContainer(metaclass=abc.ABCMeta):
         self.default_packages = ['matchbox',
                                  'libnss-extrausers',
                                  'software-properties-common',
-                                 'humanity-icon-theme']
+                                 'humanity-icon-theme',
+                                 'maliit-inputcontext-gtk2',
+                                 'maliit-inputcontext-gtk3',
+                                 'maliit-framework']
 
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         pass
