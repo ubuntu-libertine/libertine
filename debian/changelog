@@ -1,3 +1,29 @@
+libertine (1.2+16.10.20160615.1-0ubuntu1) yakkety; urgency=medium
+
+  [ Brandon Schaefer ]
+  * Add maliit packages for seeding in containers upon creation. (LP: #1543351)
+  * Enable title bars in matchbox to work around input focus issue when using
+    OSK in X apps. (LP: #1592549)
+
+  [ Chris Townsend]
+  * Add the Vivid Stable Overlay PPA to Vivid based chroots during creation.
+    (LP: #1587890)
+  * Check if ~/.cache/libertine/puritine/ exists and create it if it doesn't.
+    (LP: #1585683)
+  * Be more verbose when the LXC container won't start. (LP: #1591228)
+  * Invalid Libertine Scope results after successfully installing or removing
+    a package. (LP: #1592115)
+
+  [ Larry Price ]
+  * Add a method to set the default container. (LP: #1589674)
+  * Show candidate package version when installed version unavailable.
+    (LP: #1589683)
+  * Install bash completion in modern install directory.
+  * Show operation details for create container, update container, enable
+    multiarch, install package, and remove package. (LP: #1583323)
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Wed, 15 Jun 2016 18:24:53 +0000
+
 libertine (1.1+16.10.20160607-0ubuntu1) yakkety; urgency=medium
 
   [ Brandon Schaefer ]
