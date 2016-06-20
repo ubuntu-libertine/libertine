@@ -367,16 +367,24 @@ def create(args):
     elif not args.id:
         args.id = get_unique_container_id(distro)
 
-    if not args.distro:
-        args.distro = get_host_distro_release()
-
-    if not args.name:
-        args.name = "Ubuntu \'" + get_distro_codename(args.distro) + "\'"
-
     if not args.type:
         container_type = select_container_type()
     else:
         container_type = args.type
+
+    if not args.distro:
+        args.distro = get_host_distro_release()
+    elif container_type == "chroot":
+        host_distro = get_host_distro_release()
+
+        if args.distro != host_distro:
+            print("The container distribution needs to match the host ditribution for chroot"
+                  " based containers. Please either use \'%s\' or omit the -d/--distro option."
+                  % host_distro)
+            sys.exit(1)
+
+    if not args.name:
+        args.name = "Ubuntu \'" + get_distro_codename(args.distro) + "\'"
 
     if container_type == "lxc":
         if args.password:
