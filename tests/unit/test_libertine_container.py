@@ -28,6 +28,7 @@ class TestLibertineContainer(TestCase):
         self._working_dir = tempfile.mkdtemp()
         os.environ['XDG_CACHE_HOME'] = self._working_dir
         os.environ['XDG_DATA_HOME'] = self._working_dir
+        os.environ['XDG_RUNTIME_DIR'] = self._working_dir
 
     def tearDown(self):
         shutil.rmtree(self._working_dir)
