@@ -84,9 +84,11 @@ class LibertineLXC(BaseContainer):
         super().__init__(container_id)
         self.container_type = "lxc"
         self.container = lxc_container(container_id)
-        self.lxc_log_file = os.path.join(tempfile.mkdtemp(), 'lxc-start.log')
-        self.container.append_config_item("lxc.logfile", self.lxc_log_file)
-        self.container.append_config_item("lxc.logpriority", "3")
+
+        if self.container.defined:
+            self.lxc_log_file = os.path.join(tempfile.mkdtemp(), 'lxc-start.log')
+            self.container.append_config_item("lxc.logfile", self.lxc_log_file)
+            self.container.append_config_item("lxc.logpriority", "3")
 
     def is_running(self):
         return self.container.running
