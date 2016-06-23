@@ -1,3 +1,18 @@
+libertine (1.2.1+16.10.20160623-0ubuntu1) yakkety; urgency=medium
+
+  [ Chris Townsend ]
+  * Make sure the chroot container distro version matches the host distro version
+    due to incompatibilities when mixing distro versions. (LP: #1592117)
+  * Only set the LXC log file config if the container is already defined.
+    (LP: #1595239)
+  * Make sure the directory where ContainersConfig.json lives exists before
+    trying to write out the file.
+
+  [ Larry Price ]
+  * Define XDG_RUNTIME_DIR environment variable for python container testing.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Thu, 23 Jun 2016 14:01:47 +0000
+
 libertine (1.2+16.10.20160615.1-0ubuntu1) yakkety; urgency=medium
 
   [ Brandon Schaefer ]
