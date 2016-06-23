@@ -63,7 +63,13 @@ def get_libertine_containers_dir_path():
 def get_libertine_database_dir_path():
     xdg_data_home = os.getenv('XDG_DATA_HOME',
                               os.path.join(os.getenv('HOME'), '.local', 'share'))
-    return os.path.join(xdg_data_home, 'libertine')
+
+    libertine_database_dir = os.path.join(xdg_data_home, 'libertine')
+
+    if not os.path.exists(libertine_database_dir):
+        os.makedirs(libertine_database_dir)
+
+    return libertine_database_dir
 
 
 def get_libertine_database_file_path():
