@@ -85,11 +85,6 @@ class LibertineLXC(BaseContainer):
         self.container_type = "lxc"
         self.container = lxc_container(container_id)
 
-        if self.container.defined:
-            self.lxc_log_file = os.path.join(tempfile.mkdtemp(), 'lxc-start.log')
-            self.container.append_config_item("lxc.logfile", self.lxc_log_file)
-            self.container.append_config_item("lxc.logpriority", "3")
-
     def is_running(self):
         return self.container.running
 
@@ -106,6 +101,7 @@ class LibertineLXC(BaseContainer):
 
     def start_container(self):
         if not self.container.running:
+            self._set_lxc_log()
             if not self.container.start():
                 self._dump_lxc_log()
                 raise RuntimeError("Container failed to start")
@@ -307,6 +303,11 @@ class LibertineLXC(BaseContainer):
         # Receive the reply from libertine-lxc-manager (ignore it for now).
         data = libertine_lxc_mgr_sock.recv(1024)
         libertine_lxc_mgr_sock.close()
+
+    def _set_lxc_log(self):
+        self.lxc_log_file = os.path.join(tempfile.mkdtemp(), 'lxc-start.log')
+        self.container.append_config_item("lxc.logfile", self.lxc_log_file)
+        self.container.append_config_item("lxc.logpriority", "3")
 
     def _dump_lxc_log(self):
         with open(self.lxc_log_file, 'r') as fd:
