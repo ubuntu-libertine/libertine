@@ -170,6 +170,7 @@ def create_container_socket(session_socket_path, get_host_session_path_function)
         except:
             container_session_sock.close()
             container_session_sock = None
+            os.remove(session_socket_path)
             raise
         else:
             host_session_socket_path_map.update({container_session_sock:host_session_path})
