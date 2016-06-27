@@ -17,8 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import fcntl
-import json
 import libertine.utils
 import lsb_release
 import getpass
@@ -27,75 +25,9 @@ import platform
 import sys
 
 from apt.debfile import DebPackage
-from distro_info import UbuntuDistroInfo, DistroDataOutdated
+from distro_info import UbuntuDistroInfo
 from libertine import LibertineContainer
-
-
-def find_duplicate_container_entry(container_list, container_id):
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            return container
-
-    return None
-
-
-def merge_container_config_files(filepath):
-    merged_json = []
-    main_config = read_container_config_file()
-
-    with open(filepath, 'r') as fd:
-        merge_source = json.load(fd)
-
-    if "containerList" in main_config:
-        # Finds any duplicate entries and assumes we want to update the main config
-        # with entries from the merge source.
-        for i, container in enumerate(main_config['containerList']):
-            merge_container = find_duplicate_container_entry(merge_source, container['id'])
-            if merge_container:
-                 main_config['containerList'][i] = merge_container
-                 merge_source['containerList'].remove(merge_container)
-
-        # Merges in any remaining non-duplicate entries.
-        for container in merge_source['containerList']:
-            main_config['containerList'].append(container)
-
-    else:
-        main_config = merge_source
-
-    write_container_config_file(main_config)
-
-
-def read_container_config_file():
-    container_list = {}
-    container_config_file = libertine.utils.get_libertine_database_file_path()
-
-    if (os.path.exists(container_config_file) and
-        os.path.getsize(container_config_file) != 0):
-        with open(container_config_file, 'r') as fd:
-            container_list = json.load(fd)
-
-    return container_list
-
-
-def write_container_config_file(container_list):
-    container_config_file = libertine.utils.get_libertine_database_file_path()
-
-    with open(container_config_file, 'w') as fd:
-        fcntl.lockf(fd, fcntl.LOCK_EX)
-        json.dump(container_list, fd, sort_keys=True, indent=4)
-        fd.write('\n')
-        fcntl.lockf(fd, fcntl.LOCK_UN)
-
-
-def get_default_container_id():
-    default_container_id = None
-
-    container_list = read_container_config_file()
-
-    if "defaultContainer" in container_list:
-        default_container_id = container_list['defaultContainer']
-
-    return default_container_id
+from libertine.ContainersConfig import ContainersConfig
 
 
 def select_container_type():
@@ -142,512 +74,254 @@ def get_distro_codename(distro):
     return None
 
 
-def update_container_install_status(container_id, new_status):
-    container_list = read_container_config_file()
+class LibertineContainerManager(object):
 
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            container['installStatus'] = new_status
+    def __init__(self):
+        self.containers_config = ContainersConfig()
 
-            write_container_config_file(container_list)
-            break
+    def create(self, args):
+        password = None
 
-
-def update_container_multiarch_support(container_id, multiarch):
-    container_list = read_container_config_file()
-
-    if multiarch == 'enabled' and libertine.utils.get_host_architecture() == 'i386':
-        multiarch = 'disabled'
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            container['multiarch'] = multiarch
-
-            write_container_config_file(container_list)
-            break
-
-
-def get_container_multiarch_support(container_id):
-    container_list = read_container_config_file()
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            if not 'multiarch' in container:
-                return 'disabled'
-            else:
-                return container['multiarch']
-
-
-def update_archive_install_status(container_id, archive_name, new_status):
-    container_list = read_container_config_file()
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            for archive in container['extraArchives']:
-                if archive['archiveName'] == archive_name:
-                    archive['archiveStatus'] = new_status
-                    write_container_config_file(container_list)
-                    return
-
-
-def add_container_archive(container_id, archive_name):
-    container_list = read_container_config_file()
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            archive_obj = {'archiveName': archive_name, 'archiveStatus': 'new'}
-
-            if 'extraArchives' not in container:
-                container['extraArchives'] = [archive_obj]
-            else:
-                container['extraArchives'].append(archive_obj)
-
-            write_container_config_file(container_list)
-            break
-
-
-def delete_container_archive(container_id, archive_name):
-    container_list = read_container_config_file()
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            for archive in container['extraArchives']:
-                if archive['archiveName'] == archive_name:
-                    container['extraArchives'].remove(archive)
-                    write_container_config_file(container_list)
-                    return
-
-    print("%s does not exist." % archive_name)
-    sys.exit(1)
-
-
-def archive_exists(container_id, archive_name):
-    container_list = read_container_config_file()
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            if 'extraArchives' not in container:
-                return False
-            else:
-                for archive in container['extraArchives']:
-                    if archive['archiveName'] == archive_name:
-                        return True
-
-    return False
-
-
-def add_new_container(id, name, type, distro):
-    if not os.path.exists(libertine.utils.get_libertine_database_dir_path()):
-        os.makedirs(libertine.utils.get_libertine_database_dir_path())
-
-    container_list = read_container_config_file()
-
-    container_obj = {'id': id, 'installStatus': 'new', 'type': type,
-                     'distro': distro, 'name': name, 'installedApps': []}
-
-    if "defaultContainer" not in container_list:
-        container_list['defaultContainer'] = id
-
-    if "containerList" not in container_list:
-        container_list['containerList'] = [container_obj]
-    else:
-        container_list['containerList'].append(container_obj)
-
-    write_container_config_file(container_list)
-
-
-def delete_container(container_id):
-    container_list = read_container_config_file()
-
-    if not container_list:
-        print("Unable to delete container.  No containers defined.")
-        sys.exit(1)
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            container_list['containerList'].remove(container)
-
-            # Set a new defaultContainer if the current default is being deleted.
-            if container_list['defaultContainer'] == container_id and container_list['containerList']:
-                container_list['defaultContainer'] = container_list['containerList'][0]['id']
-            # Remove the defaultContainer if there are no more containers left.
-            elif not container_list['containerList']:
-                del container_list['defaultContainer']
-
-            write_container_config_file(container_list)
-            break
-
-
-def package_exists(container_id, package_name):
-    container_list = read_container_config_file()
-
-    if not container_list:
-        return False
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            for package in container['installedApps']:
-                if package['packageName'] == package_name:
-                    return True
-
-    return False
-
-
-def update_package_install_status(container_id, package_name, new_status):
-    container_list = read_container_config_file()
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            for package in container['installedApps']:
-                if package['packageName'] == package_name:
-                    package['appStatus'] = new_status
-                    write_container_config_file(container_list)
-                    return
-
-
-def get_package_install_status(container_id, package_name):
-    container_list = read_container_config_file()
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            for package in container['installedApps']:
-                if package['packageName'] == package_name:
-                    return package['appStatus']
-
-
-def add_new_package(container_id, package_name):
-    container_list = read_container_config_file()
-
-    if not container_list:
-        print("No containers defined.  Please create a new container before installing a package.")
-        sys.exit(1)
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            package_obj = {'packageName': package_name, 'appStatus': 'new'}
-
-            if not container['installedApps']:
-                container['installedApps'] = [package_obj]
-            else:
-                container['installedApps'].append(package_obj)
-
-            write_container_config_file(container_list)
-            break
-
-
-def delete_package(container_id, package_name):
-    container_list = read_container_config_file()
-
-    if not container_list:
-        print("No containers defined.  Please create a new container before installing a package.")
-        sys.exit(1)
-
-    for container in container_list['containerList']:
-        if container['id'] == container_id:
-            for package in container['installedApps']:
-                if package['packageName'] == package_name:
-                    container['installedApps'].remove(package)
-                    write_container_config_file(container_list)
-                    return
-
-    print("Package \'%s\' does not exist." % package_name)
-    sys.exit(1)
-
-
-def create(args):
-    password = None
-
-    if args.distro and not is_distro_valid(args.distro, args.force):
-        print("Invalid distro %s" % args.distro, file=sys.stderr)
-        sys.exit(1)
-
-    if args.id and libertine.utils.container_exists(args.id):
-        print("Container id \'%s\' is already used." % args.id, file=sys.stderr)
-        sys.exit(1)
-    elif not args.id:
-        args.id = get_unique_container_id(distro)
-
-    if not args.type:
-        container_type = select_container_type()
-    else:
-        container_type = args.type
-
-    if not args.distro:
-        args.distro = get_host_distro_release()
-    elif container_type == "chroot":
-        host_distro = get_host_distro_release()
-
-        if args.distro != host_distro:
-            print("The container distribution needs to match the host ditribution for chroot"
-                  " based containers. Please either use \'%s\' or omit the -d/--distro option."
-                  % host_distro)
+        if args.distro and not is_distro_valid(args.distro, args.force):
+            print("Invalid distro %s" % args.distro, file=sys.stderr)
             sys.exit(1)
 
-    if not args.name:
-        args.name = "Ubuntu \'" + get_distro_codename(args.distro) + "\'"
+        if args.id and self.containers_config.container_exists(args.id):
+            print("Container id \'%s\' is already used." % args.id, file=sys.stderr)
+            sys.exit(1)
+        elif not args.id:
+            args.id = get_unique_container_id(distro)
 
-    if container_type == "lxc":
-        if args.password:
-            password = args.password
-        elif sys.stdin.isatty():
-            print("Your user password is required for creating a Libertine container.")
-            password = getpass.getpass()
+        if not args.type:
+            container_type = select_container_type()
         else:
-            password = sys.stdin.readline().rstrip()
+            container_type = args.type
 
-    add_new_container(args.id, args.name, container_type, args.distro)
+        if not args.distro:
+            args.distro = get_host_distro_release()
+        elif container_type == "chroot":
+            host_distro = get_host_distro_release()
 
-    multiarch = 'disabled'
-    if args.multiarch:
-        multiarch = 'enabled'
-    update_container_multiarch_support(args.id, multiarch)
+            if args.distro != host_distro:
+                print("The container distribution needs to match the host ditribution for chroot"
+                      " based containers. Please either use \'%s\' or omit the -d/--distro option."
+                      % host_distro)
+                sys.exit(1)
 
-    container = LibertineContainer(args.id)
-    update_container_install_status(args.id, "installing")
-    if not container.create_libertine_container(password, args.multiarch, args.verbosity):
-        delete_container(args.id)
-        sys.exit(1)
-    update_container_install_status(args.id, "ready")
+        if not args.name:
+            args.name = "Ubuntu \'" + get_distro_codename(args.distro) + "\'"
 
-    libertine.utils.refresh_libertine_scope()
+        if container_type == "lxc":
+            if args.password:
+                password = args.password
+            elif sys.stdin.isatty():
+                print("Your user password is required for creating a Libertine container.")
+                password = getpass.getpass()
+            else:
+                password = sys.stdin.readline().rstrip()
 
+        self.containers_config.add_new_container(args.id, args.name, container_type, args.distro)
 
-def destroy_container_by_id(id):
-    container = LibertineContainer(id)
-    update_container_install_status(id, "removing")
-    container.destroy_libertine_container()
-    update_container_install_status(id, "removed")
-    delete_container(id)
-
-
-def destroy(args):
-    if args.id and not libertine.utils.container_exists(args.id):
-        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
-        sys.exit(1)
-    elif not args.id:
-        args.id = get_default_container_id()
-
-    destroy_container_by_id(args.id)
-
-    libertine.utils.refresh_libertine_scope()
-
-
-def install_package(args):
-    if args.id and not libertine.utils.container_exists(args.id):
-        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
-        sys.exit(1)
-    elif not args.id:
-        args.id = get_default_container_id()
-
-    is_debian_package = args.package.endswith('.deb')
-
-    if is_debian_package:
-        if os.path.exists(args.package):
-            package = DebPackage(args.package).pkgname
-        else:
-            print("%s does not exist." % args.package)
-            sys.exit(1)
-    else:
-        package = args.package
-
-    if package_exists(args.id, package):
-        if not is_debian_package:
-            print("Package \'%s\' is already installed." % package)
-            sys.exit(1)
-    else:
-        add_new_package(args.id, package)
-
-    container = LibertineContainer(args.id)
-
-    update_package_install_status(args.id, package, "installing")
-    if not container.install_package(args.package, args.verbosity, args.readline):
-        delete_package(args.id, package)
-        sys.exit(1)
-
-    update_package_install_status(args.id, package, "installed")
-
-    libertine.utils.refresh_libertine_scope()
-
-
-def remove_package_by_name(container_id, package_name, verbosity=1, readline=False):
-    fallback_status = get_package_install_status(container_id, package_name)
-    update_package_install_status(container_id, package_name, "removing")
-
-    container = LibertineContainer(container_id)
-    if not container.remove_package(package_name, verbosity, readline):
-        update_package_install_status(container_id, package_name, fallback_status)
-        return False
-
-    update_package_install_status(container_id, package_name, "removed")
-    delete_package(container_id, package_name)
-
-    return True
-
-
-def remove_package(args):
-    if args.id and not libertine.utils.container_exists(args.id):
-        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
-        sys.exit(1)
-    elif not args.id:
-        args.id = get_default_container_id()
-
-    if get_package_install_status(args.id, args.package) != 'installed':
-        print("Package \'%s\' is not installed." % args.package)
-        sys.exit(1)
-
-    if not remove_package_by_name(args.id, args.package, args.verbosity, args.readline):
-        sys.exit(1)
-
-    libertine.utils.refresh_libertine_scope()
-
-
-def search_cache(args):
-    if args.id and not libertine.utils.container_exists(args.id):
-        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
-        sys.exit(1)
-    elif not args.id:
-        args.id = get_default_container_id()
-
-    container = LibertineContainer(args.id)
-    if container.search_package_cache(args.search_string) is not 0:
-        sys.exit(1)
-
-
-def update(args):
-    if args.id and not libertine.utils.container_exists(args.id):
-        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
-        sys.exit(1)
-    elif not args.id:
-        args.id = get_default_container_id()
-
-    container = LibertineContainer(args.id)
-
-    update_container_install_status(args.id, "updating")
-    if container.update_libertine_container(args.verbosity) is not 0:
-        update_container_install_status(args.id, "ready")
-        sys.exit(1)
-
-    update_container_install_status(args.id, "ready")
-
-
-def list(args):
-    containers = libertine.utils.Libertine.list_containers()
-    for container in containers:
-        print("%s" % container)
-
-
-def list_apps(args):
-    if args.id and not libertine.utils.container_exists(args.id):
-        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
-        sys.exit(1)
-    elif not args.id:
-        args.id = get_default_container_id()
-
-    container = LibertineContainer(args.id)
-    print(container.list_app_launchers(use_json=args.json))
-
-
-def exec(args):
-    if args.id and not libertine.utils.container_exists(args.id):
-        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
-        sys.exit(1)
-    elif not args.id:
-        args.id = get_default_container_id()
-
-    container = LibertineContainer(args.id)
-
-    if not container.exec_command(args.command):
-        sys.exit(1)
-
-
-def delete_archive_by_name(container_id, archive_name):
-    update_archive_install_status(container_id, archive_name, 'removing')
-    if LibertineContainer(container_id).configure_command('delete-archive', archive_name) is not 0:
-        return False
-    delete_container_archive(container_id, archive_name)
-    return True
-
-
-def configure(args):
-    if args.id and not libertine.utils.container_exists(args.id):
-        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
-        sys.exit(1)
-    elif not args.id:
-        args.id = get_default_container_id()
-
-    container = LibertineContainer(args.id)
-
-    if args.multiarch and libertine.utils.get_host_architecture() == 'amd64':
         multiarch = 'disabled'
         if args.multiarch == 'enable':
             multiarch = 'enabled'
+        self.containers_config.update_container_multiarch_support(args.id, multiarch)
 
-        current_multiarch = get_container_multiarch_support(args.id)
-        if current_multiarch == multiarch:
-            print("i386 multiarch support is already %s" % multiarch)
+        container = LibertineContainer(args.id)
+        self.containers_config.update_container_install_status(args.id, "installing")
+        if not container.create_libertine_container(password, args.multiarch, args.verbosity):
+            self.containers_config.delete_container(args.id)
+            sys.exit(1)
+        self.containers_config.update_container_install_status(args.id, "ready")
+
+        libertine.utils.refresh_libertine_scope()
+
+    def destroy_container_by_id(self, id):
+        container = LibertineContainer(id)
+
+        self.containers_config.update_container_install_status(id, "removing")
+        container.destroy_libertine_container()
+        self.containers_config.update_container_install_status(id, "removed")
+        self.containers_config.delete_container(id)
+
+    def destroy(self, args):
+        args.id = self.containers_config.check_container_id(args.id)
+
+        self.destroy_container_by_id(args.id)
+
+        libertine.utils.refresh_libertine_scope()
+
+    def install_package(self, args):
+        container_id = self.containers_config.check_container_id(args.id)
+
+        is_debian_package = args.package.endswith('.deb')
+
+        if is_debian_package:
+            if os.path.exists(args.package):
+                package = DebPackage(args.package).pkgname
+            else:
+                print("%s does not exist." % args.package)
+                sys.exit(1)
+        else:
+            package = args.package
+
+        if self.containers_config.package_exists(container_id, package):
+            if not is_debian_package:
+                print("Package \'%s\' is already installed." % package)
+                sys.exit(1)
+        else:
+            self.containers_config.add_new_package(container_id, package)
+
+        container = LibertineContainer(container_id)
+
+        self.containers_config.update_package_install_status(container_id, package, "installing")
+        if not container.install_package(args.package, args.verbosity, args.readline):
+            self.containers_config.delete_package(container_id, package)
             sys.exit(1)
 
-        if container.configure_command('multiarch', args.multiarch) is not 0:
+        self.containers_config.update_package_install_status(container_id, package, "installed")
+
+        libertine.utils.refresh_libertine_scope()
+
+    def remove_package_by_name(self, container_id, package_name, verbosity=1, readline=False):
+        fallback_status = self.containers_config.get_package_install_status(container_id, package_name)
+        self.containers_config.update_package_install_status(container_id, package_name, "removing")
+
+        container = LibertineContainer(container_id)
+        if not container.remove_package(package_name, verbosity, readline):
+            self.containers_config.update_package_install_status(container_id, package_name, fallback_status)
+            return False
+
+        self.containers_config.update_package_install_status(container_id, package_name, "removed")
+        self.containers_config.delete_package(container_id, package_name)
+
+        return True
+
+    def remove_package(self, args):
+        container_id = self.containers_config.check_container_id(args.id)
+
+        if self.containers_config.get_package_install_status(container_id, args.package) != 'installed':
+            print("Package \'%s\' is not installed." % args.package)
             sys.exit(1)
 
-        update_container_multiarch_support(args.id, multiarch)
-
-    elif args.add_archive:
-        if archive_exists(args.id, args.add_archive):
-            print("%s already added in container." % args.add_archive)
+        if not self.remove_package_by_name(container_id, args.package, args.verbosity, args.readline):
             sys.exit(1)
 
-        add_container_archive(args.id, args.add_archive)
-        update_archive_install_status(args.id, args.add_archive, 'installing')
-        if container.configure_command('add-archive', args.add_archive) is not 0:
-            delete_container_archive(args.id, args.add_archive)
+        libertine.utils.refresh_libertine_scope()
+
+    def search_cache(self, args):
+        container_id = self.containers_config.check_container_id(args.id)
+
+        container = LibertineContainer(container_id)
+        if container.search_package_cache(args.search_string) is not 0:
             sys.exit(1)
 
-        update_archive_install_status(args.id, args.add_archive, 'installed')
+    def update(self, args):
+        container_id = self.containers_config.check_container_id(args.id)
 
-    elif args.delete_archive:
-        if not archive_exists(args.id, args.delete_archive):
-            print("%s is not added in container." % args.delete_archive)
+        container = LibertineContainer(container_id)
+
+        self.containers_config.update_container_install_status(container_id, "updating")
+        if container.update_libertine_container(args.verbosity) is not 0:
+            self.containers_config.update_container_install_status(container_id, "ready")
             sys.exit(1)
 
-        if not delete_archive_by_name(args.id, args.delete_archive):
+        self.containers_config.update_container_install_status(container_id, "ready")
+
+    def list(self, args):
+        containers = libertine.utils.Libertine.list_containers()
+        for container in containers:
+            print("%s" % container)
+
+    def list_apps(self, args):
+        container_id = self.containers_config.check_container_id(args.id)
+
+        container = LibertineContainer(container_id)
+        print(container.list_app_launchers(use_json=args.json))
+
+    def exec(self, args):
+        container_id = self.containers_config.check_container_id(args.id)
+
+        container = LibertineContainer(container_id)
+
+        if not container.exec_command(args.command):
             sys.exit(1)
 
+    def delete_archive_by_name(self, container_id, archive_name):
+        self.containers_config.update_archive_install_status(container_id, archive_name, 'removing')
+        if LibertineContainer(container_id).configure_command('delete-archive', archive_name) is not 0:
+            return False
+        self.containers_config.delete_container_archive(container_id, archive_name)
+        return True
 
-def merge(args):
-    merge_container_config_files(args.file)
+    def configure(self, args):
+        container_id = self.containers_config.check_container_id(args.id)
 
+        container = LibertineContainer(container_id)
 
-def fix_integrity(args):
-    for container in read_container_config_file()['containerList']:
-        if container['installStatus'] != 'ready':
-            destroy_container_by_id(container['id'])
-            continue
-        LibertineContainer(container['id']).exec_command('dpkg --configure -a')
+        if args.multiarch and libertine.utils.get_host_architecture() == 'amd64':
+            multiarch = 'disabled'
+            if args.multiarch == 'enable':
+                multiarch = 'enabled'
 
-        for package in container['installedApps']:
-            if package['appStatus'] != 'installed':
-                remove_package_by_name(container['id'], package['packageName'])
-        if 'extraArchives' in container:
-            for archive in container['extraArchives']:
-                if archive['archiveStatus'] != 'installed':
-                    delete_archive_by_name(container['id'], archive['archiveName'])
+            current_multiarch = self.containers_config.get_container_multiarch_support(container_id)
+            if current_multiarch == multiarch:
+                print("i386 multiarch support is already %s" % multiarch)
+                sys.exit(1)
 
+            if container.configure_command('multiarch', args.multiarch) is not 0:
+                sys.exit(1)
 
-def set_default(args):
-    if args.clear:
-        container_list = read_container_config_file()
-        container_list.pop('defaultContainer', None)
-        write_container_config_file(container_list)
-        sys.exit(0)
+            self.containers_config.update_container_multiarch_support(container_id, multiarch)
 
-    if not libertine.utils.container_exists(args.id):
-        print("Container id \'%s\' does not exist." % args.id, file=sys.stderr)
-        sys.exit(1)
+        elif args.add_archive:
+            if self.containers_config.archive_exists(container_id, args.add_archive):
+                print("%s already added in container." % args.add_archive)
+                sys.exit(1)
 
-    container_list = read_container_config_file()
-    container_list['defaultContainer'] = args.id
-    write_container_config_file(container_list)
+            self.containers_config.add_container_archive(container_id, args.add_archive)
+            self.containers_config.update_archive_install_status(container_id, args.add_archive, 'installing')
+            if container.configure_command('add-archive', args.add_archive) is not 0:
+                self.containers_config.delete_container_archive(container_id, args.add_archive)
+                sys.exit(1)
+
+            self.containers_config.update_archive_install_status(container_id, args.add_archive, 'installed')
+
+        elif args.delete_archive:
+            if not self.containers_config.archive_exists(container_id, args.delete_archive):
+                print("%s is not added in container." % args.delete_archive)
+                sys.exit(1)
+
+            if not self.delete_archive_by_name(container_id, args.delete_archive):
+                sys.exit(1)
+
+    def merge(self, args):
+        self.containers_config.merge_container_config_files(args.file)
+
+    def fix_integrity(self, args):
+        for container in self.containers_config.container_list['containerList']:
+            if container['installStatus'] != 'ready':
+                self.destroy_container_by_id(container['id'])
+                continue
+            LibertineContainer(container['id']).exec_command('dpkg --configure -a')
+
+            for package in container['installedApps']:
+                if package['appStatus'] != 'installed':
+                    self.remove_package_by_name(container['id'], package['packageName'])
+
+            if 'extraArchives' in container:
+                for archive in container['extraArchives']:
+                    if archive['archiveStatus'] != 'installed':
+                        self.delete_archive_by_name(container['id'], archive['archiveName'])
+
+    def set_default(self, args):
+        if args.clear:
+            self.containers_config.clear_default_container_id(True)
+            sys.exit(0)
+
+        container_id = self.containers_config.check_container_id(args.id)
+
+        self.containers_config.set_default_container_id(container_id, True)
 
 
 if __name__ == '__main__':
@@ -656,6 +330,8 @@ if __name__ == '__main__':
     if not os.geteuid():
         print("Please do not run %s using sudo" % parser.prog)
         sys.exit(1)
+
+    container_manager = LibertineContainerManager()
 
     parser.add_argument('-q', '--quiet',
                         action='store_const', dest='verbosity', const=0,
@@ -696,7 +372,7 @@ if __name__ == '__main__':
         '--password',
         help=("Pass in the user's password when creating an LXC container.  This "
               "is intended for testing only and is very insecure."))
-    parser_create.set_defaults(func=create)
+    parser_create.set_defaults(func=container_manager.create)
 
     # Handle the destroy command and its options
     parser_destroy = subparsers.add_parser(
@@ -705,7 +381,7 @@ if __name__ == '__main__':
     parser_destroy.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
-    parser_destroy.set_defaults(func=destroy)
+    parser_destroy.set_defaults(func=container_manager.destroy)
 
     # Handle the install-package command and its options
     parser_install = subparsers.add_parser(
@@ -721,7 +397,7 @@ if __name__ == '__main__':
     parser_install.add_argument(
         '-r', '--readline', action='store_true',
         help=("Readline mode. Use text-based frontend during debconf interactions."))
-    parser_install.set_defaults(func=install_package)
+    parser_install.set_defaults(func=container_manager.install_package)
 
     # Handle the remove-package command and its options
     parser_remove = subparsers.add_parser(
@@ -737,7 +413,7 @@ if __name__ == '__main__':
     parser_remove.add_argument(
         '-r', '--readline', action='store_true',
         help=("Readline mode. Use text-based frontend during debconf interactions."))
-    parser_remove.set_defaults(func=remove_package)
+    parser_remove.set_defaults(func=container_manager.remove_package)
 
     # Handle the search-cache command and its options
     parser_search = subparsers.add_parser(
@@ -750,7 +426,7 @@ if __name__ == '__main__':
     parser_search.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
-    parser_search.set_defaults(func=search_cache)
+    parser_search.set_defaults(func=container_manager.search_cache)
 
     # Handle the update command and its options
     parser_update = subparsers.add_parser(
@@ -759,13 +435,13 @@ if __name__ == '__main__':
     parser_update.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
-    parser_update.set_defaults(func=update)
+    parser_update.set_defaults(func=container_manager.update)
 
     # Handle the list command
     parser_list = subparsers.add_parser(
         "list",
         help=("List all Libertine containers."))
-    parser_list.set_defaults(func=list)
+    parser_list.set_defaults(func=container_manager.list)
 
     # Handle the list-apps command and its options
     parser_list_apps = subparsers.add_parser(
@@ -778,7 +454,7 @@ if __name__ == '__main__':
         '-j', '--json',
         action='store_true',
         help=("use JSON output format."))
-    parser_list_apps.set_defaults(func=list_apps)
+    parser_list_apps.set_defaults(func=container_manager.list_apps)
 
     # Handle the execute command and it's options
     parser_exec = subparsers.add_parser(
@@ -791,7 +467,7 @@ if __name__ == '__main__':
     parser_exec.add_argument(
         '-c', '--command',
         help=("The command to run in the specified container."))
-    parser_exec.set_defaults(func=exec)
+    parser_exec.set_defaults(func=container_manager.exec)
 
     # Handle the configure command and it's options
     parser_configure = subparsers.add_parser(
@@ -816,7 +492,7 @@ if __name__ == '__main__':
         metavar='Archive name',
         help=("Deletes an existing archive (PPA) in the specified Libertine container.  "
               "Needs to be in the form of \"ppa:user/ppa-name\"."))
-    parser_configure.set_defaults(func=configure)
+    parser_configure.set_defaults(func=container_manager.configure)
 
     # Handle merging another ContainersConfig.json file into the main ContainersConfig.json file
     parser_merge = subparsers.add_parser(
@@ -825,13 +501,13 @@ if __name__ == '__main__':
     parser_merge.add_argument(
         '-f', '--file',
         required=True)
-    parser_merge.set_defaults(func=merge)
+    parser_merge.set_defaults(func=container_manager.merge)
 
     # Indiscriminately destroy containers, packages, and archives which are not fully installed
     parser_integrity = subparsers.add_parser(
         'fix-integrity',
         add_help=False)
-    parser_integrity.set_defaults(func=fix_integrity)
+    parser_integrity.set_defaults(func=container_manager.fix_integrity)
 
     # Set the default container in ContainersConfig
     parser_default = subparsers.add_parser(
@@ -844,7 +520,7 @@ if __name__ == '__main__':
     parser_default.add_argument(
         '-c', '--clear', action='store_true',
         help=("Clear the default container."))
-    parser_default.set_defaults(func=set_default)
+    parser_default.set_defaults(func=container_manager.set_default)
 
     # Actually parse the args
     args = parser.parse_args()
