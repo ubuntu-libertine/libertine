@@ -18,6 +18,8 @@
 
 import argparse
 import os
+import random
+import string
 import libertine.utils
 import psutil
 import shlex
@@ -26,13 +28,13 @@ from libertine import LibertineContainer
 
 
 def get_session_socket_path(session_socket_name):
-    unique_id = os.environ['DISPLAY'].strip(':')
+    unique_id = ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(8))
 
     if not os.path.exists(libertine.utils.get_libertine_runtime_dir()):
         os.makedirs(libertine.utils.get_libertine_runtime_dir())
 
     session_socket_path = (
-        os.path.join(libertine.utils.get_libertine_runtime_dir(), session_socket_name + unique_id))
+        os.path.join(libertine.utils.get_libertine_runtime_dir(), session_socket_name + '-' + unique_id))
 
     return session_socket_path
 
@@ -69,8 +71,8 @@ def detect_session_bridge_socket(session_socket_path):
 
     while not os.path.exists(session_socket_path):
         if retries >= 10:
-            raise RuntimeError("Timeout waiting for Libertine Dbus session bridge socket") 
-        
+            raise RuntimeError("Timeout waiting for Libertine Dbus session bridge socket")
+
         print("Libertine Dbus session bridge socket is not ready.  Waiting...")
         retries += 1
         time.sleep(.5)
@@ -104,7 +106,7 @@ if __name__ == '__main__':
     # should detect the maliit socket, but dont know if its around or not here.
     detect_session_bridge_socket(dbus_socket_path)
 
-    container = LibertineContainer(args.container_id) 
+    container = LibertineContainer(args.container_id)
 
     try:
         container.launch_application(args.app_exec_line)
