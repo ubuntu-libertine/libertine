@@ -143,8 +143,6 @@ class LibertineLXC(BaseContainer):
         if password is None:
             return False
 
-        installed_release = self.get_container_distro(self.container_id)
-
         username = os.environ['USER']
         user_id = os.getuid()
         group_id = os.getgid()
@@ -173,13 +171,10 @@ class LibertineLXC(BaseContainer):
 
         utils.create_libertine_user_data_dir(self.container_id)
 
-        # Figure out the host architecture
-        architecture = utils.get_host_architecture()
-
         if not self.container.create("download", 0,
                                      {"dist": "ubuntu",
-                                      "release": installed_release,
-                                      "arch": architecture}):
+                                      "release": self.installed_release,
+                                      "arch": self.architecture}):
             print("Failed to create container")
             return False
 
@@ -198,7 +193,7 @@ class LibertineLXC(BaseContainer):
         self.run_in_container("useradd -u {} -p {} -G sudo {}".format(
                 str(user_id), crypt.crypt(password), str(username)))
 
-        if multiarch and architecture == 'amd64':
+        if multiarch and self.architecture == 'amd64':
             if verbosity == 1:
                 print("Adding i386 multiarch support...")
             self.run_in_container("dpkg --add-architecture i386")

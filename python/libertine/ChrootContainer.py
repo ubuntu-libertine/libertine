@@ -17,6 +17,7 @@ import psutil
 import shlex
 import shutil
 import subprocess
+
 from .Libertine import BaseContainer
 from . import utils
 
@@ -53,10 +54,7 @@ class LibertineChroot(BaseContainer):
 
     def run_in_container(self, command_string):
         cmd_args = shlex.split(command_string)
-        if self.get_container_distro(self.container_id) == "trusty":
-            command_prefix = self._build_privileged_proot_cmd()
-        else:
-            command_prefix = "fakechroot fakeroot chroot " + self.root_path
+        command_prefix = "fakechroot fakeroot chroot " + self.root_path
         args = shlex.split(command_prefix + ' ' + command_string)
         cmd = subprocess.Popen(args)
         return cmd.wait()
@@ -66,15 +64,9 @@ class LibertineChroot(BaseContainer):
         shutil.rmtree(container_root)
 
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
-        installed_release = self.get_container_distro(self.container_id)
-        architecture = utils.get_host_architecture()
-
         # Create the actual chroot
-        if installed_release == "trusty":
-            command_line = "debootstrap --verbose " + installed_release + " " + self.root_path
-        else:
-            command_line = "fakechroot fakeroot debootstrap --verbose --variant=fakechroot {} {}".format(
-                    installed_release, self.root_path)
+        command_line = "fakechroot fakeroot debootstrap --verbose --variant=fakechroot {} {}".format(
+                    self.installed_release, self.root_path)
         args = shlex.split(command_line)
         cmd = subprocess.Popen(args)
         cmd.wait()
@@ -84,25 +76,24 @@ class LibertineChroot(BaseContainer):
             self.destroy_libertine_container()
             return False
 
-        # Remove symlinks as they can ill-behaved recursive behavior in the chroot
-        if installed_release != "trusty":
-            print("Fixing chroot symlinks...")
-            os.remove(os.path.join(self.root_path, 'dev'))
-            os.remove(os.path.join(self.root_path, 'proc'))
+        # Remove symlinks as they can cause ill-behaved recursive behavior in the chroot
+        print("Fixing chroot symlinks...")
+        os.remove(os.path.join(self.root_path, 'dev'))
+        os.remove(os.path.join(self.root_path, 'proc'))
 
-            with open(os.path.join(self.root_path, 'usr', 'sbin', 'policy-rc.d'), 'w+') as fd:
-                fd.write("#!/bin/sh\n\n")
-                fd.write("while true; do\n")
-                fd.write("case \"$1\" in\n")
-                fd.write("  -*) shift ;;\n")
-                fd.write("  makedev) exit 0;;\n")
-                fd.write("  *)  exit 101;;\n")
-                fd.write("esac\n")
-                fd.write("done\n")
-                os.fchmod(fd.fileno(), 0o755)
+        with open(os.path.join(self.root_path, 'usr', 'sbin', 'policy-rc.d'), 'w+') as fd:
+            fd.write("#!/bin/sh\n\n")
+            fd.write("while true; do\n")
+            fd.write("case \"$1\" in\n")
+            fd.write("  -*) shift ;;\n")
+            fd.write("  makedev) exit 0;;\n")
+            fd.write("  *)  exit 101;;\n")
+            fd.write("esac\n")
+            fd.write("done\n")
+            os.fchmod(fd.fileno(), 0o755)
 
         # Add universe, multiverse, and -updates to the chroot's sources.list
-        if (utils.get_host_architecture() == 'armhf'):
+        if (self.architecture == 'armhf'):
             archive = "deb http://ports.ubuntu.com/ubuntu-ports "
         else:
             archive = "deb http://archive.ubuntu.com/ubuntu "
@@ -110,52 +101,15 @@ class LibertineChroot(BaseContainer):
         if verbosity == 1:
             print("Updating chroot's sources.list entries...")
         with open(os.path.join(self.root_path, 'etc', 'apt', 'sources.list'), 'a') as fd:
-            fd.write(archive + installed_release + "-updates main\n")
-            fd.write(archive + installed_release + " universe\n")
-            fd.write(archive + installed_release + "-updates universe\n")
-            fd.write(archive + installed_release + " multiverse\n")
-            fd.write(archive + installed_release + "-updates multiverse\n")
+            fd.write(archive + self.installed_release + "-updates main\n")
+            fd.write(archive + self.installed_release + " universe\n")
+            fd.write(archive + self.installed_release + "-updates universe\n")
+            fd.write(archive + self.installed_release + " multiverse\n")
+            fd.write(archive + self.installed_release + "-updates multiverse\n")
 
         utils.create_libertine_user_data_dir(self.container_id)
 
-        if installed_release == "trusty":
-            print("Additional configuration for Trusty chroot...")
-
-            cmd_line_prefix = self._build_privileged_proot_cmd()
-
-            command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /etc/init.d/systemd-logind"
-            args = shlex.split(command_line)
-            cmd = subprocess.Popen(args).wait()
-
-            command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /sbin/initctl"
-            args = shlex.split(command_line)
-            cmd = subprocess.Popen(args).wait()
-
-            command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /sbin/udevd"
-            args = shlex.split(command_line)
-            cmd = subprocess.Popen(args).wait()
-
-            command_line = cmd_line_prefix + " dpkg-divert --local --rename --add /usr/sbin/rsyslogd"
-            args = shlex.split(command_line)
-            cmd = subprocess.Popen(args).wait()
-
-            command_line = cmd_line_prefix + " ln -s /bin/true /etc/init.d/systemd-logind"
-            args = shlex.split(command_line)
-            cmd = subprocess.Popen(args).wait()
-
-            command_line = cmd_line_prefix + " ln -s /bin/true /sbin/initctl"
-            args = shlex.split(command_line)
-            cmd = subprocess.Popen(args).wait()
-
-            command_line = cmd_line_prefix + " ln -s /bin/true /sbin/udevd"
-            args = shlex.split(command_line)
-            cmd = subprocess.Popen(args).wait()
-
-            command_line = cmd_line_prefix + " ln -s /bin/true /usr/sbin/rsyslogd"
-            args = shlex.split(command_line)
-            cmd = subprocess.Popen(args).wait()
-
-        if multiarch and architecture == 'amd64':
+        if multiarch and self.architecture == 'amd64':
             if verbosity == 1:
                 print("Adding i386 multiarch support...")
             self.run_in_container("dpkg --add-architecture i386")
@@ -170,7 +124,7 @@ class LibertineChroot(BaseContainer):
                 self.destroy_libertine_container()
                 return False
 
-        if installed_release == "vivid":
+        if self.installed_release == "vivid":
             if verbosity == 1:
                 print("Installing the Vivid Stable Overlay PPA...")
             self.run_in_container("add-apt-repository ppa:ci-train-ppa-service/stable-phone-overlay -y")

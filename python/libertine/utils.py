@@ -16,9 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
 import os
-import psutil
 import shlex
 import subprocess
 import xdg.BaseDirectory as basedir
@@ -26,22 +24,6 @@ import xdg.BaseDirectory as basedir
 from gi import require_version
 require_version('Libertine', '1')
 from gi.repository import Libertine
-
-
-def container_exists(container_id):
-    container_config_file_path = get_libertine_database_file_path()
-
-    if (os.path.exists(container_config_file_path) and
-        os.path.getsize(container_config_file_path) != 0):
-        with open(get_libertine_database_file_path()) as fd:
-            container_list = json.load(fd)
-
-        if container_list:
-            for container in container_list['containerList']:
-                if container['id'] == container_id:
-                    return True
-
-    return False
 
 
 def get_libertine_container_rootfs_path(container_id):
@@ -95,16 +77,6 @@ def get_user_runtime_dir():
 
 def get_libertine_runtime_dir():
     return os.path.join(get_user_runtime_dir(), 'libertine')
-
-
-def get_host_architecture():
-    dpkg = subprocess.Popen(['dpkg', '--print-architecture'],
-                            stdout=subprocess.PIPE,
-                            universal_newlines=True)
-    if dpkg.wait() != 0:
-        parser.error("Failed to determine the local architecture.")
-
-    return dpkg.stdout.read().strip()
 
 
 def get_common_xdg_directories():
@@ -167,4 +139,4 @@ def refresh_libertine_scope():
     gdbus_cmd = ("gdbus emit --session --object-path %s --signal %s %s" %
                  (scopes_object_path, invalidate_signal, libertine_scope_id))
 
-    subprocess.Popen(shlex.split(gdbus_cmd))
+    subprocess.Popen(shlex.split(gdbus_cmd), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

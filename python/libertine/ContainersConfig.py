@@ -297,3 +297,13 @@ class ContainersConfig(object):
     def package_exists(self, container_id, package_name):
         return self._test_array_object_key_value_exists(container_id, 'installedApps', 'packageName',
                                                         package_name)
+
+    """
+    Fetcher functions for various configuration information.
+    """
+    def get_container_distro(self, container_id):
+        return self._get_value_by_key(container_id, 'distro')
+
+    def get_container_type(self, container_id):
+        return self._get_value_by_key(container_id, 'type')
+

@@ -18,71 +18,26 @@
 
 import argparse
 import libertine.utils
-import lsb_release
 import getpass
 import os
-import platform
 import sys
 
 from apt.debfile import DebPackage
-from distro_info import UbuntuDistroInfo
 from libertine import LibertineContainer
 from libertine.ContainersConfig import ContainersConfig
-
-
-def select_container_type():
-    kernel_release = platform.release().split('.')
-
-    if int(kernel_release[0]) >= 4:
-        return "lxc"
-    elif int(kernel_release[0]) == 3 and int(kernel_release[1]) >= 13:
-        return "lxc"
-    else:
-        return "chroot"
-
-
-def get_host_distro_release():
-    distinfo = lsb_release.get_distro_information()
-
-    return distinfo.get('CODENAME', 'n/a')
-
-
-def is_distro_valid(distro, force):
-    if force:
-        return UbuntuDistroInfo().valid(distro)
-
-    if distro == get_host_distro_release():
-        return True
-
-    supported_distros = UbuntuDistroInfo().supported()
-
-    try:
-        supported_distros.index(distro)
-    except ValueError:
-        return False
-
-    return True
-
-
-def get_distro_codename(distro):
-    ubuntu_distro_info = UbuntuDistroInfo()
-
-    for row in ubuntu_distro_info._rows:
-        if row['series'] == distro:
-            return row['codename']
-
-    return None
+from libertine.HostInfo import HostInfo
 
 
 class LibertineContainerManager(object):
 
     def __init__(self):
         self.containers_config = ContainersConfig()
+        self.host_info = HostInfo()
 
     def create(self, args):
         password = None
 
-        if args.distro and not is_distro_valid(args.distro, args.force):
+        if args.distro and not self.host_info.is_distro_valid(args.distro, args.force):
             print("Invalid distro %s" % args.distro, file=sys.stderr)
             sys.exit(1)
 
@@ -93,14 +48,14 @@ class LibertineContainerManager(object):
             args.id = get_unique_container_id(distro)
 
         if not args.type:
-            container_type = select_container_type()
+            container_type = self.host_info.select_container_type_by_kernel()
         else:
             container_type = args.type
 
         if not args.distro:
-            args.distro = get_host_distro_release()
+            args.distro = self.host_info.get_host_distro_release()
         elif container_type == "chroot":
-            host_distro = get_host_distro_release()
+            host_distro = self.host_info.get_host_distro_release()
 
             if args.distro != host_distro:
                 print("The container distribution needs to match the host ditribution for chroot"
@@ -109,7 +64,7 @@ class LibertineContainerManager(object):
                 sys.exit(1)
 
         if not args.name:
-            args.name = "Ubuntu \'" + get_distro_codename(args.distro) + "\'"
+            args.name = "Ubuntu \'" + self.host_info.get_distro_codename(args.distro) + "\'"
 
         if container_type == "lxc":
             if args.password:
@@ -259,7 +214,7 @@ class LibertineContainerManager(object):
 
         container = LibertineContainer(container_id)
 
-        if args.multiarch and libertine.utils.get_host_architecture() == 'amd64':
+        if args.multiarch and self.host_info.get_host_architecture() == 'amd64':
             multiarch = 'disabled'
             if args.multiarch == 'enable':
                 multiarch = 'enabled'

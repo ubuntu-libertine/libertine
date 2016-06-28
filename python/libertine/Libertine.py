@@ -16,30 +16,12 @@ from .AppDiscovery import AppLauncherCache
 from gi.repository import Libertine
 import abc
 import contextlib
-import json
 import libertine.utils
 import os
 import shutil
 
-
-def get_container_type(container_id):
-    """
-    Retrieves the type of container for a given container ID.
-    :param container_id: The Container ID to search for.
-    """
-    try:
-        with open(libertine.utils.get_libertine_database_file_path()) as fd:
-            container_list = json.load(fd)
-
-        for container in container_list["containerList"]:
-            if container["id"] == container_id:
-                return container["type"]
-
-    except FileNotFoundError:
-        pass
-
-    # Return lxc as the default container type
-    return "lxc"
+from libertine.ContainersConfig import ContainersConfig
+from libertine.HostInfo import HostInfo
 
 
 def apt_args_for_verbosity_level(verbosity):
@@ -207,21 +189,6 @@ class BaseContainer(metaclass=abc.ABCMeta):
         elif command == 'delete-archive':
             return self.run_in_container("add-apt-repository -y -r " + args[0])
 
-    def get_container_distro(self, container_id):
-        """
-        Retrieves the distro code name for a given container ID.
-
-        :param container_id: The Container ID to search for.
-        """
-        with open(libertine.utils.get_libertine_database_file_path()) as fd:
-            container_list = json.load(fd)
-
-        for container in container_list["containerList"]:
-            if container["id"] == container_id:
-                return container["distro"]
-
-        return ""
-
     @property
     def name(self):
         """
@@ -281,9 +248,9 @@ class LibertineContainer(object):
         """
         super().__init__()
 
-        container_type = get_container_type(container_id)
+        container_type = ContainersConfig().get_container_type(container_id)
 
-        if container_type == "lxc":
+        if container_type == None or container_type == "lxc":
             from  libertine.LxcContainer import LibertineLXC
             self.container = LibertineLXC(container_id)
         elif container_type == "chroot":
@@ -320,6 +287,9 @@ class LibertineContainer(object):
         """
         Creates the container.
         """
+        self.container.architecture = HostInfo().get_host_architecture()
+        self.container.installed_release = ContainersConfig().get_container_distro(self.container_id)
+
         return self.container.create_libertine_container(password, multiarch, verbosity)
 
     def update_libertine_container(self, verbosity=1):
@@ -380,7 +350,7 @@ class LibertineContainer(object):
         :param app_exec_line: the application exec line as passed in by
             ubuntu-app-launch
         """
-        if libertine.utils.container_exists(self.container.container_id):
+        if ContainersConfig().container_exists(self.container.container_id):
             self.container.launch_application(app_exec_line)
         else:
             raise RuntimeError("Container with id %s does not exist." % self.container.container_id)
