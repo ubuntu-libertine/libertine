@@ -18,6 +18,7 @@ import os
 import psutil
 import shlex
 import subprocess
+import sys
 import tempfile
 
 from .Libertine import BaseContainer
@@ -100,6 +101,9 @@ class LibertineLXC(BaseContainer):
             return True
 
     def start_container(self):
+        if not self.container.defined:
+            raise RuntimeError("Container %s is not valid" % self.container_id)
+
         if not self.container.running:
             self._set_lxc_log()
             if not self.container.start():
@@ -305,6 +309,9 @@ class LibertineLXC(BaseContainer):
         self.container.append_config_item("lxc.logpriority", "3")
 
     def _dump_lxc_log(self):
-        with open(self.lxc_log_file, 'r') as fd:
-            for line in fd:
-                print(line.lstrip())
+        try:
+            with open(self.lxc_log_file, 'r') as fd:
+                for line in fd:
+                    print(line.lstrip())
+        except Exception as ex:
+            print("Could not open LXC log file: %s" % ex, file=sys.stderr)
