@@ -351,6 +351,10 @@ class LibertineContainer(object):
             ubuntu-app-launch
         """
         if ContainersConfig().container_exists(self.container.container_id):
+            # Update $PATH as necessary
+            if '/usr/games' not in os.environ['PATH']:
+                os.environ['PATH'] = os.environ['PATH'] + ":/usr/games"
+
             self.container.launch_application(app_exec_line)
         else:
             raise RuntimeError("Container with id %s does not exist." % self.container.container_id)
