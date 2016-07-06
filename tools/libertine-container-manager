@@ -50,6 +50,10 @@ class LibertineContainerManager(object):
         if not args.type:
             container_type = self.host_info.select_container_type_by_kernel()
         else:
+            if args.type == 'lxc' and not self.host_info.has_lxc_support():
+                print("System kernel does not support lxc type containers. "
+                      "Please either use chroot or omit the -t option.")
+                sys.exit(1)
             container_type = args.type
 
         if not args.distro:

@@ -22,14 +22,14 @@ from distro_info import UbuntuDistroInfo
 class HostInfo(object):
 
     def select_container_type_by_kernel(self):
-        kernel_release = platform.release().split('.')
-
-        if int(kernel_release[0]) >= 4:
-            return "lxc"
-        elif int(kernel_release[0]) == 3 and int(kernel_release[1]) >= 13:
+        if has_lxc_support():
             return "lxc"
         else:
             return "chroot"
+
+    def has_lxc_support(self):
+        kernel_release = platform.release().split('.')
+        return int(kernel_release[0]) >= 4 or (int(kernel_release[0]) == 3 and int(kernel_release[1]) >= 13)
 
     def get_host_distro_release(self):
         distinfo = lsb_release.get_distro_information()
