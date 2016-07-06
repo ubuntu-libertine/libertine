@@ -22,11 +22,25 @@ import Ubuntu.Components.Popups 1.3
 
 Dialog {
     id: genericErrorDialog
-    property var short_description: null
-    property var details: null
+    property string short_description: ""
+    property string details: ""
 
     title: short_description
-    text: details
+
+    TextEdit {
+        color: UbuntuColors.darkGrey
+        text: details
+        readOnly: true
+        selectByMouse: true
+        wrapMode: TextEdit.WordWrap
+    }
+
+    Button {
+        text: i18n.tr("Copy to Clipboard")
+        onClicked: {
+            Clipboard.push(details)
+        }
+    }
 
     Button {
         text: i18n.tr("Dismiss")
