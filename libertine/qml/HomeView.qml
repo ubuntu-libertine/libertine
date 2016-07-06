@@ -31,11 +31,11 @@ Page {
             Action {
                 id: settingsButton
                 iconName: "settings"
-                onTriggered: PopupUtils.open(settingsMenu, homeView)
+                onTriggered: PopupUtils.open(settingsMenu)
             },
             Action {
                 iconName: "add"
-                onTriggered: PopupUtils.open(addAppsMenu, homeView)
+                onTriggered: PopupUtils.open(addAppsMenu)
             }
         ]
     }
@@ -98,26 +98,28 @@ Page {
 
     Component {
         id: settingsMenu
-        ActionSelectionPopover {
-            actions: ActionList {
-                Action {
-                    text: i18n.tr("Manage Container")
-                    onTriggered: {
-                        pageStack.push(Qt.resolvedUrl("ManageContainer.qml"), {currentContainer: currentContainer})
-                    }
+        Dialog {
+            id: settingsDialog
+            __closeOnDismissAreaPress: true
+            Button {
+                text: i18n.tr("Manage Container")
+                onTriggered: {
+                    PopupUtils.close(settingsDialog)
+                    pageStack.push(Qt.resolvedUrl("ManageContainer.qml"), {currentContainer: currentContainer})
                 }
-                Action {
-                    text: i18n.tr("Container Information")
-                    onTriggered: {
-                        pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"), {currentContainer: currentContainer})
-                    }
+            }
+            Button {
+                text: i18n.tr("Container Information")
+                onTriggered: {
+                    PopupUtils.close(settingsDialog)
+                    pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"), {currentContainer: currentContainer})
                 }
-                Action {
-                    text: i18n.tr("Switch Container")
-                    onTriggered: {
-                        pageStack.pop()
-                        pageStack.push(Qt.resolvedUrl("ContainersView.qml"))
-                    }
+            }
+            Button {
+                text: i18n.tr("Switch Container")
+                onTriggered: {
+                    PopupUtils.close(settingsDialog)
+                    pageStack.pop()
                 }
             }
         }
@@ -125,27 +127,33 @@ Page {
 
     Component {
         id: addAppsMenu
-        ActionSelectionPopover {
-            id: addAppsActions
-            actions: ActionList {
-                Action {
-                    text: i18n.tr("Enter package name or Debian file")
-                    onTriggered: {
-                        PopupUtils.open(enterPackagePopup)
-                    }
+        Dialog {
+            id: addAppsDialog
+            __closeOnDismissAreaPress: true
+
+            Button {
+                text: i18n.tr("Enter package name or Debian file")
+                width: parent.width
+                onClicked: {
+                    PopupUtils.close(addAppsDialog)
+                    PopupUtils.open(enterPackagePopup)
                 }
-                Action {
-                    text: i18n.tr("Choose Debian package to install")
-                    onTriggered: {
-                        var packages = containerConfigList.getDebianPackageFiles()
-                        pageStack.push(Qt.resolvedUrl("DebianPackagePicker.qml"), {packageList: packages}) 
-                   }
+            }
+            Button {
+                text: i18n.tr("Choose Debian package to install")
+                width: parent.width
+                onClicked: {
+                    PopupUtils.close(addAppsDialog)
+                    var packages = containerConfigList.getDebianPackageFiles()
+                    pageStack.push(Qt.resolvedUrl("DebianPackagePicker.qml"), {packageList: packages})
                 }
-                Action {
-                    text: i18n.tr("Search archives for a package")
-                    onTriggered: {
-                        PopupUtils.open(Qt.resolvedUrl("SearchPackagesDialog.qml"))
-                    }
+            }
+            Button {
+                text: i18n.tr("Search archives for a package")
+                width: parent.width
+                onClicked: {
+                    PopupUtils.close(addAppsDialog)
+                    PopupUtils.open(Qt.resolvedUrl("SearchPackagesDialog.qml"))
                 }
             }
         }
