@@ -157,10 +157,9 @@ class BaseContainer(metaclass=abc.ABCMeta):
 
             return ret
         else:
-            cmd = apt_command_prefix(verbosity) + " install '" + package_name + "'"
             if readline:
-                cmd = "env DEBIAN_FRONTEND=readline " + cmd
-            return self.run_in_container(cmd) == 0
+                os.environ['DEBIAN_FRONTEND'] = 'readline'
+            return self.run_in_container(apt_command_prefix(verbosity) + " install '" + package_name + "'") == 0
 
     def configure_command(self, command, *args, verbosity=1):
         """
@@ -321,10 +320,10 @@ class LibertineContainer(object):
         """
         try:
             with ContainerRunning(self.container):
-                cmd = apt_command_prefix(verbosity) + " purge '" + package_name + "'"
                 if readline:
-                    cmd = "env DEBIAN_FRONTEND=readline " + cmd
-                if self.container.run_in_container(cmd) != 0:
+                    os.environ['DEBIAN_FRONTEND'] = 'readline'
+
+                if self.container.run_in_container(apt_command_prefix(verbosity) + " purge '" + package_name + "'") != 0:
                     return False
                 return self.container.run_in_container(apt_command_prefix(verbosity) + "autoremove --purge") == 0
         except RuntimeError as e:

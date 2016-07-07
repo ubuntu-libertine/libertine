@@ -147,7 +147,7 @@ class LibertineContainerManager(object):
         self.containers_config.update_package_install_status(container_id, package_name, "removing")
 
         container = LibertineContainer(container_id)
-        if not container.remove_package(package_name, verbosity, readline):
+        if not container.remove_package(package_name, verbosity, readline) and fallback_status == 'installed':
             self.containers_config.update_package_install_status(container_id, package_name, fallback_status)
             return False
 
@@ -259,7 +259,7 @@ class LibertineContainerManager(object):
 
     def fix_integrity(self, args):
         for container in self.containers_config.container_list['containerList']:
-            if container['installStatus'] != 'ready':
+            if 'installStatus' not in container or container['installStatus'] != 'ready':
                 self.destroy_container_by_id(container['id'])
                 continue
             LibertineContainer(container['id']).exec_command('dpkg --configure -a')
