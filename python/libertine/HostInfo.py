@@ -22,7 +22,7 @@ from distro_info import UbuntuDistroInfo
 class HostInfo(object):
 
     def select_container_type_by_kernel(self):
-        if has_lxc_support():
+        if self.has_lxc_support():
             return "lxc"
         else:
             return "chroot"
