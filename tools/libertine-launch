@@ -21,11 +21,9 @@ import os
 import random
 import string
 import libertine.utils
-import psutil
 import shlex
 import time
-
-from libertine import LibertineContainer
+from libertine import LibertineApplication
 
 
 def get_session_socket_path(session_socket_name):
@@ -60,13 +58,6 @@ def set_maliit_env_socket_path(socket_path):
     set_env_socket_path(socket_path, 'MALIIT_SERVER_ADDRESS')
 
 
-def launch_libertine_session_bridge(session_socket_path):
-    libertine_session_bridge_cmd = "libertine-session-bridge " + session_socket_path
-
-    args = shlex.split(libertine_session_bridge_cmd)
-    return psutil.Popen(args)
-
-
 def detect_session_bridge_socket(session_socket_path):
     retries = 0
 
@@ -87,6 +78,8 @@ if __name__ == '__main__':
                             help='exec line')
     args = arg_parser.parse_args()
 
+    la = LibertineApplication(args.container_id, args.app_exec_line)
+
     # remove problematic environment variables
     for e in ['QT_QPA_PLATFORM', 'LD_LIBRARY_PATH', 'FAKECHROOT_BASE', 'FAKECHROOT_CMD_SUBST']:
         if e in os.environ:
@@ -94,9 +87,8 @@ if __name__ == '__main__':
 
     dbus_socket_path = get_dbus_session_socket_path()
     maliit_socket_path = get_maliit_session_socket_path()
-    session_bridge_arguments = dbus_socket_path + ' ' + maliit_socket_path
 
-    session_bridge = launch_libertine_session_bridge(session_bridge_arguments)
+    la.launch_session_bridge([dbus_socket_path, maliit_socket_path])
 
     set_dbus_env_socket_path(dbus_socket_path)
     set_maliit_env_socket_path(maliit_socket_path)
@@ -104,11 +96,4 @@ if __name__ == '__main__':
     # should detect the maliit socket, but dont know if its around or not here.
     detect_session_bridge_socket(dbus_socket_path)
 
-    container = LibertineContainer(args.container_id)
-
-    try:
-        container.launch_application(args.app_exec_line)
-    except:
-        raise
-    finally:
-        session_bridge.terminate()
+    la.launch_application()

@@ -123,7 +123,12 @@ def main_loop():
                 accept_new_connection(host_session_socket_path_map[sock], sock)
 
             else:
-                data = sock.recv(4096)
+                try:
+                    data = sock.recv(4096)
+                except:
+                    close_connections(sock)
+                    continue
+
                 if len(data) == 0:
                     close_connections(sock)
                     continue

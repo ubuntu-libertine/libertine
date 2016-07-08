@@ -18,7 +18,9 @@ import abc
 import contextlib
 import libertine.utils
 import os
+import psutil
 import shutil
+import shlex
 
 from libertine.ContainersConfig import ContainersConfig
 from libertine.HostInfo import HostInfo
@@ -396,3 +398,49 @@ class LibertineContainer(object):
                 return self.container.configure_command(command, *args)
         except RuntimeError as e:
             return handle_runtime_error(e)
+
+
+class LibertineApplication(object):
+    """
+    Launches a libertine container with a session bridge for sockets such as dbus
+
+    :param container_id: The container id.
+    "param app_exec_line: The exec line used to start the app in the container.
+    """
+    def __init__(self, container_id, app_exec_line):
+        self.container_id   = container_id
+        self.app_exec_line  = app_exec_line
+        self.session_bridge = None
+
+    """
+    Launches the libertine session bridge. This creates a proxy socket to read to and from
+    for abstract sockets such as dbus.
+
+    :param session_socket_paths: A list of socket paths the session will create.
+    """
+    def launch_session_bridge(self, session_socket_paths):
+        session_bridge_arguments = ''
+        for paths in session_socket_paths:
+            session_bridge_arguments += paths + ' '
+
+        libertine_session_bridge_cmd = "libertine-session-bridge " + session_bridge_arguments
+
+        args = shlex.split(libertine_session_bridge_cmd)
+        self.session_bridge = psutil.Popen(args)
+
+    """
+    Launches the container from the id and attempts to run the application exec.
+    """
+    def launch_application(self):
+        if not ContainersConfig().container_exists(self.container_id):
+            raise RuntimeError("Container ID %s does not exist." % self.container_id)
+
+        container = LibertineContainer(self.container_id)
+
+        try:
+            container.launch_application(self.app_exec_line)
+        except:
+            raise
+        finally:
+            if self.session_bridge is not None:
+                self.session_bridge.terminate()
