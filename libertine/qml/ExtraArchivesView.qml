@@ -43,11 +43,18 @@ Page {
         id: addArchivePopup
         Dialog {
             id: addArchiveDialog
-            title: i18n.tr("Add additional PPA")
-            text: i18n.tr("Enter name of PPA in the form ppa:user/ppa-name:")
+            title: i18n.tr("Add additional archive")
+            text: i18n.tr("Enter new archive identifier, e.g.:")
+
+            TextEdit {
+                text: i18n.tr("multiverse\nppa:user/repository\ndeb http://myserver/repo stable repo")
+                readOnly: true
+                color: UbuntuColors.darkGrey
+            }
 
             TextField {
                 id: extraArchiveString
+                placeholderText: i18n.tr("new archive name")
                 onAccepted: {
                     PopupUtils.close(addArchiveDialog)
                     addArchive(text)
@@ -129,14 +136,14 @@ Page {
         var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
         worker.finishedConfigure.connect(finishedConfigure)
         worker.error.connect(sendAddError)
-        worker.configureContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer), ["--add-archive", archive])
+        worker.configureContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer), ["--add-archive", "\"" + archive + "\""])
     }
 
     function deleteArchive(archive) {
         var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
         worker.finishedConfigure.connect(finishedConfigure)
         worker.error.connect(sendDeleteError)
-        worker.configureContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer), ["--delete-archive", archive])
+        worker.configureContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer), ["--delete-archive", "\"" + archive + "\""])
     }
 
     Component.onCompleted: {

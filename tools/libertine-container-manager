@@ -208,8 +208,12 @@ class LibertineContainerManager(object):
 
     def delete_archive_by_name(self, container_id, archive_name):
         self.containers_config.update_archive_install_status(container_id, archive_name, 'removing')
-        if LibertineContainer(container_id).configure_command('delete-archive', archive_name) is not 0:
-            return False
+        if self.containers_config.get_archive_install_status(container_id, archive_name) == 'installed':
+            self.containers_config.update_archive_install_status(container_id, archive_name, 'removing')
+            if LibertineContainer(container_id).configure_command('delete-archive', "\"" + archive_name + "\"") is not 0:
+                self.containers_config.update_archive_install_status(container_id, archive_name, 'installed')
+                return False
+
         self.containers_config.delete_container_archive(container_id, archive_name)
         return True
 
@@ -234,24 +238,29 @@ class LibertineContainerManager(object):
             self.containers_config.update_container_multiarch_support(container_id, multiarch)
 
         elif args.add_archive:
-            if self.containers_config.archive_exists(container_id, args.add_archive):
-                print("%s already added in container." % args.add_archive)
+            archive_name = args.add_archive.strip("\'\"")
+            archive_name_esc = "\"" + archive_name + "\""
+
+            if self.containers_config.archive_exists(container_id, archive_name):
+                print("%s already added in container." % archive_name)
                 sys.exit(1)
 
-            self.containers_config.add_container_archive(container_id, args.add_archive)
-            self.containers_config.update_archive_install_status(container_id, args.add_archive, 'installing')
-            if container.configure_command('add-archive', args.add_archive) is not 0:
-                self.containers_config.delete_container_archive(container_id, args.add_archive)
+            self.containers_config.add_container_archive(container_id, archive_name)
+            self.containers_config.update_archive_install_status(container_id, archive_name, 'installing')
+            if container.configure_command('add-archive', archive_name_esc) is not 0:
+                self.containers_config.delete_container_archive(container_id, archive_name)
                 sys.exit(1)
 
-            self.containers_config.update_archive_install_status(container_id, args.add_archive, 'installed')
+            self.containers_config.update_archive_install_status(container_id, archive_name, 'installed')
 
         elif args.delete_archive:
-            if not self.containers_config.archive_exists(container_id, args.delete_archive):
-                print("%s is not added in container." % args.delete_archive)
+            archive_name = args.delete_archive.strip("\'\"")
+            if not self.containers_config.archive_exists(container_id, archive_name):
+                print("%s is not added in container." % archive_name)
                 sys.exit(1)
 
-            if not self.delete_archive_by_name(container_id, args.delete_archive):
+            if not self.delete_archive_by_name(container_id, archive_name):
+                print("%s was not properly deleted." % archive_name)
                 sys.exit(1)
 
     def merge(self, args):
@@ -444,13 +453,12 @@ if __name__ == '__main__':
     parser_configure.add_argument(
         '-a', '--add-archive',
         metavar='Archive name',
-        help=("Adds an archive (PPA) in the specified Libertine container.  Needs to be "
-              "in the form of \"ppa:user/ppa-name\"."))
+        help=("Adds an archive in the specified Libertine container. Examples: "
+              "'deb http://myserver/path/to/repo stable myrepo', ppa:user/repository, multiverse"))
     parser_configure.add_argument(
         '-d', '--delete-archive',
         metavar='Archive name',
-        help=("Deletes an existing archive (PPA) in the specified Libertine container.  "
-              "Needs to be in the form of \"ppa:user/ppa-name\"."))
+        help=("Deletes an existing archive in the specified Libertine container."))
     parser_configure.set_defaults(func=container_manager.configure)
 
     # Handle merging another ContainersConfig.json file into the main ContainersConfig.json file

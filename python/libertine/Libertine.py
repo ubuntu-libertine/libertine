@@ -63,7 +63,6 @@ class BaseContainer(metaclass=abc.ABCMeta):
         self.root_path = libertine.utils.get_libertine_container_rootfs_path(self.container_id)
         self.default_packages = ['matchbox',
                                  'libnss-extrausers',
-                                 'software-properties-common',
                                  'humanity-icon-theme',
                                  'maliit-inputcontext-gtk2',
                                  'maliit-inputcontext-gtk3',

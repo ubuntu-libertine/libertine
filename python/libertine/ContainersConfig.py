@@ -115,7 +115,7 @@ class ContainersConfig(object):
             if item[object_key] == value:
                 container[array_key].remove(item)
                 write_container_config_file(self.container_list)
-                return    
+                return
 
     def _test_key_value_exists(self, container_id, key, value=None):
         key_value = self._get_value_by_key(container_id, key)
@@ -149,7 +149,7 @@ class ContainersConfig(object):
             if container['id'] == container_id:
                 return container
 
-        return None 
+        return None
 
     def merge_container_config_files(self, filepath):
         merged_json = []
@@ -199,7 +199,7 @@ class ContainersConfig(object):
         self.container_list.pop('defaultContainer', None)
 
         if write_json:
-            write_container_config_file(self.container_list)        
+            write_container_config_file(self.container_list)
 
     """
     Operations for the container itself.
@@ -261,7 +261,7 @@ class ContainersConfig(object):
     """
     def add_container_archive(self, container_id, archive_name):
         archive_obj = {'archiveName': archive_name, 'archiveStatus': 'new'}
-        self._set_value_by_key(container_id, 'extraArchives', archive_obj) 
+        self._set_value_by_key(container_id, 'extraArchives', archive_obj)
 
     def delete_container_archive(self, container_id, archive_name):
         self._delete_array_object_by_key_value(container_id, 'extraArchives',
@@ -270,6 +270,10 @@ class ContainersConfig(object):
     def update_archive_install_status(self, container_id, archive_name, new_status):
         self._set_array_object_value_by_key(container_id, 'extraArchives', 'archiveName',
                                             archive_name, 'archiveStatus', new_status)
+
+    def get_archive_install_status(self, container_id, archive_name):
+        return self._get_array_object_value_by_key(container_id, 'extraArchives', 'archiveName',
+                                            archive_name, 'archiveStatus')
 
     def archive_exists(self, container_id, archive_name):
         return self._test_array_object_key_value_exists(container_id, 'extraArchives', 'archiveName',
@@ -306,4 +310,3 @@ class ContainersConfig(object):
 
     def get_container_type(self, container_id):
         return self._get_value_by_key(container_id, 'type')
-

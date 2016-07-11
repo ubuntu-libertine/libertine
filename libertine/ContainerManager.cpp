@@ -34,10 +34,12 @@ static const QString SET_DEFAULT_CONTAINER_FAILED = QObject::tr("Attempt to set 
 constexpr auto libertine_container_manager_tool = "libertine-container-manager";
 
 
-static const QString readAllStdOutOrStdErr(QProcess& proc)
+static const QString readAllStdOutOrStdErr(QProcess& proc, const QString& default_output = "")
 {
-  auto out = proc.readAllStandardOutput();
-  return out.isEmpty() ? proc.readAllStandardError() : out;
+  QByteArray out = proc.readAllStandardOutput(),
+             err = proc.readAllStandardError();
+  return !out.isEmpty() ? out
+                        : !err.isEmpty() ? err : default_output;
 }
 
 
@@ -175,7 +177,7 @@ removePackage(const QString& container_id, const QString& package_name)
           [=](int exitCode, QProcess::ExitStatus){
     if (exitCode != 0)
     {
-      emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), process_output_.isEmpty() ? process_.readAllStandardError() : process_output_);
+      emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), readAllStdOutOrStdErr(process_, process_output_));
     }
     emit operationFinished(container_id, package_name);
   });
@@ -268,13 +270,14 @@ configureContainer(const QString& container_id, const QString& container_name, c
     if (!output.isEmpty())
     {
       emit updateOperationDetails(container_id, "", output);
+      process_output_ += output;
     }
   });
   connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
           [=](int exitCode, QProcess::ExitStatus){
     if (exitCode != 0)
     {
-      emit error(CONTAINER_CONFIGURE_FAILED.arg(container_name), readAllStdOutOrStdErr(process_));
+      emit error(CONTAINER_CONFIGURE_FAILED.arg(container_name), readAllStdOutOrStdErr(process_, process_output_));
     }
     else
     {
