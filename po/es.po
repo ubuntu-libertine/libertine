@@ -15,33 +15,82 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-06-21 06:05+0000\n"
-"X-Generator: Launchpad (build 18097)\n"
+"X-Launchpad-Export-Date: 2016-07-01 06:06+0000\n"
+"X-Generator: Launchpad (build 18115)\n"
+
+#: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
+msgid "new"
+msgstr "nuevo"
+
+#: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:185
+#: ../libertine/qml/ContainersView.qml:81
+#: ../libertine/qml/ExtraArchivesView.qml:106 ../libertine/qml/HomeView.qml:205
+msgid "installing"
+msgstr "instalando"
+
+#: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:118
+#: ../libertine/qml/ManageContainer.qml:85
+#: ../libertine/qml/ManageContainer.qml:152
+msgid "ready"
+msgstr "preparado"
+
+#: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:119
+#: ../libertine/qml/ManageContainer.qml:97
+#: ../libertine/qml/ManageContainer.qml:148
+msgid "updating"
+msgstr "actualizando"
+
+#: ../libertine/ContainerConfig.cpp:151 ../libertine/ContainerConfig.cpp:188
+#: ../libertine/qml/ContainersView.qml:82
+#: ../libertine/qml/ExtraArchivesView.qml:107 ../libertine/qml/HomeView.qml:206
+msgid "removing"
+msgstr "desinstalando"
+
+#: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:189
+#: ../libertine/qml/ContainerInfoView.qml:143
+#: ../libertine/qml/PackageInfoView.qml:148
+msgid "removed"
+msgstr "desinstalado"
+
+#: ../libertine/ContainerConfig.cpp:153 ../libertine/ContainerConfig.cpp:187
+msgid "failed"
+msgstr "falló"
+
+#: ../libertine/ContainerConfig.cpp:186
+msgid "installed"
+msgstr "instalado"
 
 #: ../libertine/ContainerManager.cpp:24
 msgid "%1 failed to start"
 msgstr "%1 no pudo iniciarse"
 
-#: ../libertine/qml/ExtraArchivesView.qml:33
-msgid "Add a new PPA"
-msgstr "Añadir un PPA nuevo"
+#: ../libertine/ContainerManager.cpp:25
+msgid "Installation of package %1 failed"
+msgstr "Falló la instalación del paquete «%1»"
 
-#: ../libertine/qml/ExtraArchivesView.qml:46
-#, fuzzy
-msgid "Add additional archive"
-msgstr "Añadir un PPA adicional"
+#: ../libertine/ContainerManager.cpp:26
+msgid "Removal of package %1 failed"
+msgstr "Falló la desinstalación del paquete «%1»"
 
-#: ../libertine/qml/ExtraArchivesView.qml:177
-msgid "Adding archive failed"
-msgstr "Falló la adición del archivo"
+#: ../libertine/ContainerManager.cpp:27
+msgid "Searching for query %1 failed"
+msgstr "Falló la búsqueda del término «%1»"
 
-#: ../libertine/qml/ExtraArchivesView.qml:28
-msgid "Additional Archives and PPAs"
-msgstr "Archivos y PPA adicionales"
+#: ../libertine/ContainerManager.cpp:28
+msgid "Updating container %1 failed"
+msgstr "Falló la actualización del contenedor «%1»"
 
-#: ../libertine/qml/ManageContainer.qml:73
-msgid "Additional archives and PPAs"
-msgstr "Archivos y PPA adicionales"
+#: ../libertine/ContainerManager.cpp:29
+msgid "Creating container %1 failed"
+msgstr "Falló la creación del contenedor «%1»"
+
+#: ../libertine/ContainerManager.cpp:30
+msgid "Destroying container %1 failed"
+msgstr "Falló la destrucción del contenedor «%1»"
+
+#: ../libertine/ContainerManager.cpp:31
+msgid "Running command %1 failed"
+msgstr "Falló la ejecución de la orden «%1»"
 
 #: ../libertine/ContainerManager.cpp:32
 msgid "Attempt to configure container %1 failed"
@@ -52,169 +101,52 @@ msgstr "Falló el intento de configuración del contenedor «%1»"
 msgid "Attempt to set container as default failed"
 msgstr "Falló el intento de configuración del contenedor «%1»"
 
-#: ../libertine/qml/ContainerPasswordDialog.qml:27
-msgid "Authentication required"
-msgstr "Se necesita autenticación"
-
-#: ../libertine/qml/DebianPackagePicker.qml:28
-msgid "Available Debian Packages to Install"
-msgstr "Paquetes de Debian disponibles para instalar"
-
-#: ../libertine/qml/ContainerOptionsDialog.qml:75
-#: ../libertine/qml/ContainerPasswordDialog.qml:70
-#: ../libertine/qml/ExtraArchivesView.qml:72 ../libertine/qml/HomeView.qml:88
-#: ../libertine/qml/SearchPackagesDialog.qml:57
-msgid "Cancel"
-msgstr "Cancelar"
-
-#: ../libertine/qml/HomeView.qml:143
-msgid "Choose Debian package to install"
-msgstr "Elija el paquete de Debian que se instalará"
-
-#: ../libertine/qml/HomeView.qml:29
-msgid "Classic Apps - %1"
-msgstr "Aplicaciones clásicas – %1"
-
-#: ../libertine/qml/ContainerOptionsDialog.qml:28
-msgid "Configure options for container creation."
-msgstr "Configurar opciones de creación de contenedores."
-
-#: ../libertine/qml/ContainersView.qml:117
-msgid "Container Apps"
-msgstr "Aplicaciones del contenedor"
-
-#: ../libertine/qml/ContainersView.qml:108
-msgid "Container Info"
-msgstr "Información del contenedor"
-
-#: ../libertine/qml/HomeView.qml:112
-msgid "Container Information"
-msgstr "Información del contenedor"
-
-#: ../libertine/qml/ContainerOptionsDialog.qml:27
-msgid "Container Options"
-msgstr "Opciones del contenedor"
-
 #: ../libertine/qml/ContainerInfoView.qml:30
 msgid "Container information for %1"
 msgstr "Información del contenedor «%1»"
 
-#: ../libertine/qml/GenericErrorDialog.qml:39
-msgid "Copy to Clipboard"
-msgstr ""
+#: ../libertine/qml/ContainerInfoView.qml:56
+msgid "ID"
+msgstr "Id."
 
-#: ../libertine/ContainerManager.cpp:29
-msgid "Creating container %1 failed"
-msgstr "Falló la creación del contenedor «%1»"
-
-#: ../libertine/qml/ManageContainer.qml:117
-#, fuzzy
-msgid "Default container"
-msgstr "Eliminar contenedor"
-
-#: ../libertine/qml/ContainersView.qml:93
-msgid "Delete Container"
-msgstr "Eliminar contenedor"
-
-#: ../libertine/qml/ExtraArchivesView.qml:181
-msgid "Deleting archive failed"
-msgstr "Falló la eliminación del archivo"
-
-#: ../libertine/ContainerManager.cpp:30
-msgid "Destroying container %1 failed"
-msgstr "Falló la destrucción del contenedor «%1»"
-
-#: ../libertine/qml/GenericErrorDialog.qml:46
-msgid "Dismiss"
-msgstr "Descartar"
+#: ../libertine/qml/ContainerInfoView.qml:64
+msgid "Name"
+msgstr "Nombre"
 
 #: ../libertine/qml/ContainerInfoView.qml:72
 msgid "Distribution"
 msgstr "Distribución"
 
-#: ../libertine/qml/HomeView.qml:49
-msgid "Enter exact package name or full path to a Debian package file"
-msgstr ""
-"Escriba el nombre exacto del paquete o una ruta completa a un archivo de "
-"paquete de Debian"
+#: ../libertine/qml/ContainerInfoView.qml:80
+msgid "Status"
+msgstr "Estado"
 
-#: ../libertine/qml/ExtraArchivesView.qml:47
-msgid "Enter new archive identifier, e.g.:"
+#: ../libertine/qml/ContainerInfoView.qml:97
+#: ../libertine/qml/PackageInfoView.qml:85
+msgid "Operation details"
 msgstr ""
+
+#: ../libertine/qml/ContainerOptionsDialog.qml:27
+msgid "Container Options"
+msgstr "Opciones del contenedor"
+
+#: ../libertine/qml/ContainerOptionsDialog.qml:28
+msgid "Configure options for container creation."
+msgstr "Configurar opciones de creación de contenedores."
+
+#: ../libertine/qml/ContainerOptionsDialog.qml:40
+#: ../libertine/qml/ManageContainer.qml:69
+msgid "i386 multiarch support"
+msgstr "Compatibilidad con i386 multiarquitectura"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:50
 msgid "Enter or name for the container or leave blank for default name"
 msgstr ""
 "Escriba el nombre del contenedor o déjelo vacío para usar el predeterminado"
 
-#: ../libertine/qml/HomeView.qml:135
-msgid "Enter package name or Debian file"
-msgstr "Escriba el nombre de un paquete o indique un archivo de Debian"
-
-#: ../libertine/qml/ContainerInfoView.qml:56
-msgid "ID"
-msgstr "Id."
-
-#: ../libertine/qml/PackageInfoView.qml:30
-msgid "Information for the %1 package"
-msgstr "Información sobre el paquete «%1»"
-
-#: ../libertine/qml/WelcomeView.qml:66
-msgid "Install"
-msgstr "Instalar"
-
-#: ../libertine/qml/DebianPackagePicker.qml:70
-#: ../libertine/qml/SearchResults.qml:60
-msgid "Install Package"
-msgstr "Instalar paquete"
-
-#: ../libertine/qml/HomeView.qml:48
-msgid "Install new package"
-msgstr "Instalar paquete nuevo"
-
-#: ../libertine/qml/PackageInfoView.qml:68
-msgid "Install status"
-msgstr "Estado de la instalación"
-
-#: ../libertine/ContainerManager.cpp:25
-msgid "Installation of package %1 failed"
-msgstr "Falló la instalación del paquete «%1»"
-
-#: ../libertine/qml/ContainerPasswordDialog.qml:36
-msgid "Invalid password entered"
-msgstr "Se proporcionó una contraseña no válida"
-
-#: ../libertine/qml/ManageContainer.qml:29
-msgid "Manage %1"
-msgstr "Gestionar %1"
-
-#: ../libertine/qml/HomeView.qml:105
-msgid "Manage Container"
-msgstr "Gestionar contenedor"
-
-#: ../libertine/qml/ContainersView.qml:33
-msgid "My Containers"
-msgstr "Mis contenedores"
-
-#: ../libertine/qml/ContainerInfoView.qml:64
-msgid "Name"
-msgstr "Nombre"
-
-#: ../libertine/qml/DebianPackagePicker.qml:87
-msgid "No Debian packages available"
-msgstr "No hay ningún paquete de Debian disponible"
-
-#: ../libertine/qml/SearchResultsView.qml:52
-msgid "No Search Results Found"
-msgstr "No se encontró ningún resultado"
-
-#: ../libertine/qml/ExtraArchivesView.qml:132
-msgid "No additional archives and PPA's have been added"
-msgstr "No se ha añadido ningún archivo ni PPA adicional"
-
-#: ../libertine/qml/HomeView.qml:248
-msgid "No packages are installed"
-msgstr "No hay ningún paquete instalado"
+#: ../libertine/qml/ContainerOptionsDialog.qml:56
+msgid "container name"
+msgstr "nombre del contenedor"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:64
 #: ../libertine/qml/ContainerPasswordDialog.qml:52
@@ -223,128 +155,283 @@ msgstr "No hay ningún paquete instalado"
 msgid "OK"
 msgstr "Aceptar"
 
-#: ../libertine/qml/PackageInfoView.qml:35
-msgid "Obtaining package version…"
-msgstr "Obteniendo la versión del paquete…"
+#: ../libertine/qml/ContainerOptionsDialog.qml:75
+#: ../libertine/qml/ContainerPasswordDialog.qml:70
+#: ../libertine/qml/ExtraArchivesView.qml:72 ../libertine/qml/HomeView.qml:88
+#: ../libertine/qml/SearchPackagesDialog.qml:57
+msgid "Cancel"
+msgstr "Cancelar"
 
-#: ../libertine/qml/ContainerInfoView.qml:97
-#: ../libertine/qml/PackageInfoView.qml:85
-msgid "Operation details"
-msgstr ""
-
-#: ../libertine/qml/HomeView.qml:231
-msgid "Package Info"
-msgstr "Información del paquete"
-
-#: ../libertine/qml/SearchResultsView.qml:31
-msgid "Package Search Results"
-msgstr "Resultados de búsqueda del paquete"
-
-#: ../libertine/qml/HomeView.qml:59
-msgid "Package name or Debian package path"
-msgstr "Nombre de paquete o ruta a paquete de Debian"
-
-#: ../libertine/qml/PackageInfoView.qml:60
-msgid "Package version"
-msgstr "Versión del paquete"
+#: ../libertine/qml/ContainerPasswordDialog.qml:27
+msgid "Authentication required"
+msgstr "Se necesita autenticación"
 
 #: ../libertine/qml/ContainerPasswordDialog.qml:28
 msgid "Password is required to create a Libertine container"
 msgstr "Se necesita la contraseña para crear un contenedor de Libertine"
 
-#: ../libertine/ContainerManager.cpp:26
-msgid "Removal of package %1 failed"
-msgstr "Falló la desinstalación del paquete «%1»"
+#: ../libertine/qml/ContainerPasswordDialog.qml:36
+msgid "Invalid password entered"
+msgstr "Se proporcionó una contraseña no válida"
 
-#: ../libertine/qml/HomeView.qml:219
-msgid "Remove Package"
-msgstr "Desinstalar paquete"
+#: ../libertine/qml/ContainerPasswordDialog.qml:41
+msgid "password"
+msgstr "contraseña"
+
+#: ../libertine/qml/ContainersView.qml:33
+msgid "My Containers"
+msgstr "Mis contenedores"
+
+#: ../libertine/qml/ContainersView.qml:92 ../libertine/qml/HomeView.qml:218
+msgid "delete"
+msgstr "eliminar"
+
+#: ../libertine/qml/ContainersView.qml:93
+msgid "Delete Container"
+msgstr "Eliminar contenedor"
+
+#: ../libertine/qml/ContainersView.qml:107 ../libertine/qml/HomeView.qml:230
+msgid "info"
+msgstr "información"
+
+#: ../libertine/qml/ContainersView.qml:108
+msgid "Container Info"
+msgstr "Información del contenedor"
+
+#: ../libertine/qml/ContainersView.qml:116
+msgid "edit"
+msgstr "editar"
+
+#: ../libertine/qml/ContainersView.qml:117
+msgid "Container Apps"
+msgstr "Aplicaciones del contenedor"
+
+#: ../libertine/qml/DebianPackagePicker.qml:28
+msgid "Available Debian Packages to Install"
+msgstr "Paquetes de Debian disponibles para instalar"
+
+#: ../libertine/qml/DebianPackagePicker.qml:70
+#: ../libertine/qml/SearchResults.qml:60
+msgid "Install Package"
+msgstr "Instalar paquete"
+
+#: ../libertine/qml/DebianPackagePicker.qml:87
+msgid "No Debian packages available"
+msgstr "No hay ningún paquete de Debian disponible"
+
+#: ../libertine/qml/ExtraArchivesView.qml:28
+msgid "Additional Archives and PPAs"
+msgstr "Archivos y PPA adicionales"
+
+#: ../libertine/qml/ExtraArchivesView.qml:32
+msgid "add"
+msgstr "añadir"
+
+#: ../libertine/qml/ExtraArchivesView.qml:33
+msgid "Add a new PPA"
+msgstr "Añadir un PPA nuevo"
+
+#: ../libertine/qml/ExtraArchivesView.qml:46
+#, fuzzy
+msgid "Add additional archive"
+msgstr "Añadir un PPA adicional"
+
+#: ../libertine/qml/ExtraArchivesView.qml:47
+msgid "Enter new archive identifier, e.g.:"
+msgstr ""
+
+#: ../libertine/qml/ExtraArchivesView.qml:50
+msgid ""
+"multiverse\n"
+"ppa:user/repository\n"
+"deb http://myserver/repo stable repo"
+msgstr ""
+
+#: ../libertine/qml/ExtraArchivesView.qml:57
+#, fuzzy
+msgid "new archive name"
+msgstr "Falló la adición del archivo"
+
+#: ../libertine/qml/ExtraArchivesView.qml:114
+msgid "remove"
+msgstr "quitar"
 
 #: ../libertine/qml/ExtraArchivesView.qml:115
 msgid "Remove extra archive"
 msgstr "quitar archivo adicional"
 
-#: ../libertine/qml/SearchResultsView.qml:67
-msgid "Return to Apps Page"
-msgstr "Volver a la página de aplicaciones"
+#: ../libertine/qml/ExtraArchivesView.qml:132
+msgid "No additional archives and PPA's have been added"
+msgstr "No se ha añadido ningún archivo ni PPA adicional"
 
-#: ../libertine/qml/PackageExistsDialog.qml:43
-msgid "Return to search results"
-msgstr "Volver a los resultados de búsqueda"
+#: ../libertine/qml/ExtraArchivesView.qml:177
+msgid "Adding archive failed"
+msgstr "Falló la adición del archivo"
 
-#: ../libertine/ContainerManager.cpp:31
-msgid "Running command %1 failed"
-msgstr "Falló la ejecución de la orden «%1»"
+#: ../libertine/qml/ExtraArchivesView.qml:181
+msgid "Deleting archive failed"
+msgstr "Falló la eliminación del archivo"
 
-#: ../libertine/qml/SearchResultsView.qml:35
-msgid "Search"
-msgstr "Buscar"
+#: ../libertine/qml/GenericErrorDialog.qml:39
+msgid "Copy to Clipboard"
+msgstr ""
 
-#: ../libertine/qml/SearchResultsView.qml:57
-msgid "Search Again"
-msgstr "Volver a buscar"
+#: ../libertine/qml/GenericErrorDialog.qml:46
+msgid "Dismiss"
+msgstr "Descartar"
 
-#: ../libertine/qml/PackageExistsDialog.qml:33
-msgid "Search again"
-msgstr "Buscar de nuevo"
+#: ../libertine/qml/HomeView.qml:29
+msgid "Classic Apps - %1"
+msgstr "Aplicaciones clásicas – %1"
 
-#: ../libertine/qml/PackageExistsDialog.qml:29
-msgid "Search again or return to search results."
-msgstr "Buscar de nuevo o volver a los resultados de búsqueda."
+#: ../libertine/qml/HomeView.qml:48
+msgid "Install new package"
+msgstr "Instalar paquete nuevo"
 
-#: ../libertine/qml/HomeView.qml:152
-msgid "Search archives for a package"
-msgstr "Buscar un paquete en los archivos"
+#: ../libertine/qml/HomeView.qml:49
+msgid "Enter exact package name or full path to a Debian package file"
+msgstr ""
+"Escriba el nombre exacto del paquete o una ruta completa a un archivo de "
+"paquete de Debian"
 
-#: ../libertine/qml/SearchPackagesDialog.qml:27
-msgid "Search archives for packages"
-msgstr "Buscar paquetes en los archivos"
-
-#: ../libertine/qml/SearchPackagesDialog.qml:26
-#: ../libertine/qml/SearchResultsView.qml:36
-msgid "Search for packages"
-msgstr "Buscar paquetes"
-
-#: ../libertine/qml/SearchResultsView.qml:95
-msgid "Searching for packages…"
-msgstr "Buscando paquetes…"
-
-#: ../libertine/ContainerManager.cpp:27
-msgid "Searching for query %1 failed"
-msgstr "Falló la búsqueda del término «%1»"
-
-#: ../libertine/qml/ContainerInfoView.qml:80
-msgid "Status"
-msgstr "Estado"
-
-#: ../libertine/qml/HomeView.qml:119
-msgid "Switch Container"
-msgstr "Cambiar de contenedor"
-
-#: ../libertine/qml/PackageExistsDialog.qml:28
-msgid "The %1 package is already installed."
-msgstr "El paquete «%1» ya está instalado."
+#: ../libertine/qml/HomeView.qml:59
+msgid "Package name or Debian package path"
+msgstr "Nombre de paquete o ruta a paquete de Debian"
 
 #: ../libertine/qml/HomeView.qml:78
 msgid ""
 "The %1 package is already installed. Please try a different package name."
 msgstr "El paquete «%1» ya está instalado. Pruebe con otro nombre de paquete."
 
-#: ../libertine/qml/PackageInfoView.qml:159
-msgid "Unknown"
-msgstr "Desconocido"
+#: ../libertine/qml/HomeView.qml:105
+msgid "Manage Container"
+msgstr "Gestionar contenedor"
 
-#: ../libertine/qml/ManageContainer.qml:100
-msgid "Update container"
-msgstr "Actualizar contenedor"
+#: ../libertine/qml/HomeView.qml:112
+msgid "Container Information"
+msgstr "Información del contenedor"
+
+#: ../libertine/qml/HomeView.qml:119
+msgid "Switch Container"
+msgstr "Cambiar de contenedor"
+
+#: ../libertine/qml/HomeView.qml:135
+msgid "Enter package name or Debian file"
+msgstr "Escriba el nombre de un paquete o indique un archivo de Debian"
+
+#: ../libertine/qml/HomeView.qml:143
+msgid "Choose Debian package to install"
+msgstr "Elija el paquete de Debian que se instalará"
+
+#: ../libertine/qml/HomeView.qml:152
+msgid "Search archives for a package"
+msgstr "Buscar un paquete en los archivos"
+
+#: ../libertine/qml/HomeView.qml:219
+msgid "Remove Package"
+msgstr "Desinstalar paquete"
+
+#: ../libertine/qml/HomeView.qml:231
+msgid "Package Info"
+msgstr "Información del paquete"
+
+#: ../libertine/qml/HomeView.qml:248
+msgid "No packages are installed"
+msgstr "No hay ningún paquete instalado"
+
+#: ../libertine/qml/ManageContainer.qml:29
+msgid "Manage %1"
+msgstr "Gestionar %1"
+
+#: ../libertine/qml/ManageContainer.qml:73
+msgid "Additional archives and PPAs"
+msgstr "Archivos y PPA adicionales"
 
 #: ../libertine/qml/ManageContainer.qml:84
 msgid "Update…"
 msgstr "Actualizar…"
 
-#: ../libertine/ContainerManager.cpp:28
-msgid "Updating container %1 failed"
-msgstr "Falló la actualización del contenedor «%1»"
+#: ../libertine/qml/ManageContainer.qml:100
+msgid "Update container"
+msgstr "Actualizar contenedor"
+
+#: ../libertine/qml/ManageContainer.qml:117
+#, fuzzy
+msgid "Default container"
+msgstr "Eliminar contenedor"
+
+#: ../libertine/qml/PackageExistsDialog.qml:28
+msgid "The %1 package is already installed."
+msgstr "El paquete «%1» ya está instalado."
+
+#: ../libertine/qml/PackageExistsDialog.qml:29
+msgid "Search again or return to search results."
+msgstr "Buscar de nuevo o volver a los resultados de búsqueda."
+
+#: ../libertine/qml/PackageExistsDialog.qml:33
+msgid "Search again"
+msgstr "Buscar de nuevo"
+
+#: ../libertine/qml/PackageExistsDialog.qml:43
+msgid "Return to search results"
+msgstr "Volver a los resultados de búsqueda"
+
+#: ../libertine/qml/PackageInfoView.qml:30
+msgid "Information for the %1 package"
+msgstr "Información sobre el paquete «%1»"
+
+#: ../libertine/qml/PackageInfoView.qml:35
+msgid "Obtaining package version…"
+msgstr "Obteniendo la versión del paquete…"
+
+#: ../libertine/qml/PackageInfoView.qml:60
+msgid "Package version"
+msgstr "Versión del paquete"
+
+#: ../libertine/qml/PackageInfoView.qml:68
+msgid "Install status"
+msgstr "Estado de la instalación"
+
+#: ../libertine/qml/PackageInfoView.qml:159
+msgid "Unknown"
+msgstr "Desconocido"
+
+#: ../libertine/qml/SearchPackagesDialog.qml:26
+#: ../libertine/qml/SearchResultsView.qml:36
+msgid "Search for packages"
+msgstr "Buscar paquetes"
+
+#: ../libertine/qml/SearchPackagesDialog.qml:27
+msgid "Search archives for packages"
+msgstr "Buscar paquetes en los archivos"
+
+#: ../libertine/qml/SearchPackagesDialog.qml:31
+msgid "search"
+msgstr "buscar"
+
+#: ../libertine/qml/SearchResultsView.qml:31
+msgid "Package Search Results"
+msgstr "Resultados de búsqueda del paquete"
+
+#: ../libertine/qml/SearchResultsView.qml:35
+msgid "Search"
+msgstr "Buscar"
+
+#: ../libertine/qml/SearchResultsView.qml:52
+msgid "No Search Results Found"
+msgstr "No se encontró ningún resultado"
+
+#: ../libertine/qml/SearchResultsView.qml:57
+msgid "Search Again"
+msgstr "Volver a buscar"
+
+#: ../libertine/qml/SearchResultsView.qml:67
+msgid "Return to Apps Page"
+msgstr "Volver a la página de aplicaciones"
+
+#: ../libertine/qml/SearchResultsView.qml:95
+msgid "Searching for packages…"
+msgstr "Buscando paquetes…"
 
 #: ../libertine/qml/WelcomeView.qml:28
 msgid "Welcome"
@@ -365,96 +452,12 @@ msgstr ""
 "heredadas. Para descargar y configurar el entorno requerido se necesita algo "
 "de tiempo y ancho de banda."
 
-#: ../libertine/qml/ExtraArchivesView.qml:32
-msgid "add"
-msgstr "añadir"
+#: ../libertine/qml/WelcomeView.qml:66
+msgid "Install"
+msgstr "Instalar"
 
-#: ../libertine/qml/ContainerOptionsDialog.qml:56
-msgid "container name"
-msgstr "nombre del contenedor"
-
-#: ../libertine/qml/ContainersView.qml:92 ../libertine/qml/HomeView.qml:218
-msgid "delete"
-msgstr "eliminar"
-
-#: ../libertine/qml/ContainersView.qml:116
-msgid "edit"
-msgstr "editar"
-
-#: ../libertine/ContainerConfig.cpp:153 ../libertine/ContainerConfig.cpp:187
-msgid "failed"
-msgstr "falló"
-
-#: ../libertine/qml/ContainerOptionsDialog.qml:40
-#: ../libertine/qml/ManageContainer.qml:69
-msgid "i386 multiarch support"
-msgstr "Compatibilidad con i386 multiarquitectura"
-
-#: ../libertine/qml/ContainersView.qml:107 ../libertine/qml/HomeView.qml:230
-msgid "info"
-msgstr "información"
-
-#: ../libertine/ContainerConfig.cpp:186
-msgid "installed"
-msgstr "instalado"
-
-#: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:185
-#: ../libertine/qml/ContainersView.qml:81
-#: ../libertine/qml/ExtraArchivesView.qml:106 ../libertine/qml/HomeView.qml:205
-msgid "installing"
-msgstr "instalando"
-
-#: ../libertine/qml/ExtraArchivesView.qml:50
-msgid ""
-"multiverse\n"
-"ppa:user/repository\n"
-"deb http://myserver/repo stable repo"
-msgstr ""
-
-#: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
-msgid "new"
-msgstr "nuevo"
-
-#: ../libertine/qml/ExtraArchivesView.qml:57
-#, fuzzy
-msgid "new archive name"
-msgstr "Falló la adición del archivo"
-
-#: ../libertine/qml/ContainerPasswordDialog.qml:41
-msgid "password"
-msgstr "contraseña"
-
-#: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:118
-#: ../libertine/qml/ManageContainer.qml:85
-#: ../libertine/qml/ManageContainer.qml:152
-msgid "ready"
-msgstr "preparado"
-
-#: ../libertine/qml/ExtraArchivesView.qml:114
-msgid "remove"
-msgstr "quitar"
-
-#: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:189
-#: ../libertine/qml/ContainerInfoView.qml:143
-#: ../libertine/qml/PackageInfoView.qml:148
-msgid "removed"
-msgstr "desinstalado"
-
-#: ../libertine/ContainerConfig.cpp:151 ../libertine/ContainerConfig.cpp:188
-#: ../libertine/qml/ContainersView.qml:82
-#: ../libertine/qml/ExtraArchivesView.qml:107 ../libertine/qml/HomeView.qml:206
-msgid "removing"
-msgstr "desinstalando"
-
-#: ../libertine/qml/SearchPackagesDialog.qml:31
-msgid "search"
-msgstr "buscar"
-
-#: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:119
-#: ../libertine/qml/ManageContainer.qml:97
-#: ../libertine/qml/ManageContainer.qml:148
-msgid "updating"
-msgstr "actualizando"
+#~ msgid "Add additional PPA"
+#~ msgstr "Añadir un PPA adicional"
 
 #~ msgid "Enter name of PPA in the form ppa:user/ppa-name:"
 #~ msgstr ""

@@ -1,3 +1,33 @@
+libertine (1.2.2+16.10.20160707-0ubuntu1) yakkety; urgency=medium
+
+  [ Brandon Schaefer ]
+  * If we fail to find the host path remove the session path since it would
+    have been created with the socket.
+
+  [ Chris Townsend ]
+  * Only set the LXC log file when the container is about to start.
+    (LP: #1596020)
+  * Add a new ContainersConfig Python class for managing all things
+    ContainersConfig.json.
+  * Refactor host information into a new HostInfo class.
+  * Check if the LXC container is defined before trying to start it.
+
+  [ Larry Price ]
+  * Remove dependency on DISPLAY variable and use random string to generate
+    session socket path.
+  * Prevent showing multiple error dialogs when adding archive fails.
+    (LP: #1594957)
+  * Only generate translations when manually running `make translations`.
+  * Ensure /usr/games is in PATH before launching applications. (LP: #1598227)
+  * Make error details selectable and add clipboard button. (LP: #1598786)
+  * Use dialog instead of ActionSelectionPopover to address focusing issues
+    when installing packages.
+  * Verify host kernel has lxc support. (LP: #1599193)
+  * Set DEBIAN_FRONTEND directly in environment for chroot containers.
+    (LP: #1599246)
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Thu, 07 Jul 2016 20:17:22 +0000
+
 libertine (1.2.1+16.10.20160623-0ubuntu1) yakkety; urgency=medium
 
   [ Chris Townsend ]
