@@ -162,32 +162,52 @@ class BaseContainer(metaclass=abc.ABCMeta):
                 os.environ['DEBIAN_FRONTEND'] = 'readline'
             return self.run_in_container(apt_command_prefix(verbosity) + " install '" + package_name + "'") == 0
 
-    def configure_command(self, command, *args, verbosity=1):
+    def configure_multiarch(self, should_enable, verbosity=1):
         """
-        Configures the container based on what the command is.
+        Enables or disables multiarch repositories.
 
-        :param command: The configuration command to run.
-        :param *args: List of arguments used for the given configuration command
+        :param should_enable: Whether or not to enable multiarch support.
+        :param verbosity: the chattiness of the output on a range from 0 to 2
         """
-        if command == 'multiarch':
-            if args[0] == 'enable':
-                ret = self.run_in_container("dpkg --add-architecture i386")
-                if ret or ret == 0:
-                    self.run_in_container(apt_command_prefix(verbosity) + '--force-yes update')
-                return ret
-            else:
-                self.run_in_container(apt_command_prefix(verbosity) + "purge \".*:i386\"")
-                return self.run_in_container("dpkg --remove-architecture i386")
+        if should_enable:
+            ret = self.run_in_container("dpkg --add-architecture i386")
+            if ret or ret == 0:
+                self.run_in_container(apt_command_prefix(verbosity) + '--force-yes update')
+            return ret
+        else:
+            self.run_in_container(apt_command_prefix(verbosity) + "purge \".*:i386\"")
+            return self.run_in_container("dpkg --remove-architecture i386")
 
-        elif command == 'add-archive':
-            if not os.path.exists(os.path.join(self.root_path, 'usr', 'bin', 'add-apt-repository')):
-                self.update_packages(verbosity)
-                self.install_package("software-properties-common", verbosity)
+    def configure_add_archive(self, archive, public_key_file, verbosity=1):
+        """
+        Adds the given archive. If this archive requires a key, prompt user.
 
-            return self.run_in_container("add-apt-repository -y " + args[0])
+        :param archive: The configuration command to run.
+        :param public_key_file: file containing the public key used to sign this archive
+        :param verbosity: the chattiness of the output on a range from 0 to 2
+        """
+        if not os.path.exists(os.path.join(self.root_path, 'usr', 'bin', 'add-apt-repository')):
+            self.update_packages(verbosity)
+            self.install_package("software-properties-common", verbosity)
+        if 'https://' in archive and not os.path.exists(os.path.join(self.root_path, 'usr', 'lib', 'apt', 'methods', 'https')):
+            self.update_packages(verbosity)
+            self.install_package("apt-transport-https", verbosity)
 
-        elif command == 'delete-archive':
-            return self.run_in_container("add-apt-repository -y -r " + args[0])
+        retcode = self.run_in_container("add-apt-repository -y " + archive)
+        if retcode is 0 and public_key_file is not None:
+            with open(public_key_file, 'r') as keyfile:
+                return self.run_in_container("bash -c 'echo \"%s\" | apt-key add -'" % keyfile.read())
+
+        return retcode
+
+    def configure_remove_archive(self, archive, verbosity=1):
+        """
+        Removes the given archive.
+
+        :param archive: The configuration command to run.
+        :param verbosity: the chattiness of the output on a range from 0 to 2
+        """
+        return self.run_in_container("add-apt-repository -y -r " + archive)
 
     @property
     def name(self):
@@ -248,7 +268,9 @@ class LibertineContainer(object):
         """
         super().__init__()
 
-        container_type = ContainersConfig().get_container_type(container_id)
+        self.containers_config = ContainersConfig()
+
+        container_type = self.containers_config.get_container_type(container_id)
 
         if container_type == None or container_type == "lxc":
             from  libertine.LxcContainer import LibertineLXC
@@ -288,7 +310,7 @@ class LibertineContainer(object):
         Creates the container.
         """
         self.container.architecture = HostInfo().get_host_architecture()
-        self.container.installed_release = ContainersConfig().get_container_distro(self.container_id)
+        self.container.installed_release = self.containers_config.get_container_distro(self.container_id)
 
         return self.container.create_libertine_container(password, multiarch, verbosity)
 
@@ -350,7 +372,7 @@ class LibertineContainer(object):
         :param app_exec_line: the application exec line as passed in by
             ubuntu-app-launch
         """
-        if ContainersConfig().container_exists(self.container.container_id):
+        if self.containers_config.container_exists(self.container.container_id):
             # Update $PATH as necessary
             if '/usr/games' not in os.environ['PATH']:
                 os.environ['PATH'] = os.environ['PATH'] + ":/usr/games"
@@ -391,10 +413,24 @@ class LibertineContainer(object):
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def configure_command(self, command, *args):
+    def configure_multiarch(self, should_enable, verbosity=1):
         try:
             with ContainerRunning(self.container):
-                return self.container.configure_command(command, *args)
+                return self.container.configure_multiarch(should_enable, verbosity)
+        except RuntimeError as e:
+            return handle_runtime_error(e)
+
+    def configure_add_archive(self, archive, key, verbosity):
+        try:
+            with ContainerRunning(self.container):
+                return self.container.configure_add_archive(archive, key, verbosity)
+        except RuntimeError as e:
+            return handle_runtime_error(e)
+
+    def configure_remove_archive(self, archive, verbosity):
+        try:
+            with ContainerRunning(self.container):
+                return self.container.configure_remove_archive(archive, verbosity)
         except RuntimeError as e:
             return handle_runtime_error(e)
 

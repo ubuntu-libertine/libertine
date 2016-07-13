@@ -265,14 +265,19 @@ Container identifier. Default container is used if omitted.
 Enable i386 support.
 .RE
 .IP
-.BR \-a " ARCHIVE_NAME, " \-\-add-archive " ARCHIVE_NAME" ""
+.BR \-a " {add,remove}, " \-\-archive "{add,remove}" ""
 .RS 14
-Adds an archive to the specified container. Examples: 'deb http://myserver/path/to/repo stable myrepo', ppa:user/repository, multiverse
+Adds or removes an archive in the specified container.
 .RE
 .IP
-.BR \-d " ARCHIVE_NAME, " \-\-delete-archive " ARCHIVE_NAME" ""
+.BR \-n " ARCHIVE_NAME, " \-\-archive-name " ARCHIVE_NAME" ""
 .RS 14
-Deletes an archive to the specified container. Examples: 'deb http://myserver/path/to/repo stable myrepo', ppa:user/repository, multiverse
+Archive to be added or removed. Examples: 'deb http://myserver/path/to/repo stable myrepo', ppa:user/repository, multiverse
+.RE
+.IP
+.BR \-k " PUBLIC_KEY_FILE, " \-\-public-key-file " PUBLIC_KEY_FILE" ""
+.RS 14
+File containing public key used to sign new archive.
 .RE
 .TP
 

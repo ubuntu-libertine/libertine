@@ -206,11 +206,11 @@ class LibertineContainerManager(object):
         if not container.exec_command(args.command):
             sys.exit(1)
 
-    def delete_archive_by_name(self, container_id, archive_name):
+    def delete_archive_by_name(self, container_id, archive_name, verbosity=1):
         self.containers_config.update_archive_install_status(container_id, archive_name, 'removing')
         if self.containers_config.get_archive_install_status(container_id, archive_name) == 'installed':
             self.containers_config.update_archive_install_status(container_id, archive_name, 'removing')
-            if LibertineContainer(container_id).configure_command('delete-archive', "\"" + archive_name + "\"") is not 0:
+            if LibertineContainer(container_id).configure_remove_archive("\"" + archive_name + "\"", verbosity) is not 0:
                 self.containers_config.update_archive_install_status(container_id, archive_name, 'installed')
                 return False
 
@@ -232,36 +232,41 @@ class LibertineContainerManager(object):
                 print("i386 multiarch support is already %s" % multiarch)
                 sys.exit(1)
 
-            if container.configure_command('multiarch', args.multiarch) is not 0:
+            if container.configure_multiarch(args.multiarch, args.verbosity) is not 0:
                 sys.exit(1)
 
             self.containers_config.update_container_multiarch_support(container_id, multiarch)
 
-        elif args.add_archive:
-            archive_name = args.add_archive.strip("\'\"")
+        elif args.archive is not None:
+            archive_name = args.archive_name.strip("\'\"")
             archive_name_esc = "\"" + archive_name + "\""
 
-            if self.containers_config.archive_exists(container_id, archive_name):
-                print("%s already added in container." % archive_name)
-                sys.exit(1)
+            if args.archive == 'add':
+                if self.containers_config.archive_exists(container_id, archive_name):
+                    print("%s already added in container." % archive_name)
+                    sys.exit(1)
 
-            self.containers_config.add_container_archive(container_id, archive_name)
-            self.containers_config.update_archive_install_status(container_id, archive_name, 'installing')
-            if container.configure_command('add-archive', archive_name_esc) is not 0:
-                self.containers_config.delete_container_archive(container_id, archive_name)
-                sys.exit(1)
+                self.containers_config.add_container_archive(container_id, archive_name)
+                self.containers_config.update_archive_install_status(container_id, archive_name, 'installing')
+                if container.configure_add_archive(archive_name_esc, args.public_key_file, args.verbosity) is not 0:
+                    self.containers_config.delete_container_archive(container_id, archive_name)
+                    sys.exit(1)
 
-            self.containers_config.update_archive_install_status(container_id, archive_name, 'installed')
+                self.containers_config.update_archive_install_status(container_id, archive_name, 'installed')
 
-        elif args.delete_archive:
-            archive_name = args.delete_archive.strip("\'\"")
-            if not self.containers_config.archive_exists(container_id, archive_name):
-                print("%s is not added in container." % archive_name)
-                sys.exit(1)
+            elif args.archive == 'remove':
+                if not self.containers_config.archive_exists(container_id, archive_name):
+                    print("%s is not added in container." % archive_name)
+                    sys.exit(1)
 
-            if not self.delete_archive_by_name(container_id, archive_name):
-                print("%s was not properly deleted." % archive_name)
-                sys.exit(1)
+                if not self.delete_archive_by_name(container_id, archive_name):
+                    print("%s was not properly deleted." % archive_name)
+                    sys.exit(1)
+
+        else:
+            print("Configure called with no subcommand. See configure --help for usage.")
+            sys.exit(1)
+
 
     def merge(self, args):
         self.containers_config.merge_container_config_files(args.file)
@@ -444,21 +449,31 @@ if __name__ == '__main__':
     parser_configure.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
-    parser_configure.add_argument(
-        '-m', '--multiarch',
-        choices=['enable', 'disable'],
-        help=("Enables or disables i386 multiarch support for amd64 Libertine "
-              "containers.   This option has no effect when the Libertine "
-              "container is i386."))
-    parser_configure.add_argument(
-        '-a', '--add-archive',
-        metavar='Archive name',
-        help=("Adds an archive in the specified Libertine container. Examples: "
-              "'deb http://myserver/path/to/repo stable myrepo', ppa:user/repository, multiverse"))
-    parser_configure.add_argument(
-        '-d', '--delete-archive',
-        metavar='Archive name',
-        help=("Deletes an existing archive in the specified Libertine container."))
+    multiarch_group = parser_configure.add_argument_group("Multiarch support",
+                      "Enable or disable multiarch support for a container.")
+    multiarch_group.add_argument(
+         '-m', '--multiarch',
+         choices=['enable', 'disable'],
+         help=("Enables or disables i386 multiarch support for amd64 Libertine "
+               "containers. This option has no effect when the Libertine "
+               "container is i386."))
+
+    archive_group = parser_configure.add_argument_group("Additional archive support",
+                    "Add or delete an additional archive (PPA).")
+    archive_group.add_argument(
+        '-a', '--archive',
+        choices=['add', 'remove'],
+        help=("Adds or removes an archive (PPA) in the specified Libertine container."))
+    archive_group.add_argument(
+      '-n', '--archive-name',
+      metavar='Archive name',
+      help=("Archive name to be added or removed."))
+    archive_group.add_argument(
+        '-k', '--public-key-file',
+        metavar='Public key file',
+        help=("File containing the key used to sign the given archive. "
+              "Useful for third-party or private archives."))
+
     parser_configure.set_defaults(func=container_manager.configure)
 
     # Handle merging another ContainersConfig.json file into the main ContainersConfig.json file

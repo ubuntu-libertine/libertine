@@ -1,6 +1,6 @@
 /**
  * @file ExtraArchiveView.qml
- * @brief Libertine container add archive view
+ * @brief Libertine container extra archive view
  */
 /*
  * Copyright 2016 Canonical Ltd
@@ -19,65 +19,24 @@
 import Libertine 1.0
 import QtQuick 2.4
 import Ubuntu.Components 1.3
-import Ubuntu.Components.Popups 1.3
 
 Page {
     id: extraArchiveView
     header: PageHeader {
         id: pageHeader
-        title: i18n.tr("Additional Archives and PPAs")
+        title: i18n.tr("Additional Archives")
         trailingActionBar.actions: [
             Action {
                 iconName: "add"
                 text: i18n.tr("add")
-                description: i18n.tr("Add a new PPA")
-                onTriggered: PopupUtils.open(addArchivePopup)
+                description: i18n.tr("Add a new archive")
+                onTriggered: pageStack.push(Qt.resolvedUrl("AddExtraArchiveView.qml"), {currentContainer: currentContainer})
             }
         ]
     }
-    property var archive_name: null
-    property var worker: null
+    property string currentContainer: ""
+
     signal error(string description, string details)
-
-    Component {
-        id: addArchivePopup
-        Dialog {
-            id: addArchiveDialog
-            title: i18n.tr("Add additional archive")
-            text: i18n.tr("Enter new archive identifier, e.g.:")
-
-            TextEdit {
-                text: i18n.tr("multiverse\nppa:user/repository\ndeb http://myserver/repo stable repo")
-                readOnly: true
-                color: UbuntuColors.darkGrey
-            }
-
-            TextField {
-                id: extraArchiveString
-                placeholderText: i18n.tr("new archive name")
-                onAccepted: {
-                    PopupUtils.close(addArchiveDialog)
-                    addArchive(text)
-                }
-            }
-            Button {
-                text: i18n.tr("OK")
-                color: UbuntuColors.green
-                onClicked: {
-                    PopupUtils.close(addArchiveDialog)
-                    addArchive(extraArchiveString.text)
-                }
-            }
-            Button {
-                text: i18n.tr("Cancel")
-                color: UbuntuColors.red
-                onClicked: PopupUtils.close(addArchiveDialog)
-            }
-            Component.onCompleted: {
-                extraArchiveString.forceActiveFocus()
-            }
-        }
-    }
 
     UbuntuListView {
         id: extraArchiveList
@@ -95,6 +54,8 @@ Page {
                     leftMargin: units.gu(2)
                 }
                 text: archiveName
+                width: parent.width - units.gu(8)
+                elide: Text.ElideMiddle
             }
             ActivityIndicator {
                 id: extraArchiveActivity
@@ -132,18 +93,11 @@ Page {
         text: i18n.tr("No additional archives and PPA's have been added")
     }
 
-    function addArchive(archive) {
-        var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
-        worker.finishedConfigure.connect(finishedConfigure)
-        worker.error.connect(sendAddError)
-        worker.configureContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer), ["--add-archive", "\"" + archive + "\""])
-    }
-
     function deleteArchive(archive) {
         var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
         worker.finishedConfigure.connect(finishedConfigure)
         worker.error.connect(sendDeleteError)
-        worker.configureContainer(mainView.currentContainer, containerConfigList.getContainerName(mainView.currentContainer), ["--delete-archive", "\"" + archive + "\""])
+        worker.configureContainer(currentContainer, containerConfigList.getContainerName(currentContainer), ["--archive", "remove", "--archive-name", "\"" + archive + "\""])
     }
 
     Component.onCompleted: {
@@ -153,28 +107,19 @@ Page {
 
     Component.onDestruction: {
         containerConfigList.configChanged.disconnect(reloadArchives)
-
         error.disconnect(mainView.error)
-
-        if (worker) {
-            worker.finishedConfigure.disconnect(finishedConfigure)
-            worker.error.disconnect(sendAddError)
-            worker.error.disconnect(sendDeleteError)
-        }
     }
 
     function reloadArchives() {
-        containerArchivesList.setContainerArchives(mainView.currentContainer)
+        containerArchivesList.setContainerArchives(currentContainer)
 
         extraArchiveList.visible = !containerArchivesList.empty() ? true : false
     }
 
     function finishedConfigure() {
-        containerArchivesList.setContainerArchives(mainView.currentContainer)
-    }
-
-    function sendAddError(desc, details) {
-        error(i18n.tr("Adding archive failed"), details)
+        if (extraArchiveView) {
+            containerArchivesList.setContainerArchives(currentContainer)
+        }
     }
 
     function sendDeleteError(desc, details) {

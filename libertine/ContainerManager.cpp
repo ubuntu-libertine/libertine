@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "libertine/ContainerManager.h"
+#include <QTemporaryFile>
 
 
 namespace
@@ -289,6 +290,29 @@ configureContainer(const QString& container_id, const QString& container_name, c
   QStringList args{"configure", "-i", container_id};
   args << configure_command.at(0) << configure_command.mid(1);
   process_.start(libertine_container_manager_tool, args);
+}
+
+
+void ContainerManagerWorker::
+addArchive(const QString& container_id, const QString& container_name, const QString& archive, const QByteArray& signing_key)
+{
+  QStringList command{"--archive", "add", "--archive-name", archive};
+  if (!signing_key.isEmpty())
+  {
+    QTemporaryFile keyfile;
+    if (!keyfile.open())
+    {
+      emit error(CONTAINER_CONFIGURE_FAILED.arg(container_name), keyfile.errorString());
+      return;
+    }
+
+    keyfile.setAutoRemove(false);
+    keyfile.write(signing_key);
+
+    command << "--public-key-file" << keyfile.fileName();
+  }
+
+  configureContainer(container_id, container_name, command);
 }
 
 
