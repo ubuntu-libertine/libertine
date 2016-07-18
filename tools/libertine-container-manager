@@ -74,7 +74,7 @@ class LibertineContainerManager(object):
             if args.password:
                 password = args.password
             elif sys.stdin.isatty():
-                print("Your user password is required for creating a Libertine container.")
+                print("Enter password for your user in the Libertine container or leave blank for no password:")
                 password = getpass.getpass()
             else:
                 password = sys.stdin.readline().rstrip()

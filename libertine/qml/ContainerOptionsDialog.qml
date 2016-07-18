@@ -26,10 +26,9 @@ Dialog {
     id: containerOptionsDialog
     title: i18n.tr("Container Options")
     text: i18n.tr("Configure options for container creation.")
-    property var showPasswordDialog: false
-    signal passwordDialogSignal(var enableMultiarch, var containerName)
 
     Row {
+        visible: containerConfigList.getHostArchitecture() == 'x86_64' ? true : false
         spacing: units.gu(1)
         CheckBox {
             id: enableMultiarchCheckbox
@@ -47,7 +46,7 @@ Dialog {
 
     Label {
         id: containerNameText
-        text: i18n.tr("Enter or name for the container or leave blank for default name")
+        text: i18n.tr("Enter a name for the container or leave blank for default name:")
         wrapMode: Text.Wrap
     }
 
@@ -55,6 +54,20 @@ Dialog {
         id: containerNameInput
         placeholderText: i18n.tr("container name")
         onAccepted: okButton.clicked()
+    }
+
+    Label {
+        id: containerPasswordText
+        visible: true
+        text: i18n.tr("Enter password for your user in the Libertine container or leave blank for no password:")
+        wrapMode: Text.Wrap
+    }
+
+    TextField {
+        id: containerPasswordInput
+        visible: containerPasswordText.visible
+        placeholderText: i18n.tr("password")
+        echoMode: TextInput.Password
     }
 
     Row {
@@ -65,7 +78,7 @@ Dialog {
             color: UbuntuColors.green
             width: (parent.width - parent.spacing) / 2
             onClicked: {
-                showPasswordDialog = true
+                createContainer()
                 PopupUtils.close(containerOptionsDialog)
             }
         }
@@ -79,9 +92,18 @@ Dialog {
         }
     }
 
-    Component.onDestruction: {
-        if (showPasswordDialog) {
-            passwordDialogSignal(enableMultiarchCheckbox.checked, containerNameInput.text)
-        }
+    function createContainer() {
+        var container_id = containerConfigList.addNewContainer("lxc", containerNameInput.text)
+        var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
+
+        worker.updateOperationDetails.connect(mainView.updateOperationDetails)
+        worker.operationFinished.connect(mainView.resetOperationDetails)
+        worker.error.connect(mainView.error)
+
+        worker.createContainer(container_id,
+                               containerConfigList.getContainerName(container_id),
+                               containerConfigList.getContainerDistro(container_id),
+                               enableMultiarchCheckbox.checked,
+                               containerPasswordInput.text)
     }
 }

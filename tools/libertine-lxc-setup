@@ -1,0 +1,9 @@
+#!/bin/sh
+
+USERNAME=$1
+
+LXC_USERNET_ENTRY="$USERNAME veth lxcbr0 10"
+
+usermod --add-subuids 100000-165536 --add-subgids 100000-165536 $USERNAME
+
+echo $LXC_USERNET_ENTRY | tee -a /etc/lxc/lxc-usernet > /dev/null

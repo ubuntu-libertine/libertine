@@ -35,8 +35,7 @@ Page {
             Action {
                 iconName: "add"
                 onTriggered: {
-                    var popup = PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
-                    popup.passwordDialogSignal.connect(showPasswordDialog)
+                    PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
                 }
             }
         ]

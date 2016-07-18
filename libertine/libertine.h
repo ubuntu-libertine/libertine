@@ -28,7 +28,6 @@
 
 class ContainerConfigList;
 class LibertineConfig;
-class PasswordHelper;
 class ContainerAppsList;
 class ContainerArchivesList;
 
@@ -57,7 +56,6 @@ private:
     ContainerConfigList*            containers_;
     ContainerAppsList*              container_apps_;
     ContainerArchivesList*          container_archives_;
-    PasswordHelper*                 password_helper_;
     QQuickView                      view_;
 };
 

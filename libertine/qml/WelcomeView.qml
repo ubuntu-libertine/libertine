@@ -67,8 +67,7 @@ Page {
             color: UbuntuColors.green
 
             onClicked: {
-                var popup = PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
-                popup.passwordDialogSignal.connect(showPasswordDialog)
+                PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
             }
         }
     }

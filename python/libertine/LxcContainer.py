@@ -41,18 +41,11 @@ def check_lxc_net_entry(entry):
     return found
 
 
-def setup_host_environment(username, password):
+def setup_host_environment(username):
     lxc_net_entry = "%s veth lxcbr0 10" % str(username)
 
     if not check_lxc_net_entry(lxc_net_entry):
-        passwd = subprocess.Popen(["sudo", "--stdin", "usermod", "--add-subuids", "100000-165536",
-                                   "--add-subgids", "100000-165536", str(username)],
-                                  stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
-                                  stderr=subprocess.STDOUT)
-        passwd.communicate((password + '\n').encode('UTF-8'))
-
-        add_user_cmd = "echo %s | sudo tee -a /etc/lxc/lxc-usernet > /dev/null" % lxc_net_entry
-        subprocess.Popen(add_user_cmd, shell=True)
+        subprocess.Popen(["sudo", "libertine-lxc-setup", str(username)]).wait()
 
 
 def get_lxc_default_config_path():
@@ -151,7 +144,7 @@ class LibertineLXC(BaseContainer):
         user_id = os.getuid()
         group_id = os.getgid()
 
-        setup_host_environment(username, password)
+        setup_host_environment(username)
 
         # Generate the default lxc default config, if it doesn't exist
         config_path = get_lxc_default_config_path()
