@@ -23,9 +23,19 @@ import shlex
 import shutil
 import subprocess
 
+from gi.repository import GLib, Gio
+
 puritine_hook_dir = os.path.join(os.environ['HOME'], '.cache', 'libertine', 'puritine')
 puritine_symlink_farm_file = os.path.join(puritine_hook_dir, 'PuritineSymlinkFarm.json')
 puritine_click_config_file = os.path.join('libertine-config', 'libertine', 'ContainersConfig.json')
+
+def symlink_farm_entries_count():
+    if (puritine_symlink_farm_list and
+        puritine_symlink_farm_list['customContainers']):
+        return len(puritine_symlink_farm_list['customContainers'])
+
+    return 0
+
 
 def puritine_symlink_exists(symlink):
     for file in os.listdir(puritine_hook_dir):
@@ -117,21 +127,59 @@ def find_new_or_updated_puritine_symlinks(puritine_symlink_farm_list):
     return puritine_symlink_farm_list
 
 
-puritine_symlink_farm_list = {}
+def favorite_libertine_scope():
+    libertine_scope_value = 'scope://libertine-scope.ubuntu_libertine-scope'
+    click_scope_value = 'scope://clickscope'
+    schema = 'com.canonical.Unity.Dash'
+    schema_key = 'favorite-scopes'
 
-if not os.path.exists(puritine_hook_dir):
-    os.makedirs(puritine_hook_dir)
+    settings = Gio.Settings.new(schema)
 
-if (os.path.exists(puritine_symlink_farm_file) and
-    os.path.getsize(puritine_symlink_farm_file) != 0):
-    with open(puritine_symlink_farm_file, 'r') as fd:
-        puritine_symlink_farm_list = json.load(fd)
+    favorites = settings.get_value(schema_key)
 
-puritine_symlink_farm_list = find_new_or_updated_puritine_symlinks(puritine_symlink_farm_list)
+    array = favorites.dup_strv()
 
-if puritine_symlink_farm_list:
-    puritine_symlink_farm_list = find_removed_puritine_symlinks(puritine_symlink_farm_list)
+    if not libertine_scope_value in array:
+        array.insert(array.index(click_scope_value) + 1, libertine_scope_value)
+        new_favorites = GLib.Variant.new_strv(array)
+        settings.set_value(schema_key, new_favorites)
+        del new_favorites
 
-with open(puritine_symlink_farm_file, 'w') as fd:
-    json.dump(puritine_symlink_farm_list, fd, sort_keys=True, indent=4)
-    fd.write('\n')
+    del array
+    del favorites
+    del settings
+
+
+if __name__ == '__main__':
+    puritine_symlink_farm_list = {}
+
+    with open(os.path.join('/', 'run', 'user', str(os.getuid()), 'dbus-session'), 'r') as fd:
+        dbus_session_str = fd.read()
+
+    os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session_str.partition('DBUS_SESSION_BUS_ADDRESS=')[2].rstrip('\n')
+
+    if not os.path.exists(puritine_hook_dir):
+        os.makedirs(puritine_hook_dir)
+
+    if (os.path.exists(puritine_symlink_farm_file) and
+        os.path.getsize(puritine_symlink_farm_file) != 0):
+        with open(puritine_symlink_farm_file, 'r') as fd:
+            puritine_symlink_farm_list = json.load(fd)
+
+    count_at_start = symlink_farm_entries_count()
+
+    puritine_symlink_farm_list = find_new_or_updated_puritine_symlinks(puritine_symlink_farm_list)
+
+    if puritine_symlink_farm_list:
+        puritine_symlink_farm_list = find_removed_puritine_symlinks(puritine_symlink_farm_list)
+
+    count_at_finish = symlink_farm_entries_count()
+
+    with open(puritine_symlink_farm_file, 'w') as fd:
+        json.dump(puritine_symlink_farm_list, fd, sort_keys=True, indent=4)
+        fd.write('\n')
+
+    if count_at_start == 0 and count_at_finish > 0:
+        favorite_libertine_scope()
+
+    libertine.utils.refresh_libertine_scope()
