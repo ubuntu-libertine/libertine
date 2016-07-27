@@ -127,6 +127,11 @@ class LibertineChroot(BaseContainer):
         if self.installed_release == "vivid":
             if verbosity == 1:
                 print("Installing the Vivid Stable Overlay PPA...")
+            if not self.install_package("software-properties-common", verbosity):
+                print("Failure installing software-properties-common during container creation")
+                self.destroy_libertine_container()
+                return False
+
             self.run_in_container("add-apt-repository ppa:ci-train-ppa-service/stable-phone-overlay -y")
             self.update_packages(verbosity)
 

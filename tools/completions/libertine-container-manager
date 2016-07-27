@@ -48,7 +48,7 @@ _libertine-container-manager()
         opts="--help"
         ;;
       "configure" )
-        opts="--help --id --multiarch --add-archive --delete-archive"
+        opts="--help --id --multiarch --archive"
         ;;
       "set-default" )
         opts="--help --id --clear"
@@ -59,8 +59,14 @@ _libertine-container-manager()
       esac
     fi
 
-    if [[ ${cmd} == "configure" && "${COMP_WORDS[COMP_CWORD-1]}" == "--multiarch" ]]; then
-      opts="enable disable"
+    if [[ ${cmd} == "configure" ]]; then
+      if [[ "${COMP_WORDS[COMP_CWORD-1]}" == "--multiarch" ]]; then
+        opts="enable disable"
+      elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "--archive" ]]; then
+        opts="add remove"
+      elif [[ " ${COMP_WORDS[@]} " =~ " --archive " ]]; then
+        opts="--archive-name --public-key-file"
+      fi
     fi
 
     if [[ -z ${opts} && "${COMP_CWORD}" == "1" ]]; then

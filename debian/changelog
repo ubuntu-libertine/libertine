@@ -1,3 +1,35 @@
+libertine (1.3+16.10.20160722.1-0ubuntu1) yakkety; urgency=medium
+
+  [ Larry Price ]
+  * Hotfixes for the 1.3 release:
+    - Install software-properties-common in vivid chroot containers before
+      adding stable overlay.
+    - Update bash completions for new configure syntax. 
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Fri, 22 Jul 2016 16:45:29 +0000
+
+libertine (1.3+16.10.20160721.2-0ubuntu1) yakkety; urgency=medium
+
+  [ Brandon Schaefer ]
+  * This creates a LibertineApplication which wraps up the starting of a
+    container. This way we can mock creations of an Application.
+
+  [ Chris Townsend ]
+  * Rework the whole way we handle updating the necessary system files for
+    unprivileged LXC's: (LP: #1598785)
+    - Add new script that does the updates.
+    - Add sudoers file for this script.
+    - Remove the password dialog in the UI.
+  * Add functionality to "favorite" the Libertine scope upon first
+    installation of the Puritine click package. (LP: #1602397)
+  * Bump version to 1.3.
+
+  [ Larry Price ]
+  * Allow adding all forms of additional archives to containers.
+  * Support adding private PPAs inside of a container. (LP: #1599882)
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Thu, 21 Jul 2016 17:26:54 +0000
+
 libertine (1.2.2+16.10.20160707-0ubuntu1) yakkety; urgency=medium
 
   [ Brandon Schaefer ]
