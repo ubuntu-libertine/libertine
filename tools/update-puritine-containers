@@ -29,6 +29,22 @@ puritine_hook_dir = os.path.join(os.environ['HOME'], '.cache', 'libertine', 'pur
 puritine_symlink_farm_file = os.path.join(puritine_hook_dir, 'PuritineSymlinkFarm.json')
 puritine_click_config_file = os.path.join('libertine-config', 'libertine', 'ContainersConfig.json')
 
+def set_session_dbus_env_var():
+    if not 'DBUS_SESSION_BUS_ADDRESS' in os.environ:
+        dbus_session_path = os.path.join('/', 'run', 'user', str(os.getuid()), 'dbus-session')
+
+        if os.path.exists(dbus_session_path):
+            with open(dbus_session_path, 'r') as fd:
+                dbus_session_str = fd.read()
+
+                os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session_str.partition('DBUS_SESSION_BUS_ADDRESS=')[2].rstrip('\n')
+
+                return True
+        else:
+            return False
+
+    return True
+
 def symlink_farm_entries_count():
     if (puritine_symlink_farm_list and
         puritine_symlink_farm_list['customContainers']):
@@ -152,11 +168,7 @@ def favorite_libertine_scope():
 
 if __name__ == '__main__':
     puritine_symlink_farm_list = {}
-
-    with open(os.path.join('/', 'run', 'user', str(os.getuid()), 'dbus-session'), 'r') as fd:
-        dbus_session_str = fd.read()
-
-    os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session_str.partition('DBUS_SESSION_BUS_ADDRESS=')[2].rstrip('\n')
+    update_libertine_scope = set_session_dbus_env_var()
 
     if not os.path.exists(puritine_hook_dir):
         os.makedirs(puritine_hook_dir)
@@ -179,7 +191,8 @@ if __name__ == '__main__':
         json.dump(puritine_symlink_farm_list, fd, sort_keys=True, indent=4)
         fd.write('\n')
 
-    if count_at_start == 0 and count_at_finish > 0:
+    if count_at_start == 0 and count_at_finish > 0 and update_libertine_scope:
         favorite_libertine_scope()
 
-    libertine.utils.refresh_libertine_scope()
+    if update_libertine_scope:
+        libertine.utils.refresh_libertine_scope()
