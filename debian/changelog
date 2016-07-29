@@ -1,3 +1,9 @@
+libertine (1.3.1-0ubuntu1) UNRELEASED; urgency=medium
+
+  * Bump version to 1.3.1. 
+
+ -- Chris Townsend <christopher.townsend@canonical.com>  Fri, 29 Jul 2016 15:07:07 -0400
+
 libertine (1.3+16.10.20160722.1-0ubuntu1) yakkety; urgency=medium
 
   [ Larry Price ]
