@@ -21,6 +21,7 @@ import libertine.utils
 import getpass
 import os
 import sys
+import re
 
 from apt.debfile import DebPackage
 from libertine import LibertineContainer
@@ -41,11 +42,12 @@ class LibertineContainerManager(object):
             print("Invalid distro %s" % args.distro, file=sys.stderr)
             sys.exit(1)
 
-        if args.id and self.containers_config.container_exists(args.id):
-            print("Container id \'%s\' is already used." % args.id, file=sys.stderr)
+        if self.containers_config.container_exists(args.id):
+            print("Container id '%s' is already used." % args.id, file=sys.stderr)
             sys.exit(1)
-        elif not args.id:
-            args.id = get_unique_container_id(distro)
+        elif re.match("^[a-z0-9][a-z0-9+.-]+$", args.id) is None:
+            print("Container id '%s' invalid. ID must be of form ([a-z0-9][a-z0-9+.-]+)." % args.id, file=sys.stderr)
+            sys.exit(1)
 
         if not args.type:
             container_type = self.host_info.select_container_type_by_kernel()
@@ -323,7 +325,7 @@ if __name__ == '__main__':
     parser_create.add_argument(
         '-i', '--id',
         required=True,
-        help=("Container identifier. Required."))
+        help=("Container identifier of form ([a-z0-9][a-z0-9+.-]+). Required."))
     parser_create.add_argument(
         '-t', '--type',
         help=("Type of Libertine container to create. Either 'lxc' or 'chroot'."))
