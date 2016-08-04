@@ -79,16 +79,19 @@ def get_host_maliit_socket():
 
 
 def get_host_dbus_socket():
-    socket_key = "DBUS_SESSION_BUS_ADDRESS=unix:abstract="
+    host_dbus_socket = ''
 
     with open(os.path.join(libertine.utils.get_user_runtime_dir(), 'dbus-session'), 'r') as fd:
         dbus_session_str = fd.read()
 
     fd.close()
 
-    host_dbus_socket = dbus_session_str.partition(socket_key)[2]
-    host_dbus_socket = host_dbus_socket.rstrip('\n')
-    host_dbus_socket = "\0%s" % host_dbus_socket
+    dbus_session_split = dbus_session_str.rsplit('=', 1)
+    if len(dbus_session_split) > 1:
+        host_dbus_socket = dbus_session_split[1].rstrip('\n')
+        # We need to add a \0 to the start of an abstract socket path to connect to it
+        if dbus_session_str.find('abstract') >= 0:
+            host_dbus_socket = "\0%s" % host_dbus_socket
 
     return host_dbus_socket
 
