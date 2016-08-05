@@ -14,13 +14,18 @@
 
 from .AppDiscovery import AppLauncherCache
 from gi.repository import Libertine
+from multiprocessing import Process
+from socket import *
 import abc
 import contextlib
 import libertine.utils
 import os
 import psutil
+import select
 import shutil
 import shlex
+import signal
+import sys
 
 from libertine.ContainersConfig import ContainersConfig
 from libertine.HostInfo import HostInfo
@@ -435,17 +440,200 @@ class LibertineContainer(object):
             return handle_runtime_error(e)
 
 
+class Socket(object):
+    """
+    A simple socket wrapper class. This will wrap a socket
+    This is used for RAII and to take ownership of the socket
+
+    :param socket: A python socket to be wrapped
+    """
+    def __init__(self, sock):
+        if not isinstance(sock, socket):
+             raise TypeError("expected socket to be a python socket class instead found: '{}'".format(sock.__class__))
+
+        self.socket = sock
+
+    def __del__(self):
+        self.socket.shutdown(SHUT_RDWR)
+        self.socket.close()
+
+    """
+    Implement equality checking for other instances of this class or ints only.
+
+    :param other: Either a Socket class or an int
+    """
+    def __eq__(self, other):
+        if isinstance(other, Socket):
+            return self.socket == other.socket
+        elif isinstance(other, socket):
+            return self.socket == other
+        elif isinstance(other, int):
+            return self.socket.fileno() == other
+        else:
+             raise TypeError("unsupported operand type(s) for ==: '{}' and '{}'".format(self.__class__, type(other)))
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __hash__(self):
+        return self.socket.fileno()
+
+    def socket(self):
+        return self.socket
+
+class SessionSocket(Socket):
+    """
+    Creates a AF_UNIX socket from a path to be used as the session socket.
+
+    :param path: The path the socket will be binded with
+    """
+    def __init__(self, session_path):
+        try:
+            sock = socket(AF_UNIX, SOCK_STREAM)
+        except:
+            sock = None
+            raise
+        else:
+            try:
+                sock.bind(session_path)
+                sock.listen(5)
+            except:
+                sock.close()
+                sock = None
+                raise
+            else:
+                super().__init__(sock)
+                self.session_path = session_path
+
+    def __del__(self):
+        super().__del__()
+        os.remove(self.session_path)
+
+
+class HostSessionSocketPair():
+    def __init__(self, host_socket_path, session_socket_path):
+        self.host_socket_path    = host_socket_path
+        self.session_socket_path = session_socket_path
+
+
+class LibertineSessionBridge(object):
+    """
+    Creates a session bridge which will pair host and session sockets to proxy the info
+    from the session to the host and vice versa.
+
+    :param host_session_socket_paths: A list of pairs container valid sockets to proxy {host:session}
+    """
+    def __init__(self, host_session_socket_paths):
+        self.descriptors = []
+        self.host_session_socket_path_map = {}
+        self.socket_pairs = {}
+
+        for host_session_socket_pair in host_session_socket_paths:
+            host_path    = host_session_socket_pair.host_socket_path
+            session_path = host_session_socket_pair.session_socket_path
+
+            socket = SessionSocket(session_path)
+
+            self.descriptors.append(socket)
+            self.host_session_socket_path_map.update({socket:host_path})
+
+    """
+    If we end up going out of scope/error let's make sure we clean up sockets and paths.
+    """
+    def __del__(self):
+        del self.socket_pairs
+        del self.descriptors
+        del self.host_session_socket_path_map
+
+    """
+    When a new connection is made on one of the main sockets we have to create a new
+    socket pairing with the container socket.
+
+    :param host_path:      The raw path to the container socket
+    :param container_sock: The socket which received a new connection
+    """
+    def accept_new_connection(self, host_path, container_sock):
+        newconn = Socket(container_sock.accept()[0])
+        self.descriptors.append(newconn)
+
+        host_sock = Socket(socket(AF_UNIX, SOCK_STREAM))
+        host_sock.socket.connect(host_path)
+        self.descriptors.append(host_sock)
+
+        self.socket_pairs.update({newconn:host_sock})
+        self.socket_pairs.update({host_sock:newconn})
+
+    """
+    Cleans up a socket that has had its connection closed.
+
+    :param socket_to_remove: The socket that had its connection closed
+    """
+    def close_connections(self, socket_to_remove):
+        partner_socket = self.socket_pairs[socket_to_remove.fileno()]
+
+        self.socket_pairs.pop(socket_to_remove.fileno())
+        self.socket_pairs.pop(partner_socket.socket.fileno())
+
+        self.descriptors.remove(socket_to_remove)
+        self.descriptors.remove(partner_socket)
+
+        if socket_to_remove in self.host_session_socket_path_map:
+            self.host_session_socket_path_map.pop(socket_to_remove)
+
+    """
+    The main loop which uses select to block until one of the sockets we are listening to becomes readable.
+    It is advised this be started in its own process or thread, as this function blocks!
+    """
+    def main_loop(self):
+        while 1:
+            try:
+                raw_sockets = list(map(lambda x : x.socket, self.descriptors))
+                rlist, wlist, elist = select.select(raw_sockets, [], [])
+            except InterruptedError:
+                continue
+            except:
+                print("Unexpected error:", sys.exc_info()[0])
+                break
+
+            for sock in rlist:
+                if sock.fileno() == -1:
+                    continue
+
+                if sock.fileno() in self.host_session_socket_path_map:
+                    self.accept_new_connection(self.host_session_socket_path_map[sock.fileno()], sock)
+
+                else:
+                    data = sock.recv(4096)
+                    if len(data) == 0:
+                        self.close_connections(sock)
+                        continue
+
+                    send_sock = self.socket_pairs[sock.fileno()].socket
+
+                    if send_sock.fileno() < 0:
+                        continue
+
+                    totalsent = 0
+                    while totalsent < len(data):
+                        sent = send_sock.send(data)
+
+                        if sent == 0:
+                            close_connections(sock)
+                            break
+                        totalsent = totalsent + sent
+
+
 class LibertineApplication(object):
     """
     Launches a libertine container with a session bridge for sockets such as dbus
 
     :param container_id: The container id.
-    "param app_exec_line: The exec line used to start the app in the container.
+    :param app_exec_line: The exec line used to start the app in the container.
     """
     def __init__(self, container_id, app_exec_line):
-        self.container_id   = container_id
-        self.app_exec_line  = app_exec_line
-        self.session_bridge = None
+        self.container_id  = container_id
+        self.app_exec_line = app_exec_line
+        self.lsb           = None
 
     """
     Launches the libertine session bridge. This creates a proxy socket to read to and from
@@ -454,14 +642,9 @@ class LibertineApplication(object):
     :param session_socket_paths: A list of socket paths the session will create.
     """
     def launch_session_bridge(self, session_socket_paths):
-        session_bridge_arguments = ''
-        for paths in session_socket_paths:
-            session_bridge_arguments += paths + ' '
-
-        libertine_session_bridge_cmd = "libertine-session-bridge " + session_bridge_arguments
-
-        args = shlex.split(libertine_session_bridge_cmd)
-        self.session_bridge = psutil.Popen(args)
+        self.lsb        = LibertineSessionBridge(session_socket_paths)
+        self.lsb_process = Process(target=self.lsb.main_loop)
+        self.lsb_process.start()
 
     """
     Launches the container from the id and attempts to run the application exec.
@@ -477,5 +660,6 @@ class LibertineApplication(object):
         except:
             raise
         finally:
-            if self.session_bridge is not None:
-                self.session_bridge.terminate()
+            if self.lsb is not None:
+                self.lsb_process.terminate()
+                self.lsb_process.join()

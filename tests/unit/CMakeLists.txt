@@ -51,3 +51,19 @@ set_tests_properties(test_libertine_launch
                      PROPERTIES
                      ENVIRONMENT
                      "GI_TYPELIB_PATH=${CMAKE_BINARY_DIR}/liblibertine;LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/liblibertine:${LD_LIBRARY_PATH};CMAKE_BINARY_DIR=${CMAKE_BINARY_DIR};PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_SOURCE_DIR}/python;CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}")
+
+add_test(test_libertine_session_bridge
+  "/usr/bin/python3" "-m" "testtools.run" "libertine_session_bridge_tests"
+)
+set_tests_properties(test_libertine_session_bridge
+                     PROPERTIES
+                     ENVIRONMENT
+                     "GI_TYPELIB_PATH=${CMAKE_BINARY_DIR}/liblibertine;LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/liblibertine:${LD_LIBRARY_PATH};CMAKE_BINARY_DIR=${CMAKE_BINARY_DIR};PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_SOURCE_DIR}/python;CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}")
+
+add_test(test_libertine_socket
+  "/usr/bin/python3" "-m" "testtools.run" "libertine_socket_tests"
+)
+set_tests_properties(test_libertine_socket
+                     PROPERTIES
+                     ENVIRONMENT
+                     "GI_TYPELIB_PATH=${CMAKE_BINARY_DIR}/liblibertine;LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/liblibertine:${LD_LIBRARY_PATH};CMAKE_BINARY_DIR=${CMAKE_BINARY_DIR};PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_SOURCE_DIR}/python;CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}")

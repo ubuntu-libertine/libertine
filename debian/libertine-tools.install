@@ -1,5 +1,4 @@
 usr/bin/libertine-launch
-usr/bin/libertine-session-bridge
 usr/bin/libertine-container-manager
 usr/bin/libertine-xmir
 usr/share/bash-completion/completions/libertine-container-manager
