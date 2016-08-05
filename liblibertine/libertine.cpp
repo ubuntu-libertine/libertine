@@ -21,17 +21,19 @@
 #include "libertine/ContainerConfigList.h"
 #include "libertine/LibertineConfig.h"
 
+
 namespace
 {
 constexpr auto DESKTOP_EXTENSION   = ".desktop";
 constexpr auto GLOBAL_APPLICATIONS = "usr/share/applications";
 constexpr auto LOCAL_APPLICATIONS  = ".local/share/applications";
 
+
 GError*
 list_apps_from_path(gchar* path, const gchar* container_id, GArray* apps)
 {
   GError* error = nullptr;
-  GDir * dir = g_dir_open(path, 0, &error);
+  GDir* dir = g_dir_open(path, 0, &error);
   if (error != nullptr)
   {
     return error;
@@ -50,6 +52,14 @@ list_apps_from_path(gchar* path, const gchar* container_id, GArray* apps)
       g_array_append_val(apps, app_id);
       g_free(name);
     }
+    else if (g_file_test(file, G_FILE_TEST_IS_DIR))
+    {
+      error = list_apps_from_path(file, container_id, apps);
+      if (error != nullptr)
+      {
+        return error;
+      }
+    }
     g_free(file);
   }
 
@@ -57,6 +67,7 @@ list_apps_from_path(gchar* path, const gchar* container_id, GArray* apps)
   return nullptr;
 }
 }
+
 
 gchar**
 libertine_list_apps_for_container(const gchar* container_id)
@@ -92,6 +103,7 @@ libertine_list_apps_for_container(const gchar* container_id)
   return (gchar**)g_array_free(apps, FALSE);
 }
 
+
 gchar **
 libertine_list_containers(void)
 {
@@ -106,7 +118,7 @@ libertine_list_containers(void)
 
   for (i = 0; i < container_count; ++i)
   {
-    id = container_list.data(container_list.index(i, 0), (int)ContainerConfigList::DataRole::ContainerId); 
+    id = container_list.data(container_list.index(i, 0), (int)ContainerConfigList::DataRole::ContainerId);
     gchar * container_id = g_strdup((gchar *)id.toString().toStdString().c_str());
     g_array_append_val(containers, container_id);
   }

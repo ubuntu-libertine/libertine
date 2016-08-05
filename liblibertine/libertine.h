@@ -24,7 +24,7 @@ extern "C" {
 
 /**
  * libertine_list_containers:
- * 
+ *
  * Gets the list of existing containers for the user.
  *
  * Return value: (transfer full): A NULL terminated list of
@@ -68,7 +68,7 @@ gchar * libertine_container_name(const gchar * container_id);
 /**
  * libertine_list_apps_for_container:
  * @container_id: ID of the container
- * 
+ *
  * Gets the list of existing apps installed in a container.
  *
  * Return value: (transfer full): A NULL terminated list of
