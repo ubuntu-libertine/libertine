@@ -22,7 +22,6 @@ target_link_libraries(libertine-common
   ${GLIB2_LIBRARIES}
   ${PYTHON3_LIBRARIES}
   Qt5::Core
-  pam
 )
 
 set(liblibertine_headers_path "${CMAKE_INSTALL_FULL_INCLUDEDIR}/liblibertine")
