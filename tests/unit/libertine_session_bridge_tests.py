@@ -15,8 +15,9 @@
 import os
 import tempfile
 from socket import *
+import shutil
 
-from libertine import LibertineSessionBridge, HostSessionSocketPair, SessionSocket
+from libertine import LibertineSessionBridge, HostSessionSocketPair, SessionSocket, LibertineApplication
 from libertine import Socket
 from multiprocessing import Process
 
@@ -31,6 +32,8 @@ class TestLibertineSessionBridge(TestCase):
         super(TestLibertineSessionBridge, self).setUp()
 
         xdg_runtime_path = tempfile.mkdtemp()
+
+        self.addCleanup(self.cleanup)
 
         # Set necessary enviroment variables
         os.environ['XDG_RUNTIME_DIR'] = xdg_runtime_path
@@ -47,6 +50,8 @@ class TestLibertineSessionBridge(TestCase):
     is broken.
     """
     def cleanup(self):
+        self.host_socket = None
+
         self.assertFalse(os.path.exists(self.session_path))
         self.assertFalse(os.path.exists(self.host_path))
         shutil.rmtree(os.environ['XDG_RUNTIME_DIR'])

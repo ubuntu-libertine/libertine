@@ -14,7 +14,7 @@
 
 from .AppDiscovery import AppLauncherCache
 from gi.repository import Libertine
-from multiprocessing import Process
+from multiprocessing import Process, active_children
 from socket import *
 import abc
 import contextlib
@@ -26,6 +26,7 @@ import shutil
 import shlex
 import signal
 import sys
+import time
 
 from libertine.ContainersConfig import ContainersConfig
 from libertine.HostInfo import HostInfo
@@ -541,9 +542,9 @@ class LibertineSessionBridge(object):
     If we end up going out of scope/error let's make sure we clean up sockets and paths.
     """
     def __del__(self):
-        del self.socket_pairs
-        del self.descriptors
-        del self.host_session_socket_path_map
+        self.socket_pairs = None
+        self.descriptors  = None
+        self.host_session_socket_path_map = None
 
     """
     When a new connection is made on one of the main sockets we have to create a new
@@ -585,6 +586,9 @@ class LibertineSessionBridge(object):
     It is advised this be started in its own process or thread, as this function blocks!
     """
     def main_loop(self):
+        signal.signal(signal.SIGTERM, self.__del__)
+        signal.signal(signal.SIGINT,  self.__del__)
+
         while 1:
             try:
                 raw_sockets = list(map(lambda x : x.socket, self.descriptors))
@@ -592,7 +596,6 @@ class LibertineSessionBridge(object):
             except InterruptedError:
                 continue
             except:
-                print("Unexpected error:", sys.exc_info()[0])
                 break
 
             for sock in rlist:
@@ -603,10 +606,15 @@ class LibertineSessionBridge(object):
                     self.accept_new_connection(self.host_session_socket_path_map[sock.fileno()], sock)
 
                 else:
-                    data = sock.recv(4096)
-                    if len(data) == 0:
+                    try:
+                        data = sock.recv(4096)
+                    except:
                         self.close_connections(sock)
                         continue
+                    else:
+                        if len(data) == 0:
+                            self.close_connections(sock)
+                            continue
 
                     send_sock = self.socket_pairs[sock.fileno()].socket
 
@@ -631,9 +639,22 @@ class LibertineApplication(object):
     :param app_exec_line: The exec line used to start the app in the container.
     """
     def __init__(self, container_id, app_exec_line):
+        signal.signal(signal.SIGTERM, self.cleanup_lsb)
+        signal.signal(signal.SIGINT,  self.cleanup_lsb)
+
         self.container_id  = container_id
         self.app_exec_line = app_exec_line
         self.lsb           = None
+
+    def cleanup_lsb(self, signum, frame):
+        self.close_lsb()
+
+    def close_lsb(self):
+        if self.lsb is not None:
+            self.lsb_process.terminate()
+
+        while active_children():
+            time.sleep(1)
 
     """
     Launches the libertine session bridge. This creates a proxy socket to read to and from
@@ -642,7 +663,7 @@ class LibertineApplication(object):
     :param session_socket_paths: A list of socket paths the session will create.
     """
     def launch_session_bridge(self, session_socket_paths):
-        self.lsb        = LibertineSessionBridge(session_socket_paths)
+        self.lsb         = LibertineSessionBridge(session_socket_paths)
         self.lsb_process = Process(target=self.lsb.main_loop)
         self.lsb_process.start()
 
@@ -654,12 +675,9 @@ class LibertineApplication(object):
             raise RuntimeError("Container ID %s does not exist." % self.container_id)
 
         container = LibertineContainer(self.container_id)
-
         try:
             container.launch_application(self.app_exec_line)
         except:
             raise
         finally:
-            if self.lsb is not None:
-                self.lsb_process.terminate()
-                self.lsb_process.join()
+            self.close_lsb()
