@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Canonical Ltd.
+# Copyright (C) 2015-2016 Canonical Ltd.
 # Author: Christopher Townsend <christopher.townsend@canonical.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -106,8 +106,20 @@ def get_libertine_runtime_dir():
     return os.path.join(get_user_runtime_dir(), 'libertine')
 
 
-def get_common_xdg_directories():
-    return ['Documents', 'Music', 'Pictures', 'Videos', 'Downloads']
+def get_common_xdg_user_directories():
+    dirs = []
+    for dir in ['DOCUMENTS', 'MUSIC', 'PICTURES', 'VIDEOS', 'DOWNLOAD']:
+        xdg = subprocess.Popen(["xdg-user-dir", dir], stdout=subprocess.PIPE)
+        stdout, stderr = xdg.communicate()
+        dirs.append(stdout.decode('utf-8').strip())
+    names = []
+    for dir in dirs:
+        name = dir.split("/")[-1]
+        if name in names:
+            yield (dir, "%s (%i)" % (name, names.count(name)))
+        else:
+            yield (dir, name)
+        names.append(name)
 
 
 def create_libertine_user_data_dir(container_id):
@@ -121,10 +133,8 @@ def create_libertine_user_data_dir(container_id):
     if not os.path.exists(config_path):
         os.makedirs(config_path)
 
-    xdg_user_dirs = get_common_xdg_directories()
-
-    for xdg_dir in xdg_user_dirs:
-        xdg_path = os.path.join(user_data, xdg_dir)
+    for xdg_dir in get_common_xdg_user_directories():
+        xdg_path = os.path.join(user_data, xdg_dir[1])
 
         if not os.path.exists(xdg_path):
             os.makedirs(xdg_path)

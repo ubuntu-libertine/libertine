@@ -16,8 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import libertine.LxcContainer
 import libertine.utils
-import lxc
 import os
 import select
 import signal
@@ -45,23 +45,23 @@ def lxc_setup_pulse():
 
 
 def launch_lxc_container(container_id):
-    container = lxc.Container(container_id, libertine.utils.get_libertine_containers_dir_path())
-
+    container = libertine.LxcContainer.LibertineLXC(container_id)
     lxc_setup_pulse()
 
-    if not container.running:
-        if not container.start():
-            print("Container failed to start")
+    if not container.is_running():
+        try:
+            container.start_container(True)
+        except RuntimeError as e:
+            print("%s" % e)
             return False
 
     return True
 
 
 def stop_lxc_container(container_id):
-    container = lxc.Container(container_id, libertine.utils.get_libertine_containers_dir_path())
-
-    if container.running:
-        container.stop()
+    container = libertine.LxcContainer.LibertineLXC(container_id)
+    if container.is_running():
+        container.stop_container()
 
 
 def socket_cleanup(signum, frame):
@@ -84,7 +84,7 @@ def process_data(data):
        if app_counter[container_id] == 0:
            stop_lxc_container(container_id)
 
-    return 'OK' 
+    return 'OK'
 
 
 def main_loop():
@@ -133,4 +133,4 @@ if __name__ == '__main__':
 
     descriptors = [libertine_lxc_mgr_socket]
 
-    main_loop() 
+    main_loop()

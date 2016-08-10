@@ -1,4 +1,4 @@
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2016 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -93,12 +93,21 @@ class LibertineLXC(BaseContainer):
         else:
             return True
 
-    def start_container(self):
+    def _dynamic_bind_mounts(self):
+        for user_dir in utils.get_common_xdg_user_directories():
+            xdg_user_dir_entry = (
+                "%s %s/%s none bind,create=dir,optional"
+                % (user_dir[0], home_path.strip('/'), user_dir[1])
+            )
+            self.container.append_config_item("lxc.mount.entry", xdg_user_dir_entry)
+
+    def start_container(self, launchable = False):
         if not self.container.defined:
             raise RuntimeError("Container %s is not valid" % self.container_id)
 
         if not self.container.running:
             self._set_lxc_log()
+            self._dynamic_bind_mounts()
             if not self.container.start():
                 self._dump_lxc_log()
                 raise RuntimeError("Container failed to start")
@@ -110,10 +119,11 @@ class LibertineLXC(BaseContainer):
             self.stop_container()
             raise RuntimeError("Not able to connect to the network.")
 
-        if self.run_in_container("mountpoint -q /tmp/.X11-unix") == 0:
-            self.run_in_container("umount /tmp/.X11-unix")
-        if self.run_in_container("mountpoint -q /usr/lib/locale") == 0:
-            self.run_in_container("umount -l /usr/lib/locale")
+        if not launchable:
+            if self.run_in_container("mountpoint -q /tmp/.X11-unix") == 0:
+                self.run_in_container("umount /tmp/.X11-unix")
+            if self.run_in_container("mountpoint -q /usr/lib/locale") == 0:
+                self.run_in_container("umount -l /usr/lib/locale")
 
     def stop_container(self):
         self.container.stop()
@@ -221,15 +231,6 @@ class LibertineLXC(BaseContainer):
 
         # Bind mount the user's home directory
         self.container.append_config_item("lxc.mount.entry", home_entry)
-
-        xdg_user_dirs = utils.get_common_xdg_directories()
-
-        for user_dir in xdg_user_dirs:
-            xdg_user_dir_entry = (
-                "%s/%s %s/%s none bind,create=dir,optional"
-                % (home_path, user_dir, home_path.strip('/'), user_dir)
-            )
-            self.container.append_config_item("lxc.mount.entry", xdg_user_dir_entry)
 
         # Bind mount the user's dconf back end
         user_dconf_path = os.path.join(home_path, '.config', 'dconf')

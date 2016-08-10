@@ -1,4 +1,4 @@
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2016 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -175,10 +175,9 @@ class LibertineChroot(BaseContainer):
             % (utils.get_libertine_container_userdata_dir_path(self.container_id), home_path)
         )
 
-        xdg_user_dirs = utils.get_common_xdg_directories()
-        for user_dir in xdg_user_dirs:
-            user_dir_path = os.path.join(home_path, user_dir)
-            bind_mounts += " -b %s:%s" % (user_dir_path, user_dir_path)
+        for user_dir in utils.get_common_xdg_user_directories():
+            user_dir_path = os.path.join(home_path, user_dir[1])
+            bind_mounts += " -b %s:%s" % (user_dir[0], user_dir_path)
 
         proot_cmd += bind_mounts
 
