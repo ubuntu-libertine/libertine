@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
 import shlex
 import subprocess
@@ -24,6 +25,32 @@ import xdg.BaseDirectory as basedir
 from gi import require_version
 require_version('Libertine', '1')
 from gi.repository import Libertine
+
+def get_logger():
+    logger = logging.getLogger('__libertine_logger__')
+
+    # If someone else sets a handler before this, we wont run this!
+    if not logger.hasHandlers():
+        logger.setLevel(logging.DEBUG)
+        logger.disabled = True
+
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.DEBUG)
+
+        formatter = logging.Formatter('%(filename)s:'
+                                      '%(lineno)d: '
+                                      '%(levelname)s: '
+                                      '%(funcName)s():\t'
+                                      '%(message)s')
+
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
+
+    # Only enable the logger if we set this
+    if os.getenv('LIBERTINE_DEBUG') is '1':
+        logger.disabled = False
+
+    return logger
 
 
 def get_libertine_container_rootfs_path(container_id):

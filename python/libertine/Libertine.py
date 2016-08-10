@@ -593,9 +593,10 @@ class LibertineSessionBridge(object):
             try:
                 raw_sockets = list(map(lambda x : x.socket, self.descriptors))
                 rlist, wlist, elist = select.select(raw_sockets, [], [])
-            except InterruptedError:
+            except InterruptedError as e:
                 continue
-            except:
+            except Exception as e:
+                libertine.utils.get_logger().exception(e)
                 break
 
             for sock in rlist:
@@ -608,7 +609,8 @@ class LibertineSessionBridge(object):
                 else:
                     try:
                         data = sock.recv(4096)
-                    except:
+                    except Exception as e:
+                        libertine.utils.get_logger().exception(e)
                         self.close_connections(sock)
                         continue
                     else:
