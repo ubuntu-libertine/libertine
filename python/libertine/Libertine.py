@@ -586,9 +586,6 @@ class LibertineSessionBridge(object):
     It is advised this be started in its own process or thread, as this function blocks!
     """
     def main_loop(self):
-        signal.signal(signal.SIGTERM, self.__del__)
-        signal.signal(signal.SIGINT,  self.__del__)
-
         while 1:
             try:
                 raw_sockets = list(map(lambda x : x.socket, self.descriptors))
