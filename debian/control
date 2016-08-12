@@ -97,6 +97,7 @@ Depends: gir1.2-libertine,
          python3-gi,
          python3-psutil,
          python3-xdg,
+         xdg-user-dirs,
          ${misc:Depends},
          ${python3:Depends}
 Recommends: python3-libertine-lxc
