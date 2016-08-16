@@ -444,7 +444,6 @@ class LibertineContainer(object):
 class Socket(object):
     """
     A simple socket wrapper class. This will wrap a socket
-    This is used for RAII and to take ownership of the socket
 
     :param socket: A python socket to be wrapped
     """
@@ -453,10 +452,6 @@ class Socket(object):
              raise TypeError("expected socket to be a python socket class instead found: '{}'".format(sock.__class__))
 
         self.socket = sock
-
-    def __del__(self):
-        self.socket.shutdown(SHUT_RDWR)
-        self.socket.close()
 
     """
     Implement equality checking for other instances of this class or ints only.
@@ -485,6 +480,7 @@ class Socket(object):
 class SessionSocket(Socket):
     """
     Creates a AF_UNIX socket from a path to be used as the session socket.
+    This is used for RAII and to take ownership of the socket
 
     :param path: The path the socket will be binded with
     """
@@ -507,7 +503,8 @@ class SessionSocket(Socket):
                 self.session_path = session_path
 
     def __del__(self):
-        super().__del__()
+        self.socket.shutdown(SHUT_RDWR)
+        self.socket.close()
         os.remove(self.session_path)
 
 
@@ -598,6 +595,11 @@ class LibertineSessionBridge(object):
 
             for sock in rlist:
                 if sock.fileno() == -1:
+                    continue
+
+                # Its possible to have multiple socket reads that are pairs. If this happens and we remove a pair we
+                # need to ignore the other pair since it no longer has a complete pair
+                if sock.fileno() not in self.host_session_socket_path_map and sock.fileno() not in self.socket_pairs:
                     continue
 
                 if sock.fileno() in self.host_session_socket_path_map:
