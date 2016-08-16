@@ -61,7 +61,10 @@ class LibertineChroot(BaseContainer):
 
     def destroy_libertine_container(self):
         container_root = os.path.join(utils.get_libertine_containers_dir_path(), self.container_id)
-        shutil.rmtree(container_root)
+        try:
+            shutil.rmtree(container_root)
+        except Exception as e:
+            print("%s" % e)
 
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         # Create the actual chroot

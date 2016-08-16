@@ -27,11 +27,6 @@ ContainerArchivesList(ContainerConfigList* container_config_list,
 { }
 
 
-ContainerArchivesList::
-~ContainerArchivesList()
-{ }
-
-
 void ContainerArchivesList::
 setContainerArchives(QString const& container_id)
 {
@@ -44,12 +39,12 @@ setContainerArchives(QString const& container_id)
 
 bool ContainerArchivesList::
 empty() const noexcept
-{ return archives_->empty(); }
+{ return archives_ == nullptr || archives_->empty(); }
 
 
 ContainerArchivesList::size_type ContainerArchivesList::
 size() const noexcept
-{ return archives_->count(); }
+{ return archives_ != nullptr ? archives_->count() : 0; }
 
 
 int ContainerArchivesList::

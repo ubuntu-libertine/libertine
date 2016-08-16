@@ -55,8 +55,12 @@ Page {
         }
         model: containerConfigList
 
-        function edit(containerId) {
-            mainView.currentContainer = containerId
+        function edit(id, status) {
+            if (status === "removing") {
+                mainView.error(i18n.tr("Container Unavailable"), i18n.tr("Container is being destroyed and is no longer editable."))
+                return
+            }
+            mainView.currentContainer = id
             containerAppsList.setContainerApps(mainView.currentContainer)
             pageStack.push(Qt.resolvedUrl("HomeView.qml"), {"currentContainer": mainView.currentContainer})
         }
@@ -82,7 +86,7 @@ Page {
                 running: containerActivity.visible
             }
 
-            onClicked: { containersList.edit(containerId) }
+            onClicked: { containersList.edit(containerId, installStatus) }
 
             leadingActions: ListItemActions {
                 actions: [
@@ -92,8 +96,8 @@ Page {
                         description: i18n.tr("Delete Container")
                         onTriggered: {
                             var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
+                            worker.error.connect(mainView.error)
                             worker.destroyContainer(containerId)
-                            mainView.currentContainer = containerId
                         }
                     }
                 ]
@@ -117,7 +121,7 @@ Page {
                         visible: (installStatus === i18n.tr("ready") ||
                                   installStatus === i18n.tr("updating")) ? true : false
                         onTriggered: {
-                            containersList.edit(containerId)
+                            containersList.edit(containerId, installStatus)
                         }
                     }
                 ]
@@ -128,13 +132,19 @@ Page {
     Component.onCompleted: {
         containerConfigList.configChanged.connect(updateContainerList)
     }
-    
+
     Component.onDestruction: {
         containerConfigList.configChanged.disconnect(updateContainerList)
     }
 
     function updateContainerList() {
         containerConfigList.reloadContainerList()
+
+        if (mainView.currentContainer && !containerConfigList.getContainerStatus(mainView.currentContainer) && pageStack.currentPage !== containersView) {
+            pageStack.pop()
+            mainView.currentContainer = ""
+            mainView.error(i18n.tr("Container Unavailable"), i18n.tr("This container has been destroyed and is no longer valid. You have been returned to the containers overview."))
+        }
     }
 
     function showPasswordDialog(enableMultiarch, containerName) {

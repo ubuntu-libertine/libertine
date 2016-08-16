@@ -53,7 +53,8 @@ public:
   ContainerAppsList(ContainerConfigList* container_config_list,
                     QObject* parent = nullptr);
 
-  ~ContainerAppsList();
+  virtual
+  ~ContainerAppsList() = default;
 
   Q_INVOKABLE void
   setContainerApps(QString const& container_id);

@@ -27,11 +27,6 @@ ContainerAppsList(ContainerConfigList* container_config_list,
 { }
 
 
-ContainerAppsList::
-~ContainerAppsList()
-{ }
-
-
 void ContainerAppsList::
 setContainerApps(QString const& container_id)
 {
@@ -51,12 +46,12 @@ reloadAppsList()
 
 bool ContainerAppsList::
 empty() const noexcept
-{ return apps_->empty(); }
+{ return apps_ == nullptr || apps_->empty(); }
 
 
 ContainerAppsList::size_type ContainerAppsList::
 size() const noexcept
-{ return apps_->count(); }
+{ return apps_ != nullptr ? apps_->count() : 0;}
 
 
 int ContainerAppsList::

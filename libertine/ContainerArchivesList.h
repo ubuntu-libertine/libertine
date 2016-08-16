@@ -53,7 +53,8 @@ public:
   ContainerArchivesList(ContainerConfigList* container_config_list,
                         QObject* parent = nullptr);
 
-  ~ContainerArchivesList();
+  virtual
+  ~ContainerArchivesList() = default;
 
   Q_INVOKABLE void
   setContainerArchives(QString const& container_id);
