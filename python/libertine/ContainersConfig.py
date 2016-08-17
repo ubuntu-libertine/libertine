@@ -17,6 +17,7 @@ import json
 import libertine.utils
 import os
 import sys
+from hashlib import md5
 
 
 def read_container_config_file():
@@ -41,10 +42,21 @@ def write_container_config_file(container_list):
         fcntl.lockf(fd, fcntl.LOCK_UN)
 
 
+def container_config_hash():
+    checksum = md5()
+    container_config_file = libertine.utils.get_libertine_database_file_path()
+    if (os.path.exists(container_config_file) and os.path.getsize(container_config_file) != 0):
+        with open(container_config_file, "rb") as f:
+            for chunk in iter(lambda: f.read(128 * checksum.block_size), b""):
+                checksum.update(chunk)
+    return checksum.hexdigest()
+
+
 class ContainersConfig(object):
 
     def __init__(self):
-        self.container_list = read_container_config_file()
+        self.checksum = None
+        self.refresh_database()
 
         if "defaultContainer" in self.container_list:
             self.default_container_id = self.container_list['defaultContainer']
@@ -144,6 +156,12 @@ class ContainersConfig(object):
     """
     Miscellaneous ContainersConfig.json operations
     """
+    def refresh_database(self):
+        checksum = container_config_hash()
+        if checksum != self.checksum:
+            self.container_list = read_container_config_file()
+            self.checksum = checksum
+
     def _find_duplicate_container_entry(self, container_list, container_id):
         for container in container_list['containerList']:
             if container['id'] == container_id:
