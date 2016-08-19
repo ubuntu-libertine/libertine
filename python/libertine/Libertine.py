@@ -624,12 +624,17 @@ class LibertineSessionBridge(object):
 
                     totalsent = 0
                     while totalsent < len(data):
-                        sent = send_sock.send(data)
-
-                        if sent == 0:
-                            close_connections(sock)
+                        try:
+                            sent = send_sock.send(data)
+                        except BrokenPipeError as e:
+                            libertine.utils.get_logger().exception(e)
+                            self.close_connections(sock)
                             break
-                        totalsent = totalsent + sent
+                        else:
+                            if sent == 0:
+                                close_connections(sock)
+                                break
+                            totalsent = totalsent + sent
 
 
 class LibertineApplication(object):
