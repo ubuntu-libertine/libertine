@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Canonical Ltd.
+# Copyright (C) 2016 Canonical Ltd.
 # Author: Christopher Townsend <christopher.townsend@canonical.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -16,121 +16,118 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import dbus
+import dbus.service
 import libertine.LxcContainer
 import libertine.utils
 import os
-import select
-import signal
 import shlex
+import signal
 import subprocess
 
 from collections import Counter
-from socket import *
+from dbus.mainloop.glib import DBusGMainLoop
+from gi.repository import GLib
 
 
-def lxc_setup_pulse():
-    pulse_socket_path = os.path.join(libertine.utils.get_libertine_runtime_dir(), 'pulse_socket')
-
-    lsof_cmd = 'lsof -n %s' % pulse_socket_path
-    args = shlex.split(lsof_cmd)
-    lsof = subprocess.Popen(args, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
-    lsof.wait()
-
-    if not os.path.exists(pulse_socket_path) or lsof.returncode == 1:
-        pactl_cmd = (
-            'pactl load-module module-native-protocol-unix auth-anonymous=1 socket=%s'
-            % pulse_socket_path)
-        args = shlex.split(pactl_cmd)
-        subprocess.Popen(args).wait()
+LIBERTINE_LXC_MANAGER_NAME = "com.canonical.libertine.LxcManager"
+LIBERTINE_LXC_MANAGER_PATH = "/LxcManager"
 
 
-def launch_lxc_container(container_id):
-    container = libertine.LxcContainer.LibertineLXC(container_id)
-    lxc_setup_pulse()
+class Service(dbus.service.Object):
 
-    if not container.is_running():
+    def __init__(self):
+        self.is_pulse_setup = False
+        self.app_counter = Counter()
+
+        DBusGMainLoop(set_as_default=True)
         try:
-            container.start_container(True)
-        except RuntimeError as e:
-            print("%s" % e)
-            return False
+            bus_name = dbus.service.BusName(LIBERTINE_LXC_MANAGER_NAME,
+                                            bus=dbus.SessionBus(),
+                                            do_not_queue=True)
+        except dbus.exceptions.NameExistsException:
+            print("service is already running")
+            raise
+        super().__init__(bus_name, LIBERTINE_LXC_MANAGER_PATH)
 
-    return True
+    @dbus.service.method(LIBERTINE_LXC_MANAGER_NAME,
+                         in_signature='s',
+                         out_signature='b')
+    def app_start(self, container_id):
+        started = self._launch_lxc_container(container_id)
+
+        if started:
+            self.app_counter[container_id] += 1
+
+        return started
+
+    @dbus.service.method(LIBERTINE_LXC_MANAGER_NAME,
+                         in_signature='s')
+    def app_stop(self, container_id):
+        self.app_counter[container_id] -= 1
+
+        if self.app_counter[container_id] == 0:
+            self._stop_lxc_container(container_id)
+            del self.app_counter[container_id]
+
+    def _setup_pulse(self):
+        pulse_socket_path = os.path.join(libertine.utils.get_libertine_runtime_dir(), 'pulse_socket')
+
+        lsof_cmd = 'lsof -n %s' % pulse_socket_path
+        args = shlex.split(lsof_cmd)
+        lsof = subprocess.Popen(args, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+        lsof.wait()
+
+        if not os.path.exists(pulse_socket_path) or lsof.returncode == 1:
+            pactl_cmd = (
+                'pactl load-module module-native-protocol-unix auth-anonymous=1 socket=%s'
+                % pulse_socket_path)
+            args = shlex.split(pactl_cmd)
+            subprocess.Popen(args).wait()
+
+        self.is_pulse_setup = True
+
+    def _launch_lxc_container(self, container_id):
+        container = libertine.LxcContainer.LibertineLXC(container_id)
+
+        if not self.is_pulse_setup:
+            self._setup_pulse()
+
+        if not container.is_running():
+            try:
+                container.start_container(True)
+            except RuntimeError as e:
+                print("%s" % e)
+                return False
+
+        return True
+
+    def _stop_lxc_container(self, container_id):
+        container = libertine.LxcContainer.LibertineLXC(container_id)
+        if container.is_running():
+            container.stop_container()
 
 
-def stop_lxc_container(container_id):
-    container = libertine.LxcContainer.LibertineLXC(container_id)
-    if container.is_running():
-        container.stop_container()
+def sigterm(self):
+    shutdown()
 
 
-def socket_cleanup(signum, frame):
-    libertine_lxc_mgr_socket.close()
+def shutdown():
+    GLib.MainLoop().quit()
 
 
-def process_data(data):
-    msg = data.decode().split(' ')
-    op_code = msg[0]
-    container_id = msg[1]
+def main():
+    service = Service()
+    GLib.unix_signal_add(GLib.PRIORITY_HIGH,
+                         signal.SIGTERM,
+                         sigterm,
+                         None)
 
-    if op_code == 'start':
-        if not launch_lxc_container(container_id):
-            return 'FAILED'
-        app_counter[container_id] += 1
-
-    elif op_code == 'stop':
-       app_counter[container_id] -= 1
-
-       if app_counter[container_id] == 0:
-           stop_lxc_container(container_id)
-
-    return 'OK'
-
-
-def main_loop():
-    while 1:
-        try:
-            rlist, wlist, elist = select.select(descriptors, [], [])
-        except InterruptedError:
-            continue
-        except:
-            break
-
-        for sock in rlist:
-            if sock.fileno() == -1:
-                continue
-
-            if sock == libertine_lxc_mgr_socket:
-                sock_fd = libertine_lxc_mgr_socket.accept()[0]
-                descriptors.append(sock_fd)
-
-            else:
-                data = sock.recv(1024)
-
-                if len(data) == 0:
-                    descriptors.remove(sock)
-                    sock.shutdown(SHUT_RDWR)
-                    sock.close()
-                    continue
-
-
-                message = process_data(data)
-                sock.send(message.encode())
+    try:
+        GLib.MainLoop().run()
+    except KeyboardInterrupt:
+        shutdown()
 
 
 if __name__ == '__main__':
-    signal.signal(signal.SIGTERM, socket_cleanup)
-    signal.signal(signal.SIGINT, socket_cleanup)
-
-    if not os.path.exists(libertine.utils.get_libertine_runtime_dir()):
-        os.makedirs(libertine.utils.get_libertine_runtime_dir())
-
-    app_counter = Counter()
-
-    libertine_lxc_mgr_socket = socket(AF_UNIX, SOCK_STREAM)
-    libertine_lxc_mgr_socket.bind(libertine.utils.get_libertine_lxc_socket())
-    libertine_lxc_mgr_socket.listen(20)
-
-    descriptors = [libertine_lxc_mgr_socket]
-
-    main_loop()
+    main()

@@ -13,6 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import crypt
+import dbus
 import lxc
 import os
 import psutil
@@ -23,10 +24,12 @@ import tempfile
 
 from .Libertine import BaseContainer
 from . import utils
-from socket import *
 
 
 home_path = os.environ['HOME']
+
+LIBERTINE_LXC_MANAGER_NAME = "com.canonical.libertine.LxcManager"
+LIBERTINE_LXC_MANAGER_PATH = "/LxcManager"
 
 
 def check_lxc_net_entry(entry):
@@ -253,17 +256,11 @@ class LibertineLXC(BaseContainer):
         self.container.save_config()
 
     def launch_application(self, app_exec_line):
-        libertine_lxc_mgr_sock = socket(AF_UNIX, SOCK_STREAM)
-        libertine_lxc_mgr_sock.connect(utils.get_libertine_lxc_socket())
-
-        # Tell libertine-lxc-manager that we are starting a new app
-        message = "start " + self.container_id
-        libertine_lxc_mgr_sock.send(message.encode())
-
-        # Receive the reply from libertine-lxc-manager
-        data = libertine_lxc_mgr_sock.recv(1024)
-
-        if data.decode() == 'OK':
+        bus = dbus.SessionBus()
+        lxc_mgr_service = bus.get_object(LIBERTINE_LXC_MANAGER_NAME, LIBERTINE_LXC_MANAGER_PATH)
+        lxc_manager_interface = dbus.Interface(lxc_mgr_service, LIBERTINE_LXC_MANAGER_NAME)  
+        
+        if lxc_manager_interface.app_start(self.container_id):
             if not self.container.wait("RUNNING", 10):
                 print("Container failed to enter the RUNNING state")
                 return
@@ -290,12 +287,7 @@ class LibertineLXC(BaseContainer):
         utils.terminate_window_manager(psutil.Process(window_manager))
 
         # Tell libertine-lxc-manager that the app has stopped.
-        message = "stop " + self.container_id
-        libertine_lxc_mgr_sock.send(message.encode())
-
-        # Receive the reply from libertine-lxc-manager (ignore it for now).
-        data = libertine_lxc_mgr_sock.recv(1024)
-        libertine_lxc_mgr_sock.close()
+        lxc_manager_interface.app_stop(self.container_id)
 
     def _set_lxc_log(self):
         self.lxc_log_file = os.path.join(tempfile.mkdtemp(), 'lxc-start.log')
