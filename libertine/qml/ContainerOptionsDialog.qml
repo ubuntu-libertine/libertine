@@ -79,6 +79,7 @@ Dialog {
             width: (parent.width - parent.spacing) / 2
             onClicked: {
                 createContainer()
+                welcomeView.createInitialized()
                 PopupUtils.close(containerOptionsDialog)
             }
         }

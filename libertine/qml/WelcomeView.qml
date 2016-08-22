@@ -72,7 +72,7 @@ Page {
         }
     }
 
-    function showPasswordDialog(enableMultiarch, containerName) {
-        PopupUtils.open(Qt.resolvedUrl("ContainerPasswordDialog.qml"), null, {"enableMultiarch": enableMultiarch, "containerName": containerName})
+    function createInitialized() {
+        pageStack.push(Qt.resolvedUrl("ContainersView.qml"))
     }
 }

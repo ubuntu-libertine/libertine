@@ -506,6 +506,7 @@ void ContainerConfigList::
 load_config()
 {
   QFile config_file(config_->containers_config_file_name());
+  flock(config_file.handle(), LOCK_EX);
 
   if (config_file.exists())
   {
@@ -517,9 +518,7 @@ load_config()
     {
       QJsonParseError parse_error;
 
-      flock(config_file.handle(), LOCK_EX);
       QJsonDocument json = QJsonDocument::fromJson(config_file.readAll(), &parse_error);
-      flock(config_file.handle(), LOCK_UN);
 
       if (parse_error.error)
       {
@@ -543,4 +542,5 @@ load_config()
       }
     }
   }
+  flock(config_file.handle(), LOCK_UN);
 }

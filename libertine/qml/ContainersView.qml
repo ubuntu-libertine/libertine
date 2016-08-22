@@ -146,8 +146,4 @@ Page {
             mainView.error(i18n.tr("Container Unavailable"), i18n.tr("This container has been destroyed and is no longer valid. You have been returned to the containers overview."))
         }
     }
-
-    function showPasswordDialog(enableMultiarch, containerName) {
-        PopupUtils.open(Qt.resolvedUrl("ContainerPasswordDialog.qml"), null, {"enableMultiarch": enableMultiarch, "containerName": containerName})
-    }
 }

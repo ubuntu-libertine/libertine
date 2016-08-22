@@ -274,20 +274,21 @@ class LibertineContainerManager(object):
         self.containers_config.merge_container_config_files(args.file)
 
     def fix_integrity(self, args):
-        for container in self.containers_config.container_list['containerList']:
-            if 'installStatus' not in container or container['installStatus'] != 'ready':
-                self.destroy_container_by_id(container['id'])
-                continue
-            LibertineContainer(container['id']).exec_command('dpkg --configure -a')
+        if 'containerList' in self.containers_config.container_list:
+            for container in self.containers_config.container_list['containerList']:
+                if 'installStatus' not in container or container['installStatus'] != 'ready':
+                    self.destroy_container_by_id(container['id'])
+                    continue
+                LibertineContainer(container['id']).exec_command('dpkg --configure -a')
 
-            for package in container['installedApps']:
-                if package['appStatus'] != 'installed':
-                    self.remove_package_by_name(container['id'], package['packageName'])
+                for package in container['installedApps']:
+                    if package['appStatus'] != 'installed':
+                        self.remove_package_by_name(container['id'], package['packageName'])
 
-            if 'extraArchives' in container:
-                for archive in container['extraArchives']:
-                    if archive['archiveStatus'] != 'installed':
-                        self.delete_archive_by_name(container['id'], archive['archiveName'])
+                if 'extraArchives' in container:
+                    for archive in container['extraArchives']:
+                        if archive['archiveStatus'] != 'installed':
+                            self.delete_archive_by_name(container['id'], archive['archiveName'])
 
     def set_default(self, args):
         if args.clear:
