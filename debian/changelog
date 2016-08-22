@@ -1,8 +1,25 @@
-libertine (1.3.1-0ubuntu1) UNRELEASED; urgency=medium
+libertine (1.3.1+16.10.20160812.3-0ubuntu1) yakkety; urgency=medium
 
-  * Bump version to 1.3.1. 
+  [ Brandon Schaefer ]
+  * Update our dbus session socket path to allow for the new session bus
+    address while still supporting the older way.
 
- -- Chris Townsend <christopher.townsend@canonical.com>  Fri, 29 Jul 2016 15:07:07 -0400
+  [ Chris Townsend ]
+  * Fix crash where /run/user/$UID/dbus-session doesn't exist when the
+    update-puritine-containers click hook runs. (LP: #1606505)
+  * Only install the puritine click hook stuff in the python3-libertine-chroot
+    package since puritine is only a chroot and remove the unused puritine
+    framework.
+  * Bump version to 1.3.1.
+
+  [ Larry Price ]
+  * Enforce click requirements for container ID. (LP: #1607819)
+  * Extend desktop file search to recurse directories. (LP: #1608556)
+  * Remove unused dependency on pam. (LP: #1579821)
+  * Create bind-mount directories based on information from xdg-user-dir,
+    and only mount on container startup. (LP: #1610123)
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Fri, 12 Aug 2016 18:58:42 +0000
 
 libertine (1.3+16.10.20160722.1-0ubuntu1) yakkety; urgency=medium
 
