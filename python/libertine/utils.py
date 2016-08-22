@@ -140,10 +140,6 @@ def create_libertine_user_data_dir(container_id):
             os.makedirs(xdg_path)
 
 
-def get_libertine_lxc_socket():
-    return '\0libertine_lxc_socket'
-
-
 def get_libertine_lxc_pulse_socket_path():
     return os.path.join(get_libertine_runtime_dir(), 'pulse_socket')
 
