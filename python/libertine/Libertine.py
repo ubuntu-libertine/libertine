@@ -266,7 +266,7 @@ class LibertineContainer(object):
     A sandbox for DEB-packaged X11-based applications.
     """
 
-    def __init__(self, container_id):
+    def __init__(self, container_id, containers_config=None):
         """
         Initializes the container object.
 
@@ -274,7 +274,9 @@ class LibertineContainer(object):
         """
         super().__init__()
 
-        self.containers_config = ContainersConfig()
+        if containers_config is None:
+            containers_config = ContainersConfig()
+        self.containers_config = containers_config
 
         container_type = self.containers_config.get_container_type(container_id)
 
