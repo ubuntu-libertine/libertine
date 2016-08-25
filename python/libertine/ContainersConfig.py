@@ -18,6 +18,7 @@ import libertine.utils
 import os
 import sys
 from hashlib import md5
+from libertine.HostInfo import HostInfo
 
 
 def read_container_config_file():
@@ -261,7 +262,7 @@ class ContainersConfig(object):
         return self._test_key_value_exists(container_id, 'id')
 
     def update_container_multiarch_support(self, container_id, multiarch):
-        if multiarch == 'enabled' and libertine.utils.get_host_architecture() == 'i386':
+        if multiarch == 'enabled' and HostInfo().get_host_architecture() == 'i386':
             multiarch = 'disabled'
 
         self._set_value_by_key(container_id, 'multiarch', multiarch)
