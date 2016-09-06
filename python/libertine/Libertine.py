@@ -653,6 +653,7 @@ class LibertineApplication(object):
         self.container_id  = container_id
         self.app_exec_line = app_exec_line
         self.lsb           = None
+        self.pasted        = None
 
     def cleanup_lsb(self, signum, frame):
         self.close_lsb()
@@ -676,6 +677,13 @@ class LibertineApplication(object):
         self.lsb_process.start()
 
     """
+    Launches the pasted process for allowing copy and paste to work with X apps and
+    content-hub.
+    """
+    def launch_pasted(self):
+        self.pasted = psutil.Popen("pasted")
+
+    """
     Launches the container from the id and attempts to run the application exec.
     """
     def launch_application(self):
@@ -689,3 +697,6 @@ class LibertineApplication(object):
             raise
         finally:
             self.close_lsb()
+
+            if self.pasted is not None:
+                self.pasted.terminate()

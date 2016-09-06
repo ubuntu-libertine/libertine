@@ -151,4 +151,6 @@ if __name__ == '__main__':
     # should detect the maliit socket, but dont know if its around or not here.
     detect_session_bridge_socket(dbus_session_path)
 
+    la.launch_pasted()
+
     la.launch_application()

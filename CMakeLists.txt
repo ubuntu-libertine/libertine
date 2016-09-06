@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 cmake_policy(SET CMP0048 NEW)
 
 project(libertine 
-        VERSION 1.3.1
-        LANGUAGES CXX)
+        VERSION 1.4)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 
@@ -17,11 +16,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic")
 
 include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 
-find_package(Qt5Core  REQUIRED)
-find_package(Qt5Gui   REQUIRED)
-find_package(Qt5Quick REQUIRED)
-find_package(Gettext  REQUIRED)
-find_package(Intltool REQUIRED)
+find_package(Qt5Core      REQUIRED)
+find_package(Qt5Gui       REQUIRED)
+find_package(Qt5Quick     REQUIRED)
+find_package(Qt5Widgets   REQUIRED)
+find_package(Qt5X11Extras REQUIRED)
+find_package(Gettext      REQUIRED)
+find_package(Intltool     REQUIRED)
+find_package(X11          REQUIRED)
 
 pkg_check_modules(GLIB2 REQUIRED glib-2.0)
 include_directories(${GLIB2_INCLUDE_DIRS})
@@ -37,6 +39,7 @@ add_subdirectory(data)
 add_subdirectory(tools)
 add_subdirectory(liblibertine)
 add_subdirectory(po)
+add_subdirectory(pasted)
 
 include(CTest)
 add_subdirectory(tests)

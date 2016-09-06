@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: libertine\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2016-07-23 05:45+0000\n"
-"Last-Translator: CI Train Bot Account <Unknown>\n"
+"PO-Revision-Date: 2016-08-05 10:40+0000\n"
+"Last-Translator: Andi Chandler <Unknown>\n"
 "Language-Team: English (United Kingdom) <en_GB@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2016-07-24 05:39+0000\n"
-"X-Generator: Launchpad (build 18147)\n"
+"X-Launchpad-Export-Date: 2016-08-20 06:15+0000\n"
+"X-Generator: Launchpad (build 18176)\n"
 "Language: \n"
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
@@ -98,7 +98,7 @@ msgstr "Attempt to configure container %1 failed"
 
 #: ../libertine/ContainerManager.cpp:34
 msgid "Attempt to set container as default failed"
-msgstr ""
+msgstr "Attempt to set container as default failed"
 
 #: ../libertine/qml/PackageExistsDialog.qml:28
 msgid "The %1 package is already installed."
@@ -188,7 +188,7 @@ msgstr "Install status"
 #: ../libertine/qml/PackageInfoView.qml:85
 #: ../libertine/qml/ContainerInfoView.qml:97
 msgid "Operation details"
-msgstr ""
+msgstr "Operation details"
 
 #: ../libertine/qml/PackageInfoView.qml:159
 msgid "Unknown"
@@ -246,7 +246,7 @@ msgstr "Update container"
 
 #: ../libertine/qml/ManageContainer.qml:117
 msgid "Default container"
-msgstr ""
+msgstr "Default container"
 
 #: ../libertine/qml/DebianPackagePicker.qml:28
 msgid "Available Debian Packages to Install"
@@ -316,7 +316,7 @@ msgstr "No packages are installed"
 
 #: ../libertine/qml/ExtraArchivesView.qml:27
 msgid "Additional Archives"
-msgstr ""
+msgstr "Additional Archives"
 
 #: ../libertine/qml/ExtraArchivesView.qml:31
 msgid "add"
@@ -324,7 +324,7 @@ msgstr "add"
 
 #: ../libertine/qml/ExtraArchivesView.qml:32
 msgid "Add a new archive"
-msgstr ""
+msgstr "Add a new archive"
 
 #: ../libertine/qml/ExtraArchivesView.qml:75
 msgid "remove"
@@ -344,7 +344,7 @@ msgstr "Deleting archive failed"
 
 #: ../libertine/qml/GenericErrorDialog.qml:39
 msgid "Copy to Clipboard"
-msgstr ""
+msgstr "Copy to Clipboard"
 
 #: ../libertine/qml/GenericErrorDialog.qml:46
 msgid "Dismiss"
@@ -394,11 +394,11 @@ msgstr "Status"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:27
 msgid "Add Archive"
-msgstr ""
+msgstr "Add Archive"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:42
 msgid "New archive identifier, e.g."
-msgstr ""
+msgstr "New archive identifier, e.g."
 
 #: ../libertine/qml/AddExtraArchiveView.qml:50
 msgid ""
@@ -406,14 +406,17 @@ msgid ""
 "ppa:user/repository\n"
 "deb http://myserver/repo stable repo"
 msgstr ""
+"multiverse\n"
+"ppa:user/repository\n"
+"deb http://myserver/repo stable repo"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:73
 msgid "(Optional) Public signing key for archive"
-msgstr ""
+msgstr "(Optional) Public signing key for archive"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:90
 msgid "Add"
-msgstr ""
+msgstr "Add"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:27
 msgid "Container Options"
@@ -425,7 +428,7 @@ msgstr "Configure options for container creation."
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:49
 msgid "Enter a name for the container or leave blank for default name:"
-msgstr ""
+msgstr "Enter a name for the container or leave blank for default name:"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:55
 msgid "container name"
@@ -436,6 +439,8 @@ msgid ""
 "Enter password for your user in the Libertine container or leave blank for "
 "no password:"
 msgstr ""
+"Enter password for your user in the Libertine container or leave blank for "
+"no password:"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:69
 msgid "password"

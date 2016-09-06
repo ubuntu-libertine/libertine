@@ -1,3 +1,11 @@
+libertine (1.4+16.10.20160901.1-0ubuntu1) yakkety; urgency=medium
+
+  [ Chris Townsend ]
+  * Add a background process that allows copying & pasting between an X app,
+    another X app, and native Unity 8 apps. (LP: #1471998)
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Thu, 01 Sep 2016 20:06:21 +0000
+
 libertine (1.3.1+16.10.20160812.3-0ubuntu1) yakkety; urgency=medium
 
   [ Brandon Schaefer ]
