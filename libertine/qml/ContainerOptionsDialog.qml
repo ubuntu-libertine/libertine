@@ -27,6 +27,8 @@ Dialog {
     title: i18n.tr("Container Options")
     text: i18n.tr("Configure options for container creation.")
 
+    signal onCreateInitialized()
+
     Row {
         visible: containerConfigList.getHostArchitecture() == 'x86_64' ? true : false
         spacing: units.gu(1)
@@ -79,7 +81,7 @@ Dialog {
             width: (parent.width - parent.spacing) / 2
             onClicked: {
                 createContainer()
-                welcomeView.createInitialized()
+                onCreateInitialized()
                 PopupUtils.close(containerOptionsDialog)
             }
         }

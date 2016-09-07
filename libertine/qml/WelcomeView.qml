@@ -67,7 +67,8 @@ Page {
             color: UbuntuColors.green
 
             onClicked: {
-                PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
+                var dialog = PopupUtils.open(Qt.resolvedUrl("ContainerOptionsDialog.qml"))
+                dialog.onCreateInitialized.connect(createInitialized)
             }
         }
     }
