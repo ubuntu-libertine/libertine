@@ -12,6 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import contextlib
 import crypt
 import dbus
 import lxc
@@ -72,6 +73,31 @@ def get_host_timezone():
     return host_timezone
 
 
+class EnvLxcSettings(contextlib.ExitStack):
+    """
+    Helper object providing a way to set the proxies for testing
+
+    When running smoke tests on Jenkins, LXC create operations need the proxies
+    set, but subsequent apt operations cannot have the proxies set.  This will
+    set the proxies when called and unset the proxies when the context is
+    destroyed.
+    """
+    def __init__(self):
+        super().__init__()
+        self.set_proxy_env()
+        self.callback(lambda: self.del_proxy_env())
+
+    def set_proxy_env(self):
+        if 'LIBERTINE_JENKAAS_TESTING' in os.environ:
+            os.environ['http_proxy'] = 'http://squid.internal:3128'
+            os.environ['https_proxy'] = 'https://squid.internal:3128'
+
+    def del_proxy_env(self):
+        if 'LIBERTINE_JENKAAS_TESTING' in os.environ:
+            del os.environ['http_proxy']
+            del os.environ['https_proxy']
+
+            
 class LibertineLXC(BaseContainer):
     """
     A concrete container type implemented using an LXC container.
@@ -181,12 +207,13 @@ class LibertineLXC(BaseContainer):
 
         utils.create_libertine_user_data_dir(self.container_id)
 
-        if not self.container.create("download", 0,
-                                     {"dist": "ubuntu",
-                                      "release": self.installed_release,
-                                      "arch": self.architecture}):
-            print("Failed to create container")
-            return False
+        with EnvLxcSettings():
+            if not self.container.create("download", 0,
+                                         {"dist": "ubuntu",
+                                          "release": self.installed_release,
+                                          "arch": self.architecture}):
+                print("Failed to create container")
+                return False
 
         self.create_libertine_config()
 
