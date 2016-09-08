@@ -33,6 +33,23 @@
 namespace cuc = com::ubuntu::content;
 
 
+class XEventWorker
+: public QObject
+{
+  Q_OBJECT
+
+  public:
+    XEventWorker() = default;
+    virtual ~XEventWorker() = default;
+
+  signals:
+    void focusChanged();
+
+  public slots:
+    void checkForAppFocus();
+};
+
+
 class Pasted
 : public QApplication
 {
@@ -41,6 +58,9 @@ class Pasted
   public:
     Pasted(int argc, char** argv);
     virtual ~Pasted() = default;
+
+  public slots:
+    void appFocused();
 
   private:
     void updateLastMimeData(const QMimeData *source);
@@ -53,15 +73,12 @@ class Pasted
 
   private slots:
     void handleXClipboard();
-    void checkForAppFocus();
 
   private:
     QClipboard *clipboard_;
     cuc::Hub *content_hub_;
     QMimeData *mimeDataX_;
     std::unique_ptr<QMimeData> lastMimeData_;
-    bool rootWindowHasFocus_;
-    Window firstSeenWindow_;
     QString persistentSurfaceId_;
 };
 

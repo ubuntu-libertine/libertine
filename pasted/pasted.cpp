@@ -19,10 +19,100 @@
 
 #include "pasted.h"
 
+#include <QDBusInterface>
 #include <QDebug>
+#include <QThread>
 
-#include <QX11Info>
 #include <X11/Xatom.h>
+
+
+namespace
+{
+
+constexpr auto MIR_WM_PERSISTENT_ID = "_MIR_WM_PERSISTENT_ID";
+constexpr auto UNITY_FOCUSINFO_SERVICE = "com.canonical.Unity.FocusInfo";
+constexpr auto UNITY_FOCUSINFO_PATH = "/com/canonical/Unity/FocusInfo";
+constexpr auto UNITY_FOCUSINFO_INTERFACE = "com.canonical.Unity.FocusInfo";
+constexpr auto UNITY_FOCUSINFO_METHOD = "isSurfaceFocused";
+
+
+static QString getPersistentSurfaceId()
+{
+  Display *dpy  = XOpenDisplay(NULL);
+  Atom prop = XInternAtom(dpy, MIR_WM_PERSISTENT_ID, 0),
+       type; // unused
+  int form, // unused
+      status;
+  unsigned long remain, // unused
+                len;    // unused
+  unsigned char *data = nullptr;
+  QString persistentSurfaceId;
+
+  status = XGetWindowProperty(dpy, XDefaultRootWindow(dpy), prop, 0, 1024, 0,
+                              XA_STRING, &type, &form, &len, &remain, &data);
+
+  if (status)
+  {
+    qDebug() << "Failure retrieving the persistentSurfaceID!";
+  }
+  else
+  {
+    persistentSurfaceId = (const char *)data;
+  }
+
+  XCloseDisplay(dpy);
+  XFree(data);
+
+  return persistentSurfaceId;
+}
+
+} //anonymous namespace
+
+
+void XEventWorker::
+checkForAppFocus()
+{
+  bool hasFocus = false;
+  XEvent event;
+
+  QDBusInterface *unityFocus = new QDBusInterface(UNITY_FOCUSINFO_SERVICE,
+                                                  UNITY_FOCUSINFO_PATH,
+                                                  UNITY_FOCUSINFO_INTERFACE,
+                                                  QDBusConnection::sessionBus(),
+                                                  this);
+
+  QString surfaceId = getPersistentSurfaceId();
+
+  QDBusReply<bool> isFocused = unityFocus->call(UNITY_FOCUSINFO_METHOD, surfaceId);
+
+  if (isFocused == true)
+  {
+    focusChanged();
+    hasFocus = true;
+  }
+
+  Display *dpy = XOpenDisplay(NULL);
+  XSelectInput(dpy, XDefaultRootWindow(dpy), FocusChangeMask);
+  
+  while (1)
+  {
+    XNextEvent(dpy, &event);
+
+    isFocused = unityFocus->call(UNITY_FOCUSINFO_METHOD, surfaceId);
+
+    if (hasFocus == false && isFocused == true)
+    {
+      qDebug() << "Surface is focused";
+      focusChanged();
+      hasFocus = true;
+    }
+    else if (hasFocus == true && isFocused == false)
+    {
+      qDebug() << "Surface lost focus";
+      hasFocus = false;
+    }
+  }
+}
 
 
 Pasted::
@@ -32,14 +122,8 @@ Pasted(int argc, char** argv)
 , content_hub_(cuc::Hub::Client::instance())
 , mimeDataX_(new QMimeData)
 , lastMimeData_()
-, rootWindowHasFocus_(false)
-, firstSeenWindow_(None)
 {
   setApplicationName("pasted");
-
-  QTimer *timer = new QTimer(this);
-  connect(timer, &QTimer::timeout, this, &Pasted::checkForAppFocus);
-  timer->start(400);
 
   connect(clipboard_, &QClipboard::dataChanged, this, &Pasted::handleXClipboard);
 }
@@ -77,36 +161,6 @@ handleContentHubPasteboard()
     updateXMimeData(pasteboard);
 
     clipboard_->setMimeData(mimeDataX_);
-  }
-}
-
-
-void Pasted::
-checkForAppFocus()
-{
-  Window w;
-  int revert_to; // unused
-
-  XGetInputFocus(QX11Info::display(), &w, &revert_to);
-
-  if (firstSeenWindow_ == None && w != None)
-  {
-    firstSeenWindow_ = w;
-  }
-
-  if (w == None && rootWindowHasFocus_ == true)
-  {
-    qDebug() << "Xmir lost focus";
-    rootWindowHasFocus_ = false;
-  }
-  else if ((w == PointerRoot ||
-           (w && firstSeenWindow_ == PointerRoot))
-           && rootWindowHasFocus_ == false)
-  {
-    qDebug() << "Xmir gained focus";
-    rootWindowHasFocus_ = true;
-    setPersistentSurfaceId();
-    handleContentHubPasteboard();
   }
 }
 
@@ -180,26 +234,16 @@ setPersistentSurfaceId()
 {
   if (persistentSurfaceId_.isEmpty())
   {
-    Atom prop = XInternAtom(QX11Info::display(), "_MIR_WM_PERSISTENT_ID", 0),
-         type; // unused
-    int form, // unused
-        status;
-    unsigned long remain, // unused
-                  len;    // unused
-    unsigned char *data;
-    status = XGetWindowProperty(QX11Info::display(), XDefaultRootWindow(QX11Info::display()), prop,
-                                0, 1024, 0, XA_STRING, &type, &form, &len, &remain, &data);
-
-    if (status)
-    {
-      qDebug() << "Failure retrieving the persistentSurfaceID!";
-    }
-    else
-    {
-      qDebug() << "Setting persistentSurfaceId";
-      persistentSurfaceId_ = (const char *)data;
-    }
+    persistentSurfaceId_ = getPersistentSurfaceId();
   }
+}
+
+
+void Pasted::
+appFocused()
+{
+  setPersistentSurfaceId();
+  handleContentHubPasteboard();
 }
 
 
@@ -210,5 +254,15 @@ main(int argc, char* argv[])
 
   Pasted pasted(argc, argv);
 
-  pasted.exec();
+  QThread t;
+  XEventWorker worker;
+
+  worker.moveToThread(&t);
+
+  QObject::connect(&worker, &XEventWorker::focusChanged, &pasted, &Pasted::appFocused);
+  QObject::connect(&t, &QThread::started, &worker, &XEventWorker::checkForAppFocus);
+
+  t.start();
+  
+  return pasted.exec();
 }
