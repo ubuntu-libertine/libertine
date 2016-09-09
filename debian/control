@@ -34,7 +34,6 @@ Depends: libertine-tools,
          python3-libertine-lxc,
          qml-module-qtquick2,
          qtdeclarative5-ubuntu-ui-toolkit-plugin,
-         python3-dbus,
          ${misc:Depends},
          ${shlibs:Depends}
 Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
@@ -47,6 +46,7 @@ Architecture: any
 Depends: libglib2.0-bin,
          lsb-release,
          python3-apt,
+         python3-dbus,
          python3-distro-info,
          python3-libertine,
          ${misc:Depends},
