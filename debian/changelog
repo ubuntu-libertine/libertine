@@ -1,3 +1,11 @@
+libertine (1.4+16.10.20160908-0ubuntu1) yakkety; urgency=medium
+
+  [ Chris Townsend ]
+  * Fix pasted such that the 400 ms polling timer is replaced with a
+    threaded XNextEvent model. (LP: #1619742)
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Thu, 08 Sep 2016 19:54:48 +0000
+
 libertine (1.4+16.10.20160901.1-0ubuntu1) yakkety; urgency=medium
 
   [ Chris Townsend ]
