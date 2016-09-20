@@ -240,7 +240,7 @@ class LibertineLXC(BaseContainer):
         self.update_packages(verbosity)
 
         for package in self.default_packages:
-            if not self.install_package(package, verbosity):
+            if not self.install_package(package, verbosity, update_cache=False):
                 print("Failure installing %s during container creation" % package)
                 self.destroy_libertine_container()
                 return False

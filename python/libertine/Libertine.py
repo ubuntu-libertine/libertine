@@ -133,16 +133,24 @@ class BaseContainer(metaclass=abc.ABCMeta):
         """
         pass
 
+    def update_apt_cache(self, verbosity=1):
+        """
+        Updates the apt cache in the container.
+
+        :param verbosity: the chattiness of the output on a range from 0 to 2
+        """
+        return self.run_in_container(apt_command_prefix(verbosity) + 'update')
+
     def update_packages(self, verbosity=1):
         """
         Updates all packages installed in the container.
 
         :param verbosity: the chattiness of the output on a range from 0 to 2
         """
-        self.run_in_container(apt_command_prefix(verbosity) + '--force-yes update')
+        self.update_apt_cache(verbosity)
         return self.run_in_container(apt_command_prefix(verbosity) + '--force-yes dist-upgrade')
 
-    def install_package(self, package_name, verbosity=1, readline=False):
+    def install_package(self, package_name, verbosity=1, readline=False, update_cache=True):
         """
         Installs a named package in the container.
 
@@ -150,6 +158,9 @@ class BaseContainer(metaclass=abc.ABCMeta):
                              a full path to a Debian package on the host.
         :param verbosity: the chattiness of the output on a range from 0 to 2
         """
+        if update_cache:
+            self.update_apt_cache(verbosity)
+
         if package_name.endswith('.deb'):
             delete_package = self.copy_package_to_container(package_name)
 
@@ -178,7 +189,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         if should_enable:
             ret = self.run_in_container("dpkg --add-architecture i386")
             if ret or ret == 0:
-                self.run_in_container(apt_command_prefix(verbosity) + '--force-yes update')
+                self.update_apt_cache(verbosity)
             return ret
         else:
             self.run_in_container(apt_command_prefix(verbosity) + "purge \".*:i386\"")
@@ -193,10 +204,8 @@ class BaseContainer(metaclass=abc.ABCMeta):
         :param verbosity: the chattiness of the output on a range from 0 to 2
         """
         if not os.path.exists(os.path.join(self.root_path, 'usr', 'bin', 'add-apt-repository')):
-            self.update_packages(verbosity)
             self.install_package("software-properties-common", verbosity)
         if 'https://' in archive and not os.path.exists(os.path.join(self.root_path, 'usr', 'lib', 'apt', 'methods', 'https')):
-            self.update_packages(verbosity)
             self.install_package("apt-transport-https", verbosity)
 
         retcode = self.run_in_container("add-apt-repository -y " + archive)
@@ -332,13 +341,13 @@ class LibertineContainer(object):
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def install_package(self, package_name, verbosity=1, readline=False):
+    def install_package(self, package_name, verbosity=1, readline=False, update_cache=True):
         """
         Installs a package in the container.
         """
         try:
             with ContainerRunning(self.container):
-                return self.container.install_package(package_name, verbosity, readline)
+                return self.container.install_package(package_name, verbosity, readline, update_cache)
         except RuntimeError as e:
             return handle_runtime_error(e)
 

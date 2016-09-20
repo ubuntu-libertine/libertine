@@ -122,7 +122,7 @@ class LibertineChroot(BaseContainer):
         self.update_packages(verbosity)
 
         for package in self.default_packages:
-            if not self.install_package(package, verbosity):
+            if not self.install_package(package, verbosity, update_cache=False):
                 print("Failure installing %s during container creation" % package)
                 self.destroy_libertine_container()
                 return False
@@ -130,7 +130,7 @@ class LibertineChroot(BaseContainer):
         if self.installed_release == "vivid":
             if verbosity == 1:
                 print("Installing the Vivid Stable Overlay PPA...")
-            if not self.install_package("software-properties-common", verbosity):
+            if not self.install_package("software-properties-common", verbosity, update_cache=False):
                 print("Failure installing software-properties-common during container creation")
                 self.destroy_libertine_container()
                 return False
@@ -148,8 +148,8 @@ class LibertineChroot(BaseContainer):
         self._run_ldconfig(verbosity)
         return retcode
 
-    def install_package(self, package_name, verbosity=1, readline=False):
-        returncode = super().install_package(package_name, verbosity, readline)
+    def install_package(self, package_name, verbosity=1, readline=False, update_cache=True):
+        returncode = super().install_package(package_name, verbosity, readline, update_cache)
 
         if returncode:
             self._run_ldconfig(verbosity)
