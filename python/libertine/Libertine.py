@@ -67,7 +67,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         self.container_type = 'unknown'
         self.container_id = container_id
         self.root_path = libertine.utils.get_libertine_container_rootfs_path(self.container_id)
-        self.default_packages = ['matchbox',
+        self.default_packages = ['matchbox-window-manager',
                                  'libnss-extrausers',
                                  'humanity-icon-theme',
                                  'maliit-inputcontext-gtk2',
