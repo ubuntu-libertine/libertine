@@ -1,3 +1,34 @@
+libertine (1.4.1+16.10.20160914-0ubuntu1) yakkety; urgency=medium
+
+  [ Brandon Schaefer ]
+  * Refactor the libertine-session-bus to be a class, so we will be on the
+    same process and we can actually test LSB more then just running it and
+    checking exit code.
+  * Add a get_logger function to the libertine utils. This function will get
+    the logger __libertiner_logger__ which will only be setup once, with one
+    handler.
+
+  [ Chris Townsend ]
+  * Switch libertine-lxc-manager to be a DBus service and activate it on demand
+    via DBus. (LP: #1591350)
+  * Add check for special LIBERTINE_JENKAAS_TESTING environment variable for
+    the smoke testing harness.
+  * Bump version to 1.4.1.
+
+  [ Larry Price ]
+  * Return user to homepage when container has been destroyed from under them.
+    (LP: #1604015)
+  * Introduce a method in ContainersConfig to refresh the database depending 
+    on an md5 checksum.
+  * Creating the first container moves user to ContainersView screen.
+    (LP: #1615697)
+  * Inject a ContainersConfig instance when creating containers.
+  * Fix crash in ContainersConfig when getting host arch by using HostInfo
+    object.
+  * Create a signal to indicate that container creation has begun.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Wed, 14 Sep 2016 14:46:02 +0000
+
 libertine (1.4+16.10.20160908-0ubuntu1) yakkety; urgency=medium
 
   [ Chris Townsend ]
