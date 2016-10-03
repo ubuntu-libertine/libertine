@@ -96,18 +96,16 @@ Page {
     function deleteArchive(archive) {
         var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
         worker.finishedConfigure.connect(finishedConfigure)
-        worker.error.connect(sendDeleteError)
+        worker.error.connect(mainView.error)
         worker.configureContainer(currentContainer, containerConfigList.getContainerName(currentContainer), ["--archive", "remove", "--archive-name", "\"" + archive + "\""])
     }
 
     Component.onCompleted: {
         containerConfigList.configChanged.connect(reloadArchives)
-        error.connect(mainView.error)
     }
 
     Component.onDestruction: {
         containerConfigList.configChanged.disconnect(reloadArchives)
-        error.disconnect(mainView.error)
     }
 
     function reloadArchives() {
@@ -120,9 +118,5 @@ Page {
         if (extraArchiveView) {
             containerArchivesList.setContainerArchives(currentContainer)
         }
-    }
-
-    function sendDeleteError(desc, details) {
-        error(i18n.tr("Deleting archive failed"), details)
     }
 }

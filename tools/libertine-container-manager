@@ -209,7 +209,6 @@ class LibertineContainerManager(object):
             sys.exit(1)
 
     def delete_archive_by_name(self, container_id, archive_name, verbosity=1):
-        self.containers_config.update_archive_install_status(container_id, archive_name, 'removing')
         if self.containers_config.get_archive_install_status(container_id, archive_name) == 'installed':
             self.containers_config.update_archive_install_status(container_id, archive_name, 'removing')
             if LibertineContainer(container_id).configure_remove_archive("\"" + archive_name + "\"", verbosity) is not 0:
