@@ -148,8 +148,8 @@ class LibertineChroot(BaseContainer):
         self._run_ldconfig(verbosity)
         return retcode
 
-    def install_package(self, package_name, verbosity=1, readline=False, update_cache=True):
-        returncode = super().install_package(package_name, verbosity, readline, update_cache)
+    def install_package(self, package_name, verbosity=1, no_dialog=False, update_cache=True):
+        returncode = super().install_package(package_name, verbosity, no_dialog, update_cache)
 
         if returncode:
             self._run_ldconfig(verbosity)

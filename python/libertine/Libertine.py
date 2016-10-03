@@ -150,7 +150,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         self.update_apt_cache(verbosity)
         return self.run_in_container(apt_command_prefix(verbosity) + '--force-yes dist-upgrade')
 
-    def install_package(self, package_name, verbosity=1, readline=False, update_cache=True):
+    def install_package(self, package_name, verbosity=1, no_dialog=False, update_cache=True):
         """
         Installs a named package in the container.
 
@@ -175,8 +175,8 @@ class BaseContainer(metaclass=abc.ABCMeta):
 
             return ret
         else:
-            if readline:
-                os.environ['DEBIAN_FRONTEND'] = 'readline'
+            if no_dialog:
+                os.environ['DEBIAN_FRONTEND'] = 'teletype'
             return self.run_in_container(apt_command_prefix(verbosity) + " install '" + package_name + "'") == 0
 
     def configure_multiarch(self, should_enable, verbosity=1):
@@ -341,17 +341,17 @@ class LibertineContainer(object):
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def install_package(self, package_name, verbosity=1, readline=False, update_cache=True):
+    def install_package(self, package_name, verbosity=1, no_dialog=False, update_cache=True):
         """
         Installs a package in the container.
         """
         try:
             with ContainerRunning(self.container):
-                return self.container.install_package(package_name, verbosity, readline, update_cache)
+                return self.container.install_package(package_name, verbosity, no_dialog, update_cache)
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def remove_package(self, package_name, verbosity=1, readline=False):
+    def remove_package(self, package_name, verbosity=1, no_dialog=False):
         """
         Removes a package from the container.
 
@@ -360,8 +360,8 @@ class LibertineContainer(object):
         """
         try:
             with ContainerRunning(self.container):
-                if readline:
-                    os.environ['DEBIAN_FRONTEND'] = 'readline'
+                if no_dialog:
+                    os.environ['DEBIAN_FRONTEND'] = 'teletype'
 
                 if self.container.run_in_container(apt_command_prefix(verbosity) + " purge '" + package_name + "'") != 0:
                     return False

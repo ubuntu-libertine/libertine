@@ -136,7 +136,7 @@ class LibertineContainerManager(object):
         container = LibertineContainer(container_id)
 
         self.containers_config.update_package_install_status(container_id, package, "installing")
-        if not container.install_package(args.package, args.verbosity, args.readline):
+        if not container.install_package(args.package, args.verbosity, args.no_dialog):
             self.containers_config.delete_package(container_id, package)
             sys.exit(1)
 
@@ -144,12 +144,12 @@ class LibertineContainerManager(object):
 
         libertine.utils.refresh_libertine_scope()
 
-    def remove_package_by_name(self, container_id, package_name, verbosity=1, readline=False):
+    def remove_package_by_name(self, container_id, package_name, verbosity=1, no_dialog=False):
         fallback_status = self.containers_config.get_package_install_status(container_id, package_name)
         self.containers_config.update_package_install_status(container_id, package_name, "removing")
 
         container = LibertineContainer(container_id)
-        if not container.remove_package(package_name, verbosity, readline) and fallback_status == 'installed':
+        if not container.remove_package(package_name, verbosity, no_dialog) and fallback_status == 'installed':
             self.containers_config.update_package_install_status(container_id, package_name, fallback_status)
             return False
 
@@ -165,7 +165,7 @@ class LibertineContainerManager(object):
             print("Package \'%s\' is not installed." % args.package)
             sys.exit(1)
 
-        if not self.remove_package_by_name(container_id, args.package, args.verbosity, args.readline):
+        if not self.remove_package_by_name(container_id, args.package, args.verbosity, args.no_dialog):
             sys.exit(1)
 
         libertine.utils.refresh_libertine_scope()
@@ -370,8 +370,8 @@ if __name__ == '__main__':
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
     parser_install.add_argument(
-        '-r', '--readline', action='store_true',
-        help=("Readline mode. Use text-based frontend during debconf interactions."))
+        '-n', '--no-dialog', action='store_true',
+        help=("No dialog mode. Use text-based frontend during debconf interactions."))
     parser_install.set_defaults(func=container_manager.install_package)
 
     # Handle the remove-package command and its options
@@ -386,8 +386,8 @@ if __name__ == '__main__':
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
     parser_remove.add_argument(
-        '-r', '--readline', action='store_true',
-        help=("Readline mode. Use text-based frontend during debconf interactions."))
+        '-n', '--no-dialog', action='store_true',
+        help=("No dialog mode. Use text-based frontend during debconf interactions."))
     parser_remove.set_defaults(func=container_manager.remove_package)
 
     # Handle the search-cache command and its options

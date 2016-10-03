@@ -159,7 +159,7 @@ installPackage(const QString& container_id, const QString& package_name)
      emit operationFinished(container_id, package_name);
   });
 
-  process_.start(libertine_container_manager_tool, QStringList{"install-package", "-i", container_id, "-p", package_name, "-r"});
+  process_.start(libertine_container_manager_tool, QStringList{"install-package", "-i", container_id, "-p", package_name, "--no-dialog"});
 }
 
 
@@ -183,7 +183,7 @@ removePackage(const QString& container_id, const QString& package_name)
     emit operationFinished(container_id, package_name);
   });
 
-  process_.start(libertine_container_manager_tool, QStringList{"remove-package", "-i", container_id, "-p", package_name, "-r"});
+  process_.start(libertine_container_manager_tool, QStringList{"remove-package", "-i", container_id, "-p", package_name, "--no-dialog"});
 }
 
 

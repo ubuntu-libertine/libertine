@@ -24,10 +24,10 @@ _libertine-container-manager()
     if [[ ${cur} == -* ]]; then
       case "${cmd}" in
       "install-package" )
-        opts="--help --id --package --readline"
+        opts="--help --id --package --no-dialog"
         ;;
       "remove-package" )
-        opts="--help --id --package --readline"
+        opts="--help --id --package --no-dialog"
         ;;
       "create" )
         opts="--help --id --type --distro --name --force --multiarch --password"
