@@ -84,7 +84,7 @@ find_main_qml_source_file()
  * environment variables, and configurations files and displays the GUI.
  */
 Libertine::
-Libertine(int argc, char* argv[])
+Libertine(int& argc, char** argv)
 : QGuiApplication(argc, argv)
 , main_qml_source_file_(find_main_qml_source_file())
 {

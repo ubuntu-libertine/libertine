@@ -38,7 +38,7 @@ class Libertine
   Q_OBJECT
 
 public:
-    Libertine(int argc, char* argv[]);
+    Libertine(int& argc, char** argv);
     ~Libertine();
 
 private:
