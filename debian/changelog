@@ -1,3 +1,19 @@
+libertine (1.4.2+16.10.20161003-0ubuntu1) yakkety; urgency=medium
+
+  [ Chris Townsend ]
+  * Add a new update_apt_cache method and call that when needed, especially
+    when installing new packages. (LP: #1625627)
+  * Install matchbox-window-manager instead of the matchbox metapackage in
+    a container. (LP: #1628563)
+
+  [ Larry Price ]
+  * Remove bad status update preventing archive removal from container.
+  * Make debconf interactions work correctly from GUI. (LP: #1627757)
+  * Fix crash on start in Unity 7 when launching from the dash.
+    (LP: #1620016)
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Mon, 03 Oct 2016 19:50:24 +0000
+
 libertine (1.4.1+16.10.20160914-0ubuntu1) yakkety; urgency=medium
 
   [ Brandon Schaefer ]
