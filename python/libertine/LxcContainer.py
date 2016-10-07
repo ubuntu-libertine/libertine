@@ -56,6 +56,14 @@ def get_lxc_default_config_path():
     return os.path.join(home_path, '.config', 'lxc')
 
 
+def get_lxc_manager_dbus_name():
+    return LIBERTINE_LXC_MANAGER_NAME
+
+
+def get_lxc_manager_dbus_path():
+    return LIBERTINE_LXC_MANAGER_PATH
+
+
 def lxc_container(container_id):
     config_path = utils.get_libertine_containers_dir_path()
     if not os.path.exists(config_path):
@@ -64,6 +72,28 @@ def lxc_container(container_id):
     container = lxc.Container(container_id, config_path)
 
     return container
+
+
+def lxc_start(container, lxc_log_file):
+    container.append_config_item("lxc.logfile", lxc_log_file)
+    container.append_config_item("lxc.logpriority", "3")
+
+    if not container.start():
+        return (False, "Container failed to start")
+
+    if not container.wait("RUNNING", 10):
+        return (False, "Container failed to enter the RUNNING state")
+
+    if not container.get_ips(timeout=30):
+        lxc_stop(container)
+        return (False, "Not able to connect to the network.")
+
+    return (True, "")
+
+
+def lxc_stop(container):
+    if container.running:
+        container.stop()
 
 
 def get_host_timezone():
@@ -107,6 +137,17 @@ class LibertineLXC(BaseContainer):
         super().__init__(container_id)
         self.container_type = "lxc"
         self.container = lxc_container(container_id)
+        self._set_lxc_log()
+        self.lxc_manager_interface = None
+
+        utils.set_session_dbus_env_var()
+
+        try:
+            bus = dbus.SessionBus()
+            lxc_mgr_service = bus.get_object(get_lxc_manager_dbus_name(), get_lxc_manager_dbus_path())
+            self.lxc_manager_interface = dbus.Interface(lxc_mgr_service, get_lxc_manager_dbus_name())
+        except dbus.exceptions.DBusException:
+            pass
 
     def is_running(self):
         return self.container.running
@@ -122,40 +163,26 @@ class LibertineLXC(BaseContainer):
         else:
             return True
 
-    def _dynamic_bind_mounts(self):
-        for user_dir in utils.get_common_xdg_user_directories():
-            xdg_user_dir_entry = (
-                "%s %s/%s none bind,create=dir,optional"
-                % (user_dir[0], home_path.strip('/'), user_dir[1])
-            )
-            self.container.append_config_item("lxc.mount.entry", xdg_user_dir_entry)
+    def start_container(self):
+        if self.lxc_manager_interface:
+            (result, error) = self.lxc_manager_interface.operation_start(self.container_id, self.lxc_log_file)  
+        else:
+            (result, error) = lxc_start(self.container, self.lxc_log_file)
 
-    def start_container(self, launchable = False):
-        if not self.container.defined:
-            raise RuntimeError("Container %s is not valid" % self.container_id)
+        if not result:
+            self._dump_lxc_log()
+            raise RuntimeError(error)
 
-        if not self.container.running:
-            self._set_lxc_log()
-            self._dynamic_bind_mounts()
-            if not self.container.start():
-                self._dump_lxc_log()
-                raise RuntimeError("Container failed to start")
-            if not self.container.wait("RUNNING", 10):
-                self._dump_lxc_log()
-                raise RuntimeError("Container failed to enter the RUNNING state")
-
-        if not self.container.get_ips(timeout=30):
-            self.stop_container()
-            raise RuntimeError("Not able to connect to the network.")
-
-        if not launchable:
-            if self.run_in_container("mountpoint -q /tmp/.X11-unix") == 0:
-                self.run_in_container("umount /tmp/.X11-unix")
-            if self.run_in_container("mountpoint -q /usr/lib/locale") == 0:
-                self.run_in_container("umount -l /usr/lib/locale")
+        if self.run_in_container("mountpoint -q /tmp/.X11-unix") == 0:
+            self.run_in_container("umount /tmp/.X11-unix")
+        if self.run_in_container("mountpoint -q /usr/lib/locale") == 0:
+            self.run_in_container("umount -l /usr/lib/locale")
 
     def stop_container(self):
-        self.container.stop()
+        if self.lxc_manager_interface:
+            self.lxc_manager_interface.operation_stop(self.container_id)
+        else:
+            lxc_stop(self.container)
 
     def run_in_container(self, command_string):
         cmd_args = shlex.split(command_string)
@@ -283,21 +310,15 @@ class LibertineLXC(BaseContainer):
         self.container.save_config()
 
     def launch_application(self, app_exec_line):
-        bus = dbus.SessionBus()
-        lxc_mgr_service = bus.get_object(LIBERTINE_LXC_MANAGER_NAME, LIBERTINE_LXC_MANAGER_PATH)
-        lxc_manager_interface = dbus.Interface(lxc_mgr_service, LIBERTINE_LXC_MANAGER_NAME)  
-        
-        if lxc_manager_interface.app_start(self.container_id):
-            if not self.container.wait("RUNNING", 10):
-                print("Container failed to enter the RUNNING state")
-                return
+        if self.lxc_manager_interface == None:
+            print("No interface to libertine-lxc-manager.  Failing application launch.")
+            return
 
-            if not self.container.get_ips(timeout=30):
-                print("Not able to connect to the network.")
-                return
+        (result, error) = self.lxc_manager_interface.app_start(self.container_id, self.lxc_log_file)
 
-        else:
-            print("Failure detected from libertine-lxc-manager")
+        if not result:
+            self._dump_lxc_log()
+            print("%s" % error)
             return
 
         window_manager = self.container.attach(lxc.attach_run_command,
@@ -314,17 +335,16 @@ class LibertineLXC(BaseContainer):
         utils.terminate_window_manager(psutil.Process(window_manager))
 
         # Tell libertine-lxc-manager that the app has stopped.
-        lxc_manager_interface.app_stop(self.container_id)
+        self.lxc_manager_interface.app_stop(self.container_id)
 
     def _set_lxc_log(self):
         self.lxc_log_file = os.path.join(tempfile.mkdtemp(), 'lxc-start.log')
-        self.container.append_config_item("lxc.logfile", self.lxc_log_file)
-        self.container.append_config_item("lxc.logpriority", "3")
 
     def _dump_lxc_log(self):
-        try:
-            with open(self.lxc_log_file, 'r') as fd:
-                for line in fd:
-                    print(line.lstrip())
-        except Exception as ex:
-            print("Could not open LXC log file: %s" % ex, file=sys.stderr)
+        if os.path.exists(self.lxc_log_file):
+            try:
+                with open(self.lxc_log_file, 'r') as fd:
+                    for line in fd:
+                        print(line.lstrip())
+            except Exception as ex:
+                print("Could not open LXC log file: %s" % ex, file=sys.stderr)

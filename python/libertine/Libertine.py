@@ -265,9 +265,8 @@ class ContainerRunning(contextlib.ExitStack):
     """
     def __init__(self, container):
         super().__init__()
-        if not container.is_running():
-            container.start_container()
-            self.callback(lambda: container.stop_container())
+        container.start_container()
+        self.callback(lambda: container.stop_container())
 
 
 class LibertineContainer(object):

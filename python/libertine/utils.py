@@ -173,3 +173,20 @@ def refresh_libertine_scope():
                  (scopes_object_path, invalidate_signal, libertine_scope_id))
 
     subprocess.Popen(shlex.split(gdbus_cmd), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def set_session_dbus_env_var():
+    if not 'DBUS_SESSION_BUS_ADDRESS' in os.environ:
+        dbus_session_path = os.path.join('/', 'run', 'user', str(os.getuid()), 'dbus-session')
+
+        if os.path.exists(dbus_session_path):
+            with open(dbus_session_path, 'r') as fd:
+                dbus_session_str = fd.read()
+
+                os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session_str.partition('DBUS_SESSION_BUS_ADDRESS=')[2].rstrip('\n')
+
+                return True
+        else:
+            return False
+
+    return True

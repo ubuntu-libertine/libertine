@@ -30,8 +30,10 @@ from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 
 
-LIBERTINE_LXC_MANAGER_NAME = "com.canonical.libertine.LxcManager"
-LIBERTINE_LXC_MANAGER_PATH = "/LxcManager"
+home_path = os.environ['HOME']
+
+LIBERTINE_LXC_MANAGER_NAME = libertine.LxcContainer.get_lxc_manager_dbus_name()
+LIBERTINE_LXC_MANAGER_PATH = libertine.LxcContainer.get_lxc_manager_dbus_path()
 
 
 class Service(dbus.service.Object):
@@ -39,6 +41,7 @@ class Service(dbus.service.Object):
     def __init__(self):
         self.is_pulse_setup = False
         self.app_counter = Counter()
+        self.operation_running = {}
 
         DBusGMainLoop(set_as_default=True)
         try:
@@ -51,15 +54,18 @@ class Service(dbus.service.Object):
         super().__init__(bus_name, LIBERTINE_LXC_MANAGER_PATH)
 
     @dbus.service.method(LIBERTINE_LXC_MANAGER_NAME,
-                         in_signature='s',
-                         out_signature='b')
-    def app_start(self, container_id):
-        started = self._launch_lxc_container(container_id)
+                         in_signature='ss',
+                         out_signature='(bs)')
+    def app_start(self, container_id, lxc_logfile):
+        if container_id in self.operation_running and self.operation_running[container_id]:
+            return (False, "Libertine container operation already running: cannot launch application.")
+
+        (started, reason) = self._launch_lxc_container(container_id, lxc_logfile)
 
         if started:
             self.app_counter[container_id] += 1
 
-        return started
+        return (started, reason)
 
     @dbus.service.method(LIBERTINE_LXC_MANAGER_NAME,
                          in_signature='s')
@@ -69,6 +75,26 @@ class Service(dbus.service.Object):
         if self.app_counter[container_id] == 0:
             self._stop_lxc_container(container_id)
             del self.app_counter[container_id]
+
+    @dbus.service.method(LIBERTINE_LXC_MANAGER_NAME,
+                         in_signature='ss',
+                         out_signature='(bs)')
+    def operation_start(self, container_id, lxc_log_file):
+        if self.app_counter[container_id] != 0:
+            return (False, "Application already running in container: cannot run operation.")
+
+        (started, reason) = self._launch_lxc_container(container_id, lxc_log_file, launchable=False)
+
+        if started:
+            self.operation_running[container_id] = True
+
+        return (started, reason)
+
+    @dbus.service.method(LIBERTINE_LXC_MANAGER_NAME,
+                         in_signature='s')
+    def operation_stop(self, container_id):
+        self._stop_lxc_container(container_id)
+        del self.operation_running[container_id] 
 
     def _setup_pulse(self):
         pulse_socket_path = os.path.join(libertine.utils.get_libertine_runtime_dir(), 'pulse_socket')
@@ -87,25 +113,36 @@ class Service(dbus.service.Object):
 
         self.is_pulse_setup = True
 
-    def _launch_lxc_container(self, container_id):
-        container = libertine.LxcContainer.LibertineLXC(container_id)
+    def _launch_lxc_container(self, container_id, lxc_log_file, launchable=True):
+        container = libertine.LxcContainer.lxc_container(container_id)
 
-        if not self.is_pulse_setup:
+        if not container.defined:
+            return (False, "Container {} is not valid".format(container_id))
+
+        if launchable and not self.is_pulse_setup:
             self._setup_pulse()
 
-        if not container.is_running():
-            try:
-                container.start_container(True)
-            except RuntimeError as e:
-                print("%s" % e)
-                return False
+        if not container.running:
+            if launchable:
+                self._dynamic_bind_mounts(container)
 
-        return True
+            return libertine.LxcContainer.lxc_start(container, lxc_log_file)
+
+        return (True, "")
 
     def _stop_lxc_container(self, container_id):
-        container = libertine.LxcContainer.LibertineLXC(container_id)
-        if container.is_running():
-            container.stop_container()
+        container = libertine.LxcContainer.lxc_container(container_id)
+
+        libertine.LxcContainer.lxc_stop(container)
+
+
+    def _dynamic_bind_mounts(self, container):
+        for user_dir in libertine.utils.get_common_xdg_user_directories():
+            xdg_user_dir_entry = (
+                "%s %s/%s none bind,create=dir,optional"
+                % (user_dir[0], home_path.strip('/'), user_dir[1])
+            )
+            container.append_config_item("lxc.mount.entry", xdg_user_dir_entry)
 
 
 def sigterm(self):
