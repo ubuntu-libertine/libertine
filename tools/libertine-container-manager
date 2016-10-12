@@ -239,6 +239,10 @@ class LibertineContainerManager(object):
             self.containers_config.update_container_multiarch_support(container_id, multiarch)
 
         elif args.archive is not None:
+            if args.archive_name is None:
+                print("Configure archive called with no archive name. See configure --help for usage.")
+                sys.exit(1)
+
             archive_name = args.archive_name.strip("\'\"")
             archive_name_esc = "\"" + archive_name + "\""
 
