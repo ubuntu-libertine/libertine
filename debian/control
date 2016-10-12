@@ -13,9 +13,12 @@ Build-Depends: click-dev,
                libgirepository1.0-dev,
                libglib2.0-dev,
                libgtest-dev,
+               libsystemsettings-dev,
                libx11-dev,
                lsb-release,
+               pkg-config,
                python3-apt,
+               python3-dbus,
                python3-dev,
                python3-distro-info,
                python3-gi,
@@ -23,23 +26,61 @@ Build-Depends: click-dev,
                python3-psutil,
                python3-testtools,
                python3-xdg,
-               python3-dbus,
                qtdeclarative5-dev
-Standards-Version: 3.9.6
+Standards-Version: 3.9.8
 Homepage: https://launchpad.net/libertine
 
-Package: libertine
+Package: libertine-manager-app
 Architecture: any
-Depends: libertine-tools,
+Replaces: libertine (<< 1.4.2-1~)
+Breaks: libertine (<< 1.4.2-1~)
+Depends: libertine-qt-common,
+         libertine-tools,
          python3-libertine-lxc,
          qml-module-qtquick2,
          qtdeclarative5-ubuntu-ui-toolkit-plugin,
          ${misc:Depends},
          ${shlibs:Depends}
 Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
- Provides a container and releated tools to be able to create, maintain, and
+ Provides a container and related tools to be able to create, maintain, and
  integrate legacy deb-packaged applications generally based around the X11
- display manager on a Ubuntu "Snappy Personal" system.
+ display manager on an Ubuntu "Snappy Personal" system.
+
+Package: libertine
+Depends: libertine-manager-app,
+         ${misc:Depends}
+Architecture: all
+Priority: extra
+Section: oldlibs
+Description: transitional dummy package for libertine-manager-app
+ This is a transitional package to rename libertine as libertine-manager-app.
+ It can safely be removed.
+
+Package: ubuntu-system-settings-libertine
+Architecture: any
+Depends: libertine-qt-common,
+         libertine-tools,
+         python3-libertine-lxc,
+         qml-module-qtquick2,
+         qtdeclarative5-ubuntu-ui-toolkit-plugin,
+         ${misc:Depends},
+         ${shlibs:Depends}
+Enhances: ubuntu-system-settings
+Description: system settings plugin for managing container-based applications
+ System Settings graphical interface to assist in the maintenance of legacy
+ deb-packaged applications generally based around the X11 display manager on
+ an Ubuntu "Snappy Personal" system.
+
+Package: libertine-qt-common
+Architecture: any
+Depends: qml-module-qtquick2,
+         qtdeclarative5-ubuntu-ui-toolkit-plugin,
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: common files for qt-based libertine applications
+ Common QML source files and translations for managing libertine containers
+ and packages used in the standalone libertine application and system settings
+ plugin.
 
 Package: libertine-tools
 Architecture: any

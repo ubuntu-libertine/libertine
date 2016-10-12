@@ -1,0 +1,4 @@
+usr/bin/libertine-manager-app
+usr/share/applications/libertine-manager-app.desktop
+usr/share/libertine/libertine_64.png
+usr/share/libertine/qml/gui/*

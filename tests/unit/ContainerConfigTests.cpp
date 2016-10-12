@@ -19,7 +19,7 @@
  */
 #include <gtest/gtest.h>
 
-#include "libertine/ContainerConfig.h"
+#include "common/ContainerConfig.h"
 #include <QtCore/QByteArray>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonParseError>

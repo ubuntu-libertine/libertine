@@ -1,11 +1,5 @@
-/**
- * @file config.h.in
- * @brief Libertine app configuraiton file.
- *
- * This file is a template used to generate the actual config.h file.
- */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -19,6 +13,4 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#define LIBERTINE_APPLICATION_NAME "@LIBERTINE_EXE_NAME@"
-#define LIBERTINE_VERSION          "@PROJECT_VERSION@"
-
+#define LIBERTINE_PLUGIN_QML_DIR "@LIBERTINE_QML_PATH@/plugin"

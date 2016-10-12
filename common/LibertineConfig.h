@@ -1,11 +1,9 @@
 /**
- * @file config.h.in
- * @brief Libertine app configuraiton file.
- *
- * This file is a template used to generate the actual config.h file.
+ * @file LibertineConfig.cpp
+ * @brief Libertine Manager application-wide configuration module
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -18,7 +16,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef LIBERTINE_LIBERTINECONFIG_H
+#define LIBERTINE_LIBERTINECONFIG_H
 
-#define LIBERTINE_APPLICATION_NAME "@LIBERTINE_EXE_NAME@"
-#define LIBERTINE_VERSION          "@PROJECT_VERSION@"
+#include <QtCore/QString>
 
+
+/**
+ * The runtime configuration of the Libertine tools.
+ */
+class LibertineConfig
+{
+public:
+  explicit LibertineConfig() = default;
+  virtual ~LibertineConfig() = default;
+
+  QString
+  containers_config_file_name() const;
+};
+
+#endif /* LIBERTINE_LIBERTINECONFIG_H */

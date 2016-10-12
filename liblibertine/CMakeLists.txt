@@ -1,32 +1,31 @@
 set(API_VERSION 1)
 set(ABI_VERSION 1)
 
-set(libertine_src ${CMAKE_SOURCE_DIR}/libertine)
+set(COMMON_DIR ${CMAKE_SOURCE_DIR}/common)
 
 add_library(
-  libertine-common SHARED
+  ${LIBERTINE_CORE} SHARED
   libertine.cpp
-  ${libertine_src}/ContainerConfigList.cpp
-  ${libertine_src}/LibertineConfig.cpp
-  ${libertine_src}/ContainerConfig.cpp
-  ${libertine_src}/ContainerManager.cpp
-  ${libertine_src}/ContainerAppsList.cpp
-  ${libertine_src}/ContainerArchivesList.cpp
+
+  ${COMMON_DIR}/ContainerConfig.cpp
+  ${COMMON_DIR}/ContainerConfigList.cpp
+  ${COMMON_DIR}/LibertineConfig.cpp
 )
-set_target_properties(libertine-common PROPERTIES
+
+set_target_properties(${LIBERTINE_CORE} PROPERTIES
   VERSION ${ABI_VERSION}.0.0
   SOVERSION ${ABI_VERSION}
   OUTPUT_NAME "libertine"
 )
-target_link_libraries(libertine-common
+
+target_link_libraries(${LIBERTINE_CORE}
   ${GLIB2_LIBRARIES}
   ${PYTHON3_LIBRARIES}
   Qt5::Core
 )
 
-set(liblibertine_headers_path "${CMAKE_INSTALL_FULL_INCLUDEDIR}/liblibertine")
-install(FILES libertine.h DESTINATION ${liblibertine_headers_path})
-install(TARGETS libertine-common LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(FILES libertine.h DESTINATION "${CMAKE_INSTALL_FULL_INCLUDEDIR}/liblibertine")
+install(TARGETS ${LIBERTINE_CORE} LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 configure_file(libertine.pc.in ${CMAKE_BINARY_DIR}/libertine.pc @ONLY)
 install(FILES ${CMAKE_BINARY_DIR}/libertine.pc

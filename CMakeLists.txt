@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 cmake_policy(SET CMP0048 NEW)
 
-project(libertine 
+project(libertine
         VERSION 1.4.1)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
@@ -32,13 +32,21 @@ include_directories(${PYTHON3_INCLUDE_DIRS})
 
 set(CMAKE_AUTOMOC ON)
 
+set(LIBERTINE_COMMON libertine-common)
+set(LIBERTINE_CORE libertine)
+set(LIBERTINE_EXE_NAME libertine-manager-app)
+set(LIBERTINE_QML_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATAROOTDIR}/${CMAKE_PROJECT_NAME}/qml)
+
+add_subdirectory(qml)
+add_subdirectory(liblibertine)
+add_subdirectory(common)
 add_subdirectory(libertine)
+add_subdirectory(system-settings-plugin)
 add_subdirectory(python)
 add_subdirectory(data)
 add_subdirectory(tools)
-add_subdirectory(liblibertine)
-add_subdirectory(po)
 add_subdirectory(pasted)
+add_subdirectory(po)
 
 include(CTest)
 add_subdirectory(tests)
@@ -50,4 +58,3 @@ add_custom_target(dist
      | xz >${CMAKE_BINARY_DIR}/${ARCHIVE_NAME}.tar.xz
   && rm .gitattributes
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
-

@@ -18,8 +18,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "liblibertine/libertine.h"
-#include "libertine/ContainerConfigList.h"
-#include "libertine/LibertineConfig.h"
+
+#include "common/ContainerConfigList.h"
+#include "common/LibertineConfig.h"
 
 
 namespace

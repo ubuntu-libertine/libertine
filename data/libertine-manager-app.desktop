@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=Libertine Manager
+Comment=Legacy Application Sandbox
+Exec=libertine-manager-app
+Terminal=false
+Type=Application
+Icon=/usr/share/libertine/libertine_64.png
+Categories=
+GenericName=Application Sandbox
+X-Ubuntu-Touch=true

@@ -1,0 +1,4 @@
+usr/lib/*/ubuntu-system-settings/liblibertine-plugin.so*
+usr/share/libertine/qml/plugin/*
+usr/share/ubuntu/settings/system/icons/libertine-plugin.png
+usr/share/ubuntu/settings/system/libertine.settings

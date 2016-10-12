@@ -1,0 +1,14 @@
+{
+    "name": "Libertine",
+    "icon": "${LIBERTINE_PLUGIN_ICON_PATH}/libertine-plugin.png",
+    "translations": "libertine",
+    "category": "system",
+    "keywords": [
+        "libertine",
+        "legacy",
+        "x11"
+    ],
+    "has-dynamic-keywords": false,
+    "has-dynamic-visibility": false,
+    "plugin": "libertine-plugin"
+}

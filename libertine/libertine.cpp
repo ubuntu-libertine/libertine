@@ -3,7 +3,7 @@
  * @brief Libertine app wrapper
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2016 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -16,16 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "libertine/config.h"
-
-#include <cstdlib>
-#include "libertine/ContainerManager.h"
-#include "libertine/ContainerAppsList.h"
-#include "libertine/ContainerArchivesList.h"
-#include "libertine/ContainerConfig.h"
-#include "libertine/ContainerConfigList.h"
 #include "libertine/libertine.h"
-#include "libertine/LibertineConfig.h"
+
+#include "common/ContainerManager.h"
+#include "common/ContainerAppsList.h"
+#include "common/ContainerArchivesList.h"
+#include "common/ContainerConfig.h"
+#include "common/ContainerConfigList.h"
+#include "common/LibertineConfig.h"
+#include "common/PackageOperationDetails.h"
+#include "libertine/config.h"
+#include <cstdlib>
+#include <QtCore/QCommandLineParser>
 #include <QtCore/QDebug>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
@@ -38,7 +40,7 @@
 
 namespace
 {
-static QString const s_main_QML_source_file = "qml/libertine.qml";
+static QString const s_main_QML_source_file = "qml/gui/libertine.qml";
 
 /**
  * Searches for the main QML source file.
@@ -55,7 +57,7 @@ static QString
 find_main_qml_source_file()
 {
   static const QStringList sub_paths = { "", "libertine/" };
-  QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+  auto paths = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
   paths.prepend(QDir::currentPath());
   paths.prepend(QCoreApplication::applicationDirPath());
   for (auto const& path: paths)
@@ -88,11 +90,20 @@ Libertine(int& argc, char** argv)
 : QGuiApplication(argc, argv)
 , main_qml_source_file_(find_main_qml_source_file())
 {
-  setApplicationName(LIBERTINE_APPLICATION_NAME);
-  setApplicationVersion(LIBERTINE_VERSION);
-  config_.reset(new LibertineConfig(*this));
   qmlRegisterType<ContainerConfig>("Libertine", 1, 0, "ContainerConfig");
   qmlRegisterType<ContainerManagerWorker>("Libertine", 1, 0, "ContainerManagerWorker");
+  qmlRegisterType<PackageOperationDetails>("Libertine", 1, 0, "PackageOperationDetails");
+
+  setApplicationName(LIBERTINE_APPLICATION_NAME);
+  setApplicationVersion(LIBERTINE_VERSION);
+
+  QCommandLineParser commandlineParser;
+  commandlineParser.setApplicationDescription("manage sandboxes for running legacy DEB-packaged X11-based applications");
+  commandlineParser.addHelpOption();
+  commandlineParser.addVersionOption();
+  commandlineParser.process(*this);
+
+  config_.reset(new LibertineConfig());
 
   watcher_.addPath(config_.data()->containers_config_file_name());
   connect(&watcher_, SIGNAL(fileChanged(QString)), SLOT(reload_config(QString)));
@@ -105,6 +116,7 @@ Libertine(int& argc, char** argv)
   containers_ = new ContainerConfigList(config_.data(), this);
   container_apps_ = new ContainerAppsList(containers_, this);
   container_archives_ = new ContainerArchivesList(containers_, this);
+  package_operation_details_ = new PackageOperationDetails(this);
 
   initialize_view();
   view_.show();
@@ -131,6 +143,7 @@ initialize_view()
   ctxt->setContextProperty("containerConfigList", containers_);
   ctxt->setContextProperty("containerAppsList", container_apps_);
   ctxt->setContextProperty("containerArchivesList", container_archives_);
+  ctxt->setContextProperty("packageOperationDetails", package_operation_details_);
 
   view_.setSource(QUrl::fromLocalFile(main_qml_source_file_));
   connect(view_.engine(), SIGNAL(quit()), SLOT(quit()));

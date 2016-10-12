@@ -1,6 +1,6 @@
-usr/lib/python*/*/libertine/LxcContainer.py
+etc/sudoers.d/libertine-lxc-sudo
 usr/bin/libertine-lxc-manager
+usr/bin/libertine-lxc-setup
+usr/lib/python*/*/libertine/LxcContainer.py
 usr/share/dbus-1/services/com.canonical.libertine.LxcManager.service
 usr/share/libertine/libertine-lxc.conf
-etc/sudoers.d/libertine-lxc-sudo
-usr/bin/libertine-lxc-setup
