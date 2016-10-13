@@ -114,43 +114,46 @@ def detect_session_bridge_socket(session_socket_path):
 
 
 if __name__ == '__main__':
-    arg_parser = argparse.ArgumentParser(description='launch an application in a Libertine container')
-    arg_parser.add_argument('container_id',
-                            help='Libertine container ID')
+    arg_parser = argparse.ArgumentParser(description='Launch an application natively or in a Libertine container')
+    arg_parser.add_argument('-i', '--id',
+                             help=("Container identifier when launching containerized apps"))
     arg_parser.add_argument('app_exec_line', nargs=argparse.REMAINDER,
                             help='exec line')
     args = arg_parser.parse_args()
 
-    la = LibertineApplication(args.container_id, args.app_exec_line)
+    if args.id:
+        la = LibertineApplication(args.id, args.app_exec_line)
 
-    # remove problematic environment variables
-    for e in ['QT_QPA_PLATFORM', 'LD_LIBRARY_PATH', 'FAKECHROOT_BASE', 'FAKECHROOT_CMD_SUBST']:
-        if e in os.environ:
-            del os.environ[e]
+        # remove problematic environment variables
+        for e in ['QT_QPA_PLATFORM', 'LD_LIBRARY_PATH', 'FAKECHROOT_BASE', 'FAKECHROOT_CMD_SUBST']:
+            if e in os.environ:
+                del os.environ[e]
 
-    socket_paths = []
+        socket_paths = []
 
-    maliit_host_path = get_host_maliit_socket()
+        maliit_host_path = get_host_maliit_socket()
 
-    # Maliit needs to check with the real session dbus, so it needs to go before setting
-    # the DBUS_SESSION_ADDRESS to the session socket path
-    if maliit_host_path:
-        maliit_session_path = get_maliit_session_socket_path()
-        socket_paths.append(HostSessionSocketPair(maliit_host_path, maliit_session_path))
-        set_maliit_env_socket_path(maliit_session_path)
+        # Maliit needs to check with the real session dbus, so it needs to go before setting
+        # the DBUS_SESSION_ADDRESS to the session socket path
+        if maliit_host_path:
+            maliit_session_path = get_maliit_session_socket_path()
+            socket_paths.append(HostSessionSocketPair(maliit_host_path, maliit_session_path))
+            set_maliit_env_socket_path(maliit_session_path)
 
-    dbus_host_path = get_host_dbus_socket()
+        dbus_host_path = get_host_dbus_socket()
 
-    if dbus_host_path:
-        dbus_session_path = get_dbus_session_socket_path()
-        socket_paths.append(HostSessionSocketPair(dbus_host_path, dbus_session_path))
-        set_dbus_env_socket_path(dbus_session_path)
+        if dbus_host_path:
+            dbus_session_path = get_dbus_session_socket_path()
+            socket_paths.append(HostSessionSocketPair(dbus_host_path, dbus_session_path))
+            set_dbus_env_socket_path(dbus_session_path)
 
-    la.launch_session_bridge(socket_paths)
+        la.launch_session_bridge(socket_paths)
 
-    # should detect the maliit socket, but dont know if its around or not here.
-    detect_session_bridge_socket(dbus_session_path)
+        # should detect the maliit socket, but dont know if its around or not here.
+        detect_session_bridge_socket(dbus_session_path)
 
-    la.launch_pasted()
+        la.launch_pasted()
 
-    la.launch_application()
+        la.launch_application()
+    else:
+        os.execvp(args.app_exec_line[0], args.app_exec_line[0:])

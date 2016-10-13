@@ -1,3 +1,13 @@
+libertine (1.4.2+16.10.20161005-0ubuntu1) yakkety; urgency=medium
+
+  [ Chris Townsend ]
+  * Remove the 'container_id' positional argument and add an optional "-
+    i/--id" argument for specifying a container id. This allows
+    launching applications natively and not in a Libertine container.
+    (LP: #1589636)
+
+ -- Ted Gould <ted@gould.cx>  Wed, 05 Oct 2016 15:53:14 +0000
+
 libertine (1.4.2+16.10.20161003-0ubuntu1) yakkety; urgency=medium
 
   [ Chris Townsend ]

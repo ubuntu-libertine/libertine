@@ -1,16 +1,15 @@
-.TH libertine-launch "1" "April 2016" "libertine-launch 0.99" "User Commands"
+.TH libertine-launch "1" "August 2016" "libertine-launch 1.3" "User Commands"
 
 .SH NAME
-libertine-launch \- launch an application in a Libertine container
+libertine-launch \- Launch an application natively or in a Libertine container
 
 .SH DESCRIPTION
-usage: libertine\-launch [\-h] container_id ...
+usage: libertine\-launch [\-h] [-i ID] ...
 .PP
-launch an application in a Libertine container
+Launch an application natively or in a Libertine container
+
+When specifying the optional -i/--id argument, it must be placed before the exec line.
 .SS "positional arguments:"
-.TP
-container_id
-Libertine container ID
 .TP
 app_exec_line
 exec line
@@ -18,3 +17,6 @@ exec line
 .TP
 \fB\-h\fR, \fB\-\-help\fR
 show this help message and exit
+.TP
+\fB\-i\fR, \fB\-\-id\fR
+Container identifier when launching containerized apps
