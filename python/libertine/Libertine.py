@@ -655,23 +655,38 @@ class LibertineApplication(object):
     :param app_exec_line: The exec line used to start the app in the container.
     """
     def __init__(self, container_id, app_exec_line):
-        signal.signal(signal.SIGTERM, self.cleanup_lsb)
-        signal.signal(signal.SIGINT,  self.cleanup_lsb)
+        signal.signal(signal.SIGTERM, self.cleanup)
+        signal.signal(signal.SIGINT,  self.cleanup)
 
         self.container_id  = container_id
         self.app_exec_line = app_exec_line
         self.lsb           = None
         self.pasted        = None
 
-    def cleanup_lsb(self, signum, frame):
-        self.close_lsb()
+    def cleanup(self, signum, frame):
+        self.cleanup_helpers()
 
-    def close_lsb(self):
+    def cleanup_helpers(self):
+        self._remove_running_app()
+        self._close_lsb()
+        self._close_pasted()
+
+    def _close_lsb(self):
         if self.lsb is not None:
             self.lsb_process.terminate()
 
         while active_children():
             time.sleep(1)
+
+    def _close_pasted(self):
+        if self.pasted is not None:
+            self.pasted.terminate()
+
+    def _add_running_app(self):
+        ContainersConfig().add_running_app(self.container_id, self.app_exec_line[0])
+
+    def _remove_running_app(self):
+        ContainersConfig().delete_running_app(self.container_id, self.app_exec_line[0])
 
     """
     Launches the libertine session bridge. This creates a proxy socket to read to and from
@@ -699,12 +714,11 @@ class LibertineApplication(object):
             raise RuntimeError("Container ID %s does not exist." % self.container_id)
 
         container = LibertineContainer(self.container_id)
+        self._add_running_app()
+
         try:
             container.launch_application(self.app_exec_line)
         except:
             raise
         finally:
-            self.close_lsb()
-
-            if self.pasted is not None:
-                self.pasted.terminate()
+            self.cleanup_helpers()

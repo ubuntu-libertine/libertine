@@ -326,6 +326,17 @@ class ContainersConfig(object):
                                                         package_name)
 
     """
+    Operations for running apps in a Libertine container.
+    """
+    def add_running_app(self, container_id, app_exec_name, pid=0):
+        app_obj = {'appExecName': app_exec_name, 'pid': pid}
+        self._set_value_by_key(container_id, 'runningApps', app_obj)
+
+    def delete_running_app(self, container_id, app_exec_name):
+        self._delete_array_object_by_key_value(container_id, 'runningApps',
+                                               'appExecName', app_exec_name)
+
+    """
     Fetcher functions for various configuration information.
     """
     def get_container_distro(self, container_id):
