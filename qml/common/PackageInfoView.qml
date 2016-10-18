@@ -124,6 +124,7 @@ Page {
         sendOperationInteraction.connect(packageOperationDetails.send)
 
         worker.error.connect(onError)
+        worker.error.connect(packageOperationDetails.error)
         worker.runCommand(currentContainer, containerConfigList.getContainerName(currentContainer), command)
     }
 
