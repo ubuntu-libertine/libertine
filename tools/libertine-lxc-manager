@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2016 Canonical Ltd.
@@ -94,7 +94,7 @@ class Service(dbus.service.Object):
                          in_signature='s')
     def operation_stop(self, container_id):
         self._stop_lxc_container(container_id)
-        del self.operation_running[container_id] 
+        del self.operation_running[container_id]
 
     def _setup_pulse(self):
         pulse_socket_path = os.path.join(libertine.utils.get_libertine_runtime_dir(), 'pulse_socket')
