@@ -78,29 +78,35 @@ libertine_list_apps_for_container(const gchar* container_id)
   GError* error = nullptr;
   GArray* apps = g_array_new(TRUE, TRUE, sizeof(gchar*));
 
-  auto globalPath = g_build_filename("/", g_strdup(path), GLOBAL_APPLICATIONS, nullptr);
-  error = list_apps_from_path(globalPath, container_id, apps);
-  if (error != nullptr)
+  if (path != nullptr)
   {
-    g_free(globalPath);
-    g_free(path);
-    g_error_free(error);
-    return (gchar**)g_array_free(apps, FALSE);
+      auto global_path = g_build_filename("/", g_strdup(path), GLOBAL_APPLICATIONS, nullptr);
+      error = list_apps_from_path(global_path, container_id, apps);
+      if (error != nullptr)
+      {
+        g_free(global_path);
+        g_free(path);
+        g_error_free(error);
+        return (gchar**)g_array_free(apps, FALSE);
+      }
+      g_free(global_path);
   }
-  g_free(globalPath);
+  g_free(path);
 
   auto home_path = libertine_container_home_path(container_id);
-  auto local_path = g_build_filename(home_path, LOCAL_APPLICATIONS, nullptr);
+  if (home_path != nullptr)
+  {
+      auto local_path = g_build_filename(home_path, LOCAL_APPLICATIONS, nullptr);
+
+      error = list_apps_from_path(local_path, container_id, apps);
+      if (error != nullptr)
+      {
+        g_error_free(error); // free error, but return previously found apps
+      }
+      g_free(local_path);
+  }
   g_free(home_path);
 
-  error = list_apps_from_path(local_path, container_id, apps);
-  if (error != nullptr)
-  {
-    g_error_free(error); // free error, but return previously found apps
-  }
-  g_free(local_path);
-
-  g_free(path);
   return (gchar**)g_array_free(apps, FALSE);
 }
 
@@ -131,10 +137,10 @@ libertine_list_containers(void)
 gchar *
 libertine_container_path(const gchar * container_id)
 {
-  gchar * path = NULL;
-  g_return_val_if_fail(container_id != NULL, NULL);
+  gchar * path = nullptr;
+  g_return_val_if_fail(container_id != nullptr, nullptr);
 
-  path = g_build_filename(g_get_user_cache_dir(), "libertine-container", container_id, "rootfs", NULL);
+  path = g_build_filename(g_get_user_cache_dir(), "libertine-container", container_id, "rootfs", nullptr);
 
   if (g_file_test(path, G_FILE_TEST_EXISTS))
   {
@@ -143,7 +149,7 @@ libertine_container_path(const gchar * container_id)
   else
   {
     g_free(path);
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -151,10 +157,10 @@ libertine_container_path(const gchar * container_id)
 gchar *
 libertine_container_home_path(const gchar * container_id)
 {
-  gchar * path = NULL;
-  g_return_val_if_fail(container_id != NULL, NULL);
+  gchar * path = nullptr;
+  g_return_val_if_fail(container_id != nullptr, nullptr);
 
-  path = g_build_filename(g_get_user_data_dir(), "libertine-container", "user-data", container_id, NULL);
+  path = g_build_filename(g_get_user_data_dir(), "libertine-container", "user-data", container_id, nullptr);
 
   if (g_file_test(path, G_FILE_TEST_EXISTS))
   {
@@ -163,7 +169,7 @@ libertine_container_home_path(const gchar * container_id)
   else
   {
     g_free(path);
-    return NULL;
+    return nullptr;
   }
 
 }
@@ -174,7 +180,7 @@ libertine_container_name(const gchar * container_id)
 {
   guint container_count;
   guint i;
-  gchar * container_name = NULL;
+  gchar * container_name = nullptr;
   LibertineConfig config;
   ContainerConfigList container_list(&config);
   QVariant id;
