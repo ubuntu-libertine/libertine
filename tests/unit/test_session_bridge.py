@@ -23,6 +23,7 @@ from multiprocessing import Process
 
 from testtools import TestCase
 from testtools.matchers import Equals, NotEquals
+from unittest import skip
 
 import time
 import threading
@@ -73,6 +74,7 @@ class TestLibertineSessionBridge(TestCase):
         self.assertTrue(os.path.exists(self.session_path))
 
 
+    @skip("to be replaced by launcher.Session tests")
     def test_data_read_from_host_to_session(self):
         """
         This test shows we are able to proxy data from a host socket to a session client.

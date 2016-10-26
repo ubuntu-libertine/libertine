@@ -139,6 +139,7 @@ class LibertineLXC(BaseContainer):
         self.container = lxc_container(container_id)
         self._set_lxc_log()
         self.lxc_manager_interface = None
+        self.window_manager = None
 
         utils.set_session_dbus_env_var()
 
@@ -309,10 +310,13 @@ class LibertineLXC(BaseContainer):
         # Dump it all to disk
         self.container.save_config()
 
-    def launch_application(self, app_exec_line):
+    def start_application(self, app_exec_line, environ):
         if self.lxc_manager_interface == None:
             print("No interface to libertine-lxc-manager.  Failing application launch.")
             return
+
+        os.environ.clear()
+        os.environ.update(environ)
 
         (result, error) = self.lxc_manager_interface.app_start(self.container_id, self.lxc_log_file)
 
@@ -321,18 +325,22 @@ class LibertineLXC(BaseContainer):
             print("%s" % error)
             return
 
-        window_manager = self.container.attach(lxc.attach_run_command,
-                                               utils.setup_window_manager(self.container_id))
+        self.window_manager = self.container.attach(lxc.attach_run_command,
+                                                    utils.setup_window_manager(self.container_id))
 
         # Setup pulse to work inside the container
         os.environ['PULSE_SERVER'] = utils.get_libertine_lxc_pulse_socket_path()
 
         app_launch_cmd = "sudo -E -u " + os.environ['USER'] + " env PATH=" + os.environ['PATH']
         cmd = shlex.split(app_launch_cmd)
-        self.container.attach_wait(lxc.attach_run_command,
-                                   cmd + app_exec_line)
+        app = self.container.attach(lxc.attach_run_command,
+                                    cmd + app_exec_line)
+        return psutil.Process(app)
 
-        utils.terminate_window_manager(psutil.Process(window_manager))
+    def finish_application(self, app):
+        os.waitpid(app.pid, 0)
+
+        utils.terminate_window_manager(psutil.Process(self.window_manager))
 
         # Tell libertine-lxc-manager that the app has stopped.
         self.lxc_manager_interface.app_stop(self.container_id)

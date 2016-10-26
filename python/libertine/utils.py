@@ -30,24 +30,19 @@ def get_logger():
 
     # If someone else sets a handler before this, we wont run this!
     if not logger.hasHandlers():
-        logger.setLevel(logging.DEBUG)
-        logger.disabled = True
-
         stream_handler = logging.StreamHandler()
-        stream_handler.setLevel(logging.DEBUG)
-
         formatter = logging.Formatter('%(filename)s:'
                                       '%(lineno)d: '
                                       '%(levelname)s: '
                                       '%(funcName)s():\t'
                                       '%(message)s')
-
         stream_handler.setFormatter(formatter)
         logger.addHandler(stream_handler)
 
-    # Only enable the logger if we set this
-    if os.getenv('LIBERTINE_DEBUG') is '1':
-        logger.disabled = False
+    if 'LIBERTINE_DEBUG' in os.environ:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.WARNING)
 
     return logger
 

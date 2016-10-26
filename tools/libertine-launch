@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015 Canonical Ltd.
+# Copyright (C) 2015-2016 Canonical Ltd.
 # Author: Christopher Townsend <christopher.townsend@canonical.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -16,144 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
-import dbus
 import os
-import random
-import string
-import libertine.utils
-import shlex
-import time
-from libertine import LibertineApplication, HostSessionSocketPair
 
+from libertine import launcher, LibertineContainer
 
-def get_host_maliit_socket():
-    address_bus_name    = 'org.maliit.server'
-    address_object_path = '/org/maliit/server/address'
-    address_interface   = 'org.maliit.Server.Address'
-    address_property    = 'address'
-    address             = ''
+def main():
+    config = launcher.Config()
 
-    try:
-        session_bus   = dbus.SessionBus()
-        maliit_object = session_bus.get_object('org.maliit.server', '/org/maliit/server/address')
-
-        interface = dbus.Interface(maliit_object, dbus.PROPERTIES_IFACE)
-        address   = interface.Get('org.maliit.Server.Address', 'address')
-
-        partition_key = 'unix:abstract='
-        address = address.split(',')[0]
-        address = address.partition(partition_key)[2]
-        address = "\0%s" % address
-    except:
-        pass
-
-    return address
-
-
-def get_host_dbus_socket():
-    host_dbus_socket = ''
-
-    with open(os.path.join(libertine.utils.get_user_runtime_dir(), 'dbus-session'), 'r') as fd:
-        dbus_session_str = fd.read()
-
-    fd.close()
-
-    dbus_session_split = dbus_session_str.rsplit('=', 1)
-    if len(dbus_session_split) > 1:
-        host_dbus_socket = dbus_session_split[1].rstrip('\n')
-        # We need to add a \0 to the start of an abstract socket path to connect to it
-        if dbus_session_str.find('abstract') >= 0:
-            host_dbus_socket = "\0%s" % host_dbus_socket
-
-    return host_dbus_socket
-
-
-def get_session_socket_path(session_socket_name):
-    unique_id = ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(8))
-
-    if not os.path.exists(libertine.utils.get_libertine_runtime_dir()):
-        os.makedirs(libertine.utils.get_libertine_runtime_dir())
-
-    session_socket_path = (
-        os.path.join(libertine.utils.get_libertine_runtime_dir(), session_socket_name + '-' + unique_id))
-
-    return session_socket_path
-
-
-def get_dbus_session_socket_path():
-    return get_session_socket_path('host_dbus_session')
-
-
-def get_maliit_session_socket_path():
-    return get_session_socket_path('host_maliit_session')
-
-
-def set_env_socket_path(session_socket_path, session_env):
-    os.environ[session_env] = "unix:path=" + session_socket_path
-
-
-def set_dbus_env_socket_path(socket_path):
-    set_env_socket_path(socket_path, 'DBUS_SESSION_BUS_ADDRESS')
-
-
-def set_maliit_env_socket_path(socket_path):
-    set_env_socket_path(socket_path, 'MALIIT_SERVER_ADDRESS')
-
-
-def detect_session_bridge_socket(session_socket_path):
-    retries = 0
-
-    while not os.path.exists(session_socket_path):
-        if retries >= 10:
-            raise RuntimeError("Timeout waiting for Libertine Dbus session bridge socket")
-
-        print("Libertine Dbus session bridge socket is not ready.  Waiting...")
-        retries += 1
-        time.sleep(.5)
-
+    if config.container_id:
+        container = LibertineContainer(container_id=config.container_id)
+        with launcher.Session(config, container) as session:
+            session.start_application()
+            session.run()
+    else:
+        os.execvp(config.exec_line[0], config.exec_line[0:])
 
 if __name__ == '__main__':
-    arg_parser = argparse.ArgumentParser(description='Launch an application natively or in a Libertine container')
-    arg_parser.add_argument('-i', '--id',
-                             help=("Container identifier when launching containerized apps"))
-    arg_parser.add_argument('app_exec_line', nargs=argparse.REMAINDER,
-                            help='exec line')
-    args = arg_parser.parse_args()
-
-    if args.id:
-        la = LibertineApplication(args.id, args.app_exec_line)
-
-        # remove problematic environment variables
-        for e in ['QT_QPA_PLATFORM', 'LD_LIBRARY_PATH', 'FAKECHROOT_BASE', 'FAKECHROOT_CMD_SUBST']:
-            if e in os.environ:
-                del os.environ[e]
-
-        socket_paths = []
-
-        maliit_host_path = get_host_maliit_socket()
-
-        # Maliit needs to check with the real session dbus, so it needs to go before setting
-        # the DBUS_SESSION_ADDRESS to the session socket path
-        if maliit_host_path:
-            maliit_session_path = get_maliit_session_socket_path()
-            socket_paths.append(HostSessionSocketPair(maliit_host_path, maliit_session_path))
-            set_maliit_env_socket_path(maliit_session_path)
-
-        dbus_host_path = get_host_dbus_socket()
-
-        if dbus_host_path:
-            dbus_session_path = get_dbus_session_socket_path()
-            socket_paths.append(HostSessionSocketPair(dbus_host_path, dbus_session_path))
-            set_dbus_env_socket_path(dbus_session_path)
-
-        la.launch_session_bridge(socket_paths)
-
-        # should detect the maliit socket, but dont know if its around or not here.
-        detect_session_bridge_socket(dbus_session_path)
-
-        la.launch_pasted()
-
-        la.launch_application()
-    else:
-        os.execvp(args.app_exec_line[0], args.app_exec_line[0:])
+    main()

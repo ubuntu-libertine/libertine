@@ -249,11 +249,14 @@ class LibertineMock(BaseContainer):
     def run_in_container(self, command_string):
         return 0
 
-    def launch_application(self, app_exec_line):
+    def start_application(self, app_exec_line, environ):
         import subprocess
 
-        cmd = subprocess.Popen(app_exec_line)
-        cmd.wait()
+        app = subprocess.Popen(app_exec_line, env=environ)
+        return app
+
+    def finish_application(self, app):
+        app.wait()
 
 
 class ContainerRunning(contextlib.ExitStack):
@@ -381,6 +384,35 @@ class LibertineContainer(object):
         except RuntimeError as e:
             return handle_runtime_error(e)
 
+    def connect(self):
+        """
+        Connects to the container in preparation to launch an application.  May
+        do something like start up daemons or bind-mount directories, I dunno,
+        it's up to the concrete container class.  Maybe it does nothing.
+        """
+        pass
+
+    def disconnect(self):
+        """
+        The inverse of connect() above.
+        """
+        pass
+
+    def start_application(self, app_exec_line, environ):
+        """
+        Launches an application in the container.
+
+        :param app_exec_line: the application exec line as passed in by
+            ubuntu-app-launch
+        """
+        return self.container.start_application(app_exec_line, environ)
+
+    def finish_application(self, app):
+        """
+        Finishes the currently running application in the container.
+        """
+        self.container.finish_application(app)
+
     def launch_application(self, app_exec_line):
         """
         Launches an application in the container.
@@ -393,7 +425,8 @@ class LibertineContainer(object):
             if '/usr/games' not in os.environ['PATH']:
                 os.environ['PATH'] = os.environ['PATH'] + ":/usr/games"
 
-            self.container.launch_application(app_exec_line)
+            app = self.start_application(app_exec_line, environ=os.environ)
+            self.finish_application(app)
         else:
             raise RuntimeError("Container with id %s does not exist." % self.container.container_id)
 

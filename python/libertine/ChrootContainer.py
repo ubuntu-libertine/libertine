@@ -199,26 +199,29 @@ class LibertineChroot(BaseContainer):
 
         return proot_cmd
 
-    def launch_application(self, app_exec_line):
+    def start_application(self, app_exec_line, environ):
         # FIXME: Disabling seccomp is a temporary measure until we fully understand why we need
         #        it or figure out when we need it.
-        os.environ['PROOT_NO_SECCOMP'] = '1'
+        environ['PROOT_NO_SECCOMP'] = '1'
 
         # Workaround issue where a custom dconf profile is on the machine
-        if 'DCONF_PROFILE' in os.environ:
-            del os.environ['DCONF_PROFILE']
+        if 'DCONF_PROFILE' in environ:
+            del environ['DCONF_PROFILE']
 
         proot_cmd = self._build_proot_command()
 
         args = shlex.split(proot_cmd)
         args.extend(utils.setup_window_manager(self.container_id, enable_toolbars=True))
-        window_manager = psutil.Popen(args)
+        window_manager = psutil.Popen(args, env=environ)
 
         args = shlex.split(proot_cmd)
         args.extend(app_exec_line)
-        psutil.Popen(args).wait()
+        app = psutil.Popen(args, env=environ)
+        return app
 
+    def finish_application(self, app):
         utils.terminate_window_manager(window_manager)
+        app.wait()
 
     def _run_ldconfig(self, verbosity=1):
         if verbosity == 1:
@@ -227,4 +230,8 @@ class LibertineChroot(BaseContainer):
         command_line = self._build_privileged_proot_cmd() + " ldconfig.REAL"
 
         args = shlex.split(command_line)
-        subprocess.Popen(args).wait()
+        app = subprocess.Popen(args)
+        return app
+
+    def finish_application(self, app):
+        app.wait()
