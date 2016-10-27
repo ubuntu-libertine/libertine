@@ -1,7 +1,4 @@
 usr/bin/libertine-container-manager
 usr/bin/libertine-launch
-usr/bin/libertine-xmir
-usr/bin/pasted
 usr/share/bash-completion/completions/libertine-container-manager
 usr/share/man
-usr/share/upstart/sessions/libertine-xmir.conf
