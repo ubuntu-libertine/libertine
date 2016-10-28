@@ -48,6 +48,32 @@ def handle_runtime_error(error):
     return False
 
 
+class NoContainer(object):
+    """
+    A containerless class used for launching apps with libertine-launch.
+    """
+    def connect(self):
+        """
+        A no-op function used by the Session class.
+        """
+        pass
+
+    def disconnect(self):
+        """
+        A no-op function used by the Session class.
+        """
+        pass 
+
+    def start_application(self, app_exec_line, environ):
+        import psutil
+
+        app = psutil.Popen(app_exec_line, env=environ)
+        return app
+
+    def finish_application(self, app):
+        app.wait()
+
+
 class BaseContainer(metaclass=abc.ABCMeta):
     """
     An abstract base container to provide common functionality for all

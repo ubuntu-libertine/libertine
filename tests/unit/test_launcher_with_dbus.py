@@ -75,7 +75,7 @@ class TestLauncherConfigUsingDBus(TestCase):
         super().setUp()
         fake_maliit_host_address = 'unix:abstract=/tmp/maliit-host-socket'
         self._dbus_server = self.useFixture(MockDBusServer(maliit_server_address=fake_maliit_host_address))
-        self._cli = [ self.getUniqueString(), self.getUniqueString() ]
+        self._cli = [ '-i', self.getUniqueString(), self.getUniqueString() ]
 
     def test_maliit_socket_bridge_from_dbus(self):
         """

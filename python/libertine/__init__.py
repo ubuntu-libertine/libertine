@@ -23,9 +23,11 @@
 __all__ = [
           # from Libertine
           'LibertineContainer',
+          'NoContainer',
           'utils',
           ]
 
 __docformat__ = "restructuredtext en"
 
 from libertine.Libertine import LibertineContainer
+from libertine.Libertine import NoContainer

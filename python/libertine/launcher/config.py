@@ -214,17 +214,24 @@ class Config(object):
         """Create a collection of pre-launch tasks."""
         tasks = []
         tasks.append(TaskConfig(TaskType.LAUNCH_SERVICE, ["pasted"]))
+
+        if self.container_id is None:
+            tasks.append(TaskConfig(TaskType.LAUNCH_SERVICE, ['matchbox-window-manager', '-use_titlebar', 'no']))
+
         return tasks
 
     def _create_socket_bridges(self):
         """Create the required socket bridge configs."""
         bridges = []
-        maliit_host_bridge = self._create_maliit_host_bridge()
-        if maliit_host_bridge:
-            bridges.append(maliit_host_bridge)
-        dbus_host_bridge = self._create_dbus_host_bridge()
-        if dbus_host_bridge:
-            bridges.append(dbus_host_bridge)
+
+        if self.container_id:
+            maliit_host_bridge = self._create_maliit_host_bridge()
+            if maliit_host_bridge:
+                bridges.append(maliit_host_bridge)
+            dbus_host_bridge = self._create_dbus_host_bridge()
+            if dbus_host_bridge:
+                bridges.append(dbus_host_bridge)
+
         return bridges
 
     def _generate_session_socket_name(self, socket_target):

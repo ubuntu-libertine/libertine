@@ -18,18 +18,23 @@
 
 import os
 
-from libertine import launcher, LibertineContainer
+from libertine import launcher
 
 def main():
     config = launcher.Config()
 
     if config.container_id:
+        from libertine import LibertineContainer
+
         container = LibertineContainer(container_id=config.container_id)
-        with launcher.Session(config, container) as session:
-            session.start_application()
-            session.run()
     else:
-        os.execvp(config.exec_line[0], config.exec_line[0:])
+        from libertine import NoContainer
+
+        container = NoContainer()
+
+    with launcher.Session(config, container) as session:
+        session.start_application()
+        session.run()
 
 if __name__ == '__main__':
     main()
