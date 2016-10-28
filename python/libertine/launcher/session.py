@@ -23,8 +23,9 @@ import sys
 from .config import Config
 from .. import utils
 from contextlib import ExitStack, suppress
+from libertine.ContainersConfig import ContainersConfig
 from psutil import STATUS_ZOMBIE
-from socket import socket, AF_UNIX, SOCK_STREAM
+from socket import socket, AF_UNIX, SOCK_STREAM, SHUT_RDWR
 from .task import LaunchServiceTask, TaskType
 
 
@@ -94,7 +95,7 @@ class BridgePair(object):
         be a tuneable parameter).
         Also, it's a non-blocking write and that may affect things.  Honestly, it
         should be a non-blocking write and logic should be added to track
-        write-available evnts and unsent bytes and all that stuff but not today.
+        write-available events and unsent bytes and all that stuff but not today.
         """
         try:
             b = from_socket.recv(4096)
@@ -105,7 +106,7 @@ class BridgePair(object):
                 log.info('close detected on {}'.format(from_socket))
             return len(b)
         except Exception as e:
-            log.exception(e)
+            log.debug(e)
             return 0
 
     def _close_up_shop(self, session):
@@ -118,7 +119,10 @@ class BridgePair(object):
         this object from its watch list.
         """
         session.remove_bridge_pair(self)
+        self.session_socket.shutdown(SHUT_RDWR)
         self.session_socket.close()
+
+        self.host_socket.shutdown(SHUT_RDWR)
         self.host_socket.close()
 
 
@@ -239,8 +243,19 @@ class Session(ExitStack):
         """Connect to the container and start the application running."""
         self._container.connect()
         self.callback(self._container.disconnect)
+        self._add_running_app()
         self._app = self._container.start_application(self._config.exec_line,
                                                       self._config.session_environ)
+
+    def _add_running_app(self):
+        """Add a running app entry to ContainersConfig.json."""
+        if self._config.container_id:
+            ContainersConfig().add_running_app(self._config.container_id, self._config.exec_line[0])
+
+    def _remove_running_app(self):
+        """Remove a running app entry from ContainersConfig.json."""
+        if self._config.container_id:
+            ContainersConfig().delete_running_app(self._config.container_id, self._config.exec_line[0])
 
     def _create_bridge_listener(self, bridge_config):
         """Create a socket bridge listener for a socket bridge configuration.
@@ -330,6 +345,9 @@ class Session(ExitStack):
         signal.signal(signal.SIGCHLD, self._sigchld_handler)
         signal.signal(signal.SIGINT,  self._sigint_handler)
         signal.signal(signal.SIGTERM, self._sigterm_handler)
+
+        if self._config.container_id:
+            self._remove_running_app()
 
         for bridge_pair in self._config.socket_bridges:
             os.remove(translate_to_real_address(bridge_pair.session_address))

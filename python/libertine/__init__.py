@@ -22,21 +22,10 @@
 
 __all__ = [
           # from Libertine
-          'LibertineApplication',
           'LibertineContainer',
-          'LibertineSessionBridge',
-          'LibertineSessionBridge',
-          'HostSessionSocketPair',
-          'SessionSocket',
-          'Socket',
           'utils',
           ]
 
 __docformat__ = "restructuredtext en"
 
-from libertine.Libertine import LibertineApplication
 from libertine.Libertine import LibertineContainer
-from libertine.Libertine import LibertineSessionBridge
-from libertine.Libertine import HostSessionSocketPair
-from libertine.Libertine import SessionSocket
-from libertine.Libertine import Socket

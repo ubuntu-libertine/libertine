@@ -14,15 +14,11 @@
 
 import os
 import random
-import shlex
 import shutil
 import signal
 import string
-import subprocess
-import sys
 import tempfile
 
-from libertine import LibertineApplication
 from libertine import LibertineContainer
 from libertine import launcher
 
@@ -41,61 +37,16 @@ def _generate_unique_string(prefix=''):
     """Generates a (hopefully) unique string."""
     return prefix + ''.join(random.choice(string.ascii_lowercase + string.digits) for i in range(8))
 
-
-class TestLibertineLaunch(TestCase):
+class TestLauncher(TestCase):
     def setUp(self):
-        super(TestLibertineLaunch, self).setUp()
-        self.cmake_source_dir = os.environ['CMAKE_SOURCE_DIR']
-        self.cmake_binary_dir = os.environ['CMAKE_BINARY_DIR']
-
-        container_config_path = os.path.join(self.cmake_binary_dir, 'tests', 'unit', 'libertine-config')
-
-        # Set necessary enviroment variables
-        os.environ['XDG_DATA_HOME'] = container_config_path
+        super(TestLauncher, self).setUp()
         os.environ['XDG_RUNTIME_DIR'] = tempfile.mkdtemp()
-        os.environ['PATH'] = (self.cmake_source_dir + '/tests/mocks:' +
-                              self.cmake_source_dir + '/tools:' + os.environ['PATH'])
-
         self.addCleanup(self.cleanup)
-
-        # Lets figure out how to really mock this....
-        cli_cmd = self.cmake_source_dir + '/tools/libertine-container-manager create -i test -n Test -t mock'
-        args = shlex.split(cli_cmd)
-        subprocess.Popen(args).wait()
 
     def cleanup(self):
         shutil.rmtree(os.environ['XDG_RUNTIME_DIR'])
 
-    def test_launch_app_existing_container(self):
-        '''
-        Base line test to ensure launching an app in an existing container works.
-        '''
-        la = LibertineApplication('test', 'true')
-        la.launch_application()
-
-    def test_launch_app_nonexistent_container(self):
-        '''
-        Test to make sure that things gracefully handle a non-existing container.
-        '''
-        la = LibertineApplication('test1', 'true')
-        self.assertRaises(RuntimeError, la.launch_application)
-
-    def test_launch_good_app(self):
-        '''
-        Test to make sure that launching an app actually works.
-        '''
-        la = LibertineApplication('test', 'mock_app')
-        la.launch_application()
-
-    def test_launch_bad_app(self):
-        '''
-        Test to make sure launching an app that doesn't exist doesn't break things
-        '''
-        la = LibertineApplication('test', 'foo')
-        self.assertRaises(FileNotFoundError, la.launch_application)
-
-
-class TestLauncherTaskConfig(TestCase):
+class TestLauncherTaskConfig(TestLauncher):
     """Unit tests for libertine.launcher.task module."""
 
     def test_task_config_ctor(self):
@@ -108,7 +59,7 @@ class TestLauncherTaskConfig(TestCase):
         self.assertThat(task.datum, Equals(fake_datum))
 
 
-class TestLauncherConfig(TestCase):
+class TestLauncherConfig(TestLauncher):
     """
     Verifies the defined behaviour of the Libertine Launcher Config class.
     """
@@ -230,7 +181,7 @@ class TestLauncherConfig(TestCase):
                         MatchesPredicate(pasted_is_in_list, "pasted is not in task list"))
 
 
-class TestLauncherSession(TestCase):
+class TestLauncherSession(TestLauncher):
     """
     Verifies the defined bahaviour of a Libertine Lunacher session.
 
@@ -246,7 +197,8 @@ class TestLauncherSession(TestCase):
         fake_session_socket = 'unix:path=/tmp/garbage'
         fake_bridge_config = launcher.SocketBridge('FAKE_SOCKET', 'dummy', fake_session_socket)
         self._mock_config = MagicMock(spec=launcher.Config,
-                                      socket_bridges=[fake_bridge_config])
+                                      socket_bridges=[fake_bridge_config],
+                                      container_id=None)
 
         self._fake_session_address = launcher.translate_to_real_address(fake_session_socket)
 
@@ -328,7 +280,7 @@ class TestLauncherSession(TestCase):
             self.assertThat(session_event_loop.is_alive(), Equals(False))
 
 
-class TestLauncherServiceTask(TestCase):
+class TestLauncherServiceTask(TestLauncher):
     """Verify the expected bahaviour of launch tasks."""
 
     def setUp(self):
@@ -461,7 +413,7 @@ class EchoServer(Thread):
             s.close()
 
 
-class TestLauncherSessionSocketBridge(TestCase):
+class TestLauncherSessionSocketBridge(TestLauncher):
     """Verify the Launcher Session socket bridge functionality."""
 
     _fake_session_socket = 'unix:path=/tmp/session-' + _generate_unique_string()
@@ -478,7 +430,8 @@ class TestLauncherSessionSocketBridge(TestCase):
         config = MagicMock(spec=launcher.Config,
                            socket_bridges=[launcher.SocketBridge('FAKE_SOCKET',
                                            host_address=EchoServer.socket_address,
-                                           session_address=self._fake_session_socket)])
+                                           session_address=self._fake_session_socket)],
+                           container_id=None)
         self._session = launcher.Session(config, mock_container)
 
     def test_abstract_socket_is_used(self):
@@ -536,7 +489,7 @@ class TestLauncherSessionSocketBridge(TestCase):
             self.assertThat(response, Contains('ping'))
 
 
-class TestLauncherSessionTask(TestCase):
+class TestLauncherSessionTask(TestLauncher):
     """Verify how a Session handles Tasks."""
 
     @patch('test_launcher.LibertineContainer')
@@ -554,7 +507,11 @@ class TestLauncherSessionTask(TestCase):
         fake_datum = [self.getUniqueString()]
         task = launcher.TaskConfig(launcher.TaskType.LAUNCH_SERVICE, fake_datum)
 
-        config = MagicMock(spec=launcher.Config, socket_bridges=[], prelaunch_tasks=[task], host_environ={})
+        config = MagicMock(spec=launcher.Config,
+                           socket_bridges=[],
+                           prelaunch_tasks=[task],
+                           host_environ={},
+                           container_id=None)
         self._session = launcher.Session(config, mock_container)
 
     def test_session_starts_prelaunch_task(self):
@@ -577,7 +534,7 @@ class TestLauncherSessionTask(TestCase):
         self.assertThat(self._mock_service_task.wait.called, Equals(True))
 
 
-class TestLauncherContainerBehavior(TestCase):
+class TestLauncherContainerBehavior(TestLauncher):
     """Verify some expected behaviour when it comes to running the contained application."""
 
     def setUp(self):
@@ -585,7 +542,8 @@ class TestLauncherContainerBehavior(TestCase):
 
         self._mock_config = MagicMock(spec=launcher.Config,
                                       socket_bridges=[],
-                                      session_environ={})
+                                      session_environ={},
+                                      container_id=None)
 
         # Need to fake the ContainersConfig used internally by
         # LibertineContainer...  that whole outfit needs to be refactored for

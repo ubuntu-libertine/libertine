@@ -61,7 +61,10 @@ class LaunchServiceTask(object):
 
     def stop(self):
         """Shuts the service down.  """
-        self._process.terminate()
+        try:
+            self._process.terminate()
+        except ProcessLookupError:
+            pass
 
     def wait(self):
         """Wait for service shutdown to complete.
