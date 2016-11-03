@@ -107,7 +107,7 @@ Depends: libcontent-hub0,
          libqt5gui5,
          libqt5widgets5,
          matchbox-window-manager,
-         xmir,
+         xmir [amd64 armhf i386],
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
