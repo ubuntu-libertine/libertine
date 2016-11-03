@@ -45,7 +45,7 @@ ItemPage {
     ContainersList {
         anchors {
             topMargin: pageHeader.height
-            fill: containersView
+            fill: mainView
         }
 
         currentContainer: mainView.currentContainer
