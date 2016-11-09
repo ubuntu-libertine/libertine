@@ -203,7 +203,10 @@ class ContainersConfig(object):
             print("Container id \'%s\' does not exist." % container_id, file=sys.stderr)
             sys.exit(1)
         elif not container_id:
-            return self.get_default_container_id()
+            container_id = self.get_default_container_id()
+            if container_id is None:
+                print("No default container available.")
+                sys.exit(1)
 
         return container_id
 
