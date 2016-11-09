@@ -268,6 +268,39 @@ class LibertineContainerManager(object):
                     print("%s was not properly deleted." % archive_name)
                     sys.exit(1)
 
+        elif args.bind_mount is not None:
+            if args.mount_path is None:
+                print("Configure bind-mounts called without mount path. See configure --help for usage")
+                sys.exit(1)
+
+            mount_path = args.mount_path.rstrip('/')
+
+            # validate bind-mount
+            if not mount_path.startswith(os.environ['HOME']) and not mount_path.startswith('/media/%s' % os.environ['USER']):
+                print("Cannot mount '%s', mount path must be in $HOME or /media/$USER." % mount_path)
+                sys.exit(1)
+            if mount_path.startswith('/media/%s' % os.environ['USER']) and \
+                   self.containers_config.get_container_type(container_id) == 'lxc':
+                print("/media mounts not currently supported in lxc.")
+                sys.exit(1)
+            if not os.path.isdir(mount_path):
+                print("Cannot mount '%s', mount path must be an existing directory." % mount_path)
+                sys.exit(1)
+
+            # update database with new bind-mount
+            container_bind_mounts = self.containers_config.get_container_bind_mounts(container_id)
+            if args.bind_mount == 'add':
+                if mount_path in container_bind_mounts:
+                    print("Cannot add mount '%s', bind-mount already exists." % mount_path)
+                    sys.exit(1)
+                self.containers_config.add_new_bind_mount(container_id, mount_path)
+            elif args.bind_mount == 'remove':
+                if mount_path not in container_bind_mounts:
+                    print("Cannot remove mount '%s', bind-mount does not exist." % mount_path)
+                    sys.exit(1)
+                self.containers_config.delete_bind_mount(container_id, mount_path)
+
+
         else:
             print("Configure called with no subcommand. See configure --help for usage.")
             sys.exit(1)
@@ -479,6 +512,17 @@ if __name__ == '__main__':
         metavar='Public key file',
         help=("File containing the key used to sign the given archive. "
               "Useful for third-party or private archives."))
+
+    mount_group = parser_configure.add_argument_group("Additional bind-mounts",
+                    "Add or delete an additional bind-mount.")
+    mount_group.add_argument(
+        '-b', '--bind-mount',
+        choices=['add', 'remove'],
+        help="Adds or removes a bind-mount in the specified Libertine container.")
+    mount_group.add_argument(
+      '-p', '--mount-path',
+      metavar='Mount path',
+      help=("The absolute host path to bind-mount."))
 
     parser_configure.set_defaults(func=container_manager.configure)
 

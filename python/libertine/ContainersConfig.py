@@ -107,6 +107,11 @@ class ContainersConfig(object):
                 container[key] = [value]
             else:
                 container[key].append(value)
+        elif type(value) is list:
+            if key not in container:
+                container[key] = value
+            else:
+                container[key] = container[key] + value
 
         write_container_config_file(self.container_list)
 
@@ -133,6 +138,13 @@ class ContainersConfig(object):
                 container[array_key].remove(item)
                 write_container_config_file(self.container_list)
                 return
+
+    def _delete_array_object_by_value(self, container_id, array_key, value):
+        container = self._get_container_entry(container_id)
+
+        if container and array_key in container and value in container[array_key]:
+            container[array_key].remove(value)
+            write_container_config_file(self.container_list)
 
     def _test_key_value_exists(self, container_id, key, value=None):
         key_value = self._get_value_by_key(container_id, key)
@@ -338,6 +350,21 @@ class ContainersConfig(object):
     def delete_running_app(self, container_id, app_exec_name):
         self._delete_array_object_by_key_value(container_id, 'runningApps',
                                                'appExecName', app_exec_name)
+
+    """
+    Operations for bind-mount maintenance in a Libertine container.
+    """
+    def get_container_bind_mounts(self, container_id):
+        mounts = self._get_value_by_key(container_id, "bindMounts")
+        if mounts is not None:
+            return mounts
+        return []
+
+    def add_new_bind_mount(self, container_id, mount_path):
+        self._set_value_by_key(container_id, 'bindMounts', [mount_path])
+
+    def delete_bind_mount(self, container_id, mount_path):
+        self._delete_array_object_by_value(container_id, 'bindMounts', mount_path)
 
     """
     Fetcher functions for various configuration information.

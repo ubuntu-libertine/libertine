@@ -20,6 +20,7 @@ import subprocess
 
 from .Libertine import BaseContainer
 from . import utils
+from libertine.ContainersConfig import ContainersConfig
 
 
 def chown_recursive_dirs(path):
@@ -178,7 +179,9 @@ class LibertineChroot(BaseContainer):
             % (utils.get_libertine_container_userdata_dir_path(self.container_id), home_path)
         )
 
-        for user_dir in utils.get_common_xdg_user_directories():
+        mounts = self._sanitize_bind_mounts(utils.get_common_xdg_user_directories() + \
+                                            ContainersConfig().get_container_bind_mounts(self.container_id))
+        for user_dir in utils.generate_binding_directories(mounts, home_path):
             user_dir_path = os.path.join(home_path, user_dir[1])
             bind_mounts += " -b %s:%s" % (user_dir[0], user_dir_path)
 
@@ -189,6 +192,9 @@ class LibertineChroot(BaseContainer):
             proot_cmd += " -b %s" % user_dconf_path
 
         return proot_cmd
+
+    def _sanitize_bind_mounts(self, mounts):
+        return [mount.replace(" ", "\\ ").replace("'", "\\'").replace('"', '\\"') for mount in mounts]
 
     def _build_privileged_proot_cmd(self):
         proot_cmd = shutil.which('proot')

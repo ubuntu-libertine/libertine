@@ -48,7 +48,7 @@ _libertine-container-manager()
         opts="--help"
         ;;
       "configure" )
-        opts="--help --id --multiarch --archive"
+        opts="--help --id --multiarch --archive --bind-mount"
         ;;
       "set-default" )
         opts="--help --id --clear"
@@ -62,10 +62,12 @@ _libertine-container-manager()
     if [[ ${cmd} == "configure" ]]; then
       if [[ "${COMP_WORDS[COMP_CWORD-1]}" == "--multiarch" ]]; then
         opts="enable disable"
-      elif [[ "${COMP_WORDS[COMP_CWORD-1]}" == "--archive" ]]; then
+      elif [ "${COMP_WORDS[COMP_CWORD-1]}" == "--archive" ] || [ "${COMP_WORDS[COMP_CWORD-1]}" == "--bind-mount" ]; then
         opts="add remove"
       elif [[ " ${COMP_WORDS[@]} " =~ " --archive " ]]; then
-        opts="--archive-name --public-key-file"
+        opts="--archive-name --public-key-file --id"
+      elif [[ " ${COMP_WORDS[@]} " =~ " --bind-mount " ]]; then
+        opts="--id --mount-path"
       fi
     fi
 

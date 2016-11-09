@@ -289,6 +289,16 @@ Archive to be added or removed. Examples: 'deb http://myserver/path/to/repo stab
 .RS 14
 File containing public key used to sign new archive.
 .RE
+.IP
+.BR \-b " {add,remove}, " \-\-bind-mount "{add,remove}" ""
+.RS 14
+Adds or removes a bind-mount in the specified container.
+.RE
+.IP
+.BR \-p " MOUNT_PATH, " \-\-mount-path " MOUNT_PATH" ""
+.RS 14
+Absolute host path to be added or removed.
+.RE
 .TP
 
 .B libertine-container-manager set-default [options]

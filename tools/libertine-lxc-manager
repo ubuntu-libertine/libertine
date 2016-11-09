@@ -28,6 +28,7 @@ import subprocess
 from collections import Counter
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
+from libertine.ContainersConfig import ContainersConfig
 
 
 home_path = os.environ['HOME']
@@ -41,6 +42,7 @@ class Service(dbus.service.Object):
     def __init__(self):
         self.is_pulse_setup = False
         self.app_counter = Counter()
+        self.containers_config = ContainersConfig()
         self.operation_counter = Counter()
 
         DBusGMainLoop(set_as_default=True)
@@ -127,7 +129,7 @@ class Service(dbus.service.Object):
 
         if not container.running:
             if launchable:
-                self._dynamic_bind_mounts(container)
+                self._dynamic_bind_mounts(container, container_id)
 
             return libertine.LxcContainer.lxc_start(container, lxc_log_file)
 
@@ -138,14 +140,25 @@ class Service(dbus.service.Object):
 
         libertine.LxcContainer.lxc_stop(container)
 
+    def _dynamic_bind_mounts(self, container, container_id):
+        self.containers_config.refresh_database()
+        mounts = self._sanitize_bind_mounts(libertine.utils.get_common_xdg_user_directories() + \
+                                            self.containers_config.get_container_bind_mounts(container_id))
 
-    def _dynamic_bind_mounts(self, container):
-        for user_dir in libertine.utils.get_common_xdg_user_directories():
+        data_dir = libertine.utils.get_libertine_container_userdata_dir_path(container_id)
+        for user_dir in libertine.utils.generate_binding_directories(mounts, home_path):
+            user_dir_fullpath = os.path.join(data_dir, user_dir[1])
+            if not os.path.exists(user_dir_fullpath):
+                os.makedirs(user_dir_fullpath, exist_ok=True)
+
             xdg_user_dir_entry = (
                 "%s %s/%s none bind,create=dir,optional"
                 % (user_dir[0], home_path.strip('/'), user_dir[1])
             )
             container.append_config_item("lxc.mount.entry", xdg_user_dir_entry)
+
+    def _sanitize_bind_mounts(self, mounts):
+        return [mount.replace(" ", "\\040") for mount in mounts]
 
 
 def sigterm(self):

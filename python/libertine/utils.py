@@ -100,20 +100,33 @@ def get_libertine_runtime_dir():
     return os.path.join(get_user_runtime_dir(), 'libertine')
 
 
+def generate_binding_directories(dirs, prefix):
+    names = []
+    binding_dirs = []
+    for dir in set(dirs): # iterate over unique items
+        if len([d for d in dirs if dir.startswith(d)]) > 1: # exclude if subset of other dir
+            continue
+
+        name = dir
+        if name.startswith(prefix):
+            name = name.replace(prefix, '', 1)
+        name = name.lstrip('/')
+        if name in names:
+            binding_dirs.append((dir, "%s (%i)" % (name, names.count(name))))
+        else:
+            binding_dirs.append((dir, name))
+        names.append(name)
+
+    return binding_dirs
+
+
 def get_common_xdg_user_directories():
     dirs = []
     for dir in ['DOCUMENTS', 'MUSIC', 'PICTURES', 'VIDEOS', 'DOWNLOAD']:
         xdg = subprocess.Popen(["xdg-user-dir", dir], stdout=subprocess.PIPE)
         stdout, stderr = xdg.communicate()
         dirs.append(stdout.decode('utf-8').strip())
-    names = []
-    for dir in dirs:
-        name = dir.split("/")[-1]
-        if name in names:
-            yield (dir, "%s (%i)" % (name, names.count(name)))
-        else:
-            yield (dir, name)
-        names.append(name)
+    return dirs
 
 
 def create_libertine_user_data_dir(container_id):
@@ -126,12 +139,6 @@ def create_libertine_user_data_dir(container_id):
 
     if not os.path.exists(config_path):
         os.makedirs(config_path)
-
-    for xdg_dir in get_common_xdg_user_directories():
-        xdg_path = os.path.join(user_data, xdg_dir[1])
-
-        if not os.path.exists(xdg_path):
-            os.makedirs(xdg_path)
 
 
 def get_libertine_lxc_pulse_socket_path():
