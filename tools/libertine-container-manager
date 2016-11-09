@@ -70,7 +70,7 @@ class LibertineContainerManager(object):
                 sys.exit(1)
 
         if not args.name:
-            args.name = "Ubuntu \'" + self.host_info.get_distro_codename(args.distro) + "\'"
+            args.name = "Ubuntu \'" + (self.host_info.get_distro_codename(args.distro) or args.distro) + "\'"
 
         if container_type == "lxc":
             if args.password:
