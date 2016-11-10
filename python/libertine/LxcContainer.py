@@ -127,7 +127,7 @@ class EnvLxcSettings(contextlib.ExitStack):
             del os.environ['http_proxy']
             del os.environ['https_proxy']
 
-            
+
 class LibertineLXC(BaseContainer):
     """
     A concrete container type implemented using an LXC container.
@@ -166,7 +166,7 @@ class LibertineLXC(BaseContainer):
 
     def start_container(self):
         if self.lxc_manager_interface:
-            (result, error) = self.lxc_manager_interface.operation_start(self.container_id, self.lxc_log_file)  
+            (result, error) = self.lxc_manager_interface.operation_start(self.container_id, self.lxc_log_file)
         else:
             (result, error) = lxc_start(self.container, self.lxc_log_file)
 
@@ -241,6 +241,7 @@ class LibertineLXC(BaseContainer):
                                           "release": self.installed_release,
                                           "arch": self.architecture}):
                 print("Failed to create container")
+                self._dump_lxc_log()
                 return False
 
         self.create_libertine_config()
@@ -347,6 +348,8 @@ class LibertineLXC(BaseContainer):
 
     def _set_lxc_log(self):
         self.lxc_log_file = os.path.join(tempfile.mkdtemp(), 'lxc-start.log')
+        self.container.append_config_item("lxc.logfile", self.lxc_log_file)
+        self.container.append_config_item("lxc.logpriority", "3")
 
     def _dump_lxc_log(self):
         if os.path.exists(self.lxc_log_file):
