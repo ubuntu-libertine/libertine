@@ -19,6 +19,7 @@ from testtools.matchers import Equals
 import os
 import shutil
 import tempfile
+from unittest.mock import MagicMock
 
 
 class TestLibertineContainer(TestCase):
@@ -30,31 +31,34 @@ class TestLibertineContainer(TestCase):
         os.environ['XDG_DATA_HOME'] = self._working_dir
         os.environ['XDG_RUNTIME_DIR'] = self._working_dir
 
+        self._config = MagicMock()
+        self._config.get_container_type.return_value = 'lxc'
+
     def tearDown(self):
         shutil.rmtree(self._working_dir)
         super().tearDown()
 
     def test_container_id(self):
         container_id = "test-id-1"
-        container = Libertine.LibertineContainer(container_id)
+        container = Libertine.LibertineContainer(container_id, self._config)
 
         self.assertThat(container.container_id, Equals(container_id))
 
     def test_container_type_default(self):
         container_id = "test-id-2"
-        container = Libertine.LibertineContainer(container_id)
+        container = Libertine.LibertineContainer(container_id, self._config)
 
         self.assertThat(container.container_type, Equals("lxc"))
 
     def test_container_name_default(self):
         container_id = "test-id-3"
-        container = Libertine.LibertineContainer(container_id)
+        container = Libertine.LibertineContainer(container_id, self._config)
 
         self.assertThat(container.name, Equals("Unknown"))
 
     def test_container_root_path(self):
         container_id = "test-id-4"
-        container = Libertine.LibertineContainer(container_id)
+        container = Libertine.LibertineContainer(container_id, self._config)
 
         expected_root_path = os.path.join(self._working_dir,
                                           "libertine-container",

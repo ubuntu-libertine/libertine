@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 
 from libertine import launcher
 
@@ -24,8 +25,12 @@ def main():
     config = launcher.Config()
 
     if config.container_id:
-        from libertine import LibertineContainer
+        from libertine import ContainersConfig, utils
+        if not ContainersConfig.ContainersConfig().container_exists(config.container_id):
+            utils.get_logger().error("No container with id '%s'" % config.container_id)
+            sys.exit(1)
 
+        from libertine import LibertineContainer
         container = LibertineContainer(container_id=config.container_id)
     else:
         from libertine import NoContainer

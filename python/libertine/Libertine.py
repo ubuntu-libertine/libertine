@@ -62,7 +62,7 @@ class NoContainer(object):
         """
         A no-op function used by the Session class.
         """
-        pass 
+        pass
 
     def start_application(self, app_exec_line, environ):
         import psutil
@@ -309,7 +309,7 @@ class LibertineContainer(object):
 
         container_type = self.containers_config.get_container_type(container_id)
 
-        if container_type == None or container_type == "lxc":
+        if container_type == "lxc":
             from  libertine.LxcContainer import LibertineLXC
             self.container = LibertineLXC(container_id)
         elif container_type == "chroot":
