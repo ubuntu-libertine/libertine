@@ -97,7 +97,7 @@ class LibertineChroot(BaseContainer):
             os.fchmod(fd.fileno(), 0o755)
 
         # Add universe, multiverse, and -updates to the chroot's sources.list
-        if (self.architecture == 'armhf'):
+        if (self.architecture == 'armhf' or self.architecture == 'arm64'):
             archive = "deb http://ports.ubuntu.com/ubuntu-ports "
         else:
             archive = "deb http://archive.ubuntu.com/ubuntu "
@@ -128,9 +128,9 @@ class LibertineChroot(BaseContainer):
                 self.destroy_libertine_container()
                 return False
 
-        if self.installed_release == "vivid":
+        if self.installed_release == "vivid" or self.installed_release == "xenial":
             if verbosity == 1:
-                print("Installing the Vivid Stable Overlay PPA...")
+                print("Installing the Stable Overlay PPA...")
             if not self.install_package("software-properties-common", verbosity, update_cache=False):
                 print("Failure installing software-properties-common during container creation")
                 self.destroy_libertine_container()
