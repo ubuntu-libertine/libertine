@@ -64,8 +64,10 @@ class LibertineChroot(BaseContainer):
         container_root = os.path.join(utils.get_libertine_containers_dir_path(), self.container_id)
         try:
             shutil.rmtree(container_root)
+            return True
         except Exception as e:
             print("%s" % e)
+            return False
 
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         # Create the actual chroot
@@ -147,7 +149,7 @@ class LibertineChroot(BaseContainer):
     def update_packages(self, verbosity=1):
         retcode = super().update_packages(verbosity)
         self._run_ldconfig(verbosity)
-        return retcode
+        return retcode == 0
 
     def install_package(self, package_name, verbosity=1, no_dialog=False, update_cache=True):
         returncode = super().install_package(package_name, verbosity, no_dialog, update_cache)

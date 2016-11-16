@@ -1,4 +1,6 @@
 usr/bin/libertine-container-manager
 usr/bin/libertine-launch
+usr/bin/libertined
+usr/share/dbus-1/services/com.canonical.libertine.ContainerManager.service
 usr/share/bash-completion/completions/libertine-container-manager
 usr/share/man

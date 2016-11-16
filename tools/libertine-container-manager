@@ -183,7 +183,7 @@ class LibertineContainerManager(object):
         container = LibertineContainer(container_id)
 
         self.containers_config.update_container_install_status(container_id, "updating")
-        if container.update_libertine_container(args.verbosity) is not 0:
+        if not container.update_libertine_container(args.verbosity):
             self.containers_config.update_container_install_status(container_id, "ready")
             sys.exit(1)
 

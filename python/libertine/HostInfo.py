@@ -36,7 +36,7 @@ class HostInfo(object):
 
         return distinfo.get('CODENAME', 'n/a')
 
-    def is_distro_valid(self, distro, force):
+    def is_distro_valid(self, distro, force=False):
         if force:
             return UbuntuDistroInfo().valid(distro)
 

@@ -199,9 +199,12 @@ class LibertineLXC(BaseContainer):
         return super().update_packages(verbosity)
 
     def destroy_libertine_container(self):
-        if self.container.defined:
-            self.container.stop()
-            self.container.destroy()
+        if not self.container.defined:
+            return False
+
+        self.container.stop()
+        self.container.destroy()
+        return True
 
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         if password is None:
