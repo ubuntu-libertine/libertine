@@ -50,6 +50,7 @@ class LibertineChroot(BaseContainer):
     def __init__(self, container_id):
         super().__init__(container_id)
         self.container_type = "chroot"
+        self._window_manager = None
         os.environ['FAKECHROOT_CMD_SUBST'] = '$FAKECHROOT_CMD_SUBST:/usr/bin/chfn=/bin/true'
         os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
 
@@ -220,7 +221,7 @@ class LibertineChroot(BaseContainer):
 
         args = shlex.split(proot_cmd)
         args.extend(utils.setup_window_manager(self.container_id, enable_toolbars=True))
-        window_manager = psutil.Popen(args, env=environ)
+        self._window_manager = psutil.Popen(args, env=environ)
 
         args = shlex.split(proot_cmd)
         args.extend(app_exec_line)
@@ -228,7 +229,7 @@ class LibertineChroot(BaseContainer):
         return app
 
     def finish_application(self, app):
-        utils.terminate_window_manager(window_manager)
+        utils.terminate_window_manager(self._window_manager)
         app.wait()
 
     def _run_ldconfig(self, verbosity=1):
