@@ -197,6 +197,17 @@ class BaseContainer(metaclass=abc.ABCMeta):
                 os.environ['DEBIAN_FRONTEND'] = 'teletype'
             return self.run_in_container(apt_command_prefix(verbosity) + " install '" + package_name + "'") == 0
 
+    def remove_package(self, package_name, verbosity=1):
+        """
+        Removes a package from the container.
+
+        :param package_name: The name of the package to be removed.
+        :param verbosity: The verbosity level of the progress reporting.
+        """
+        if self.run_in_container(apt_command_prefix(verbosity) + " purge '" + package_name + "'") != 0:
+            return False
+        return self.run_in_container(apt_command_prefix(verbosity) + "autoremove --purge") == 0
+
     def configure_multiarch(self, should_enable, verbosity=1):
         """
         Enables or disables multiarch repositories.
@@ -264,8 +275,20 @@ class LibertineMock(BaseContainer):
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         return True
 
+    def destroy_libertine_container(self, verbosity=1):
+        return True
+
+    def update_packages(self, verbosity=1):
+        return True
+
+    def install_package(self, package_name, verbosity=1, no_dialog=False, update_cache=True):
+        return True
+
+    def remove_package(self, package_name, verbosity=1, no_dialog=False):
+        return True
+
     def run_in_container(self, command_string):
-        return 0
+        return True
 
     def start_application(self, app_exec_line, environ):
         import subprocess
@@ -383,9 +406,7 @@ class LibertineContainer(object):
                 if no_dialog:
                     os.environ['DEBIAN_FRONTEND'] = 'teletype'
 
-                if self.container.run_in_container(apt_command_prefix(verbosity) + " purge '" + package_name + "'") != 0:
-                    return False
-                return self.container.run_in_container(apt_command_prefix(verbosity) + "autoremove --purge") == 0
+                return self.container.remove_package(package_name, verbosity)
         except RuntimeError as e:
             return handle_runtime_error(e)
 
