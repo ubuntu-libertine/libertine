@@ -34,8 +34,8 @@ Homepage: https://launchpad.net/libertine
 
 Package: libertine-manager-app
 Architecture: any
-Replaces: libertine (<< 1.4.2-1~)
-Breaks: libertine (<< 1.4.2-1~)
+Replaces: libertine (<= 1.4.3+17.04.20161118.1-0ubuntu1)
+Breaks: libertine (<= 1.4.3+17.04.20161118.1-0ubuntu1)
 Depends: libertine-qt-common,
          libertine-tools,
          python3-libertine-lxc,
@@ -85,7 +85,6 @@ Description: common files for qt-based libertine applications
 Package: libertine-tools
 Architecture: any
 Depends: libglib2.0-bin,
-         libertine-xmir-tools (>= 1.4.3),
          lsb-release,
          python3-apt,
          python3-dbus,
@@ -94,6 +93,7 @@ Depends: libglib2.0-bin,
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
+Recommends: libertine-xmir-tools (>= 1.4.3)
 Breaks: libertine-demo
 Replaces: libertine-demo
 Description: CLI tools for running deb-packaged X11 apps on Ubuntu Personal
@@ -101,13 +101,13 @@ Description: CLI tools for running deb-packaged X11 apps on Ubuntu Personal
  the Ubuntu Personal sandbox for legacy Deb-packaged X11 applicatons.
 
 Package: libertine-xmir-tools
-Architecture: any
+Architecture: amd64 armhf arm64 i386
 Depends: libcontent-hub0,
          libqt5core5a,
          libqt5gui5,
          libqt5widgets5,
          matchbox-window-manager,
-         xmir [amd64 armhf i386],
+         xmir [amd64 armhf arm64 i386],
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}

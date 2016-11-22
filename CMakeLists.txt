@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 cmake_policy(SET CMP0048 NEW)
 
 project(libertine
-        VERSION 1.4.1)
+        VERSION 1.4.3)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 

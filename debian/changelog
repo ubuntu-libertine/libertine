@@ -1,8 +1,42 @@
-libertine (1.4.3-0ubuntu1) UNRELEASED; urgency=medium
+libertine (1.4.3+17.04.20161121.2-0ubuntu1) zesty; urgency=medium
 
-  * Bump version to 1.4.3. 
+  [ Chris Townsend ]
+  * Fix old libertine package breaks/replaces version for proper
+    upgrading. 
 
- -- Chris Townsend <christopher.townsend@canonical.com>  Wed, 26 Oct 2016 15:59:38 -0400
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Mon, 21 Nov 2016 19:45:35 +0000
+
+libertine (1.4.3+17.04.20161118.1-0ubuntu1) zesty; urgency=medium
+
+  [ Chris Townsend]
+  * Use libertine-lxc-manager when starting/stopping a container for
+    libertine-container-manager operations if the session DBus is
+    available.  If not, fallback to l-c-m starting/stopping the
+    container. (LP: #1628587)
+  * Add a new entry to ContainersConfig for keeping track of running
+    processes in a container. (LP: #1632729)
+  * libertine-launch: refactored core components of application session
+    management.
+  * Split out Xmir helper apps into their own package.
+  * Add support for starting pasted and matchbox for snap based/
+    containerless apps in U8. (LP: #1637535)
+  * Bump version to 1.4.3.
+
+  [ Larry Price ]
+  * Add implementation for libertine gui as a system-settings plugin.
+    (LP: #1623946)
+  * Manually require archive name during archive configuration.
+  * Add a warning to the top of ContainersConfig.json advising users
+    not to edit the file.
+  * Missing error dialogs in PackageInfoView when fetching version
+    results in an error.
+  * Avoid searching for apps based on empty directories.
+
+  [ Stephen M. Webb ]
+  * libertine-launch: refactored core components of application session
+    management.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Fri, 18 Nov 2016 14:52:15 +0000
 
 libertine (1.4.2+16.10.20161005-0ubuntu1) yakkety; urgency=medium
 
