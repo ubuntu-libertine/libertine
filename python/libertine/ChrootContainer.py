@@ -56,7 +56,8 @@ class LibertineChroot(BaseContainer):
 
     def run_in_container(self, command_string):
         cmd_args = shlex.split(command_string)
-        command_prefix = "fakechroot fakeroot chroot " + self.root_path
+        command_prefix = "{} fakeroot chroot {}".format(
+                    self._build_fakechroot_command(), self.root_path)
         args = shlex.split(command_prefix + ' ' + command_string)
         cmd = subprocess.Popen(args)
         return cmd.wait()
@@ -72,8 +73,8 @@ class LibertineChroot(BaseContainer):
 
     def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         # Create the actual chroot
-        command_line = "fakechroot fakeroot debootstrap --verbose --variant=fakechroot {} {}".format(
-                    self.installed_release, self.root_path)
+        command_line = "{} fakeroot debootstrap --verbose --variant=fakechroot {} {}".format(
+                    self._build_fakechroot_command(), self.installed_release, self.root_path)
         args = shlex.split(command_line)
         cmd = subprocess.Popen(args)
         cmd.wait()
@@ -159,6 +160,14 @@ class LibertineChroot(BaseContainer):
             self._run_ldconfig(verbosity)
 
         return returncode
+
+    def _build_fakechroot_command(self):
+        cmd = 'fakechroot'
+
+        if 'SNAP' in os.environ:
+            cmd = "{} -b {}/usr/sbin".format(cmd, os.environ['SNAP'])
+
+        return cmd
 
     def _build_proot_command(self):
         proot_cmd = shutil.which('proot')
