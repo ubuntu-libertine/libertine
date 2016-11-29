@@ -97,12 +97,11 @@ class TestLibertineService(TestCase):
 
         task = self._bus.get_object('com.canonical.libertine.Service', obj_path)
         if task.running():
-            self.event.wait(2)
-            self.assertTrue(self.event.is_set())
+            self.event.wait(5)
             self.assertIsNone(self.error)
-        else:
-            self.assertEqual('', task.last_error())
-            self.result = task.result()
+
+        self.assertEqual('', task.last_error())
+        self.result = task.result()
 
         for signal in signals:
             self._bus._clean_up_signal_match(signal)

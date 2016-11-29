@@ -69,15 +69,16 @@ class Progress(dbus.service.Object):
 
     @dbus.service.method(PROGRESS_INTERFACE, out_signature='b')
     def running(self):
-        utils.get_logger().debug("running()")
+        utils.get_logger().debug(not self.done)
         return not self.done
 
     @dbus.service.method(PROGRESS_INTERFACE, out_signature='s')
     def result(self):
-        utils.get_logger().debug("result()")
-        return "\n".join(self._result)
+        full_result = "\n".join(self._result)
+        utils.get_logger().debug(full_result)
+        return full_result
 
     @dbus.service.method(PROGRESS_INTERFACE, out_signature='s')
     def last_error(self):
-        utils.get_logger().debug("last_error()")
+        utils.get_logger().debug(self._error)
         return self._error
