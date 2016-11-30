@@ -53,7 +53,7 @@ class LibertineChroot(BaseContainer):
         self._window_manager = None
         # FIXME: Disabling seccomp is a temporary measure until we fully understand why we need
         #        it or figure out when we need it.
-        environ['PROOT_NO_SECCOMP'] = '1'
+        os.environ['PROOT_NO_SECCOMP'] = '1'
         os.environ['FAKECHROOT_CMD_SUBST'] = '$FAKECHROOT_CMD_SUBST:/usr/bin/chfn=/bin/true'
         os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
 
