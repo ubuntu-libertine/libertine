@@ -51,6 +51,9 @@ class LibertineChroot(BaseContainer):
         super().__init__(container_id)
         self.container_type = "chroot"
         self._window_manager = None
+        # FIXME: Disabling seccomp is a temporary measure until we fully understand why we need
+        #        it or figure out when we need it.
+        environ['PROOT_NO_SECCOMP'] = '1'
         os.environ['FAKECHROOT_CMD_SUBST'] = '$FAKECHROOT_CMD_SUBST:/usr/bin/chfn=/bin/true'
         os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
 
@@ -218,10 +221,6 @@ class LibertineChroot(BaseContainer):
         return proot_cmd
 
     def start_application(self, app_exec_line, environ):
-        # FIXME: Disabling seccomp is a temporary measure until we fully understand why we need
-        #        it or figure out when we need it.
-        environ['PROOT_NO_SECCOMP'] = '1'
-
         # Workaround issue where a custom dconf profile is on the machine
         if 'DCONF_PROFILE' in environ:
             del environ['DCONF_PROFILE']
