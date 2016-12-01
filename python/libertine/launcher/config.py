@@ -182,7 +182,7 @@ class Config(object):
         environ = os.environ.copy()
 
         # remove problematic environment variables
-        for e in ['QT_QPA_PLATFORM', 'LD_LIBRARY_PATH', 'FAKECHROOT_BASE', 'FAKECHROOT_CMD_SUBST']:
+        for e in ['QT_QPA_PLATFORM', 'FAKECHROOT_BASE', 'FAKECHROOT_CMD_SUBST']:
             if e in environ:
                 del environ[e]
 
