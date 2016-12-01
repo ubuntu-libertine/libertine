@@ -198,7 +198,7 @@ class LibertineChroot(BaseContainer):
                                             ContainersConfig().get_container_bind_mounts(self.container_id))
         for user_dir in utils.generate_binding_directories(mounts, home_path):
             user_dir_path = os.path.join(home_path, user_dir[1])
-            bind_mounts += " -b %s:%s" % (user_dir[0], user_dir_path)
+            bind_mounts += " -b \"%s:%s\"" % (user_dir[0], user_dir_path)
 
         proot_cmd += bind_mounts
 
