@@ -167,7 +167,7 @@ class LibertineChroot(BaseContainer):
     def _build_fakechroot_command(self):
         cmd = 'fakechroot'
 
-        if 'SNAP' in os.environ:
+        if utils.is_snap_environment():
             cmd = "{} -b {}/usr/sbin".format(cmd, os.environ['SNAP'])
 
         return cmd

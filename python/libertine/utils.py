@@ -57,10 +57,13 @@ def get_libertine_container_rootfs_path(container_id):
 
 
 def get_libertine_containers_dir_path():
-    xdg_cache_home = os.getenv('XDG_CACHE_HOME',
-                                os.path.join(os.getenv('HOME'), '.cache'))
+    if is_snap_environment():
+        libertine_cache_home = os.path.join(os.getenv('SNAP_USER_COMMON'), '.cache')
+    else:
+        libertine_cache_home = os.getenv('XDG_CACHE_HOME',
+                                    os.path.join(os.getenv('HOME'), '.cache'))
 
-    return os.path.join(xdg_cache_home, 'libertine-container')
+    return os.path.join(libertine_cache_home, 'libertine-container')
 
 
 def get_libertine_database_dir_path():
@@ -191,3 +194,10 @@ def set_session_dbus_env_var():
             return False
 
     return True
+
+
+def is_snap_environment():
+    if 'SNAP' in os.environ:
+        return True
+    else:
+        return False
