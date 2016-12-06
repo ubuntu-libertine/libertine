@@ -1,4 +1,0 @@
-Pattern: ${home}/.cache/libertine/puritine/${id}
-Exec: @CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/libertine/update-puritine-containers
-User-Level: yes
-Hook-Name: puritine

@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@ --with python3,gir,click
+	dh $@ --with python3,gir
 
 override_dh_auto_test:
 	dbus-run-session -- dh_auto_test

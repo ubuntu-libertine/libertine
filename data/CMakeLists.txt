@@ -10,7 +10,3 @@ install(FILES libertine-lxc-sudo
         DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/sudoers.d)
 install(FILES com.canonical.libertine.LxcManager.service com.canonical.libertine.ContainerManager.service
         DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/services)
-
-configure_file("python3-libertine-chroot.click-hook.in"
-  "${CMAKE_SOURCE_DIR}/debian/python3-libertine-chroot.click-hook"
-  @ONLY)
