@@ -1,0 +1,11 @@
+#!/bin/bash
+# additional env modifications on top of desktop-launch
+
+export LD_LIBRARY_PATH=$SNAP/usr/lib/$ARCH/fakechroot:$LD_LIBRARY_PATH
+export DEBOOTSTRAP_DIR=$SNAP/usr/share/debootstrap
+
+# Useful debug variables
+# export FAKECHROOT_DEBUG=1
+# export LIBERTINE_DEBUG=1
+
+exec $SNAP/bin/desktop-launch $@

@@ -2,3 +2,10 @@ po/POTFILES.in
 po/Makefile.in.in
 __pycache__
 tests/unit/.cache
+
+prime/
+stage/
+*.snap
+parts/*
+!parts/plugins
+parts/plugins/__pycache__

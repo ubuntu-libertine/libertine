@@ -1,0 +1,36 @@
+name: libertine
+version: "1.4.4"
+summary: Libertine suite
+description: |
+    Suite for maintaining deb-based applications in a non-deb environment
+confinement: devmode
+grade: devel
+
+apps:
+  libertine-container-manager:
+    command: usr/bin/snap-runner.wrapper libertine-container-manager
+    plugs: []
+  libertine-manager-app:
+    command: usr/bin/snap-runner.wrapper libertine-manager-app
+    plugs: []
+  libertine-launch:
+    command: usr/bin/snap-runner.wrapper libertine-launch
+
+  # For debugging purposes
+  bash:
+    command: usr/bin/snap-runner.wrapper bash
+
+parts:
+  libertine-source:
+    plugin: libertine
+    source: .
+    after:
+      - desktop-qt5
+  libertine-deps:
+    plugin: libertine-deps
+    stage:
+      - -usr/lib/x86_64-linux-gnu/liblibertine.so*
+  env:
+    plugin: dump
+    organize:
+      data/snap-runner.wrapper: usr/bin/snap-runner.wrapper

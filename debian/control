@@ -60,8 +60,7 @@ Architecture: any
 Depends: libertine-qt-common,
          libertine-tools,
          python3-libertine-lxc,
-         qml-module-qtquick2,
-         qtdeclarative5-ubuntu-ui-toolkit-plugin,
+         libsystemsettings1,
          ${misc:Depends},
          ${shlibs:Depends}
 Enhances: ubuntu-system-settings
