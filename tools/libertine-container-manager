@@ -88,11 +88,18 @@ class LibertineContainerManager(object):
             multiarch = 'enabled'
         self.containers_config.update_container_multiarch_support(args.id, multiarch)
 
-        container = LibertineContainer(args.id)
-        self.containers_config.update_container_install_status(args.id, "installing")
-        if not container.create_libertine_container(password, args.multiarch, args.verbosity):
+        try:
+            container = LibertineContainer(args.id)
+            self.containers_config.update_container_install_status(args.id, "installing")
+            if not container.create_libertine_container(password, args.multiarch, args.verbosity):
+                libertine.utils.get_logger().error("Failed to create container")
+                self.containers_config.delete_container(args.id)
+                sys.exit(1)
+        except Exception as e:
+            libertine.utils.get_logger().error("Failed to create container: '{}'".format(str(e)))
             self.containers_config.delete_container(args.id)
             sys.exit(1)
+
         self.containers_config.update_container_install_status(args.id, "ready")
 
         libertine.utils.refresh_libertine_scope()
