@@ -1,3 +1,36 @@
+libertine (1.4.4+17.04.20161205-0ubuntu1) zesty; urgency=medium
+
+  [ Chris Townsend ]
+  * Support arm64 based chroots and add stable overlay PPA for xenial
+    based chroots. (LP: #1642324)
+  * Support creating a Libertine chroot in a snap environment.
+  * Need to disable seccomp for running any proot command in a chroot
+    container.
+  * Escape the proot XDG bind-mounts with quotes to account for '(n)'
+    possibly being added to duplicate paths.
+  * Redirect where the container is created when in a snap environment.
+  * Exclude XDG_DATA_DIRS from being passed in to a chroot environment.
+    Fixes launching some apps in a Snappy Libertine chroot container.
+  * Bump version to 1.4.4.
+
+  [ Larry Price ]
+  * Immediately exit when no container specified and no default
+    available.
+  * Use distro name as default codename.
+  * Add initial bind-mount operations to libertine-container-manager.
+    (LP: #1590051)
+  * Gracefully handle bad container ids in libertine-launch.
+  * Dump the lxc log after a failed create.
+  * Initial implementation of a libertine d-bus service.
+  * Make window_manager a member variable on ChrootContainer.
+  * Happy path integration tests for libertined endpoints.
+  * Update translations build for cmake-extras update.
+
+  [ Ted Gould ]
+  * Remove 'LD_LIBRARY_PATH' from the env blacklist.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Mon, 05 Dec 2016 21:10:03 +0000
+
 libertine (1.4.3+17.04.20161121.2-0ubuntu1) zesty; urgency=medium
 
   [ Chris Townsend ]
