@@ -28,8 +28,6 @@ parts:
       - desktop-qt5
   libertine-deps:
     plugin: libertine-deps
-    stage:
-      - -usr/lib/x86_64-linux-gnu/liblibertine.so*
   env:
     plugin: dump
     organize:

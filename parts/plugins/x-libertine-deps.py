@@ -42,13 +42,12 @@ def _arch():
 class LibertineDependenciesPlugin(snapcraft.plugins.nil.NilPlugin):
     def __init__(self, name, options, project):
         super().__init__(name, options, project)
+        self._arch = _arch()
 
         deps_parser = utils.DependsParser()
-
         with open('debian/control') as control:
             for line in control.readlines():
                 deps_parser.parse(line)
-
         self.stage_packages.extend(deps_parser.deps)
 
     @classmethod
@@ -59,7 +58,7 @@ class LibertineDependenciesPlugin(snapcraft.plugins.nil.NilPlugin):
         return super().enable_cross_compilation()
 
     def env(self, root):
-        return super().env(root) + ['ARCH={}'.format(_arch())]
+        return super().env(root) + ['ARCH={}'.format(self._arch)]
 
     # By design, snapcraft ignores all pre- and post-inst scripts which
     # result in a bunch of packages that just don't work.
@@ -135,9 +134,14 @@ class LibertineDependenciesPlugin(snapcraft.plugins.nil.NilPlugin):
                 sys.stdout.write('PATHS=${FAKEROOT_PREFIX}/lib/%s/libfakeroot:' \
                                  '${FAKEROOT_PREFIX}/lib64/libfakeroot:' \
                                  '${FAKEROOT_PREFIX}/lib32/libfakeroot' \
-                                 '  # Updated by x-libertine.py\n' % _arch())
+                                 '  # Updated by x-libertine.py\n' % self._arch)
             else:
                 sys.stdout.write(line)
+
+    def _ignore_duplicate_files(self):
+        self.options.stage.extend([
+            '-usr/lib/{}/liblibertine.so*'.format(self._arch)
+        ])
 
     def build(self):
         super().build()
@@ -147,3 +151,5 @@ class LibertineDependenciesPlugin(snapcraft.plugins.nil.NilPlugin):
         self._run_preinst_postinst()
         self._fix_symlinks()
         self._fix_fakeroot()
+
+        self._ignore_duplicate_files()
