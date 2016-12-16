@@ -1,0 +1,40 @@
+#!/bin/sh
+
+if [ -z $1 ]; then
+  echo "Usage: $0 username"
+  exit 1
+fi
+
+USERNAME=$1
+
+# Create the lxd group and add given user
+if [ -z "`groups ${USERNAME} | grep lxd`" ]; then
+  groupadd --force --system lxd
+  usermod -G lxd -a $USERNAME
+fi
+
+# Map the given user to the container root user
+uid=`id --user ${USERNAME}`
+idmap="root:$uid:1"
+if [ -z "`grep ${idmap} /etc/subuid`" ]; then
+  echo ${idmap} | tee -a /etc/subuid /etc/subgid
+fi
+
+# find the right lxc command
+lxc=`which lxc`
+if [ -z "${lxc}" ]; then
+  if [ -n `which lxd.lxc` ]; then
+    lxc=`which lxd.lxc`
+  else
+    echo "No lxc command found on this system."
+    exit 1
+  fi
+fi
+
+# Run lxd init if there are no containers already on the system
+if [ 3 -ge `${lxc} list | wc -l` ]; then
+  lxd init
+fi
+
+mkdir -p /home/$USERNAME/.config/lxc
+chown -R $USERNAME:$USERNAME /home/$USERNAME/.config/lxc

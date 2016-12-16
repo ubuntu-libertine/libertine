@@ -55,11 +55,10 @@ public:
    * Display roles for a container config.
    */
   enum class DataRole
-  : int
   {
     ContainerId = Qt::UserRole + 1,   /**< The container ID */
     ContainerName,                    /**< The container name */
-    ContainerType,                    /**< The type of container - lxc or chroot */
+    ContainerType,                    /**< The type of container */
     DistroSeries,                     /**< The distro from which the container was built */
     InstallStatus,                    /**< Current container install status */
     Error                             /**< last role (error) */

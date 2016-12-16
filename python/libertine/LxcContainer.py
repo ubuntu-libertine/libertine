@@ -24,7 +24,7 @@ import sys
 import tempfile
 
 from .Libertine import BaseContainer
-from . import utils
+from . import utils, HostInfo
 
 
 home_path = os.environ['HOME']
@@ -96,13 +96,6 @@ def lxc_stop(container):
         container.stop()
 
 
-def get_host_timezone():
-    with open(os.path.join('/', 'etc', 'timezone'), 'r') as fd:
-        host_timezone = fd.read().strip('\n')
-
-    return host_timezone
-
-
 class EnvLxcSettings(contextlib.ExitStack):
     """
     Helper object providing a way to set the proxies for testing
@@ -140,6 +133,7 @@ class LibertineLXC(BaseContainer):
         self._set_lxc_log()
         self.lxc_manager_interface = None
         self.window_manager = None
+        self.host_info = HostInfo.HostInfo()
 
         utils.set_session_dbus_env_var()
 
@@ -150,19 +144,9 @@ class LibertineLXC(BaseContainer):
         except dbus.exceptions.DBusException:
             pass
 
-    def is_running(self):
-        return self.container.running
-
     def timezone_needs_update(self):
-        host_timezone = get_host_timezone()
-
         with open(os.path.join(self.root_path, 'etc', 'timezone'), 'r') as fd:
-            container_timezone = fd.read().strip('\n')
-
-        if host_timezone == container_timezone:
-            return False
-        else:
-            return True
+            return fd.read().strip('\n') != self.host_info.get_host_timezone()
 
     def start_container(self):
         if self.lxc_manager_interface:
@@ -192,7 +176,7 @@ class LibertineLXC(BaseContainer):
     def update_packages(self, verbosity=1):
         if self.timezone_needs_update():
             self.run_in_container("bash -c \'echo \"{}\" >/etc/timezone\'".format(
-                                  get_host_timezone()))
+                                  self.host_info.get_host_timezone()))
             self.run_in_container("rm -f /etc/localtime")
             self.run_in_container("dpkg-reconfigure -f noninteractive tzdata")
 

@@ -1,4 +1,4 @@
-# Copyright 2015-2106 Canonical Ltd.
+# Copyright 2015-2016 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -98,35 +98,27 @@ class BaseContainer(metaclass=abc.ABCMeta):
     def destroy_libertine_container(self, verbosity=1):
         pass
 
-    def copy_package_to_container(self, package_path):
+    def copy_file_to_container(self, source, dest):
         """
-        Copies a Debian package from the host to a pre-determined place
-        in a container.
+        Copies a file from the host to the given path in the container.
 
-        :param package_path: The full path to the Debian package located
-                             on the host.
+        :param source: The full path to the file on the host.
+        :param   dest: The relative path to the file in the container without
+                       the root path.
         """
-        if os.path.exists(os.path.join(self.root_path, 'tmp', package_path.split('/')[-1])):
+        if os.path.exists(os.path.join(self.root_path, dest)):
             return False
 
-        shutil.copy2(package_path, os.path.join(self.root_path, 'tmp'))
+        shutil.copy2(source, os.path.join(self.root_path, dest.lstrip('/')))
         return True
 
-    def delete_package_in_container(self, package_path):
+    def delete_file_in_container(self, path):
         """
-        Deletes a previously copied in Debian package in a container.
+        Deletes a file within the container.
 
-        :param package_path: The full path to the Debian package located
-                             on the host.
+        :param path: The path to the file without the container root path.
         """
-        os.remove(os.path.join(self.root_path, 'tmp', package_path.split('/')[-1]))
-
-    def is_running(self):
-        """
-        Indicates if the container is 'running'. The definition of 'running'
-        depends on the type of the container.
-        """
-        return False
+        os.remove(os.path.join(self.root_path, path.lstrip('/')))
 
     def start_container(self):
         """
@@ -180,16 +172,18 @@ class BaseContainer(metaclass=abc.ABCMeta):
             self.update_apt_cache(verbosity)
 
         if package_name.endswith('.deb'):
-            delete_package = self.copy_package_to_container(package_name)
+            if not os.path.exists(package_name):
+                utils.get_logger().error("File {} does not exist.".format(package_name))
+                return False
 
-            self.run_in_container('ls -la ' + os.environ['HOME'])
-            self.run_in_container('dpkg -i ' +
-                os.path.join('/', 'tmp', package_name.split('/')[-1]))
+            dest = os.path.join('/', 'tmp', package_name.split('/')[-1])
+            file_created = self.copy_file_to_container(package_name, dest)
 
+            self.run_in_container('dpkg -i {}'.format(dest))
             ret = self.run_in_container(apt_command_prefix(verbosity) + " install -f") == 0
 
-            if delete_package:
-                self.delete_package_in_container(package_name)
+            if file_created:
+                self.delete_file_in_container(dest)
 
             return ret
         else:
@@ -335,6 +329,9 @@ class LibertineContainer(object):
         if container_type == "lxc":
             from  libertine.LxcContainer import LibertineLXC
             self.container = LibertineLXC(container_id)
+        elif container_type == "lxd":
+            from libertine.LxdContainer import LibertineLXD
+            self.container = LibertineLXD(container_id, self.containers_config)
         elif container_type == "chroot":
             from  libertine.ChrootContainer import LibertineChroot
             self.container = LibertineChroot(container_id)

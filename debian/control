@@ -182,6 +182,21 @@ Description: Python3 scripts for the Libertine application sandbox
  Libertine sandbox.  It requires support for unprivileged LXC containers in the
  Linux kernel.
 
+Package: python3-libertine-lxd
+Architecture: any
+Section: python
+Multi-Arch: allowed
+Depends: lxd,
+         python3-libertine,
+         python3-pexpect,
+         python3-pylxd,
+         ${misc:Depends},
+         ${python3:Depends}
+Description: Python3 scripts for the Libertine application sandbox
+ This package provides the LXD-based container back end module for the
+ Libertine sandbox.  It requires support for unprivileged LXD containers in the
+ Linux kernel.
+
 Package: python3-libertine-chroot
 Architecture: any
 Section: python

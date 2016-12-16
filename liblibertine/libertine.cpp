@@ -67,8 +67,16 @@ list_apps_from_path(gchar* path, const gchar* container_id, GArray* apps)
   g_dir_close(dir);
   return nullptr;
 }
-}
 
+
+gchar*
+id_from_list_index(const ContainerConfigList& container_list, guint index)
+{
+  return (gchar*)container_list.data(container_list.index(index, 0),
+                                     (int)ContainerConfigList::DataRole::ContainerId)
+                               .toString().toStdString().c_str();
+}
+}
 
 gchar**
 libertine_list_apps_for_container(const gchar* container_id)
@@ -137,61 +145,68 @@ libertine_list_containers(void)
 gchar *
 libertine_container_path(const gchar * container_id)
 {
-  gchar * path = nullptr;
   g_return_val_if_fail(container_id != nullptr, nullptr);
+  LibertineConfig config;
+  ContainerConfigList container_list(&config);
+  gchar * path = nullptr;
 
-  path = g_build_filename(g_get_user_cache_dir(), "libertine-container", container_id, "rootfs", nullptr);
+  if (g_strcmp0((gchar*)container_list.getContainerType(container_id).toStdString().c_str(), "lxd") == 0)
+  {
+    path = g_build_filename("/", "var", "lib", "lxd", "containers", container_id, "rootfs", nullptr);
+  }
+  else
+  {
+    path = g_build_filename(g_get_user_cache_dir(), "libertine-container", container_id, "rootfs", nullptr);
+  }
 
   if (g_file_test(path, G_FILE_TEST_EXISTS))
   {
     return path;
   }
-  else
-  {
-    g_free(path);
-    return nullptr;
-  }
+
+  g_free(path);
+  return nullptr;
 }
 
 
 gchar *
 libertine_container_home_path(const gchar * container_id)
 {
-  gchar * path = nullptr;
   g_return_val_if_fail(container_id != nullptr, nullptr);
+  LibertineConfig config;
+  ContainerConfigList container_list(&config);
+  gchar * path = nullptr;
 
-  path = g_build_filename(g_get_user_data_dir(), "libertine-container", "user-data", container_id, nullptr);
+  if (g_strcmp0((gchar*)container_list.getContainerType(container_id).toStdString().c_str(), "lxd") == 0)
+  {
+    path = g_build_filename("/", "var", "lib", "lxd", "containers", container_id, "rootfs", "home", g_get_user_name(), nullptr);
+  }
+  else
+  {
+    path = g_build_filename(g_get_user_data_dir(), "libertine-container", "user-data", container_id, nullptr);
+  }
 
   if (g_file_test(path, G_FILE_TEST_EXISTS))
   {
     return path;
   }
-  else
-  {
-    g_free(path);
-    return nullptr;
-  }
 
+  g_free(path);
+  return nullptr;
 }
 
 
 gchar *
 libertine_container_name(const gchar * container_id)
 {
-  guint container_count;
-  guint i;
   gchar * container_name = nullptr;
   LibertineConfig config;
   ContainerConfigList container_list(&config);
-  QVariant id;
+  guint container_count = (guint)container_list.size();
 
-  container_count = (guint)container_list.size();
-
-  for (i = 0; i < container_count; ++i)
+  for (guint i = 0; i < container_count; ++i)
   {
-    id = container_list.data(container_list.index(i, 0), (int)ContainerConfigList::DataRole::ContainerId);
-
-    if (g_strcmp0((gchar *)id.toString().toStdString().c_str(), container_id) == 0)
+    if (g_strcmp0(id_from_list_index(container_list, i), container_id) == 0)
     {
       QVariant name = container_list.data(container_list.index(i, 0), (int)ContainerConfigList::DataRole::ContainerName);
       container_name = g_strdup(name.toString().toStdString().c_str());

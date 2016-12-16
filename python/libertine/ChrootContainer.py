@@ -233,8 +233,7 @@ class LibertineChroot(BaseContainer):
 
         args = shlex.split(proot_cmd)
         args.extend(app_exec_line)
-        app = psutil.Popen(args, env=environ)
-        return app
+        return psutil.Popen(args, env=environ)
 
     def finish_application(self, app):
         utils.terminate_window_manager(self._window_manager)

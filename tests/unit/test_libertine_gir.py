@@ -49,14 +49,12 @@ class TestLibertineGir(TestCase):
             self.assertThat(container_home_path, Equals(self.cmake_source_dir + '/libertine-home/libertine-container/user-data/wily'))
 
     def test_container_name(self):
-        container_id = 'wily'
         with patch.dict('os.environ', {'XDG_DATA_HOME': self.cmake_source_dir + '/libertine-config'}):
-            container_name = Libertine.container_name(container_id)
+            container_name = Libertine.container_name('wily')
 
             self.assertThat(container_name, Equals("Ubuntu 'Wily Werewolf'"))
 
-            container_id = 'wily-2'
-            container_name = Libertine.container_name(container_id)
+            container_name = Libertine.container_name('wily-2')
 
             self.assertThat(container_name, Equals("Ubuntu 'Wily Werewolf' (2)"))
 

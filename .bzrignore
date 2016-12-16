@@ -2,6 +2,7 @@ po/POTFILES.in
 po/Makefile.in.in
 __pycache__
 tests/unit/.cache
+*.click-hook
 
 prime/
 stage/

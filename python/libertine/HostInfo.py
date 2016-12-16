@@ -13,6 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import lsb_release
+import os
 import platform
 import subprocess
 
@@ -69,3 +70,7 @@ class HostInfo(object):
             parser.error("Failed to determine the local architecture.")
 
         return dpkg.stdout.read().strip()
+
+    def get_host_timezone(self):
+        with open(os.path.join('/', 'etc', 'timezone'), 'r') as fd:
+            return fd.read().strip('\n')
