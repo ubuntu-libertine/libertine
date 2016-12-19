@@ -58,6 +58,7 @@ def _readlink(source):
     return source
 
 def _setup_lxd():
+    utils.get_logger().info("Running LXD setup.")
     import pexpect
     child = pexpect.spawnu('sudo libertine-lxd-setup {}'.format(os.environ['USER']), env={'TERM': 'dumb'})
 
@@ -156,13 +157,12 @@ class LibertineLXD(Libertine.BaseContainer):
         self._update_libertine_profile()
 
         utils.get_logger().info("Creating container '%s' with distro '%s'" % (self._id, self.installed_release))
-        self._container = self._client.containers.create({'name': self._id,
-                                                          'profiles': ['default', 'libertine'],
-                                                          'source': {"type": "image",
-                                                                     "protocol": "simplestreams",
-                                                                     "server": "https://cloud-images.ubuntu.com/daily",
-                                                                     "alias": self.installed_release}},
-                                                          wait=True)
+        create = subprocess.Popen(shlex.split('lxc launch ubuntu-daily:{distro} {id} --profile '
+                                              'default --profile libertine'.format(
+                                              distro=self.installed_release, id=self._id)))
+        if create.wait() is not 0:
+            utils.get_logger().error("Creating container '{}' failed with code '{}'".format(self._id, create.returncode))
+            return False
 
         if not self.start_container():
             utils.get_logger().error("Failed to start container '{}'".format(self._id))
@@ -243,10 +243,8 @@ class LibertineLXD(Libertine.BaseContainer):
         if not self._try_get_container():
             return False
 
-        if self._container.status == 'Running':
-            return True
-
-        self._container.start(wait=True)
+        if self._container.status != 'Running':
+            self._container.start(wait=True)
 
         # Connect to network
         if not self._wait_for_network():
