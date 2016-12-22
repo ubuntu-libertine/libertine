@@ -9,10 +9,8 @@ grade: devel
 apps:
   libertine-container-manager:
     command: usr/bin/snap-runner.wrapper libertine-container-manager
-    plugs: []
   libertine-manager-app:
     command: usr/bin/snap-runner.wrapper libertine-manager-app
-    plugs: []
   libertine-launch:
     command: usr/bin/snap-runner.wrapper libertine-launch
 

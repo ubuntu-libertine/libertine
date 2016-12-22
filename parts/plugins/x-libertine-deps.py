@@ -50,6 +50,8 @@ class LibertineDependenciesPlugin(snapcraft.plugins.nil.NilPlugin):
                 deps_parser.parse(line)
         self.stage_packages.extend(deps_parser.deps)
 
+        self._ignore_duplicate_files()
+
     @classmethod
     def schema(cls):
         return super().schema()
@@ -151,5 +153,3 @@ class LibertineDependenciesPlugin(snapcraft.plugins.nil.NilPlugin):
         self._run_preinst_postinst()
         self._fix_symlinks()
         self._fix_fakeroot()
-
-        self._ignore_duplicate_files()
