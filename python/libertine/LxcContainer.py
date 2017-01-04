@@ -130,10 +130,12 @@ class LibertineLXC(BaseContainer):
         super().__init__(container_id)
         self.container_type = "lxc"
         self.container = lxc_container(container_id)
-        self._set_lxc_log()
         self.lxc_manager_interface = None
         self.window_manager = None
         self.host_info = HostInfo.HostInfo()
+
+        if self.container.defined:
+            self._set_lxc_log()
 
         utils.set_session_dbus_env_var()
 
@@ -220,6 +222,9 @@ class LibertineLXC(BaseContainer):
                 fd.write("lxc.id_map = u %s %s %s\n" % (user_id + 1, (user_id + 1) + 100000, 65536 - (user_id + 1)))
                 fd.write("lxc.id_map = g %s %s %s\n" % (group_id + 1, (group_id + 1) + 100000, 65536 - (user_id + 1)))
 
+        self.container.load_config(config_file)
+        self._set_lxc_log()
+ 
         utils.create_libertine_user_data_dir(self.container_id)
 
         with EnvLxcSettings():
