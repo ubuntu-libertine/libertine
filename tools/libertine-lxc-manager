@@ -51,7 +51,7 @@ class Service(dbus.service.Object):
                                             bus=dbus.SessionBus(),
                                             do_not_queue=True)
         except dbus.exceptions.NameExistsException:
-            print("service is already running")
+            libertine.utils.get_logger().error("service is already running")
             raise
         super().__init__(bus_name, LIBERTINE_LXC_MANAGER_PATH)
 

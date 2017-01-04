@@ -25,6 +25,7 @@ from gi import require_version
 require_version('Libertine', '1')
 from gi.repository import Libertine
 
+
 def get_logger():
     logger = logging.getLogger('__libertine_logger__')
 
@@ -40,11 +41,25 @@ def get_logger():
         logger.addHandler(stream_handler)
 
     if 'LIBERTINE_DEBUG' in os.environ:
-        logger.setLevel(logging.DEBUG)
+        if os.environ['LIBERTINE_DEBUG'] == '0':
+            logger.setLevel(logging.WARNING)
+        elif os.environ['LIBERTINE_DEBUG'] == '1':
+            logger.setLevel(logging.INFO)
+        else:
+            logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.WARNING)
 
     return logger
+
+
+def set_environmental_verbosity(verbosity):
+    # Set debug levels if not overridden in environment
+    if 'LIBERTINE_DEBUG' not in os.environ:
+        if verbosity is None:
+            os.environ['LIBERTINE_DEBUG'] = '1'
+        else:
+            os.environ['LIBERTINE_DEBUG'] = str(verbosity)
 
 
 def get_libertine_container_rootfs_path(container_id):

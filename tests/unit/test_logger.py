@@ -34,6 +34,11 @@ class TestLogger(TestCase):
     def test_logger_on_with_env_var(self):
         with patch.dict('os.environ', {'LIBERTINE_DEBUG': '1'}):
             l = libertine.utils.get_logger()
+            self.assertThat(l.getEffectiveLevel(), Equals(logging.INFO))
+
+    def test_logger_on_with_env_var(self):
+        with patch.dict('os.environ', {'LIBERTINE_DEBUG': '2'}):
+            l = libertine.utils.get_logger()
             self.assertThat(l.getEffectiveLevel(), Equals(logging.DEBUG))
 
     def test_logger_only_inits_once(self):
@@ -42,4 +47,3 @@ class TestLogger(TestCase):
             l2 = libertine.utils.get_logger()
             l3 = libertine.utils.get_logger()
             self.assertThat(len(l3.handlers), Equals(1))
-

@@ -44,7 +44,7 @@ class LaunchServiceTask(object):
 
     def __init__(self, config):
         """
-        :param config: The task configuraiton.
+        :param config: The task configuration.
         :type config: TaskConfig
 
         The constructor unpacks the service commandline from the config datum.
@@ -54,13 +54,13 @@ class LaunchServiceTask(object):
 
     def start(self, environ=None):
         """Start the service.
-        
+
         :param env: An alternate environment dictionary.
         """
         self._process = Popen(self._command_line, env=environ)
 
     def stop(self):
-        """Shuts the service down.  """
+        """Shuts the service down."""
         try:
             self._process.terminate()
         except ProcessLookupError:

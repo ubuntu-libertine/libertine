@@ -26,10 +26,10 @@ It is possible to create new containers, delete containers, update containers, i
 .SH OPTIONS
 .TP
 .BR \-q ", " \-\-quiet ""
-do not print status updates on stdout
+disable all non-vital output
 .TP
 .BR \-v ", " \-\-verbose ""
-extra verbose output
+enable debug output
 .TP
 .BR \-h ", " \-\-help ""
 Print a summary of the command line options and exit.
@@ -319,6 +319,12 @@ Container identifier.
 Clear default container.
 .RE
 .TP
+.BR
+
+.SH ENVIRONMENT VARIABLES
+.TP
+.BR LIBERTINE_DEBUG
+Overrides verbosity arguments. 0 for quiet, 1 for standard, 2 for debug.
 
 .SH SEE ALSO
 .UR https://launchpad.net/libertine

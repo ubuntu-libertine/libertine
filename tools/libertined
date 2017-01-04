@@ -62,11 +62,10 @@ class OutputRedirector(object):
             os.rename(self.cache_file, '%s.1' % self.cache_file)
 
     def __enter__(self):
-        if self.config.debug:
-            os.environ['LIBERTINE_DEBUG'] = '1'
-        else:
+        utils.set_environmental_verbosity(self.config.verbosity)
+
+        if not self.config.debug:
             if self.config.cache_output:
-                os.environ['LIBERTINE_DEBUG'] = '1'
                 self._rotate_logs()
                 self.output_file = open(self.cache_file, 'w')
             else:
@@ -94,7 +93,13 @@ class Config(object):
     self._arg_parser.add_argument(u'-d', u"--debug",
                                   action='store_true',
                                   default=False,
-                                  help=u"allow all output on stdout")
+                                  help=u"print output to stdout")
+    self._arg_parser.add_argument('-q', '--quiet', action='store_const',
+                                  dest='verbosity', const=0,
+                                  help=('disables all non-vital output'))
+    self._arg_parser.add_argument('-v', '--verbosity', action='store_const',
+                                  dest='verbosity', const=2,
+                                  help=('enables debug output'))
     self._arg_parser.add_argument(u'-c', u"--cache-output",
                                   action='store_true',
                                   default=False,
@@ -111,7 +116,7 @@ class Loop(object):
         self.loop = GLib.MainLoop()
 
     def sigterm(self, code):
-        utils.get_logger().info("terminate ('%s') signal received" % code)
+        utils.get_logger().debug("terminate ('%s') signal received" % code)
         self.shutdown()
 
     def shutdown(self):

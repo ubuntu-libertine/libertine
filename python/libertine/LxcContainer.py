@@ -175,14 +175,14 @@ class LibertineLXC(BaseContainer):
         cmd_args = shlex.split(command_string)
         return self.container.attach_wait(lxc.attach_run_command, cmd_args)
 
-    def update_packages(self, verbosity=1):
+    def update_packages(self):
         if self.timezone_needs_update():
             self.run_in_container("bash -c \'echo \"{}\" >/etc/timezone\'".format(
                                   self.host_info.get_host_timezone()))
             self.run_in_container("rm -f /etc/localtime")
             self.run_in_container("dpkg-reconfigure -f noninteractive tzdata")
 
-        return super().update_packages(verbosity)
+        return super().update_packages()
 
     def destroy_libertine_container(self):
         if not self.container.defined:
@@ -192,7 +192,7 @@ class LibertineLXC(BaseContainer):
         self.container.destroy()
         return True
 
-    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False):
         if password is None:
             return False
 
@@ -232,18 +232,17 @@ class LibertineLXC(BaseContainer):
                                          {"dist": "ubuntu",
                                           "release": self.installed_release,
                                           "arch": self.architecture}):
-                print("Failed to create container")
+                utils.get_logger().error("Failed to create container")
                 self._dump_lxc_log()
                 return False
 
         self.create_libertine_config()
 
-        if verbosity == 1:
-            print("starting container ...")
+        utils.get_logger().info("starting container ...")
         try:
             self.start_container()
         except RuntimeError as e:
-            print("Container failed to start: %s" % e)
+            utils.get_logger().error("Container failed to start: %s" % e)
             self.destroy_libertine_container()
             return False
 
@@ -252,22 +251,19 @@ class LibertineLXC(BaseContainer):
                 str(user_id), crypt.crypt(password), str(username)))
 
         if multiarch and self.architecture == 'amd64':
-            if verbosity == 1:
-                print("Adding i386 multiarch support...")
+            utils.get_logger().info("Adding i386 multiarch support...")
             self.run_in_container("dpkg --add-architecture i386")
 
-        if verbosity == 1:
-            print("Updating the contents of the container after creation...")
-        self.update_packages(verbosity)
+        utils.get_logger().info("Updating the contents of the container after creation...")
+        self.update_packages()
 
         for package in self.default_packages:
-            if not self.install_package(package, verbosity, update_cache=False):
-                print("Failure installing %s during container creation" % package)
+            if not self.install_package(package, update_cache=False):
+                utils.get_logger().error("Failure installing %s during container creation" % package)
                 self.destroy_libertine_container()
                 return False
 
-        if verbosity == 1:
-            print("stopping container ...")
+        utils.get_logger().info("stopping container ...")
         self.stop_container()
 
         return True
@@ -305,7 +301,7 @@ class LibertineLXC(BaseContainer):
 
     def start_application(self, app_exec_line, environ):
         if self.lxc_manager_interface == None:
-            print("No interface to libertine-lxc-manager.  Failing application launch.")
+            utils.get_logger().error("No interface to libertine-lxc-manager.  Failing application launch.")
             return
 
         os.environ.clear()
@@ -315,7 +311,7 @@ class LibertineLXC(BaseContainer):
 
         if not result:
             self._dump_lxc_log()
-            print("%s" % error)
+            utils.get_logger().error("%s" % error)
             return
 
         self.window_manager = self.container.attach(lxc.attach_run_command,
@@ -348,6 +344,6 @@ class LibertineLXC(BaseContainer):
             try:
                 with open(self.lxc_log_file, 'r') as fd:
                     for line in fd:
-                        print(line.lstrip())
+                        utils.get_logger().error(line.lstrip())
             except Exception as ex:
-                print("Could not open LXC log file: %s" % ex, file=sys.stderr)
+                utils.get_logger().error("Could not open LXC log file: %s" % ex)

@@ -188,7 +188,7 @@ def get_app_info(desktop_path, icon_cache):
             if desktop_file_is_showable(desktop_entry):
                     yield AppInfo(desktop_file_name, desktop_entry, icon_cache)
         except Exception as ex:
-            print("error processing {}: {}".format(desktop_file_name, ex), file=sys.stderr)
+            utils.get_logger().error("error processing {}: {}".format(desktop_file_name, ex))
 
 
 class AppLauncherCache(object):
@@ -218,5 +218,3 @@ class AppLauncherCache(object):
                           default=lambda o: o.__dict__,
                           sort_keys=True,
                           indent=4)
-
-

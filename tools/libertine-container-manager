@@ -39,22 +39,22 @@ class LibertineContainerManager(object):
         password = None
 
         if args.distro and not self.host_info.is_distro_valid(args.distro, args.force):
-            print("Invalid distro %s" % args.distro, file=sys.stderr)
+            libertine.utils.get_logger().error("Invalid distro %s" % args.distro)
             sys.exit(1)
 
         if self.containers_config.container_exists(args.id):
-            print("Container id '%s' is already used." % args.id, file=sys.stderr)
+            libertine.utils.get_logger().error("Container id '%s' is already used." % args.id)
             sys.exit(1)
         elif re.match("^[a-z0-9][a-z0-9+.-]+$", args.id) is None:
-            print("Container id '%s' invalid. ID must be of form ([a-z0-9][a-z0-9+.-]+)." % args.id, file=sys.stderr)
+            libertine.utils.get_logger().error("Container id '%s' invalid. ID must be of form ([a-z0-9][a-z0-9+.-]+)." % args.id)
             sys.exit(1)
 
         if not args.type:
             container_type = self.host_info.select_container_type_by_kernel()
         else:
             if (args.type == 'lxc' or args.type == 'lxd') and not self.host_info.has_lxc_support():
-                print("System kernel does not support lxc type containers. "
-                      "Please either use chroot or omit the -t option.")
+                libertine.utils.get_logger().error("System kernel does not support lxc type containers. "
+                                                   "Please either use chroot or omit the -t option.")
                 sys.exit(1)
             container_type = args.type
 
@@ -64,8 +64,8 @@ class LibertineContainerManager(object):
             host_distro = self.host_info.get_host_distro_release()
 
             if args.distro != host_distro:
-                print("The container distribution needs to match the host ditribution for chroot"
-                      " based containers. Please either use \'%s\' or omit the -d/--distro option."
+                libertine.utils.get_logger().error("The container distribution needs to match the host ditribution for chroot"
+                                                   " based containers. Please either use \'%s\' or omit the -d/--distro option."
                       % host_distro)
                 sys.exit(1)
 
@@ -91,7 +91,7 @@ class LibertineContainerManager(object):
         try:
             container = LibertineContainer(args.id)
             self.containers_config.update_container_install_status(args.id, "installing")
-            if not container.create_libertine_container(password, args.multiarch, args.verbosity):
+            if not container.create_libertine_container(password, args.multiarch):
                 libertine.utils.get_logger().error("Failed to create container")
                 self.containers_config.delete_container(args.id)
                 sys.exit(1)
@@ -128,14 +128,14 @@ class LibertineContainerManager(object):
             if os.path.exists(args.package):
                 package = DebPackage(args.package).pkgname
             else:
-                print("%s does not exist." % args.package)
+                libertine.utils.get_logger().error("%s does not exist." % args.package)
                 sys.exit(1)
         else:
             package = args.package
 
         if self.containers_config.package_exists(container_id, package):
             if not is_debian_package:
-                print("Package \'%s\' is already installed." % package)
+                libertine.utils.get_logger().error("Package '%s' is already installed." % package)
                 sys.exit(1)
         else:
             self.containers_config.add_new_package(container_id, package)
@@ -143,7 +143,9 @@ class LibertineContainerManager(object):
         container = LibertineContainer(container_id)
 
         self.containers_config.update_package_install_status(container_id, package, "installing")
-        if not container.install_package(args.package, args.verbosity, args.no_dialog):
+        if not container.install_package(args.package, args.no_dialog):
+            libertine.utils.get_logger().error("Package '{}' failed to install in container '{}'"
+                                               .format(package, container_id))
             self.containers_config.delete_package(container_id, package)
             sys.exit(1)
 
@@ -151,12 +153,12 @@ class LibertineContainerManager(object):
 
         libertine.utils.refresh_libertine_scope()
 
-    def remove_package_by_name(self, container_id, package_name, verbosity=1, no_dialog=False):
+    def remove_package_by_name(self, container_id, package_name, no_dialog=False):
         fallback_status = self.containers_config.get_package_install_status(container_id, package_name)
         self.containers_config.update_package_install_status(container_id, package_name, "removing")
 
         container = LibertineContainer(container_id)
-        if not container.remove_package(package_name, verbosity, no_dialog) and fallback_status == 'installed':
+        if not container.remove_package(package_name, no_dialog) and fallback_status == 'installed':
             self.containers_config.update_package_install_status(container_id, package_name, fallback_status)
             return False
 
@@ -169,10 +171,12 @@ class LibertineContainerManager(object):
         container_id = self.containers_config.check_container_id(args.id)
 
         if self.containers_config.get_package_install_status(container_id, args.package) != 'installed':
-            print("Package \'%s\' is not installed." % args.package)
+            libertine.utils.get_logger().error("Package \'%s\' is not installed." % args.package)
             sys.exit(1)
 
-        if not self.remove_package_by_name(container_id, args.package, args.verbosity, args.no_dialog):
+        if not self.remove_package_by_name(container_id, args.package, args.no_dialog):
+            libertine.utils.get_logger().error("Package '{}' failed to be removed from container '{}'"
+                                               .format(args.package, container_id))
             sys.exit(1)
 
         libertine.utils.refresh_libertine_scope()
@@ -182,6 +186,8 @@ class LibertineContainerManager(object):
 
         container = LibertineContainer(container_id)
         if container.search_package_cache(args.search_string) is not 0:
+            libertine.utils.get_logger().error("Search for '{}' in container '{}' exited with non-zero status"
+                                               .format(args.id, args.search_string))
             sys.exit(1)
 
     def update(self, args):
@@ -190,7 +196,7 @@ class LibertineContainerManager(object):
         container = LibertineContainer(container_id)
 
         self.containers_config.update_container_install_status(container_id, "updating")
-        if not container.update_libertine_container(args.verbosity):
+        if not container.update_libertine_container():
             self.containers_config.update_container_install_status(container_id, "ready")
             sys.exit(1)
 
@@ -215,10 +221,10 @@ class LibertineContainerManager(object):
         if not container.exec_command(args.command):
             sys.exit(1)
 
-    def delete_archive_by_name(self, container_id, archive_name, verbosity=1):
+    def delete_archive_by_name(self, container_id, archive_name):
         if self.containers_config.get_archive_install_status(container_id, archive_name) == 'installed':
             self.containers_config.update_archive_install_status(container_id, archive_name, 'removing')
-            if LibertineContainer(container_id).configure_remove_archive("\"" + archive_name + "\"", verbosity) is not 0:
+            if LibertineContainer(container_id).configure_remove_archive("\"" + archive_name + "\"") is not 0:
                 self.containers_config.update_archive_install_status(container_id, archive_name, 'installed')
                 return False
 
@@ -237,17 +243,17 @@ class LibertineContainerManager(object):
 
             current_multiarch = self.containers_config.get_container_multiarch_support(container_id)
             if current_multiarch == multiarch:
-                print("i386 multiarch support is already %s" % multiarch)
+                libertine.utils.get_logger().error("i386 multiarch support is already %s" % multiarch)
                 sys.exit(1)
 
-            if container.configure_multiarch(args.multiarch, args.verbosity) is not 0:
+            if container.configure_multiarch(args.multiarch) is not 0:
                 sys.exit(1)
 
             self.containers_config.update_container_multiarch_support(container_id, multiarch)
 
         elif args.archive is not None:
             if args.archive_name is None:
-                print("Configure archive called with no archive name. See configure --help for usage.")
+                libertine.utils.get_logger().error("Configure archive called with no archive name. See configure --help for usage.")
                 sys.exit(1)
 
             archive_name = args.archive_name.strip("\'\"")
@@ -255,12 +261,12 @@ class LibertineContainerManager(object):
 
             if args.archive == 'add':
                 if self.containers_config.archive_exists(container_id, archive_name):
-                    print("%s already added in container." % archive_name)
+                    libertine.utils.get_logger().error("%s already added in container." % archive_name)
                     sys.exit(1)
 
                 self.containers_config.add_container_archive(container_id, archive_name)
                 self.containers_config.update_archive_install_status(container_id, archive_name, 'installing')
-                if container.configure_add_archive(archive_name_esc, args.public_key_file, args.verbosity) is not 0:
+                if container.configure_add_archive(archive_name_esc, args.public_key_file) is not 0:
                     self.containers_config.delete_container_archive(container_id, archive_name)
                     sys.exit(1)
 
@@ -268,48 +274,48 @@ class LibertineContainerManager(object):
 
             elif args.archive == 'remove':
                 if not self.containers_config.archive_exists(container_id, archive_name):
-                    print("%s is not added in container." % archive_name)
+                    libertine.utils.get_logger().error("%s is not added in container." % archive_name)
                     sys.exit(1)
 
                 if not self.delete_archive_by_name(container_id, archive_name):
-                    print("%s was not properly deleted." % archive_name)
+                    libertine.utils.get_logger().error("%s was not properly deleted." % archive_name)
                     sys.exit(1)
 
         elif args.bind_mount is not None:
             if args.mount_path is None:
-                print("Configure bind-mounts called without mount path. See configure --help for usage")
+                libertine.utils.get_logger().error("Configure bind-mounts called without mount path. See configure --help for usage")
                 sys.exit(1)
 
             mount_path = args.mount_path.rstrip('/')
 
             # validate bind-mount
             if not mount_path.startswith(os.environ['HOME']) and not mount_path.startswith('/media/%s' % os.environ['USER']):
-                print("Cannot mount '%s', mount path must be in $HOME or /media/$USER." % mount_path)
+                libertine.utils.get_logger().error("Cannot mount '%s', mount path must be in $HOME or /media/$USER." % mount_path)
                 sys.exit(1)
             if mount_path.startswith('/media/%s' % os.environ['USER']) and \
                    self.containers_config.get_container_type(container_id) == 'lxc':
-                print("/media mounts not currently supported in lxc.")
+                libertine.utils.get_logger().error("/media mounts not currently supported in lxc.")
                 sys.exit(1)
             if not os.path.isdir(mount_path):
-                print("Cannot mount '%s', mount path must be an existing directory." % mount_path)
+                libertine.utils.get_logger().error("Cannot mount '%s', mount path must be an existing directory." % mount_path)
                 sys.exit(1)
 
             # update database with new bind-mount
             container_bind_mounts = self.containers_config.get_container_bind_mounts(container_id)
             if args.bind_mount == 'add':
                 if mount_path in container_bind_mounts:
-                    print("Cannot add mount '%s', bind-mount already exists." % mount_path)
+                    libertine.utils.get_logger().error("Cannot add mount '%s', bind-mount already exists." % mount_path)
                     sys.exit(1)
                 self.containers_config.add_new_bind_mount(container_id, mount_path)
             elif args.bind_mount == 'remove':
                 if mount_path not in container_bind_mounts:
-                    print("Cannot remove mount '%s', bind-mount does not exist." % mount_path)
+                    libertine.utils.get_logger().error("Cannot remove mount '%s', bind-mount does not exist." % mount_path)
                     sys.exit(1)
                 self.containers_config.delete_bind_mount(container_id, mount_path)
 
 
         else:
-            print("Configure called with no subcommand. See configure --help for usage.")
+            libertine.utils.get_logger().error("Configure called with no subcommand. See configure --help for usage.")
             sys.exit(1)
 
 
@@ -347,17 +353,17 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Legacy X application support for Unity 8")
 
     if not os.geteuid():
-        print("Please do not run %s using sudo" % parser.prog)
+        libertine.utils.get_logger().error("Please do not run %s using sudo" % parser.prog)
         sys.exit(1)
 
     container_manager = LibertineContainerManager()
 
     parser.add_argument('-q', '--quiet',
                         action='store_const', dest='verbosity', const=0,
-                        help=('do not print status updates on stdout'))
-    parser.add_argument('-v', '--verbose',
+                        help=('disables all non-vital output'))
+    parser.add_argument('-v', '--verbosity',
                         action='store_const', dest='verbosity', const=2,
-                        help=('extra verbose output'))
+                        help=('enables debug output'))
     subparsers = parser.add_subparsers(dest="subparser_name",
                                        title="subcommands",
                                        metavar='create, destroy, install-package, remove-package, search-cache, update, list, list-apps, configure')
@@ -563,8 +569,8 @@ if __name__ == '__main__':
 
     # Actually parse the args
     args = parser.parse_args()
-    if args.verbosity is None:
-        args.verbosity = 1
+
+    libertine.utils.set_environmental_verbosity(args.verbosity)
 
     if args.subparser_name == None:
         parser.print_help()

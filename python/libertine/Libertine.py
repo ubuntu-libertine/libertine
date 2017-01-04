@@ -20,31 +20,32 @@ import libertine.utils
 import os
 import shutil
 
+from . import utils
 from libertine.ContainersConfig import ContainersConfig
 from libertine.HostInfo import HostInfo
 
 
-def apt_args_for_verbosity_level(verbosity):
+def _apt_args_for_verbosity_level():
     """
-    Maps numeric verbosity levels onto APT command-line arguments.
-
-    :param verbosity: 0 is quiet, 1 is normal, 2 is incontinent
+    Maps debug levels to APT command-line arguments.
     """
-    return {
-            0: '--quiet=2',
-            1: '--assume-yes',
-            2: '--quiet=1 --assume-yes --option APT::Status-Fd=1'
-    }.get(verbosity, '')
+    if 'LIBERTINE_DEBUG' not in os.environ or os.environ['LIBERTINE_DEBUG'] == '0':
+        return '--quiet=2'
+
+    if os.environ['LIBERTINE_DEBUG'] == '1':
+        return '--quiet=1 --assume-yes'
+
+    return '--assume-yes --option APT::Status-Fd=1'
 
 
-def apt_command_prefix(verbosity):
-    return '/usr/bin/apt-get ' + apt_args_for_verbosity_level(verbosity) + \
+def _apt_command_prefix():
+    return '/usr/bin/apt-get ' + _apt_args_for_verbosity_level() + \
            ' --option Apt::Cmd::Disable-Script-Warning=true --option Dpkg::Progress-Fancy=1' + \
            ' --option Apt::Color=1 '
 
 
 def handle_runtime_error(error):
-    print("%s" % error)
+    utils.get_logger().error("%s" % error)
     return False
 
 
@@ -92,10 +93,10 @@ class BaseContainer(metaclass=abc.ABCMeta):
                                  'maliit-inputcontext-gtk3',
                                  'maliit-framework']
 
-    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False):
         pass
 
-    def destroy_libertine_container(self, verbosity=1):
+    def destroy_libertine_container(self):
         pass
 
     def copy_file_to_container(self, source, dest):
@@ -143,33 +144,28 @@ class BaseContainer(metaclass=abc.ABCMeta):
         """
         pass
 
-    def update_apt_cache(self, verbosity=1):
+    def update_apt_cache(self):
         """
         Updates the apt cache in the container.
-
-        :param verbosity: the chattiness of the output on a range from 0 to 2
         """
-        return self.run_in_container(apt_command_prefix(verbosity) + 'update')
+        return self.run_in_container(_apt_command_prefix() + 'update')
 
-    def update_packages(self, verbosity=1):
+    def update_packages(self):
         """
         Updates all packages installed in the container.
-
-        :param verbosity: the chattiness of the output on a range from 0 to 2
         """
-        self.update_apt_cache(verbosity)
-        return self.run_in_container(apt_command_prefix(verbosity) + '--force-yes dist-upgrade') == 0
+        self.update_apt_cache()
+        return self.run_in_container(_apt_command_prefix() + '--force-yes dist-upgrade') == 0
 
-    def install_package(self, package_name, verbosity=1, no_dialog=False, update_cache=True):
+    def install_package(self, package_name, no_dialog=False, update_cache=True):
         """
         Installs a named package in the container.
 
         :param package_name: The name of the package as APT understands it or
                              a full path to a Debian package on the host.
-        :param verbosity: the chattiness of the output on a range from 0 to 2
         """
         if update_cache:
-            self.update_apt_cache(verbosity)
+            self.update_apt_cache()
 
         if package_name.endswith('.deb'):
             if not os.path.exists(package_name):
@@ -180,7 +176,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
             file_created = self.copy_file_to_container(package_name, dest)
 
             self.run_in_container('dpkg -i {}'.format(dest))
-            ret = self.run_in_container(apt_command_prefix(verbosity) + " install -f") == 0
+            ret = self.run_in_container(_apt_command_prefix() + " install -f") == 0
 
             if file_created:
                 self.delete_file_in_container(dest)
@@ -189,47 +185,44 @@ class BaseContainer(metaclass=abc.ABCMeta):
         else:
             if no_dialog:
                 os.environ['DEBIAN_FRONTEND'] = 'teletype'
-            return self.run_in_container(apt_command_prefix(verbosity) + " install '" + package_name + "'") == 0
+            return self.run_in_container(_apt_command_prefix() + " install '" + package_name + "'") == 0
 
-    def remove_package(self, package_name, verbosity=1):
+    def remove_package(self, package_name):
         """
         Removes a package from the container.
 
         :param package_name: The name of the package to be removed.
-        :param verbosity: The verbosity level of the progress reporting.
         """
-        if self.run_in_container(apt_command_prefix(verbosity) + " purge '" + package_name + "'") != 0:
+        if self.run_in_container(_apt_command_prefix() + " purge '" + package_name + "'") != 0:
             return False
-        return self.run_in_container(apt_command_prefix(verbosity) + "autoremove --purge") == 0
+        return self.run_in_container(_apt_command_prefix() + "autoremove --purge") == 0
 
-    def configure_multiarch(self, should_enable, verbosity=1):
+    def configure_multiarch(self, should_enable):
         """
         Enables or disables multiarch repositories.
 
         :param should_enable: Whether or not to enable multiarch support.
-        :param verbosity: the chattiness of the output on a range from 0 to 2
         """
         if should_enable:
             ret = self.run_in_container("dpkg --add-architecture i386")
             if ret or ret == 0:
-                self.update_apt_cache(verbosity)
+                self.update_apt_cache()
             return ret
         else:
-            self.run_in_container(apt_command_prefix(verbosity) + "purge \".*:i386\"")
+            self.run_in_container(_apt_command_prefix() + "purge \".*:i386\"")
             return self.run_in_container("dpkg --remove-architecture i386")
 
-    def configure_add_archive(self, archive, public_key_file, verbosity=1):
+    def configure_add_archive(self, archive, public_key_file):
         """
         Adds the given archive. If this archive requires a key, prompt user.
 
         :param archive: The configuration command to run.
         :param public_key_file: file containing the public key used to sign this archive
-        :param verbosity: the chattiness of the output on a range from 0 to 2
         """
         if not os.path.exists(os.path.join(self.root_path, 'usr', 'bin', 'add-apt-repository')):
-            self.install_package("software-properties-common", verbosity)
+            self.install_package("software-properties-common")
         if 'https://' in archive and not os.path.exists(os.path.join(self.root_path, 'usr', 'lib', 'apt', 'methods', 'https')):
-            self.install_package("apt-transport-https", verbosity)
+            self.install_package("apt-transport-https")
 
         retcode = self.run_in_container("add-apt-repository -y " + archive)
         if retcode is 0 and public_key_file is not None:
@@ -238,12 +231,11 @@ class BaseContainer(metaclass=abc.ABCMeta):
 
         return retcode
 
-    def configure_remove_archive(self, archive, verbosity=1):
+    def configure_remove_archive(self, archive):
         """
         Removes the given archive.
 
         :param archive: The configuration command to run.
-        :param verbosity: the chattiness of the output on a range from 0 to 2
         """
         return self.run_in_container("add-apt-repository -y -r " + archive)
 
@@ -266,19 +258,19 @@ class LibertineMock(BaseContainer):
         super().__init__(container_id)
         self.container_type = "mock"
 
-    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False):
         return True
 
-    def destroy_libertine_container(self, verbosity=1):
+    def destroy_libertine_container(self):
         return True
 
-    def update_packages(self, verbosity=1):
+    def update_packages(self):
         return True
 
-    def install_package(self, package_name, verbosity=1, no_dialog=False, update_cache=True):
+    def install_package(self, package_name, no_dialog=False, update_cache=True):
         return True
 
-    def remove_package(self, package_name, verbosity=1, no_dialog=False):
+    def remove_package(self, package_name, no_dialog=False):
         return True
 
     def run_in_container(self, command_string):
@@ -362,48 +354,47 @@ class LibertineContainer(object):
         """
         return self.container.destroy_libertine_container()
 
-    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False):
         """
         Creates the container.
         """
         self.container.architecture = HostInfo().get_host_architecture()
         self.container.installed_release = self.containers_config.get_container_distro(self.container_id)
 
-        return self.container.create_libertine_container(password, multiarch, verbosity)
+        return self.container.create_libertine_container(password, multiarch)
 
-    def update_libertine_container(self, verbosity=1):
+    def update_libertine_container(self):
         """
         Updates the contents of the container.
         """
         try:
             with ContainerRunning(self.container):
-                return self.container.update_packages(verbosity)
+                return self.container.update_packages()
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def install_package(self, package_name, verbosity=1, no_dialog=False, update_cache=True):
+    def install_package(self, package_name, no_dialog=False, update_cache=True):
         """
         Installs a package in the container.
         """
         try:
             with ContainerRunning(self.container):
-                return self.container.install_package(package_name, verbosity, no_dialog, update_cache)
+                return self.container.install_package(package_name, no_dialog, update_cache)
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def remove_package(self, package_name, verbosity=1, no_dialog=False):
+    def remove_package(self, package_name, no_dialog=False):
         """
         Removes a package from the container.
 
         :param package_name: The name of the package to be removed.
-        :param verbosity: The verbosity level of the progress reporting.
         """
         try:
             with ContainerRunning(self.container):
                 if no_dialog:
                     os.environ['DEBIAN_FRONTEND'] = 'teletype'
 
-                return self.container.remove_package(package_name, verbosity)
+                return self.container.remove_package(package_name)
         except RuntimeError as e:
             return handle_runtime_error(e)
 
@@ -481,23 +472,23 @@ class LibertineContainer(object):
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def configure_multiarch(self, should_enable, verbosity=1):
+    def configure_multiarch(self, should_enable):
         try:
             with ContainerRunning(self.container):
-                return self.container.configure_multiarch(should_enable, verbosity)
+                return self.container.configure_multiarch(should_enable)
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def configure_add_archive(self, archive, key, verbosity):
+    def configure_add_archive(self, archive, key):
         try:
             with ContainerRunning(self.container):
-                return self.container.configure_add_archive(archive, key, verbosity)
+                return self.container.configure_add_archive(archive, key)
         except RuntimeError as e:
             return handle_runtime_error(e)
 
-    def configure_remove_archive(self, archive, verbosity):
+    def configure_remove_archive(self, archive):
         try:
             with ContainerRunning(self.container):
-                return self.container.configure_remove_archive(archive, verbosity)
+                return self.container.configure_remove_archive(archive)
         except RuntimeError as e:
             return handle_runtime_error(e)

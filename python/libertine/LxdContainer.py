@@ -149,7 +149,7 @@ class LibertineLXD(Libertine.BaseContainer):
             utils.get_logger().info('Creating libertine lxd profile.')
             self._client.profiles.create('libertine', config={'raw.idmap': 'both 1000 1000'}, devices=_get_devices_map())
 
-    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False):
         if self._try_get_container():
             utils.get_logger().error("Container already exists")
             return False
@@ -187,7 +187,7 @@ class LibertineLXD(Libertine.BaseContainer):
 
         for package in self.default_packages:
             utils.get_logger().info("Installing package '%s' in container '%s'" % (package, self._id))
-            if not self.install_package(package, verbosity=1, no_dialog=True, update_cache=False):
+            if not self.install_package(package, no_dialog=True, update_cache=False):
                 utils.get_logger().error("Failure installing '%s' during container creation" % package)
                 self.destroy_libertine_container()
                 return False
@@ -203,7 +203,7 @@ class LibertineLXD(Libertine.BaseContainer):
             time.sleep(1)
         return False
 
-    def update_packages(self, verbosity=1):
+    def update_packages(self):
         if not self._timezone_in_sync():
             utils.get_logger().info("Re-syncing timezones")
             self.run_in_container("bash -c 'echo \"%s\" > /etc/timezone'" % self._host_info.get_host_timezone())

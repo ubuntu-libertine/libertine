@@ -29,9 +29,6 @@ from socket import socket, AF_UNIX, SOCK_STREAM, SHUT_RDWR
 from .task import LaunchServiceTask, TaskType
 
 
-log = utils.get_logger()
-
-
 def translate_to_real_address(abstract_address):
     """Translate the notional text address to a real UNIX-domain address string.
 
@@ -101,12 +98,12 @@ class BridgePair(object):
             b = from_socket.recv(4096)
             if len(b) > 0:
                 to_socket.sendall(b)
-                log.debug('copied {} bytes from fd to {}'.format(len(b), from_socket, to_socket))
+                utils.get_logger().debug('copied {} bytes from fd to {}'.format(len(b), from_socket, to_socket))
             else:
-                log.info('close detected on {}'.format(from_socket))
+                utils.get_logger().info('close detected on {}'.format(from_socket))
             return len(b)
         except Exception as e:
-            log.debug(e)
+            utils.get_logger().debug(e)
             return 0
 
     def _close_up_shop(self, session):
@@ -172,7 +169,7 @@ class Session(ExitStack):
         with suppress(AttributeError):
             for task_config in self._config.prelaunch_tasks:
                 if task_config.task_type == TaskType.LAUNCH_SERVICE:
-                    log.info("launching {}".format(task_config.datum[0]))
+                    utils.get_logger().info("launching {}".format(task_config.datum[0]))
                     task = LaunchServiceTask(task_config)
                     self._child_processes.append(task)
                     task.start(self._config.host_environ)
@@ -267,7 +264,7 @@ class Session(ExitStack):
         create a socket bridge to the host when a connection from the session is
         made.
         """
-        log.debug('creating bridge listener for {} on {}'.
+        utils.get_logger().debug('creating bridge listener for {} on {}'.
                   format(bridge_config.env_var, bridge_config.session_address))
         sock = socket(AF_UNIX, SOCK_STREAM)
         sock.bind(translate_to_real_address(bridge_config.session_address))
@@ -286,7 +283,7 @@ class Session(ExitStack):
         """
         (bridge_config, sock) = datum
         conn = sock.accept()
-        log.debug('connection of session socket {} accepted'.format(bridge_config.session_address))
+        utils.get_logger().debug('connection of session socket {} accepted'.format(bridge_config.session_address))
         self.add_bridge_pair(BridgePair(conn[0], bridge_config.host_address))
 
     def _ensure_paths_exist(self):
@@ -316,17 +313,17 @@ class Session(ExitStack):
         data = os.read(fd, 4)
         sig = struct.unpack('%uB' % len(data), data)
         if sig[0] == signal.SIGCHLD:
-            log.info('SIGCHLD received')
+            utils.get_logger().info('SIGCHLD received')
             if self._handle_child_died():
                 raise StopIteration('launched program exited')
         elif sig[0] == signal.SIGINT:
-            log.info('SIGINT received')
+            utils.get_logger().info('SIGINT received')
             raise StopIteration('keyboard interrupt')
         elif sig[0] == signal.SIGTERM:
-            log.info('SIGTERM received')
+            utils.get_logger().info('SIGTERM received')
             raise StopIteration('terminate')
         else:
-            log.warning('unknown signal {} received'.format(sig[0]))
+            utils.get_logger().warning('unknown signal {} received'.format(sig[0]))
 
     def _set_signal_handlers(self):
         """Set the signal handlers."""

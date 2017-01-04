@@ -214,12 +214,12 @@ class ContainersConfig(object):
 
     def check_container_id(self, container_id):
         if container_id and not self.container_exists(container_id):
-            print("Container id \'%s\' does not exist." % container_id, file=sys.stderr)
+            libertine.utils.get_logger().error("Container id \'%s\' does not exist." % container_id)
             sys.exit(1)
         elif not container_id:
             container_id = self.get_default_container_id()
             if container_id is None:
-                print("No default container available.")
+                libertine.utils.get_logger().error("No default container available.")
                 sys.exit(1)
 
         return container_id
@@ -260,7 +260,7 @@ class ContainersConfig(object):
 
     def delete_container(self, container_id):
         if not self.container_list:
-            print("Unable to delete container.  No containers defined.")
+            libertine.utils.get_logger().error("Unable to delete container.  No containers defined.")
             sys.exit(1)
 
         container = self._get_container_entry(container_id)

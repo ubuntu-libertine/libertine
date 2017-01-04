@@ -71,10 +71,10 @@ class LibertineChroot(BaseContainer):
             shutil.rmtree(container_root)
             return True
         except Exception as e:
-            print("%s" % e)
+            utils.get_logger().error("%s" % e)
             return False
 
-    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False):
         # Create the actual chroot
         command_line = "{} fakeroot debootstrap --verbose --variant=fakechroot {} {}".format(
                     self._build_fakechroot_command(), self.installed_release, self.root_path)
@@ -83,12 +83,12 @@ class LibertineChroot(BaseContainer):
         cmd.wait()
 
         if cmd.returncode != 0:
-            print("Failed to create container")
+            utils.get_logger().error("Failed to create container")
             self.destroy_libertine_container()
             return False
 
         # Remove symlinks as they can cause ill-behaved recursive behavior in the chroot
-        print("Fixing chroot symlinks...")
+        utils.get_logger().info("Fixing chroot symlinks...")
         os.remove(os.path.join(self.root_path, 'dev'))
         os.remove(os.path.join(self.root_path, 'proc'))
 
@@ -109,8 +109,8 @@ class LibertineChroot(BaseContainer):
         else:
             archive = "deb http://archive.ubuntu.com/ubuntu "
 
-        if verbosity == 1:
-            print("Updating chroot's sources.list entries...")
+        utils.get_logger().info("Updating chroot's sources.list entries...")
+
         with open(os.path.join(self.root_path, 'etc', 'apt', 'sources.list'), 'a') as fd:
             fd.write(archive + self.installed_release + "-updates main\n")
             fd.write(archive + self.installed_release + " universe\n")
@@ -121,46 +121,43 @@ class LibertineChroot(BaseContainer):
         utils.create_libertine_user_data_dir(self.container_id)
 
         if multiarch and self.architecture == 'amd64':
-            if verbosity == 1:
-                print("Adding i386 multiarch support...")
+            utils.get_logger().info("Adding i386 multiarch support...")
             self.run_in_container("dpkg --add-architecture i386")
 
-        if verbosity == 1:
-            print("Updating the contents of the container after creation...")
-        self.update_packages(verbosity)
+        utils.get_logger().info("Updating the contents of the container after creation...")
+        self.update_packages()
 
         for package in self.default_packages:
-            if not self.install_package(package, verbosity, update_cache=False):
-                print("Failure installing %s during container creation" % package)
+            if not self.install_package(package, update_cache=False):
+                utils.get_logger().error("Failure installing %s during container creation" % package)
                 self.destroy_libertine_container()
                 return False
 
         if self.installed_release == "vivid" or self.installed_release == "xenial":
-            if verbosity == 1:
-                print("Installing the Stable Overlay PPA...")
-            if not self.install_package("software-properties-common", verbosity, update_cache=False):
-                print("Failure installing software-properties-common during container creation")
+            utils.get_logger().info("Installing the Stable Overlay PPA...")
+            if not self.install_package("software-properties-common", update_cache=False):
+                utils.get_logger().error("Failure installing software-properties-common during container creation")
                 self.destroy_libertine_container()
                 return False
 
             self.run_in_container("add-apt-repository ppa:ci-train-ppa-service/stable-phone-overlay -y")
-            self.update_packages(verbosity)
+            self.update_packages()
 
         # Check if the container was created as root and chown the user directories as necessary
         chown_recursive_dirs(utils.get_libertine_container_userdata_dir_path(self.container_id))
 
         return True
 
-    def update_packages(self, verbosity=1):
-        retcode = super().update_packages(verbosity)
-        self._run_ldconfig(verbosity)
+    def update_packages(self):
+        retcode = super().update_packages()
+        self._run_ldconfig()
         return retcode == 0
 
-    def install_package(self, package_name, verbosity=1, no_dialog=False, update_cache=True):
-        returncode = super().install_package(package_name, verbosity, no_dialog, update_cache)
+    def install_package(self, package_name, no_dialog=False, update_cache=True):
+        returncode = super().install_package(package_name, no_dialog, update_cache)
 
         if returncode:
-            self._run_ldconfig(verbosity)
+            self._run_ldconfig()
 
         return returncode
 
@@ -239,9 +236,8 @@ class LibertineChroot(BaseContainer):
         utils.terminate_window_manager(self._window_manager)
         app.wait()
 
-    def _run_ldconfig(self, verbosity=1):
-        if verbosity == 1:
-            print("Refreshing the container's dynamic linker run-time bindings...")
+    def _run_ldconfig(self):
+        utils.get_logger().info("Refreshing the container's dynamic linker run-time bindings...")
 
         command_line = self._build_privileged_proot_cmd() + " ldconfig.REAL"
 
