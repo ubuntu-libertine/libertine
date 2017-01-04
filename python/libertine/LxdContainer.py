@@ -289,9 +289,16 @@ class LibertineLXD(Libertine.BaseContainer):
                 utils.get_logger().warning('Bind-mount path \'{}\' does not exist.'.format(user_dir[0]))
                 continue
 
+            if os.path.isabs(user_dir[1]):
+                path = user_dir[1]
+            else:
+                path = os.path.join(home_path, user_dir[1])
+
+            utils.get_logger().debug("Mounting {}:{} in container {}".format(user_dir[0], path, self._id))
             self._container.devices[user_dir[1]] = {
                     'source': _readlink(user_dir[0]),
-                    'path': os.path.join(home_path, user_dir[1]),
+                    'path': path,
+                    'optional': 'true',
                     'type': 'disk'
             }
 

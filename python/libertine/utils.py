@@ -127,8 +127,8 @@ def generate_binding_directories(dirs, prefix):
 
         name = dir
         if name.startswith(prefix):
-            name = name.replace(prefix, '', 1)
-        name = name.lstrip('/')
+            name = name.replace(prefix, '', 1).lstrip('/')
+
         if name in names:
             binding_dirs.append((dir, "%s (%i)" % (name, names.count(name))))
         else:

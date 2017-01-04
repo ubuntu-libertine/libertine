@@ -194,8 +194,12 @@ class LibertineChroot(BaseContainer):
         mounts = self._sanitize_bind_mounts(utils.get_common_xdg_user_directories() + \
                                             ContainersConfig().get_container_bind_mounts(self.container_id))
         for user_dir in utils.generate_binding_directories(mounts, home_path):
-            user_dir_path = os.path.join(home_path, user_dir[1])
-            bind_mounts += " -b \"%s:%s\"" % (user_dir[0], user_dir_path)
+            if os.path.isabs(user_dir[1]):
+                path = user_dir[1]
+            else:
+                path = os.path.join(home_path, user_dir[1])
+
+            bind_mounts += " -b \"%s:%s\"" % (user_dir[0], path)
 
         proot_cmd += bind_mounts
 

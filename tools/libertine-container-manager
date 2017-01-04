@@ -290,7 +290,7 @@ class LibertineContainerManager(object):
 
             # validate bind-mount
             if not mount_path.startswith(os.environ['HOME']) and not mount_path.startswith('/media/%s' % os.environ['USER']):
-                libertine.utils.get_logger().error("Cannot mount '%s', mount path must be in $HOME or /media/$USER." % mount_path)
+                libertine.utils.get_logger().error("Cannot mount {}, mount path must be in {} or /media/{}.".format(mount_path, os.environ['HOME'], os.environ['USER']))
                 sys.exit(1)
             if mount_path.startswith('/media/%s' % os.environ['USER']) and \
                    self.containers_config.get_container_type(container_id) == 'lxc':
@@ -312,7 +312,6 @@ class LibertineContainerManager(object):
                     libertine.utils.get_logger().error("Cannot remove mount '%s', bind-mount does not exist." % mount_path)
                     sys.exit(1)
                 self.containers_config.delete_bind_mount(container_id, mount_path)
-
 
         else:
             libertine.utils.get_logger().error("Configure called with no subcommand. See configure --help for usage.")
