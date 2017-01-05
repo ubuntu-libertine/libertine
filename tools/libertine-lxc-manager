@@ -84,12 +84,12 @@ class Service(ContainerLifecycleService):
                                             self._containers_config.get_container_bind_mounts(container_id))
 
         data_dir = libertine.utils.get_libertine_container_userdata_dir_path(container_id)
-        for user_dir in libertine.utils.generate_binding_directories(mounts, home_path):
+        for user_dir in libertine.utils.generate_binding_directories(mounts, self._home):
             if os.path.isabs(user_dir[1]):
                 path = user_dir[1].strip('/')
                 fullpath = os.path.join(libertine.utils.get_libertine_container_rootfs_path(container_id), path)
             else:
-                path = "{}/{}".format(home_path.strip('/'), user_dir[1])
+                path = "{}/{}".format(self._home.strip('/'), user_dir[1])
                 fullpath = os.path.join(data_dir, user_dir[1])
 
             os.makedirs(fullpath, exist_ok=True)
