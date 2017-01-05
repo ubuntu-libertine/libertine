@@ -4,5 +4,6 @@ usr/lib/python*/*/libertine/HostInfo.py
 usr/lib/python*/*/libertine/Libertine.py
 usr/lib/python*/*/libertine/__init__.py
 usr/lib/python*/*/libertine/launcher
+usr/lib/python*/*/libertine/lifecycle
 usr/lib/python*/*/libertine/service
 usr/lib/python*/*/libertine/utils.py

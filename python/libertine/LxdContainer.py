@@ -13,13 +13,28 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import crypt
+import dbus
 import os
 import psutil
 import pylxd
 import shlex
 import subprocess
 import time
+
+from .lifecycle import LifecycleResult
 from libertine import Libertine, utils, HostInfo
+
+
+LIBERTINE_LXC_MANAGER_NAME = "com.canonical.libertine.LxdManager"
+LIBERTINE_LXC_MANAGER_PATH = "/LxdManager"
+
+
+def get_lxd_manager_dbus_name():
+    return LIBERTINE_LXC_MANAGER_NAME
+
+
+def get_lxd_manager_dbus_path():
+    return LIBERTINE_LXC_MANAGER_PATH
 
 
 def _get_devices_map():
@@ -95,6 +110,7 @@ ExecStart=/usr/bin/libertine-lxd-mount-update
 WantedBy=multi-user.target
 '''[1:-1]
     container.files.put('/etc/systemd/system/libertine-lxd-mount-update.service', service.encode('utf-8'))
+    container.execute(shlex.split('chmod 644 /etc/systemd/system/libertine-lxd-mount-update.service'))
 
     utils.get_logger().info("Creating mount update shell script")
     script = '''
@@ -102,6 +118,7 @@ WantedBy=multi-user.target
 
 mkdir -p /run/user/{uid}
 chown {username}:{username} /run/user/{uid}
+chmod 755 /run/user/{uid}
 mount -o bind /var/tmp/run/user/{uid} /run/user/{uid}
 
 chgrp audio /dev/snd/*
@@ -109,10 +126,115 @@ chgrp video /dev/dri/*
 [ -n /dev/video0 ] && chgrp video /dev/video0
 '''[1:-1]
     container.files.put('/usr/bin/libertine-lxd-mount-update', script.format(uid=uid, username=username).encode('utf-8'))
-    container.execute(shlex.split('chmod +x /usr/bin/libertine-lxd-mount-update'))
+    container.execute(shlex.split('chmod 755 /usr/bin/libertine-lxd-mount-update'))
 
     utils.get_logger().info("Enabling systemd mount update service")
     container.execute(shlex.split('systemctl enable libertine-lxd-mount-update.service'))
+
+
+def lxd_container(client, container_id):
+    try:
+        return client.containers.get(container_id)
+    except pylxd.exceptions.LXDAPIException:
+        return None
+
+
+def _wait_for_network(container):
+    for retries in range(0, 10):
+        out, err = container.execute(shlex.split('ping -c 1 ubuntu.com'))
+        if out:
+            utils.get_logger().info("Network connection active")
+            return True
+        time.sleep(1)
+    return False
+
+
+def lxd_start(container):
+    if container.status != 'Running':
+        container.start(wait=True)
+
+    container.sync(rollback=True) # required for pylxd=2.0.x
+
+    if container.status != 'Running':
+        return LifecycleResult("Container {} failed to start".format(container.name))
+
+    return LifecycleResult()
+
+
+def lxd_stop(container, wait):
+    if container.status == 'Stopped':
+        return LifecycleResult()
+
+    container.stop(wait=wait)
+    container.sync(rollback=True) # required for pylxd=2.0.x
+
+    if wait and container.status != 'Stopped':
+        return LifecycleResult("Container {} failed to stop".format(container.name))
+
+    return LifecycleResult()
+
+
+def update_bind_mounts(container, config):
+    home_path = os.environ['HOME']
+
+    container.devices.clear()
+    container.devices['root'] = {'type': 'disk', 'path': '/'}
+
+    if os.path.exists(os.path.join(home_path, '.config', 'dconf')):
+        container.devices['dconf'] = {
+            'type': 'disk',
+            'source': os.path.join(home_path, '.config', 'dconf'),
+            'path': os.path.join(home_path, '.config', 'dconf')
+        }
+
+    run_user = '/run/user/{}'.format(os.getuid())
+    container.devices[run_user] = {'source': run_user, 'path': '/var/tmp{}'.format(run_user), 'type': 'disk'}
+
+    mounts = utils.get_common_xdg_user_directories() + \
+             config.get_container_bind_mounts(container.name)
+    for user_dir in utils.generate_binding_directories(mounts, home_path):
+        if not os.path.exists(user_dir[0]):
+            utils.get_logger().warning('Bind-mount path \'{}\' does not exist.'.format(user_dir[0]))
+            continue
+
+        if os.path.isabs(user_dir[1]):
+            path = user_dir[1]
+        else:
+            path = os.path.join(home_path, user_dir[1])
+
+        utils.get_logger().debug("Mounting {}:{} in container {}".format(user_dir[0], path, container.name))
+
+        container.devices[user_dir[1]] = {
+                'source': _readlink(user_dir[0]),
+                'path': path,
+                'optional': 'true',
+                'type': 'disk'
+        }
+
+    try:
+        container.save(wait=True)
+    except pylxd.exceptions.LXDAPIException as e:
+        utils.get_logger().warning('Saving bind mounts for container \'{}\' raised: {}'.format(container.name, str(e)))
+        # This is most likely the result of the container currently running
+
+
+def update_libertine_profile(client):
+    try:
+        profile = client.profiles.get('libertine')
+
+        utils.get_logger().info('Updating existing lxd profile.')
+        profile.devices = _get_devices_map()
+        profile.config['raw.idmap'] = 'both 1000 1000'
+
+        try:
+            profile.save()
+        except pylxd.exceptions.LXDAPIException as e:
+            utils.get_logger().warning('Saving libertine lxd profile raised: {}'.format(str(e)))
+            # This is most likely the result of an older container currently
+            # running and/or containing a conflicting device entry
+    except pylxd.exceptions.LXDAPIException:
+        utils.get_logger().info('Creating libertine lxd profile.')
+        client.profiles.create('libertine', config={'raw.idmap': 'both 1000 1000'}, devices=_get_devices_map())
 
 
 class LibertineLXD(Libertine.BaseContainer):
@@ -131,30 +253,21 @@ class LibertineLXD(Libertine.BaseContainer):
         self._window_manager = None
         self.root_path = '{}/containers/{}/rootfs'.format(os.getenv('LXD_DIR', '/var/lib/lxd'), name)
 
-    def _update_libertine_profile(self):
+        utils.set_session_dbus_env_var()
         try:
-            profile = self._client.profiles.get('libertine')
+            bus = dbus.SessionBus()
+            self._manager = bus.get_object(get_lxd_manager_dbus_name(), get_lxd_manager_dbus_path())
+        except dbus.exceptions.DBusException:
+            utils.get_logger().warning("D-Bus Service not found.")
+            self._manager = None
 
-            utils.get_logger().info('Updating existing lxd profile.')
-            profile.devices = _get_devices_map()
-            profile.config['raw.idmap'] = 'both 1000 1000'
 
-            try:
-                profile.save()
-            except pylxd.exceptions.LXDAPIException as e:
-                utils.get_logger().warning('Saving libertine lxd profile raised: {}'.format(str(e)))
-                # This is most likely the result of an older container currently
-                # running and/or containing a conflicting device entry
-        except pylxd.exceptions.LXDAPIException:
-            utils.get_logger().info('Creating libertine lxd profile.')
-            self._client.profiles.create('libertine', config={'raw.idmap': 'both 1000 1000'}, devices=_get_devices_map())
-
-    def create_libertine_container(self, password=None, multiarch=False):
+    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
         if self._try_get_container():
             utils.get_logger().error("Container already exists")
             return False
 
-        self._update_libertine_profile()
+        update_libertine_profile(self._client)
 
         utils.get_logger().info("Creating container '%s' with distro '%s'" % (self._id, self.installed_release))
         create = subprocess.Popen(shlex.split('lxc launch ubuntu-daily:{distro} {id} --profile '
@@ -193,15 +306,6 @@ class LibertineLXD(Libertine.BaseContainer):
                 return False
 
         return True
-
-    def _wait_for_network(self):
-        for retries in range(0, 10):
-            out, err = self._container.execute(shlex.split('ping -c 1 ubuntu.com'))
-            if out:
-                utils.get_logger().info("Network connection active")
-                return True
-            time.sleep(1)
-        return False
 
     def update_packages(self):
         if not self._timezone_in_sync():
@@ -243,70 +347,33 @@ class LibertineLXD(Libertine.BaseContainer):
         if not self._try_get_container():
             return False
 
-        if self._container.status != 'Running':
-            self._container.start(wait=True)
+        if self._manager:
+            result = LifecycleResult.from_dict(self._manager.operation_start(self._id))
+        else:
+            result = lxd_start(self._container)
 
-        # Connect to network
-        if not self._wait_for_network():
-            utils.get_logger().error("Network unavailable in container '{}'".format(self._id))
+        if not result.success:
+            utils.get_logger().error(result.error)
             return False
 
-        self._container.sync(rollback=True) # required for pylxd=2.0.x
+        if not _wait_for_network(self._container):
+            utils.get_logger().warning("Network unavailable in container '{}'".format(self._id))
 
-        return self._container.status == 'Running'
+        return result.success
 
     def stop_container(self, wait=False):
         if not self._try_get_container():
             return False
 
-        if self._container.status == 'Stopped':
-            return True
+        if self._manager:
+            result = LifecycleResult.from_dict(self._manager.operation_stop(self._id))
+        else:
+            result = lxd_stop(self._container, wait)
 
-        self._container.stop(wait=wait)
+        if not result.success:
+            utils.get_logger().error(result.error)
 
-        return not wait or self._container.status == 'Stopped'
-
-    def _update_bind_mounts(self):
-        home_path = os.environ['HOME']
-
-        self._container.devices.clear()
-        self._container.devices['root'] = {'type': 'disk', 'path': '/'}
-
-        if os.path.exists(os.path.join(home_path, '.config', 'dconf')):
-            self._container.devices['dconf'] = {
-                'type': 'disk',
-                'source': os.path.join(home_path, '.config', 'dconf'),
-                'path': os.path.join(home_path, '.config', 'dconf')
-            }
-
-        run_user = '/run/user/{}'.format(os.getuid())
-        self._container.devices[run_user] = {'source': run_user, 'path': '/var/tmp{}'.format(run_user), 'type': 'disk'}
-
-        mounts = utils.get_common_xdg_user_directories() + \
-                 self._config.get_container_bind_mounts(self._id)
-        for user_dir in utils.generate_binding_directories(mounts, home_path):
-            if not os.path.exists(user_dir[0]):
-                utils.get_logger().warning('Bind-mount path \'{}\' does not exist.'.format(user_dir[0]))
-                continue
-
-            if os.path.isabs(user_dir[1]):
-                path = user_dir[1]
-            else:
-                path = os.path.join(home_path, user_dir[1])
-
-            utils.get_logger().debug("Mounting {}:{} in container {}".format(user_dir[0], path, self._id))
-            self._container.devices[user_dir[1]] = {
-                    'source': _readlink(user_dir[0]),
-                    'path': path,
-                    'optional': 'true',
-                    'type': 'disk'
-            }
-
-        try:
-            self._container.save(wait=True)
-        except pylxd.exceptions.LXDAPIException as e:
-            utils.get_logger().warning('Saving bind mounts for container \'{}\' raised: {}'.format(self._id, str(e)))
-            # This is most likely the result of the container currently running
+        return result.success
 
     def _get_matchbox_pids(self):
         p = subprocess.Popen(self._lxc_args('pgrep matchbox'), stdout=subprocess.PIPE)
@@ -337,9 +404,16 @@ class LibertineLXD(Libertine.BaseContainer):
             utils.get_logger().error("Could not get container '{}'".format(self._id))
             return None
 
-        self._update_libertine_profile()
-        self._update_bind_mounts()
-        self.start_container()
+        if self._manager:
+            result = LifecycleResult.from_dict(self._manager.app_start(self._id))
+        else:
+            update_libertine_profile(self._client)
+            update_bind_mounts(self._container, self._config)
+            result = lxd_start(self._container)
+
+        if not result.success:
+            utils.get_logger().error(result.error)
+            return False
 
         args = self._lxc_args("sudo -E -u {} env PATH={}".format(os.environ['USER'], environ['PATH']), environ)
 
@@ -362,6 +436,11 @@ class LibertineLXD(Libertine.BaseContainer):
 
         app.wait()
 
+        if self._manager:
+            self._manager.app_stop(self.container_id)
+        else:
+            lxd_stop(self._container, False)
+
     def copy_file_to_container(self, source, dest):
         with open(source, 'rb') as f:
             return self._container.files.put(dest, f.read())
@@ -371,10 +450,6 @@ class LibertineLXD(Libertine.BaseContainer):
 
     def _try_get_container(self):
         if self._container is None:
-            try:
-                self._container = self._client.containers.get(self._id)
-            except pylxd.exceptions.LXDAPIException:
-                self._container = None
-                return False
+            self._container = lxd_container(self._client, self._id)
 
-        return True
+        return self._container is not None

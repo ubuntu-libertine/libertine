@@ -1,0 +1,57 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2016 Canonical Ltd.
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import libertine.LxdContainer
+import libertine.utils
+import pylxd
+
+from libertine.ContainersConfig import ContainersConfig
+from libertine.lifecycle import *
+
+
+LIBERTINE_LXD_MANAGER_NAME = libertine.LxdContainer.get_lxd_manager_dbus_name()
+LIBERTINE_LXD_MANAGER_PATH = libertine.LxdContainer.get_lxd_manager_dbus_path()
+
+
+class Service(ContainerLifecycleService):
+
+    def __init__(self):
+        super().__init__(LIBERTINE_LXD_MANAGER_NAME, LIBERTINE_LXD_MANAGER_PATH)
+        self._config = ContainersConfig()
+        self._client = pylxd.Client()
+
+    def start(self, container_id, launchable):
+        container = libertine.LxdContainer.lxd_container(self._client, container_id)
+
+        if not container:
+            return LifecycleResult("Container {} is not valid".format(container_id))
+
+        if container.status != 'Running':
+            libertine.LxdContainer.update_libertine_profile(self._client)
+            if launchable:
+                libertine.LxdContainer.update_bind_mounts(container, self._config)
+
+            return libertine.LxdContainer.lxd_start(container)
+
+        return LifecycleResult()
+
+    def stop(self, container_id):
+        return libertine.LxdContainer.lxd_stop(libertine.LxdContainer.lxd_container(self._client, container_id), False)
+
+
+if __name__ == '__main__':
+    ContainerLifecycleServiceRunner(Service()).run()

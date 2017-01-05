@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=com.canonical.libertine.LxdManager
+Exec=/usr/bin/libertine-lxd-manager

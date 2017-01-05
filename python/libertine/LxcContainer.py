@@ -23,6 +23,7 @@ import subprocess
 import sys
 import tempfile
 
+from .lifecycle import LifecycleResult
 from .Libertine import BaseContainer
 from . import utils, HostInfo
 
@@ -33,7 +34,7 @@ LIBERTINE_LXC_MANAGER_NAME = "com.canonical.libertine.LxcManager"
 LIBERTINE_LXC_MANAGER_PATH = "/LxcManager"
 
 
-def check_lxc_net_entry(entry):
+def _check_lxc_net_entry(entry):
     lxc_net_file = open('/etc/lxc/lxc-usernet')
     found = False
 
@@ -45,14 +46,14 @@ def check_lxc_net_entry(entry):
     return found
 
 
-def setup_host_environment(username):
+def _setup_host_environment(username):
     lxc_net_entry = "%s veth lxcbr0 10" % str(username)
 
-    if not check_lxc_net_entry(lxc_net_entry):
+    if not _check_lxc_net_entry(lxc_net_entry):
         subprocess.Popen(["sudo", "libertine-lxc-setup", str(username)]).wait()
 
 
-def get_lxc_default_config_path():
+def _get_lxc_default_config_path():
     return os.path.join(home_path, '.config', 'lxc')
 
 
@@ -74,21 +75,43 @@ def lxc_container(container_id):
     return container
 
 
-def lxc_start(container, lxc_log_file):
-    container.append_config_item("lxc.logfile", lxc_log_file)
-    container.append_config_item("lxc.logpriority", "3")
+def _dump_lxc_log(logfile):
+    if os.path.exists(logfile):
+        try:
+            with open(logfile, 'r') as fd:
+                for line in fd:
+                    print(line.lstrip())
+        except Exception as ex:
+            utils.get_logger().error("Could not open LXC log file: %s" % ex)
+
+
+def get_logfile(container):
+    try:
+        logfile = container.get_config_item('lxc.logfile')
+    except:
+        logfile = None
+
+    if not container.running or logfile is None or not os.path.exists(logfile):
+        logfile = os.path.join(tempfile.mkdtemp(), 'lxc-start.log')
+        container.append_config_item("lxc.logfile", logfile)
+        container.append_config_item("lxc.logpriority", "3")
+
+    return logfile
+
+def lxc_start(container):
+    lxc_log_file = get_logfile(container)
 
     if not container.start():
-        return (False, "Container failed to start")
+        return LifecycleResult("Container failed to start.")
 
     if not container.wait("RUNNING", 10):
-        return (False, "Container failed to enter the RUNNING state")
+        return LifecycleResult("Container failed to enter the RUNNING state.")
 
     if not container.get_ips(timeout=30):
         lxc_stop(container)
-        return (False, "Not able to connect to the network.")
+        return LifecycleResult("Not able to connect to the network.")
 
-    return (True, "")
+    return LifecycleResult()
 
 
 def lxc_stop(container):
@@ -134,15 +157,11 @@ class LibertineLXC(BaseContainer):
         self.window_manager = None
         self.host_info = HostInfo.HostInfo()
 
-        if self.container.defined:
-            self._set_lxc_log()
-
         utils.set_session_dbus_env_var()
 
         try:
             bus = dbus.SessionBus()
-            lxc_mgr_service = bus.get_object(get_lxc_manager_dbus_name(), get_lxc_manager_dbus_path())
-            self.lxc_manager_interface = dbus.Interface(lxc_mgr_service, get_lxc_manager_dbus_name())
+            self.lxc_manager_interface = bus.get_object(get_lxc_manager_dbus_name(), get_lxc_manager_dbus_path())
         except dbus.exceptions.DBusException:
             pass
 
@@ -152,13 +171,13 @@ class LibertineLXC(BaseContainer):
 
     def start_container(self):
         if self.lxc_manager_interface:
-            (result, error) = self.lxc_manager_interface.operation_start(self.container_id, self.lxc_log_file)
+            result = LifecycleResult.from_dict(self.lxc_manager_interface.operation_start(self.container_id))
         else:
-            (result, error) = lxc_start(self.container, self.lxc_log_file)
+            result = lxc_start(self.container)
 
-        if not result:
-            self._dump_lxc_log()
-            raise RuntimeError(error)
+        if not result.success:
+            _dump_lxc_log(result.logfile)
+            raise RuntimeError(result.error)
 
         if self.run_in_container("mountpoint -q /tmp/.X11-unix") == 0:
             self.run_in_container("umount /tmp/.X11-unix")
@@ -200,10 +219,10 @@ class LibertineLXC(BaseContainer):
         user_id = os.getuid()
         group_id = os.getgid()
 
-        setup_host_environment(username)
+        _setup_host_environment(username)
 
         # Generate the default lxc default config, if it doesn't exist
-        config_path = get_lxc_default_config_path()
+        config_path = _get_lxc_default_config_path()
         config_file = "%s/default.conf" % config_path
 
         if not os.path.exists(config_path):
@@ -223,17 +242,17 @@ class LibertineLXC(BaseContainer):
                 fd.write("lxc.id_map = g %s %s %s\n" % (group_id + 1, (group_id + 1) + 100000, 65536 - (user_id + 1)))
 
         self.container.load_config(config_file)
-        self._set_lxc_log()
- 
+
         utils.create_libertine_user_data_dir(self.container_id)
 
         with EnvLxcSettings():
+            lxc_logfile = get_logfile(self.container)
             if not self.container.create("download", 0,
                                          {"dist": "ubuntu",
                                           "release": self.installed_release,
                                           "arch": self.architecture}):
                 utils.get_logger().error("Failed to create container")
-                self._dump_lxc_log()
+                _dump_lxc_log(lxc_logfile)
                 return False
 
         self.create_libertine_config()
@@ -307,11 +326,11 @@ class LibertineLXC(BaseContainer):
         os.environ.clear()
         os.environ.update(environ)
 
-        (result, error) = self.lxc_manager_interface.app_start(self.container_id, self.lxc_log_file)
+        result = LifecycleResult.from_dict(self.lxc_manager_interface.app_start(self.container_id))
 
-        if not result:
-            self._dump_lxc_log()
-            utils.get_logger().error("%s" % error)
+        if not result.success:
+            _dump_lxc_log(get_logfile(self.container))
+            utils.get_logger().error("%s" % result.error)
             return
 
         self.window_manager = self.container.attach(lxc.attach_run_command,
@@ -333,17 +352,3 @@ class LibertineLXC(BaseContainer):
 
         # Tell libertine-lxc-manager that the app has stopped.
         self.lxc_manager_interface.app_stop(self.container_id)
-
-    def _set_lxc_log(self):
-        self.lxc_log_file = os.path.join(tempfile.mkdtemp(), 'lxc-start.log')
-        self.container.append_config_item("lxc.logfile", self.lxc_log_file)
-        self.container.append_config_item("lxc.logpriority", "3")
-
-    def _dump_lxc_log(self):
-        if os.path.exists(self.lxc_log_file):
-            try:
-                with open(self.lxc_log_file, 'r') as fd:
-                    for line in fd:
-                        utils.get_logger().error(line.lstrip())
-            except Exception as ex:
-                utils.get_logger().error("Could not open LXC log file: %s" % ex)
