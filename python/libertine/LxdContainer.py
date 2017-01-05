@@ -262,7 +262,7 @@ class LibertineLXD(Libertine.BaseContainer):
             self._manager = None
 
 
-    def create_libertine_container(self, password=None, multiarch=False, verbosity=1):
+    def create_libertine_container(self, password=None, multiarch=False):
         if self._try_get_container():
             utils.get_logger().error("Container already exists")
             return False
