@@ -216,3 +216,9 @@ def is_snap_environment():
         return True
     else:
         return False
+
+
+def get_deb_package_name(package):
+    pkg_name_proc = subprocess.Popen(shlex.split('dpkg --field {} Package'.format(package)), stdout=subprocess.PIPE)
+    out, err = pkg_name_proc.communicate()
+    return out.decode('utf-8').strip()

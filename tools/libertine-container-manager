@@ -23,7 +23,6 @@ import os
 import sys
 import re
 
-from apt.debfile import DebPackage
 from libertine import LibertineContainer
 from libertine.ContainersConfig import ContainersConfig
 from libertine.HostInfo import HostInfo
@@ -126,7 +125,7 @@ class LibertineContainerManager(object):
 
         if is_debian_package:
             if os.path.exists(args.package):
-                package = DebPackage(args.package).pkgname
+                package = libertine.utils.get_deb_package_name(args.package)
             else:
                 libertine.utils.get_logger().error("%s does not exist." % args.package)
                 sys.exit(1)
