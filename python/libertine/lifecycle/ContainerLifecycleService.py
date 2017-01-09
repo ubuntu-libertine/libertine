@@ -55,7 +55,7 @@ class ContainerLifecycleService(dbus.service.Object):
     def app_start(self, container):
         utils.get_logger().debug("app_start({})".format(container))
         if self._operations[container] != 0:
-            return LifecycleResult("Libertine container operation already running: cannot launch application.")
+            return LifecycleResult("Libertine container operation already running: cannot launch application.").to_dict()
 
         result = self.start(container, True)
 
@@ -84,7 +84,7 @@ class ContainerLifecycleService(dbus.service.Object):
     def operation_start(self, container):
         utils.get_logger().debug("operation_start({})".format(container))
         if self._apps[container] != 0:
-            return LifecycleResult("Application already running in container: cannot run operation.")
+            return LifecycleResult("Application already running in container: cannot run operation.").to_dict()
 
         result = self.start(container, False)
 
