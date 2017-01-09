@@ -181,8 +181,6 @@ class LibertineLXC(BaseContainer):
 
         if self.run_in_container("mountpoint -q /tmp/.X11-unix") == 0:
             self.run_in_container("umount /tmp/.X11-unix")
-        if self.run_in_container("mountpoint -q /usr/lib/locale") == 0:
-            self.run_in_container("umount -l /usr/lib/locale")
 
     def stop_container(self):
         if self.lxc_manager_interface:

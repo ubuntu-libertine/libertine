@@ -403,7 +403,7 @@ class LibertineLXD(Libertine.BaseContainer):
         if requires_remount:
             self._container.execute(shlex.split('/usr/bin/libertine-lxd-mount-update'))
 
-        args = self._lxc_args("sudo -E -u {} env PATH={}".format(os.environ['USER'], environ['PATH']), environ)
+        args = self._lxc_args("sudo -E -u {} env PATH={}".format(environ['USER'], environ['PATH']), environ)
 
         self._start_window_manager(args.copy())
 
