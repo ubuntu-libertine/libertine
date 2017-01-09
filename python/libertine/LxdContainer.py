@@ -98,20 +98,6 @@ def _setup_lxd():
 
 
 def _setup_bind_mount_service(container, uid, username):
-    utils.get_logger().info("Creating systemd mount override service")
-    service = '''
-[Unit]
-Description=Fix system mounts for libertine
-
-[Service]
-ExecStart=/usr/bin/libertine-lxd-mount-update
-
-[Install]
-WantedBy=multi-user.target
-'''[1:-1]
-    container.files.put('/etc/systemd/system/libertine-lxd-mount-update.service', service.encode('utf-8'))
-    container.execute(shlex.split('chmod 644 /etc/systemd/system/libertine-lxd-mount-update.service'))
-
     utils.get_logger().info("Creating mount update shell script")
     script = '''
 #!/bin/sh
@@ -127,9 +113,6 @@ chgrp video /dev/dri/*
 '''[1:-1]
     container.files.put('/usr/bin/libertine-lxd-mount-update', script.format(uid=uid, username=username).encode('utf-8'))
     container.execute(shlex.split('chmod 755 /usr/bin/libertine-lxd-mount-update'))
-
-    utils.get_logger().info("Enabling systemd mount update service")
-    container.execute(shlex.split('systemctl enable libertine-lxd-mount-update.service'))
 
 
 def lxd_container(client, container_id):
@@ -404,6 +387,8 @@ class LibertineLXD(Libertine.BaseContainer):
             utils.get_logger().error("Could not get container '{}'".format(self._id))
             return None
 
+        requires_remount = self._container.status != 'Running'
+
         if self._manager:
             result = LifecycleResult.from_dict(self._manager.app_start(self._id))
         else:
@@ -414,6 +399,9 @@ class LibertineLXD(Libertine.BaseContainer):
         if not result.success:
             utils.get_logger().error(result.error)
             return False
+
+        if requires_remount:
+            self._container.execute(shlex.split('/usr/bin/libertine-lxd-mount-update'))
 
         args = self._lxc_args("sudo -E -u {} env PATH={}".format(os.environ['USER'], environ['PATH']), environ)
 
