@@ -179,9 +179,6 @@ class LibertineLXC(BaseContainer):
             _dump_lxc_log(result.logfile)
             raise RuntimeError(result.error)
 
-        if self.run_in_container("mountpoint -q /tmp/.X11-unix") == 0:
-            self.run_in_container("umount /tmp/.X11-unix")
-
     def stop_container(self):
         if self.lxc_manager_interface:
             self.lxc_manager_interface.operation_stop(self.container_id)
