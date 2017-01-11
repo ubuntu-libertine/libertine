@@ -248,6 +248,3 @@ class LibertineChroot(BaseContainer):
         args = shlex.split(command_line)
         app = subprocess.Popen(args)
         return app
-
-    def finish_application(self, app):
-        app.wait()
