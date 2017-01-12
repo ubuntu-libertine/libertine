@@ -46,7 +46,7 @@ class ContainerLifecycleService(dbus.service.Object):
     def start(self, container):
         raise NotImplementedError("Subclasses must implement start(container)")
 
-    def stop(self, container):
+    def stop(self, container, options={}):
         raise NotImplementedError("Subclasses must implement stop(container)")
 
     @dbus.service.method(LIBERTINE_CONTAINER_LIFECYCLE_INTERFACE,
@@ -94,15 +94,15 @@ class ContainerLifecycleService(dbus.service.Object):
         return result.to_dict()
 
     @dbus.service.method(LIBERTINE_CONTAINER_LIFECYCLE_INTERFACE,
-                         in_signature='s',
+                         in_signature='sa{ss}',
                          out_signature='a{ss}')
-    def operation_stop(self, container):
-        utils.get_logger().debug("operation_stop({})".format(container))
+    def operation_stop(self, container, options={}):
+        utils.get_logger().debug("operation_stop({}, {})".format(container, options))
         self._operations[container] -= 1
         result = LifecycleResult()
 
         if self._operations[container] == 0:
-            result = self.stop(container)
+            result = self.stop(container, options)
             del self._operations[container]
 
         return result.to_dict()

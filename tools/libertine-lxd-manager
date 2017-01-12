@@ -49,8 +49,8 @@ class Service(ContainerLifecycleService):
 
         return LifecycleResult()
 
-    def stop(self, container_id):
-        return libertine.LxdContainer.lxd_stop(libertine.LxdContainer.lxd_container(self._client, container_id), False)
+    def stop(self, container_id, options={}):
+        return libertine.LxdContainer.lxd_stop(libertine.LxdContainer.lxd_container(self._client, container_id), options.get('wait', False))
 
 
 if __name__ == '__main__':

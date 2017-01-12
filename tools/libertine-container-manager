@@ -96,6 +96,9 @@ class LibertineContainerManager(object):
                 sys.exit(1)
         except Exception as e:
             libertine.utils.get_logger().error("Failed to create container: '{}'".format(str(e)))
+            if container:
+                container.destroy_libertine_container()
+
             self.containers_config.delete_container(args.id)
             sys.exit(1)
 

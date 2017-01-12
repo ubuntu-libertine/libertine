@@ -310,7 +310,10 @@ class LibertineLXD(Libertine.BaseContainer):
             utils.get_logger().error("No such container '%s'" % self._id)
             return False
 
-        self.stop_container(wait=True)
+        if not self.stop_container(wait=True):
+            utils.get_logger().error("Canceling destruction due to running container")
+            return False
+
         self._container.delete()
         return True
 
@@ -355,7 +358,7 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         if self._manager:
-            result = LifecycleResult.from_dict(self._manager.operation_stop(self._id))
+            result = LifecycleResult.from_dict(self._manager.operation_stop(self._id, {'wait': wait}))
         else:
             result = lxd_stop(self._container, wait)
 

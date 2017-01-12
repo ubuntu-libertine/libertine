@@ -55,7 +55,7 @@ class Service(ContainerLifecycleService):
 
         return LifecycleResult()
 
-    def stop(self, container_id):
+    def stop(self, container_id, options={}):
         container = libertine.LxcContainer.lxc_container(container_id)
         libertine.LxcContainer.lxc_stop(container)
 
