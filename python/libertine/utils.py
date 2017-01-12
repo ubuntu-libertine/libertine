@@ -103,6 +103,9 @@ def get_libertine_container_userdata_dir_path(container_id):
     if path is None:
         path = os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data', container_id)
 
+    if is_snap_environment():
+        path = path.replace(os.environ['HOME'], os.getenv('SNAP_USER_COMMON'))
+
     return path
 
 

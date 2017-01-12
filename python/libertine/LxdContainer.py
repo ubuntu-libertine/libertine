@@ -159,9 +159,11 @@ def lxd_stop(container, wait):
 
 def update_bind_mounts(container, config):
     home_path = os.environ['HOME']
+    userdata_dir = utils.get_libertine_container_userdata_dir_path(container.name)
 
     container.devices.clear()
     container.devices['root'] = {'type': 'disk', 'path': '/'}
+    container.devices['home'] = {'type': 'disk', 'path': home_path, 'source': userdata_dir}
 
     if os.path.exists(os.path.join(home_path, '.config', 'dconf')):
         container.devices['dconf'] = {
@@ -184,6 +186,8 @@ def update_bind_mounts(container, config):
             path = user_dir[1]
         else:
             path = os.path.join(home_path, user_dir[1])
+            hostpath = os.path.join(userdata_dir, user_dir[1])
+            os.makedirs(hostpath, exist_ok=True)
 
         utils.get_logger().debug("Mounting {}:{} in container {}".format(user_dir[0], path, container.name))
 
@@ -272,6 +276,8 @@ class LibertineLXD(Libertine.BaseContainer):
             uid, crypt.crypt(''), username))
         self.run_in_container("mkdir -p /home/{}".format(username))
         self.run_in_container("chown {0}:{0} /home/{0}".format(username))
+
+        utils.create_libertine_user_data_dir(self._id)
 
         _setup_bind_mount_service(self._container, uid, username)
 
