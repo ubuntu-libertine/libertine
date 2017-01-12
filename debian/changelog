@@ -1,3 +1,23 @@
+libertine (1.5+17.04.20170105.1-0ubuntu1) zesty; urgency=medium
+
+  [ Chris Townsend ]
+  * Drop support for the Puritine click package as that is Vivid only
+    and a Vivid Libertine branch exists for any future fixes.
+  * Only set the lxc log when a container is defined during class init.
+    (LP: #1653973)
+  * Bump version to 1.5 for new upstream release.
+
+  [ Larry Price ]
+  * Logic for bundling libertine as a snap built from source.
+  * Catch exceptions raised during container creation.
+  * Initial implementation of lxd backend. (LP: #1580612)
+  * Use the libertine logger and LIBERTINE_DEBUG variable everywhere.
+  * Update configure bind-mount logic given new lxd backend.
+  * Use dpkg to find package name when installing local deb.
+  * Create d-bus service for lxd container management.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Thu, 05 Jan 2017 20:20:33 +0000
+
 libertine (1.4.4+17.04.20161205-0ubuntu1) zesty; urgency=medium
 
   [ Chris Townsend ]
