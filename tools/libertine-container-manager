@@ -71,7 +71,7 @@ class LibertineContainerManager(object):
         if not args.name:
             args.name = "Ubuntu \'" + (self.host_info.get_distro_codename(args.distro) or args.distro) + "\'"
 
-        if container_type == "lxc":
+        if container_type == "lxc" or container_type == "lxd":
             if args.password:
                 password = args.password
             elif sys.stdin.isatty():

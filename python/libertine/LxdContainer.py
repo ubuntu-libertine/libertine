@@ -273,7 +273,7 @@ class LibertineLXD(Libertine.BaseContainer):
         uid = str(os.getuid())
         self.run_in_container("userdel -r ubuntu")
         self.run_in_container("useradd -u {} -U -p {} -G sudo,audio,video {}".format(
-            uid, crypt.crypt(''), username))
+            uid, crypt.crypt(password or ''), username))
         self.run_in_container("mkdir -p /home/{}".format(username))
         self.run_in_container("chown {0}:{0} /home/{0}".format(username))
 
