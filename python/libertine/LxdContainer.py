@@ -12,6 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import contextlib
 import crypt
 import dbus
 import os
@@ -157,6 +158,58 @@ def lxd_stop(container, wait):
     return LifecycleResult()
 
 
+def _lxd_save(entity, error, wait=True):
+    try:
+        entity.save(wait=wait)
+    except pylxd.exceptions.LXDAPIException as e:
+        utils.get_logger().warning('{} {}'.format(error, str(e)))
+
+
+_CONTAINER_DATA_DIRS = ["/usr/share/applications", "/usr/share/icons", "/usr/local/share/applications", "/usr/share/pixmaps"]
+
+
+class RestoreDevice(contextlib.ExitStack):
+    def __init__(self, container, device):
+        super().__init__()
+        self._container = container
+        self._device = device
+        self._source = None
+        self.remove()
+        self.callback(self.restore)
+
+    def remove(self):
+        if self._device in self._container.devices:
+            self._source = self._container.devices[self._device]
+            del self._container.devices[self._device]
+            _lxd_save(self._container, 'Saving bind mounts for container \'{}\' raised:'.format(self._container.name))
+
+    def restore(self):
+        if self._source is not None:
+            self._container.devices[self._device] = self._source
+            _lxd_save(self._container, 'Saving bind mounts for container \'{}\' raised:'.format(self._container.name), False)
+
+
+def _sync_application_dirs_to_host(container):
+    host_root = utils.get_libertine_container_rootfs_path(container.name)
+    for container_path in _CONTAINER_DATA_DIRS:
+        utils.get_logger().info("Syncing applications directory: {}".format(container_path))
+        os.makedirs(os.path.join(host_root, container_path.lstrip("/")), exist_ok=True)
+        with RestoreDevice(container, container_path):
+            # find a list of files within the container
+            find = subprocess.Popen(shlex.split("lxc exec {} -- find {} -type f".format(container.name, container_path)), stdout=subprocess.PIPE)
+            stdout, stderr = find.communicate()
+
+        if find.returncode == 0:
+            for filepath in stdout.decode('utf-8').strip().split('\n'):
+                if filepath:
+                    host_path = os.path.join(host_root, filepath.lstrip("/"))
+                    if not os.path.exists(host_path):
+                        utils.get_logger().debug("Syncing file: {}:{}".format(filepath, host_path))
+                        os.makedirs(os.path.dirname(host_path), exist_ok=True)
+                        with open(host_path, 'wb') as f:
+                            f.write(container.files.get(filepath))
+
+
 def update_bind_mounts(container, config):
     home_path = os.environ['HOME']
     userdata_dir = utils.get_libertine_container_userdata_dir_path(container.name)
@@ -164,6 +217,13 @@ def update_bind_mounts(container, config):
     container.devices.clear()
     container.devices['root'] = {'type': 'disk', 'path': '/'}
     container.devices['home'] = {'type': 'disk', 'path': home_path, 'source': userdata_dir}
+
+    # applications and icons directories
+    rootfs_path = utils.get_libertine_container_rootfs_path(container.name)
+    for data_dir in _CONTAINER_DATA_DIRS:
+        host_path = "{}{}".format(rootfs_path, data_dir)
+        os.makedirs(host_path, exist_ok=True)
+        container.devices[data_dir] = {'type': 'disk', 'path': data_dir, 'source': host_path}
 
     if os.path.exists(os.path.join(home_path, '.config', 'dconf')):
         container.devices['dconf'] = {
@@ -198,11 +258,7 @@ def update_bind_mounts(container, config):
                 'type': 'disk'
         }
 
-    try:
-        container.save(wait=True)
-    except pylxd.exceptions.LXDAPIException as e:
-        utils.get_logger().warning('Saving bind mounts for container \'{}\' raised: {}'.format(container.name, str(e)))
-        # This is most likely the result of the container currently running
+    _lxd_save(container, 'Saving bind mounts for container \'{}\' raised:'.format(container.name))
 
 
 def update_libertine_profile(client):
@@ -213,12 +269,7 @@ def update_libertine_profile(client):
         profile.devices = _get_devices_map()
         profile.config['raw.idmap'] = 'both 1000 1000'
 
-        try:
-            profile.save()
-        except pylxd.exceptions.LXDAPIException as e:
-            utils.get_logger().warning('Saving libertine lxd profile raised: {}'.format(str(e)))
-            # This is most likely the result of an older container currently
-            # running and/or containing a conflicting device entry
+        _lxd_save(profile, 'Saving libertine lxd profile raised:')
     except pylxd.exceptions.LXDAPIException:
         utils.get_logger().info('Creating libertine lxd profile.')
         client.profiles.create('libertine', config={'raw.idmap': 'both 1000 1000'}, devices=_get_devices_map())
@@ -264,10 +315,9 @@ class LibertineLXD(Libertine.BaseContainer):
             utils.get_logger().error("Creating container '{}' failed with code '{}'".format(self._id, create.returncode))
             return False
 
-        if not self.start_container():
-            utils.get_logger().error("Failed to start container '{}'".format(self._id))
-            self.destroy_libertine_container()
-            return False
+        self._try_get_container()
+        _sync_application_dirs_to_host(self._container)
+        update_bind_mounts(self._container, self._config)
 
         self.update_locale()
 
@@ -306,6 +356,9 @@ class LibertineLXD(Libertine.BaseContainer):
             self.run_in_container("bash -c 'echo \"%s\" > /etc/timezone'" % self._host_info.get_host_timezone())
             self.run_in_container("rm -f /etc/localtime")
             self.run_in_container("dpkg-reconfigure -f noninteractive tzdata")
+
+        _sync_application_dirs_to_host(self._container)
+        update_bind_mounts(self._container, self._config)
 
         return super().update_packages(update_locale)
 

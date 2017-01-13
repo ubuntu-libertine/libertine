@@ -148,16 +148,8 @@ libertine_container_path(const gchar * container_id)
   g_return_val_if_fail(container_id != nullptr, nullptr);
   LibertineConfig config;
   ContainerConfigList container_list(&config);
-  gchar * path = nullptr;
 
-  if (g_strcmp0((gchar*)container_list.getContainerType(container_id).toStdString().c_str(), "lxd") == 0)
-  {
-    path = g_build_filename("/", "var", "lib", "lxd", "containers", container_id, "rootfs", nullptr);
-  }
-  else
-  {
-    path = g_build_filename(g_get_user_cache_dir(), "libertine-container", container_id, "rootfs", nullptr);
-  }
+  gchar * path = g_build_filename(g_get_user_cache_dir(), "libertine-container", container_id, "rootfs", nullptr);
 
   if (g_file_test(path, G_FILE_TEST_EXISTS))
   {
@@ -175,16 +167,8 @@ libertine_container_home_path(const gchar * container_id)
   g_return_val_if_fail(container_id != nullptr, nullptr);
   LibertineConfig config;
   ContainerConfigList container_list(&config);
-  gchar * path = nullptr;
 
-  if (g_strcmp0((gchar*)container_list.getContainerType(container_id).toStdString().c_str(), "lxd") == 0)
-  {
-    path = g_build_filename("/", "var", "lib", "lxd", "containers", container_id, "rootfs", "home", g_get_user_name(), nullptr);
-  }
-  else
-  {
-    path = g_build_filename(g_get_user_data_dir(), "libertine-container", "user-data", container_id, nullptr);
-  }
+  gchar * path =  g_build_filename(g_get_user_data_dir(), "libertine-container", "user-data", container_id, nullptr);
 
   if (g_file_test(path, G_FILE_TEST_EXISTS))
   {
