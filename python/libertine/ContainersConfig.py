@@ -296,6 +296,12 @@ class ContainersConfig(object):
         else:
             return multiarch_support
 
+    def update_container_locale(self, container_id, locale):
+        self._set_value_by_key(container_id, 'locale', locale)
+
+    def get_container_locale(self, container_id):
+        return self._get_value_by_key(container_id, 'locale')
+
     """
     Operations for archive (PPA) maintenance in a Libertine container.
     """

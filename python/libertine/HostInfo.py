@@ -12,6 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import locale
 import lsb_release
 import os
 import platform
@@ -74,3 +75,14 @@ class HostInfo(object):
     def get_host_timezone(self):
         with open(os.path.join('/', 'etc', 'timezone'), 'r') as fd:
             return fd.read().strip('\n')
+
+    def get_host_locale(self):
+        host_locale = locale.getlocale()
+        full_locale = None
+
+        if len(host_locale) == 2:
+            full_locale = "{}.{}".format(host_locale[0], host_locale[1])
+        elif len(host_locale) == 1:
+            full_locale = "{}".format(host_locale[0])
+
+        return full_locale

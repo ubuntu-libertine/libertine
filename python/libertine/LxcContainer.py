@@ -189,14 +189,14 @@ class LibertineLXC(BaseContainer):
         cmd_args = shlex.split(command_string)
         return self.container.attach_wait(lxc.attach_run_command, cmd_args)
 
-    def update_packages(self):
+    def update_packages(self, update_locale=False):
         if self.timezone_needs_update():
             self.run_in_container("bash -c \'echo \"{}\" >/etc/timezone\'".format(
                                   self.host_info.get_host_timezone()))
             self.run_in_container("rm -f /etc/localtime")
             self.run_in_container("dpkg-reconfigure -f noninteractive tzdata")
 
-        return super().update_packages()
+        return super().update_packages(update_locale)
 
     def destroy_libertine_container(self):
         if not self.container.defined:
@@ -260,6 +260,8 @@ class LibertineLXC(BaseContainer):
             self.destroy_libertine_container()
             return False
 
+        self.update_locale()
+
         self.run_in_container("userdel -r ubuntu")
         self.run_in_container("useradd -u {} -p {} -G sudo {}".format(
                 str(user_id), crypt.crypt(password), str(username)))
@@ -276,6 +278,8 @@ class LibertineLXC(BaseContainer):
                 utils.get_logger().error("Failure installing %s during container creation" % package)
                 self.destroy_libertine_container()
                 return False
+
+        super().create_libertine_container()
 
         utils.get_logger().info("stopping container ...")
         self.stop_container()

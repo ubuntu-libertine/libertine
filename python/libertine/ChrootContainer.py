@@ -120,6 +120,8 @@ class LibertineChroot(BaseContainer):
 
         utils.create_libertine_user_data_dir(self.container_id)
 
+        self.update_locale()
+
         if multiarch and self.architecture == 'amd64':
             utils.get_logger().info("Adding i386 multiarch support...")
             self.run_in_container("dpkg --add-architecture i386")
@@ -146,10 +148,12 @@ class LibertineChroot(BaseContainer):
         # Check if the container was created as root and chown the user directories as necessary
         chown_recursive_dirs(utils.get_libertine_container_userdata_dir_path(self.container_id))
 
+        super().create_libertine_container()
+
         return True
 
-    def update_packages(self):
-        retcode = super().update_packages()
+    def update_packages(self, new_locale=None):
+        retcode = super().update_packages(new_locale)
         self._run_ldconfig()
         return retcode == 0
 

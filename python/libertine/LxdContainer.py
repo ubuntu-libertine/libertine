@@ -269,6 +269,8 @@ class LibertineLXD(Libertine.BaseContainer):
             self.destroy_libertine_container()
             return False
 
+        self.update_locale()
+
         username = os.environ['USER']
         uid = str(os.getuid())
         self.run_in_container("userdel -r ubuntu")
@@ -294,16 +296,18 @@ class LibertineLXD(Libertine.BaseContainer):
                 self.destroy_libertine_container()
                 return False
 
+        super().create_libertine_container()
+
         return True
 
-    def update_packages(self):
+    def update_packages(self, update_locale=False):
         if not self._timezone_in_sync():
             utils.get_logger().info("Re-syncing timezones")
             self.run_in_container("bash -c 'echo \"%s\" > /etc/timezone'" % self._host_info.get_host_timezone())
             self.run_in_container("rm -f /etc/localtime")
             self.run_in_container("dpkg-reconfigure -f noninteractive tzdata")
 
-        return super().update_packages()
+        return super().update_packages(update_locale)
 
     def destroy_libertine_container(self):
         if not self._try_get_container():

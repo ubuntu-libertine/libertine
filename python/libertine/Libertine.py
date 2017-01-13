@@ -82,10 +82,15 @@ class BaseContainer(metaclass=abc.ABCMeta):
 
     :param container_id: The machine-readable container name.
     """
-    def __init__(self, container_id):
+    def __init__(self, container_id, containers_config=None):
+        if containers_config is None:
+            containers_config = ContainersConfig()
+
         self.container_type = 'unknown'
         self.container_id = container_id
         self.root_path = libertine.utils.get_libertine_container_rootfs_path(self.container_id)
+        self.locale = containers_config.get_container_locale(container_id)
+        self.language = self._get_language_from_locale()
         self.default_packages = ['matchbox-window-manager',
                                  'libnss-extrausers',
                                  'humanity-icon-theme',
@@ -93,8 +98,37 @@ class BaseContainer(metaclass=abc.ABCMeta):
                                  'maliit-inputcontext-gtk3',
                                  'maliit-framework']
 
+    def _get_language_from_locale(self):
+        language = None
+
+        if self.locale is not None:
+            language = self.locale.split('.')[0]
+            if not language.startswith('zh_'):
+                language = language.split('_')[0]
+            elif language.startswith('zh_CN'):
+                language = 'zh-hans'
+            else:
+                language = 'zh-hant'
+                
+        return language
+
+    def check_language_support(self):
+        if self.run_in_container("bash -c \"which check-language-support &> /dev/null\"") != 0:
+            self.install_package('language-selector-common', update_cache=False)
+
+        self.run_in_container("bash -c \"{} install $(check-language-support -l {})\"".format(_apt_command_prefix(), self.language))
+
+    def update_locale(self):
+        self.run_in_container("locale-gen {}".format(self.locale))
+
+    def install_base_language_packs(self):
+        base_language_packs = ['language-pack-{}', 'language-pack-gnome-{}']
+
+        for language_pack in [p.format(self.language) for p in base_language_packs]:
+            self.install_package(language_pack, update_cache=False)
+
     def create_libertine_container(self, password=None, multiarch=False):
-        pass
+        self.install_base_language_packs()
 
     def destroy_libertine_container(self):
         pass
@@ -150,11 +184,18 @@ class BaseContainer(metaclass=abc.ABCMeta):
         """
         return self.run_in_container(_apt_command_prefix() + 'update')
 
-    def update_packages(self):
+    def update_packages(self, new_locale=None):
         """
         Updates all packages installed in the container.
         """
         self.update_apt_cache()
+
+        if new_locale:
+            self.locale = new_locale
+            self.language = self._get_language_from_locale()
+            self.update_locale()
+            self.install_base_language_packs()
+
         return self.run_in_container(_apt_command_prefix() + '--force-yes dist-upgrade') == 0
 
     def install_package(self, package_name, no_dialog=False, update_cache=True):
@@ -185,7 +226,11 @@ class BaseContainer(metaclass=abc.ABCMeta):
         else:
             if no_dialog:
                 os.environ['DEBIAN_FRONTEND'] = 'teletype'
-            return self.run_in_container(_apt_command_prefix() + " install '" + package_name + "'") == 0
+            ret = self.run_in_container(_apt_command_prefix() + " install '" + package_name + "'") == 0
+
+        self.check_language_support()
+
+        return ret
 
     def remove_package(self, package_name):
         """
@@ -254,8 +299,8 @@ class LibertineMock(BaseContainer):
     """
     A concrete mock container type.  Used for unit testing.
     """
-    def __init__(self, container_id):
-        super().__init__(container_id)
+    def __init__(self, container_id, containers_config=None):
+        super().__init__(container_id, containers_config)
         self.container_type = "mock"
 
     def create_libertine_container(self, password=None, multiarch=False):
@@ -264,7 +309,7 @@ class LibertineMock(BaseContainer):
     def destroy_libertine_container(self):
         return True
 
-    def update_packages(self):
+    def update_packages(self, new_locale=None):
         return True
 
     def install_package(self, package_name, no_dialog=False, update_cache=True):
@@ -328,7 +373,7 @@ class LibertineContainer(object):
             from  libertine.ChrootContainer import LibertineChroot
             self.container = LibertineChroot(container_id)
         elif container_type == "mock":
-            self.container = LibertineMock(container_id)
+            self.container = LibertineMock(container_id, self.containers_config)
         else:
             raise RuntimeError("Unsupported container type %s" % container_type)
 
@@ -363,13 +408,13 @@ class LibertineContainer(object):
 
         return self.container.create_libertine_container(password, multiarch)
 
-    def update_libertine_container(self):
+    def update_libertine_container(self, new_locale=None):
         """
         Updates the contents of the container.
         """
         try:
             with ContainerRunning(self.container):
-                return self.container.update_packages()
+                return self.container.update_packages(new_locale)
         except RuntimeError as e:
             return handle_runtime_error(e)
 

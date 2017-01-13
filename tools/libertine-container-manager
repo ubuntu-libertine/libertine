@@ -34,6 +34,14 @@ class LibertineContainerManager(object):
         self.containers_config = ContainersConfig()
         self.host_info = HostInfo()
 
+    def _get_updated_locale(self, container_id):
+        host_locale = self.host_info.get_host_locale()
+        
+        if host_locale == self.containers_config.get_container_locale(container_id):
+            return None
+        else:
+            return host_locale
+
     def create(self, args):
         password = None
 
@@ -88,6 +96,7 @@ class LibertineContainerManager(object):
         self.containers_config.update_container_multiarch_support(args.id, multiarch)
 
         try:
+            self.containers_config.update_container_locale(args.id, self.host_info.get_host_locale())
             container = LibertineContainer(args.id)
             self.containers_config.update_container_install_status(args.id, "installing")
             if not container.create_libertine_container(password, args.multiarch):
@@ -142,7 +151,7 @@ class LibertineContainerManager(object):
         else:
             self.containers_config.add_new_package(container_id, package)
 
-        container = LibertineContainer(container_id)
+        container = LibertineContainer(container_id, self.containers_config)
 
         self.containers_config.update_package_install_status(container_id, package, "installing")
         if not container.install_package(args.package, args.no_dialog):
@@ -194,13 +203,17 @@ class LibertineContainerManager(object):
 
     def update(self, args):
         container_id = self.containers_config.check_container_id(args.id)
+        new_locale = self._get_updated_locale(container_id)
 
         container = LibertineContainer(container_id)
 
         self.containers_config.update_container_install_status(container_id, "updating")
-        if not container.update_libertine_container():
+        if not container.update_libertine_container(new_locale):
             self.containers_config.update_container_install_status(container_id, "ready")
             sys.exit(1)
+
+        if new_locale:
+            self.containers_config.update_container_locale(container_id, new_locale)
 
         self.containers_config.update_container_install_status(container_id, "ready")
 
@@ -457,7 +470,8 @@ if __name__ == '__main__':
     # Handle the update command and its options
     parser_update = subparsers.add_parser(
         'update',
-        help=("Update the packages in the Libertine container."))
+        help=("Update the packages in the Libertine container.  Also updates the container's "
+              "locale and installs necessary language packs if the host's locale has changed."))
     parser_update.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
