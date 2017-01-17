@@ -431,7 +431,7 @@ class LibertineLXD(Libertine.BaseContainer):
 
     # FIXME: Remove once window management logic has been moved to the host
     def _start_window_manager(self, args):
-        args.extend(utils.setup_window_manager(self._id))
+        args.extend(self.setup_window_manager())
 
         if 'matchbox-window-manager' in args:
             pids = self._get_matchbox_pids()

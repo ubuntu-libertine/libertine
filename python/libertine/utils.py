@@ -166,17 +166,6 @@ def get_libertine_lxc_pulse_socket_path():
     return os.path.join(get_libertine_runtime_dir(), 'pulse_socket')
 
 
-def setup_window_manager(container_id, enable_toolbars=False):
-    if os.path.exists(os.path.join(get_libertine_container_rootfs_path(container_id),
-                                   'usr', 'bin', 'matchbox-window-manager')):
-        if enable_toolbars:
-            return ['matchbox-window-manager']
-
-        return ['matchbox-window-manager', '-use_titlebar', 'no']
-    else:
-        return ['compiz']
-
-
 def terminate_window_manager(window_manager):
     for child in window_manager.children():
         child.terminate()

@@ -333,7 +333,7 @@ class LibertineLXC(BaseContainer):
             return
 
         self.window_manager = self.container.attach(lxc.attach_run_command,
-                                                    utils.setup_window_manager(self.container_id))
+                                                    self.setup_window_manager())
 
         # Setup pulse to work inside the container
         os.environ['PULSE_SERVER'] = utils.get_libertine_lxc_pulse_socket_path()

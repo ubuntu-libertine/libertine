@@ -112,8 +112,21 @@ class BaseContainer(metaclass=abc.ABCMeta):
                 
         return language
 
+    def _binary_exists(self, binary):
+        return self.run_in_container("bash -c \"which {} &> /dev/null\"".format(binary)) == 0
+
+    def setup_window_manager(self, enable_toolbars=False):
+        if self._binary_exists('matchbox-window-manager'):
+            if enable_toolbars:
+                return ['matchbox-window-manager']
+
+            return ['matchbox-window-manager', '-use_titlebar', 'no']
+        else:
+            return ['compiz']
+            
+
     def check_language_support(self):
-        if self.run_in_container("bash -c \"which check-language-support &> /dev/null\"") != 0:
+        if not self._binary_exists('check-language-support'):
             self.install_package('language-selector-common', update_cache=False)
 
         self.run_in_container("bash -c \"{} install $(check-language-support -l {})\"".format(_apt_command_prefix(), self.language))
@@ -264,7 +277,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         :param archive: The configuration command to run.
         :param public_key_file: file containing the public key used to sign this archive
         """
-        if not os.path.exists(os.path.join(self.root_path, 'usr', 'bin', 'add-apt-repository')):
+        if not self._binary_exists('add-apt-repository'):
             self.install_package("software-properties-common")
         if 'https://' in archive and not os.path.exists(os.path.join(self.root_path, 'usr', 'lib', 'apt', 'methods', 'https')):
             self.install_package("apt-transport-https")

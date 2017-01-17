@@ -233,7 +233,7 @@ class LibertineChroot(BaseContainer):
         proot_cmd = self._build_proot_command()
 
         args = shlex.split(proot_cmd)
-        args.extend(utils.setup_window_manager(self.container_id, enable_toolbars=True))
+        args.extend(self.setup_window_manager(enable_toolbars=True))
         self._window_manager = psutil.Popen(args, env=environ)
 
         args = shlex.split(proot_cmd)
