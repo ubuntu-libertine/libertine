@@ -16,7 +16,6 @@ from .AppDiscovery import AppLauncherCache
 from gi.repository import Libertine
 import abc
 import contextlib
-import libertine.utils
 import os
 import shutil
 
@@ -88,7 +87,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
 
         self.container_type = 'unknown'
         self.container_id = container_id
-        self.root_path = libertine.utils.get_libertine_container_rootfs_path(self.container_id)
+        self.root_path = utils.get_libertine_container_rootfs_path(self.container_id)
         self.locale = containers_config.get_container_locale(container_id)
         self.language = self._get_language_from_locale()
         self.default_packages = ['matchbox-window-manager',
@@ -109,11 +108,23 @@ class BaseContainer(metaclass=abc.ABCMeta):
                 language = 'zh-hans'
             else:
                 language = 'zh-hant'
-                
+
         return language
 
     def _binary_exists(self, binary):
         return self.run_in_container("bash -c \"which {} &> /dev/null\"".format(binary)) == 0
+
+    def _delete_rootfs(self):
+        container_root = os.path.join(utils.get_libertine_containers_dir_path(), self.container_id)
+        if not os.path.exists(container_root):
+            return True
+
+        try:
+            shutil.rmtree(container_root)
+            return True
+        except Exception as e:
+            utils.get_logger().error("%s" % e)
+            return False
 
     def setup_window_manager(self, enable_toolbars=False):
         if self._binary_exists('matchbox-window-manager'):
@@ -123,7 +134,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
             return ['matchbox-window-manager', '-use_titlebar', 'no']
         else:
             return ['compiz']
-            
+
 
     def check_language_support(self):
         if not self._binary_exists('check-language-support'):

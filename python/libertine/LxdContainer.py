@@ -289,7 +289,6 @@ class LibertineLXD(Libertine.BaseContainer):
 
         self._client = pylxd.Client()
         self._window_manager = None
-        self.root_path = '{}/containers/{}/rootfs'.format(os.getenv('LXD_DIR', '/var/lib/lxd'), name)
 
         utils.set_session_dbus_env_var()
         try:
@@ -372,7 +371,8 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         self._container.delete()
-        return True
+
+        return self._delete_rootfs()
 
     def _timezone_in_sync(self):
         proc = subprocess.Popen(self._lxc_args('cat /etc/timezone'), stdout=subprocess.PIPE)
