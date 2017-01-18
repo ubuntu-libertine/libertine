@@ -17,6 +17,7 @@
 
 import logging
 import os
+import psutil
 import shlex
 import subprocess
 import xdg.BaseDirectory as basedir
@@ -189,20 +190,20 @@ def refresh_libertine_scope():
 
 
 def set_session_dbus_env_var():
-    if not 'DBUS_SESSION_BUS_ADDRESS' in os.environ:
-        dbus_session_path = os.path.join('/', 'run', 'user', str(os.getuid()), 'dbus-session')
+    dbus_session_set = 'SESSION' in os.environ
 
-        if os.path.exists(dbus_session_path):
-            with open(dbus_session_path, 'r') as fd:
-                dbus_session_str = fd.read()
+    if not dbus_session_set:
+        for p in psutil.process_iter():
+            if p.name() == 'unity8' or p.name() == 'compiz':
+                p_environ = subprocess.check_output(["cat", "/proc/{}/environ".format(p.pid)])
+                for line in p_environ.decode().split('\0'):
+                    if line.startswith('DBUS_SESSION_BUS_ADDRESS'):
+                        os.environ['DBUS_SESSION_BUS_ADDRESS'] = line.partition('DBUS_SESSION_BUS_ADDRESS=')[2].rstrip('\n')
+                        dbus_session_set = True
+                        break
+                break
 
-                os.environ['DBUS_SESSION_BUS_ADDRESS'] = dbus_session_str.partition('DBUS_SESSION_BUS_ADDRESS=')[2].rstrip('\n')
-
-                return True
-        else:
-            return False
-
-    return True
+    return dbus_session_set
 
 
 def is_snap_environment():

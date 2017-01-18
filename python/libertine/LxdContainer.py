@@ -295,6 +295,7 @@ class LibertineLXD(Libertine.BaseContainer):
         self._host_info = HostInfo.HostInfo()
         self._container = None
         self._matchbox_pid = None
+        self._manager = None
 
         if not _setup_lxd():
             raise Exception("Failed to setup lxd.")
@@ -303,15 +304,13 @@ class LibertineLXD(Libertine.BaseContainer):
         self._window_manager = None
 
         try:
-            utils.set_session_dbus_env_var()
+            if utils.set_session_dbus_env_var():
+                bus = dbus.SessionBus()
+                self._manager = bus.get_object(get_lxd_manager_dbus_name(), get_lxd_manager_dbus_path())
         except PermissionError as e:
             utils.get_logger().warning("Failed to set dbus session env var")
-        try:
-            bus = dbus.SessionBus()
-            self._manager = bus.get_object(get_lxd_manager_dbus_name(), get_lxd_manager_dbus_path())
         except dbus.exceptions.DBusException:
             utils.get_logger().warning("D-Bus Service not found.")
-            self._manager = None
 
     def create_libertine_container(self, password=None, multiarch=False):
         if self._try_get_container():

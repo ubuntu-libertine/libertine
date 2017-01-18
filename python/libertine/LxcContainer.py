@@ -157,13 +157,12 @@ class LibertineLXC(BaseContainer):
         self.window_manager = None
         self.host_info = HostInfo.HostInfo()
 
-        utils.set_session_dbus_env_var()
-
-        try:
-            bus = dbus.SessionBus()
-            self.lxc_manager_interface = bus.get_object(get_lxc_manager_dbus_name(), get_lxc_manager_dbus_path())
-        except dbus.exceptions.DBusException:
-            pass
+        if utils.set_session_dbus_env_var():
+            try:
+                bus = dbus.SessionBus()
+                self.lxc_manager_interface = bus.get_object(get_lxc_manager_dbus_name(), get_lxc_manager_dbus_path())
+            except dbus.exceptions.DBusException:
+                pass
 
     def timezone_needs_update(self):
         with open(os.path.join(self.root_path, 'etc', 'timezone'), 'r') as fd:
