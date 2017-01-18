@@ -82,13 +82,15 @@ def get_libertine_containers_dir_path():
 
 
 def get_libertine_database_dir_path():
-    xdg_data_home = os.getenv('XDG_DATA_HOME',
-                              os.path.join(os.getenv('HOME'), '.local', 'share'))
+    if is_snap_environment():
+        xdg_data_home = os.path.join(os.getenv('SNAP_USER_COMMON'), '.local', 'share')
+    else:
+        xdg_data_home = os.getenv('XDG_DATA_HOME',
+                            os.path.join(os.getenv('HOME'), '.local', 'share'))
 
     libertine_database_dir = os.path.join(xdg_data_home, 'libertine')
 
-    if not os.path.exists(libertine_database_dir):
-        os.makedirs(libertine_database_dir)
+    os.makedirs(libertine_database_dir, exist_ok=True)
 
     return libertine_database_dir
 

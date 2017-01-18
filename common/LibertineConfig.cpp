@@ -18,6 +18,7 @@
  */
 #include "common/LibertineConfig.h"
 
+#include <cstdlib>
 #include <QtCore/QDir>
 #include <QtCore/QFile>
 #include <QtCore/QStandardPaths>
@@ -27,6 +28,22 @@ QString LibertineConfig::
 containers_config_file_name() const
 {
   QString path = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) + "/libertine";
+
+  // if running from a snap
+  auto snap_common = std::getenv("SNAP_USER_COMMON");
+  if (snap_common != nullptr)
+  {
+    path.replace(std::getenv("HOME"), snap_common);
+  }
+
+  // if libertine is installed as a snap but caller is not;
+  // workaround until ContainersConfig is only discovered from one location
+  if (QString(std::getenv("IGNORE_SNAP")) != "1" && QFile::exists("/snap/bin/libertine.libertine-launch"))
+  {
+    auto home = std::getenv("HOME");
+    path.replace(home, QString(home) + "/snap/libertine/common");
+  }
+
   QDir dir(path);
 
   if (!dir.exists())

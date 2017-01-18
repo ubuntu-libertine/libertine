@@ -76,6 +76,24 @@ id_from_list_index(const ContainerConfigList& container_list, guint index)
                                      (int)ContainerConfigList::DataRole::ContainerId)
                                .toString().toStdString().c_str();
 }
+
+
+bool
+running_snapped_libertine()
+{
+  if (g_strcmp0(std::getenv("IGNORE_SNAP"), "1") == 0)
+  {
+    return false;
+  }
+
+  auto libertine_launch_path = g_build_filename("/", "snap", "bin",
+                                                "libertine.libertine-launch",
+                                                nullptr);
+  bool out = g_file_test(libertine_launch_path, G_FILE_TEST_EXISTS);
+
+  g_free(libertine_launch_path);
+  return out;
+}
 }
 
 gchar**
@@ -148,8 +166,16 @@ libertine_container_path(const gchar * container_id)
   g_return_val_if_fail(container_id != nullptr, nullptr);
   LibertineConfig config;
   ContainerConfigList container_list(&config);
+  gchar* path = g_build_filename(g_get_user_cache_dir(), "libertine-container", container_id, "rootfs", nullptr);
 
-  gchar * path = g_build_filename(g_get_user_cache_dir(), "libertine-container", container_id, "rootfs", nullptr);
+  // temporary solution for discovering applications in unity8 until libertined
+  // has been updated to access location data
+  if (running_snapped_libertine())
+  {
+    g_free(path);
+    path = g_build_filename("/", "home", g_get_user_name(), "snap", "libertine", "common", ".cache", "libertine-container", container_id, "rootfs", nullptr);
+  }
+
 
   if (g_file_test(path, G_FILE_TEST_EXISTS))
   {
@@ -167,8 +193,15 @@ libertine_container_home_path(const gchar * container_id)
   g_return_val_if_fail(container_id != nullptr, nullptr);
   LibertineConfig config;
   ContainerConfigList container_list(&config);
-
   gchar * path =  g_build_filename(g_get_user_data_dir(), "libertine-container", "user-data", container_id, nullptr);
+
+  // temporary solution for discovering applications in unity8 until libertined
+  // has been updated to access location data
+  if (running_snapped_libertine())
+  {
+    g_free(path);
+    path = g_build_filename("/", "home", g_get_user_name(), "snap", "libertine", "common", ".local", "libertine-container", "user-data", container_id, nullptr);
+  }
 
   if (g_file_test(path, G_FILE_TEST_EXISTS))
   {

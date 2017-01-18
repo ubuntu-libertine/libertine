@@ -43,7 +43,7 @@ class Service(ContainerLifecycleService):
         if container.status != 'Running':
             libertine.LxdContainer.update_libertine_profile(self._client)
             if launchable:
-                libertine.LxdContainer.update_bind_mounts(container, self._config)
+                libertine.LxdContainer.update_bind_mounts(container, self._config, LxdContainer.env_home_path())
 
             return libertine.LxdContainer.lxd_start(container)
 

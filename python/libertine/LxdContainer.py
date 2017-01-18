@@ -74,6 +74,10 @@ def _readlink(source):
     return source
 
 def _setup_lxd():
+    if utils.is_snap_environment():
+        utils.get_logger().warning("Running in snap environment, skipping automatic lxd setup.")
+        return True
+
     utils.get_logger().info("Running LXD setup.")
     import pexpect
     child = pexpect.spawnu('sudo libertine-lxd-setup {}'.format(os.environ['USER']), env={'TERM': 'dumb'})
@@ -210,8 +214,7 @@ def _sync_application_dirs_to_host(container):
                             f.write(container.files.get(filepath))
 
 
-def update_bind_mounts(container, config):
-    home_path = os.environ['HOME']
+def update_bind_mounts(container, config, home_path):
     userdata_dir = utils.get_libertine_container_userdata_dir_path(container.name)
 
     container.devices.clear()
@@ -235,8 +238,12 @@ def update_bind_mounts(container, config):
     run_user = '/run/user/{}'.format(os.getuid())
     container.devices[run_user] = {'source': run_user, 'path': '/var/tmp{}'.format(run_user), 'type': 'disk'}
 
-    mounts = utils.get_common_xdg_user_directories() + \
-             config.get_container_bind_mounts(container.name)
+    mounts = config.get_container_bind_mounts(container.name)
+    if utils.is_snap_environment():
+        mounts += ["{}{}".format(home_path, d) for d in ["Documents", "Downloads", "Music", "Videos", "Pictures"]]
+    else:
+        mounts += utils.get_common_xdg_user_directories()
+
     for user_dir in utils.generate_binding_directories(mounts, home_path):
         if not os.path.exists(user_dir[0]):
             utils.get_logger().warning('Bind-mount path \'{}\' does not exist.'.format(user_dir[0]))
@@ -275,10 +282,15 @@ def update_libertine_profile(client):
         client.profiles.create('libertine', config={'raw.idmap': 'both 1000 1000'}, devices=_get_devices_map())
 
 
+def env_home_path():
+    if utils.is_snap_environment():
+        return '/home/{}'.format(os.environ['USER'])
+    return os.environ['HOME']
+
+
 class LibertineLXD(Libertine.BaseContainer):
     def __init__(self, name, config):
-        super().__init__(name)
-        self._id = name
+        super().__init__(name, config)
         self._config = config
         self._host_info = HostInfo.HostInfo()
         self._container = None
@@ -290,14 +302,16 @@ class LibertineLXD(Libertine.BaseContainer):
         self._client = pylxd.Client()
         self._window_manager = None
 
-        utils.set_session_dbus_env_var()
+        try:
+            utils.set_session_dbus_env_var()
+        except PermissionError as e:
+            utils.get_logger().warning("Failed to set dbus session env var")
         try:
             bus = dbus.SessionBus()
             self._manager = bus.get_object(get_lxd_manager_dbus_name(), get_lxd_manager_dbus_path())
         except dbus.exceptions.DBusException:
             utils.get_logger().warning("D-Bus Service not found.")
             self._manager = None
-
 
     def create_libertine_container(self, password=None, multiarch=False):
         if self._try_get_container():
@@ -306,17 +320,17 @@ class LibertineLXD(Libertine.BaseContainer):
 
         update_libertine_profile(self._client)
 
-        utils.get_logger().info("Creating container '%s' with distro '%s'" % (self._id, self.installed_release))
+        utils.get_logger().info("Creating container '%s' with distro '%s'" % (self.container_id, self.installed_release))
         create = subprocess.Popen(shlex.split('lxc launch ubuntu-daily:{distro} {id} --profile '
                                               'default --profile libertine'.format(
-                                              distro=self.installed_release, id=self._id)))
+                                              distro=self.installed_release, id=self.container_id)))
         if create.wait() is not 0:
-            utils.get_logger().error("Creating container '{}' failed with code '{}'".format(self._id, create.returncode))
+            utils.get_logger().error("Creating container '{}' failed with code '{}'".format(self.container_id, create.returncode))
             return False
 
         self._try_get_container()
         _sync_application_dirs_to_host(self._container)
-        update_bind_mounts(self._container, self._config)
+        update_bind_mounts(self._container, self._config, env_home_path())
 
         self.update_locale()
 
@@ -328,18 +342,18 @@ class LibertineLXD(Libertine.BaseContainer):
         self.run_in_container("mkdir -p /home/{}".format(username))
         self.run_in_container("chown {0}:{0} /home/{0}".format(username))
 
-        utils.create_libertine_user_data_dir(self._id)
+        utils.create_libertine_user_data_dir(self.container_id)
 
         _setup_bind_mount_service(self._container, uid, username)
 
         if multiarch and self.architecture == 'amd64':
-            utils.get_logger().info("Adding i386 multiarch support to container '{}'".format(self._id))
+            utils.get_logger().info("Adding i386 multiarch support to container '{}'".format(self.container_id))
             self.run_in_container("dpkg --add-architecture i386")
 
         self.update_packages()
 
         for package in self.default_packages:
-            utils.get_logger().info("Installing package '%s' in container '%s'" % (package, self._id))
+            utils.get_logger().info("Installing package '%s' in container '%s'" % (package, self.container_id))
             if not self.install_package(package, no_dialog=True, update_cache=False):
                 utils.get_logger().error("Failure installing '%s' during container creation" % package)
                 self.destroy_libertine_container()
@@ -357,13 +371,13 @@ class LibertineLXD(Libertine.BaseContainer):
             self.run_in_container("dpkg-reconfigure -f noninteractive tzdata")
 
         _sync_application_dirs_to_host(self._container)
-        update_bind_mounts(self._container, self._config)
+        update_bind_mounts(self._container, self._config, env_home_path())
 
         return super().update_packages(update_locale)
 
     def destroy_libertine_container(self):
         if not self._try_get_container():
-            utils.get_logger().error("No such container '%s'" % self._id)
+            utils.get_logger().error("No such container '%s'" % self.container_id)
             return False
 
         if not self.stop_container(wait=True):
@@ -384,7 +398,7 @@ class LibertineLXD(Libertine.BaseContainer):
         for k, v in environ.items():
             env_as_args += '--env {}="{}" '.format(k, v)
 
-        return shlex.split('lxc exec {}{}-- {}'.format(self._id,
+        return shlex.split('lxc exec {}{}-- {}'.format(self.container_id,
                                                        env_as_args,
                                                        command))
 
@@ -397,7 +411,7 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         if self._manager:
-            result = LifecycleResult.from_dict(self._manager.operation_start(self._id))
+            result = LifecycleResult.from_dict(self._manager.operation_start(self.container_id))
         else:
             result = lxd_start(self._container)
 
@@ -406,7 +420,7 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         if not _wait_for_network(self._container):
-            utils.get_logger().warning("Network unavailable in container '{}'".format(self._id))
+            utils.get_logger().warning("Network unavailable in container '{}'".format(self.container_id))
 
         return result.success
 
@@ -415,7 +429,7 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         if self._manager:
-            result = LifecycleResult.from_dict(self._manager.operation_stop(self._id, {'wait': wait}))
+            result = LifecycleResult.from_dict(self._manager.operation_stop(self.container_id, {'wait': wait}))
         else:
             result = lxd_stop(self._container, wait)
 
@@ -450,16 +464,19 @@ class LibertineLXD(Libertine.BaseContainer):
 
     def start_application(self, app_exec_line, environ):
         if not self._try_get_container():
-            utils.get_logger().error("Could not get container '{}'".format(self._id))
+            utils.get_logger().error("Could not get container '{}'".format(self.container_id))
             return None
+
+        if utils.is_snap_environment():
+            environ['HOME'] = '/home/{}'.format(environ['USER'])
 
         requires_remount = self._container.status != 'Running'
 
         if self._manager:
-            result = LifecycleResult.from_dict(self._manager.app_start(self._id))
+            result = LifecycleResult.from_dict(self._manager.app_start(self.container_id))
         else:
             update_libertine_profile(self._client)
-            update_bind_mounts(self._container, self._config)
+            update_bind_mounts(self._container, self._config, environ['HOME'])
             result = lxd_start(self._container)
 
         if not result.success:
@@ -504,6 +521,6 @@ class LibertineLXD(Libertine.BaseContainer):
 
     def _try_get_container(self):
         if self._container is None:
-            self._container = lxd_container(self._client, self._id)
+            self._container = lxd_container(self._client, self.container_id)
 
         return self._container is not None

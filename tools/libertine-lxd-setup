@@ -32,7 +32,7 @@ if [ -z "${lxc}" ]; then
 fi
 
 # Run lxd init if there are no containers already on the system
-if [ 3 -ge `${lxc} list | wc -l` ]; then
+if [ 2 -ge `${lxc} list | grep -e "^+" | wc -l` ]; then
   lxd init
 fi
 

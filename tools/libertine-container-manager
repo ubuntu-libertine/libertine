@@ -36,7 +36,7 @@ class LibertineContainerManager(object):
 
     def _get_updated_locale(self, container_id):
         host_locale = self.host_info.get_host_locale()
-        
+
         if host_locale == self.containers_config.get_container_locale(container_id):
             return None
         else:

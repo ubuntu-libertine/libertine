@@ -3,16 +3,30 @@ version: 1.5+17.04.20170105.1-0ubuntu1
 summary: Libertine suite
 description: |
     Suite for maintaining deb-based applications in a non-deb environment
-confinement: devmode
+confinement: devmode # TODO: update to 'strict'
 grade: devel
 
 apps:
-  libertine-container-manager:
-    command: usr/bin/snap-runner.wrapper libertine-container-manager
-  libertine-manager-app:
-    command: usr/bin/snap-runner.wrapper libertine-manager-app
   libertine-launch:
     command: usr/bin/snap-runner.wrapper libertine-launch
+    plugs:
+      - lxd
+      - network
+      - network-bind
+      - home
+      - mir
+      - x11
+      - unity7
+      - opengl
+      - pulseaudio
+      - alsa
+  libertine-container-manager:
+    command: usr/bin/snap-runner.wrapper libertine-container-manager
+    plugs:
+      - lxd
+      - network
+  libertine-manager-app:
+    command: usr/bin/snap-runner.wrapper libertine-manager-app
 
   # For debugging purposes
   bash:

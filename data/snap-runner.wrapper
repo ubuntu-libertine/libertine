@@ -3,9 +3,10 @@
 
 export LD_LIBRARY_PATH=$SNAP/usr/lib/$ARCH/fakechroot:$LD_LIBRARY_PATH
 export DEBOOTSTRAP_DIR=$SNAP/usr/share/debootstrap
+export LXD_DIR=/var/snap/lxd/common/lxd
 
 # Useful debug variables
 # export FAKECHROOT_DEBUG=1
 # export LIBERTINE_DEBUG=1
 
-exec $SNAP/bin/desktop-launch $@
+exec $SNAP/bin/desktop-launch "$@"

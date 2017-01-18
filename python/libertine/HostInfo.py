@@ -12,6 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import libertine.utils
 import locale
 import lsb_release
 import os
@@ -25,7 +26,10 @@ class HostInfo(object):
 
     def select_container_type_by_kernel(self):
         if self.has_lxc_support():
-            return "lxc"
+            if libertine.utils.is_snap_environment():
+                return "lxd"
+            else:
+                return "lxc"
         else:
             return "chroot"
 
@@ -64,6 +68,9 @@ class HostInfo(object):
         return None
 
     def get_host_architecture(self):
+        if 'ARCH' in os.environ:
+            return os.environ['ARCH']
+
         dpkg = subprocess.Popen(['dpkg', '--print-architecture'],
                                 stdout=subprocess.PIPE,
                                 universal_newlines=True)
