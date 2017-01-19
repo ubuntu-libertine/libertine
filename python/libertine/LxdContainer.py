@@ -117,7 +117,7 @@ chgrp video /dev/dri/*
 [ -n /dev/video0 ] && chgrp video /dev/video0
 '''[1:-1]
     container.files.put('/usr/bin/libertine-lxd-mount-update', script.format(uid=uid, username=username).encode('utf-8'))
-    container.execute(shlex.split('chmod 755 /usr/bin/libertine-lxd-mount-update'))
+    subprocess.Popen(shlex.split("lxc exec {} -- chmod 755 /usr/bin/libertine-lxd-mount-update".format(container.name)))
 
 
 def lxd_container(client, container_id):
@@ -129,7 +129,9 @@ def lxd_container(client, container_id):
 
 def _wait_for_network(container):
     for retries in range(0, 10):
-        out, err = container.execute(shlex.split('ping -c 1 ubuntu.com'))
+        ping = subprocess.Popen(shlex.split("lxc exec {} -- ping -c 1 ubuntu.com".format(container.name)),
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out, err = ping.communicate()
         if out:
             utils.get_logger().info("Network connection active")
             return True
@@ -483,7 +485,7 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         if requires_remount:
-            self._container.execute(shlex.split('/usr/bin/libertine-lxd-mount-update'))
+            self.run_in_container("/usr/bin/libertine-lxd-mount-update")
 
         args = self._lxc_args("sudo -E -u {} env PATH={}".format(environ['USER'], environ['PATH']), environ)
 
