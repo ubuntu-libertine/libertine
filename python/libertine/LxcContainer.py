@@ -170,7 +170,7 @@ class LibertineLXC(BaseContainer):
 
     def start_container(self):
         if self.lxc_manager_interface:
-            result = LifecycleResult.from_dict(self.lxc_manager_interface.operation_start(self.container_id))
+            result = LifecycleResult.from_dict(self.lxc_manager_interface.container_service_start(self.container_id))
         else:
             result = lxc_start(self.container)
 
@@ -180,7 +180,7 @@ class LibertineLXC(BaseContainer):
 
     def stop_container(self):
         if self.lxc_manager_interface:
-            self.lxc_manager_interface.operation_stop(self.container_id)
+            self.lxc_manager_interface.container_service_stop(self.container_id)
         else:
             lxc_stop(self.container)
 
@@ -324,7 +324,7 @@ class LibertineLXC(BaseContainer):
         os.environ.clear()
         os.environ.update(environ)
 
-        result = LifecycleResult.from_dict(self.lxc_manager_interface.app_start(self.container_id))
+        result = LifecycleResult.from_dict(self.lxc_manager_interface.container_service_start(self.container_id))
 
         if not result.success:
             _dump_lxc_log(get_logfile(self.container))
@@ -349,4 +349,4 @@ class LibertineLXC(BaseContainer):
         utils.terminate_window_manager(psutil.Process(self.window_manager))
 
         # Tell libertine-lxc-manager that the app has stopped.
-        self.lxc_manager_interface.app_stop(self.container_id)
+        self.lxc_manager_interface.container_service_stop(self.container_id)

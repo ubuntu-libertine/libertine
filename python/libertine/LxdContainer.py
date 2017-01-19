@@ -410,7 +410,7 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         if self._manager:
-            result = LifecycleResult.from_dict(self._manager.operation_start(self.container_id))
+            result = LifecycleResult.from_dict(self._manager.container_service_start(self.container_id))
         else:
             result = lxd_start(self._container)
 
@@ -428,7 +428,7 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         if self._manager:
-            result = LifecycleResult.from_dict(self._manager.operation_stop(self.container_id, {'wait': wait}))
+            result = LifecycleResult.from_dict(self._manager.container_service_stop(self.container_id, {'wait': wait}))
         else:
             result = lxd_stop(self._container, wait)
 
@@ -472,7 +472,7 @@ class LibertineLXD(Libertine.BaseContainer):
         requires_remount = self._container.status != 'Running'
 
         if self._manager:
-            result = LifecycleResult.from_dict(self._manager.app_start(self.container_id))
+            result = LifecycleResult.from_dict(self._manager.container_service_start(self.container_id))
         else:
             update_libertine_profile(self._client)
             update_bind_mounts(self._container, self._config, environ['HOME'])
@@ -507,7 +507,7 @@ class LibertineLXD(Libertine.BaseContainer):
         app.wait()
 
         if self._manager:
-            self._manager.app_stop(self.container_id)
+            self._manager.container_service_stop(self.container_id)
         else:
             lxd_stop(self._container, False)
 

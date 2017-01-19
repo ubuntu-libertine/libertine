@@ -30,7 +30,6 @@ LIBERTINE_CONTAINER_LIFECYCLE_INTERFACE = 'com.canonical.libertine.ContainerLife
 
 class ContainerLifecycleService(dbus.service.Object):
     def __init__(self, service_name, service_path):
-        self._apps = Counter()
         self._operations = Counter()
 
         DBusGMainLoop(set_as_default=True)
@@ -52,41 +51,10 @@ class ContainerLifecycleService(dbus.service.Object):
     @dbus.service.method(LIBERTINE_CONTAINER_LIFECYCLE_INTERFACE,
                          in_signature='s',
                          out_signature='a{ss}')
-    def app_start(self, container):
-        utils.get_logger().debug("app_start({})".format(container))
-        if self._operations[container] != 0:
-            return LifecycleResult("Libertine container operation already running: cannot launch application.").to_dict()
+    def container_service_start(self, container):
+        utils.get_logger().debug("container_service_start({})".format(container))
 
-        result = self.start(container, True)
-
-        if result.success:
-            self._apps[container] += 1
-
-        return result.to_dict()
-
-    @dbus.service.method(LIBERTINE_CONTAINER_LIFECYCLE_INTERFACE,
-                         in_signature='s',
-                         out_signature='a{ss}')
-    def app_stop(self, container):
-        utils.get_logger().debug("app_stop({})".format(container))
-        self._apps[container] -= 1
-        result = LifecycleResult()
-
-        if self._apps[container] == 0:
-            result = self.stop(container)
-            del self._apps[container]
-
-        return result.to_dict()
-
-    @dbus.service.method(LIBERTINE_CONTAINER_LIFECYCLE_INTERFACE,
-                         in_signature='s',
-                         out_signature='a{ss}')
-    def operation_start(self, container):
-        utils.get_logger().debug("operation_start({})".format(container))
-        if self._apps[container] != 0:
-            return LifecycleResult("Application already running in container: cannot run operation.").to_dict()
-
-        result = self.start(container, False)
+        result = self.start(container)
 
         if result.success:
             self._operations[container] += 1
@@ -96,8 +64,8 @@ class ContainerLifecycleService(dbus.service.Object):
     @dbus.service.method(LIBERTINE_CONTAINER_LIFECYCLE_INTERFACE,
                          in_signature='sa{ss}',
                          out_signature='a{ss}')
-    def operation_stop(self, container, options={}):
-        utils.get_logger().debug("operation_stop({}, {})".format(container, options))
+    def container_service_stop(self, container, options={}):
+        utils.get_logger().debug("container_service_stop({}, {})".format(container, options))
         self._operations[container] -= 1
         result = LifecycleResult()
 

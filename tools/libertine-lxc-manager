@@ -38,18 +38,17 @@ class Service(ContainerLifecycleService):
         self._containers_config = ContainersConfig()
         self._is_pulse_setup = False
 
-    def start(self, container_id, launchable):
+    def start(self, container_id):
         container = libertine.LxcContainer.lxc_container(container_id)
 
         if not container.defined:
             return LifecycleResult("Container {} is not valid".format(container_id))
 
-        if launchable and not self._is_pulse_setup:
+        if not self._is_pulse_setup:
             self._setup_pulse()
 
         if not container.running:
-            if launchable:
-                self._dynamic_bind_mounts(container, container_id)
+            self._dynamic_bind_mounts(container, container_id)
 
             return libertine.LxcContainer.lxc_start(container)
 
