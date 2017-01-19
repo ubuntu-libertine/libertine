@@ -1,0 +1,6 @@
+[Desktop Entry]
+Version=1.0
+Name=Libertine Manager
+Comment=GUI tool for classic application management
+Exec=libertine-manager-app
+Icon=$SNAP/usr/share/libertine/libertine_64.png
