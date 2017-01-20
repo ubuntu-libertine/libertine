@@ -1,3 +1,30 @@
+libertine (1.5.1+17.04.20170118-0ubuntu1) zesty; urgency=medium
+
+  [ Chris Townsend ]
+  * Remove the /tmp/.X11-unix umount during LXC container start for operations
+    as it seems it's not needed. (LP: #1654650)
+  * Remove extra finish_application() in chroot backend.
+  * Set container's locale and language based on the host including installing
+    necessary language packs. (LP: #1609982)
+  * Bump version to 1.5.1.
+
+  [ Larry Price ]
+  * Manually execute lxd bind mount script to fix /run/user and remove
+    service. (LP: #1654647)
+  * Convert results to dicts on operation/application collision in container
+    lifecycle managers.
+  * Stop bind-mounting /usr/lib/locale and let environment do all the work.
+    (LP: #1654648)
+  * Mount lxd home directory in $HOME/.local/libertine-container where it
+    belongs.
+  * Manually wait for lxd container to stop when specified after calling the
+    service. (LP: #1655980)
+  * Ask for container user password when creating lxd containers. (LP: #1655977)
+  * Bind-mount lxd container applications and icons directories into user's
+    home directory.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Wed, 18 Jan 2017 14:50:33 +0000
+
 libertine (1.5+17.04.20170105.1-0ubuntu1) zesty; urgency=medium
 
   [ Chris Townsend ]
