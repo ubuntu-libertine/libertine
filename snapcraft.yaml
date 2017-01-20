@@ -7,8 +7,10 @@ confinement: devmode # TODO: update to 'strict'
 grade: devel
 
 apps:
-  libertine-launch:
+  launch:
     command: usr/bin/snap-runner.wrapper libertine-launch
+    aliases:
+      - libertine-launch
     plugs:
       - lxd
       - network
@@ -20,13 +22,18 @@ apps:
       - opengl
       - pulseaudio
       - alsa
-  libertine-container-manager:
+  container-manager:
     command: usr/bin/snap-runner.wrapper libertine-container-manager
+    aliases:
+      - libertine-container-manager
     plugs:
       - lxd
       - network
-  libertine-manager-app:
+  manager-app:
     command: usr/bin/snap-runner.wrapper libertine-manager-app
+    desktop: usr/share/applications/libertine-manager-app.desktop
+    aliases:
+      - libertine-manager-app
 
   # For debugging purposes
   bash:
