@@ -31,7 +31,8 @@ apps:
       - network
   manager-app:
     command: usr/bin/snap-runner.wrapper libertine-manager-app
-    desktop: usr/share/applications/libertine-manager-app.desktop
+    # desktop command currently being labeled unknown by app store, restore with snapcraft 2.26 release
+    # desktop: usr/share/applications/libertine-manager-app.desktop
     aliases:
       - libertine-manager-app
 
