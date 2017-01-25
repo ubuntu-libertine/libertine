@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2014-2016 Canonical Ltd.
+# Copyright (C) 2014-2017 Canonical Ltd.
 # Author: Christopher Townsend <christopher.townsend@canonical.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -328,6 +328,19 @@ class LibertineContainerManager(object):
                     sys.exit(1)
                 self.containers_config.delete_bind_mount(container_id, mount_path)
 
+        elif args.freeze is not None:
+            container_type = self.containers_config.get_container_type(container_id)
+
+            if container_type != 'lxc' and container_type != 'lxd':
+                libertine.utils.get_logger().error("Configuring freeze is only valid on LXC and LXD container types.")
+                sys.exit(1)
+
+            current_freeze = self.containers_config.get_freeze_on_stop(container_id)
+            config_freeze = args.freeze == 'enable'
+
+            if current_freeze != config_freeze:
+               self.containers_config.update_freeze_on_stop(container_id, config_freeze)
+
         else:
             libertine.utils.get_logger().error("Configure called with no subcommand. See configure --help for usage.")
             sys.exit(1)
@@ -551,6 +564,14 @@ if __name__ == '__main__':
       '-p', '--mount-path',
       metavar='Mount path',
       help=("The absolute host path to bind-mount."))
+
+    freeze_group = parser_configure.add_argument_group("Freeze container support",
+                   "Enable or disable freezing LXC/LXD containers when not in use.")
+    freeze_group.add_argument(
+        '-f', '--freeze',
+        choices=['enable', 'disable'],
+        help=("Enables or disables freezing of LXC/LXD containers when not in use."
+              " When disabled, the container will stop."))
 
     parser_configure.set_defaults(func=container_manager.configure)
 

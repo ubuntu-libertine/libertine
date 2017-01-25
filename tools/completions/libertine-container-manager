@@ -1,5 +1,6 @@
-# Copyright (C) 2016 Canonical Ltd.
-# Author: Larry Price <larry.price@canonical.com>
+# Copyright (C) 2016-2017 Canonical Ltd.
+# Authors: Larry Price <larry.price@canonical.com>
+#          Chris Townsend <christopher.townsend@canonical.com>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,7 +49,7 @@ _libertine-container-manager()
         opts="--help"
         ;;
       "configure" )
-        opts="--help --id --multiarch --archive --bind-mount"
+        opts="--help --id --multiarch --archive --bind-mount --freeze"
         ;;
       "set-default" )
         opts="--help --id --clear"
@@ -60,7 +61,7 @@ _libertine-container-manager()
     fi
 
     if [[ ${cmd} == "configure" ]]; then
-      if [[ "${COMP_WORDS[COMP_CWORD-1]}" == "--multiarch" ]]; then
+      if [[ "${COMP_WORDS[COMP_CWORD-1]}" == "--multiarch" ]] || [ "${COMP_WORDS[COMP_CWORD-1]}" == "--freeze" ]; then
         opts="enable disable"
       elif [ "${COMP_WORDS[COMP_CWORD-1]}" == "--archive" ] || [ "${COMP_WORDS[COMP_CWORD-1]}" == "--bind-mount" ]; then
         opts="add remove"

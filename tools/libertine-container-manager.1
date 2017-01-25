@@ -1,4 +1,4 @@
-.TH libertine-container-manager "1" " April 2016" "libertine-container-manager 0.99" "User Commands"
+.TH libertine-container-manager "1" " January 2017" "libertine-container-manager 1.5.1" "User Commands"
 
 .SH NAME
 libertine-container-manager \- Manage Libertine containers for supporting legacy X applications on Unity 8
@@ -275,7 +275,7 @@ Container identifier. Default container is used if omitted.
 Enable i386 support.
 .RE
 .IP
-.BR \-a " {add,remove}, " \-\-archive "{add,remove}" ""
+.BR \-a " {add,remove}, " \-\-archive " {add,remove}" ""
 .RS 14
 Adds or removes an archive in the specified container.
 .RE
@@ -290,7 +290,7 @@ Archive to be added or removed. Examples: 'deb http://myserver/path/to/repo stab
 File containing public key used to sign new archive.
 .RE
 .IP
-.BR \-b " {add,remove}, " \-\-bind-mount "{add,remove}" ""
+.BR \-b " {add,remove}, " \-\-bind-mount " {add,remove}" ""
 .RS 14
 Adds or removes a bind-mount in the specified container.
 .RE
@@ -298,6 +298,11 @@ Adds or removes a bind-mount in the specified container.
 .BR \-p " MOUNT_PATH, " \-\-mount-path " MOUNT_PATH" ""
 .RS 14
 Absolute host path to be added or removed.
+.RE
+.IP
+.BR \-f " {enable,disable}, " \-\-freeze " {enable,disable}" ""
+.RS 14
+Enable or disable freezing LXC/LXD containers when not in use.
 .RE
 .TP
 
