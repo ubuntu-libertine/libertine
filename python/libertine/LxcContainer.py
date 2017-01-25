@@ -1,4 +1,4 @@
-# Copyright 2015-2016 Canonical Ltd.
+# Copyright 2015-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -101,8 +101,12 @@ def get_logfile(container):
 def lxc_start(container):
     lxc_log_file = get_logfile(container)
 
-    if not container.start():
-        return LifecycleResult("Container failed to start.")
+    if container.state == 'STOPPED':
+        if not container.start():
+            return LifecycleResult("Container failed to start.")
+    elif container.state == 'FROZEN':
+        if not container.unfreeze():
+            return LifecycleResult("Container failed to unfreeze.")
 
     if not container.wait("RUNNING", 10):
         return LifecycleResult("Container failed to enter the RUNNING state.")
@@ -114,8 +118,13 @@ def lxc_start(container):
     return LifecycleResult()
 
 
-def lxc_stop(container):
-    if container.running:
+def lxc_stop(container, freeze_on_stop=False):
+    if container.state == 'STOPPED' or not container.running:
+        return
+
+    if freeze_on_stop:
+        container.freeze()
+    else:
         container.stop()
 
 
@@ -149,13 +158,14 @@ class LibertineLXC(BaseContainer):
     A concrete container type implemented using an LXC container.
     """
 
-    def __init__(self, container_id):
+    def __init__(self, container_id, config=None):
         super().__init__(container_id)
         self.container_type = "lxc"
         self.container = lxc_container(container_id)
         self.lxc_manager_interface = None
         self.window_manager = None
         self.host_info = HostInfo.HostInfo()
+        self._freeze_on_stop = config.get_freeze_on_stop(self.container_id)
 
         if utils.set_session_dbus_env_var():
             try:
@@ -180,9 +190,9 @@ class LibertineLXC(BaseContainer):
 
     def stop_container(self):
         if self.lxc_manager_interface:
-            self.lxc_manager_interface.container_service_stop(self.container_id)
+            self.lxc_manager_interface.container_service_stop(self.container_id, {'freeze': self._freeze_on_stop})
         else:
-            lxc_stop(self.container)
+            lxc_stop(self.container, self._freeze_on_stop)
 
     def run_in_container(self, command_string):
         cmd_args = shlex.split(command_string)
@@ -349,4 +359,4 @@ class LibertineLXC(BaseContainer):
         utils.terminate_window_manager(psutil.Process(self.window_manager))
 
         # Tell libertine-lxc-manager that the app has stopped.
-        self.lxc_manager_interface.container_service_stop(self.container_id)
+        self.lxc_manager_interface.container_service_stop(self.container_id, {'freeze': self._freeze_on_stop})

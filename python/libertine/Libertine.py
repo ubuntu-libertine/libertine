@@ -389,7 +389,7 @@ class LibertineContainer(object):
 
         if container_type == "lxc":
             from  libertine.LxcContainer import LibertineLXC
-            self.container = LibertineLXC(container_id)
+            self.container = LibertineLXC(container_id, self.containers_config)
         elif container_type == "lxd":
             from libertine.LxdContainer import LibertineLXD
             self.container = LibertineLXD(container_id, self.containers_config)

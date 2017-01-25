@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -140,8 +140,10 @@ def _wait_for_network(container):
 
 
 def lxd_start(container):
-    if container.status != 'Running':
+    if container.status == 'Stopped':
         container.start(wait=True)
+    elif container.status == 'Frozen':
+        container.unfreeze(wait=True)
 
     container.sync(rollback=True) # required for pylxd=2.0.x
 
@@ -151,15 +153,22 @@ def lxd_start(container):
     return LifecycleResult()
 
 
-def lxd_stop(container, wait):
+def lxd_stop(container, wait=True, freeze_on_stop=False):
     if container.status == 'Stopped':
         return LifecycleResult()
 
-    container.stop(wait=wait)
+    if freeze_on_stop:
+        container.freeze(wait=wait)
+    else:
+        container.stop(wait=wait)
+
     container.sync(rollback=True) # required for pylxd=2.0.x
 
-    if wait and container.status != 'Stopped':
-        return LifecycleResult("Container {} failed to stop".format(container.name))
+    if wait:
+        if freeze_on_stop and container.status != 'Frozen':
+            return LifecycleResult("Container {} failed to freeze".format(container.name))
+        elif container.status != 'Stopped':
+            return LifecycleResult("Container {} failed to stop".format(container.name))
 
     return LifecycleResult()
 
@@ -298,6 +307,7 @@ class LibertineLXD(Libertine.BaseContainer):
         self._container = None
         self._matchbox_pid = None
         self._manager = None
+        self._freeze_on_stop = config.get_freeze_on_stop(self.container_id)
 
         if not _setup_lxd():
             raise Exception("Failed to setup lxd.")
@@ -430,9 +440,9 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         if self._manager:
-            result = LifecycleResult.from_dict(self._manager.container_service_stop(self.container_id, {'wait': wait}))
+            result = LifecycleResult.from_dict(self._manager.container_service_stop(self.container_id, {'wait': wait, 'freeze': self._freeze_on_stop}))
         else:
-            result = lxd_stop(self._container, wait)
+            result = lxd_stop(self._container, wait, self._freeze_on_stop)
 
         if not result.success:
             utils.get_logger().error(result.error)
@@ -509,9 +519,9 @@ class LibertineLXD(Libertine.BaseContainer):
         app.wait()
 
         if self._manager:
-            self._manager.container_service_stop(self.container_id)
+            self._manager.container_service_stop(self.container_id, {'freeze': self._freeze_on_stop})
         else:
-            lxd_stop(self._container, False)
+            lxd_stop(self._container, False, self._freeze_on_stop)
 
     def copy_file_to_container(self, source, dest):
         with open(source, 'rb') as f:

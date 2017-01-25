@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -102,7 +102,8 @@ class ContainersConfig(object):
         if not container:
             return
 
-        if type(value) is str:
+        if (type(value) is str or
+            type(value) is bool):
             container[key] = value
         elif type(value) is dict:
             if key not in container:
@@ -373,6 +374,15 @@ class ContainersConfig(object):
 
     def delete_bind_mount(self, container_id, mount_path):
         self._delete_array_object_by_value(container_id, 'bindMounts', mount_path)
+
+    """
+    Operations for setting container freeze on stop command.
+    """
+    def update_freeze_on_stop(self, container_id, freeze_on_stop=True):
+        self._set_value_by_key(container_id, 'freezeOnStop', freeze_on_stop)
+
+    def get_freeze_on_stop(self, container_id):
+        return self._get_value_by_key(container_id, 'freezeOnStop') or False
 
     """
     Fetcher functions for various configuration information.

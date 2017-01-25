@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2016 Canonical Ltd.
+# Copyright (C) 2016-2017 Canonical Ltd.
 # Author: Christopher Townsend <christopher.townsend@canonical.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -47,16 +47,17 @@ class Service(ContainerLifecycleService):
         if not self._is_pulse_setup:
             self._setup_pulse()
 
-        if not container.running:
+        if container.state == 'STOPPED':
             self._dynamic_bind_mounts(container, container_id)
 
-            return libertine.LxcContainer.lxc_start(container)
+        libertine.LxcContainer.lxc_start(container)
 
         return LifecycleResult()
 
     def stop(self, container_id, options={}):
         container = libertine.LxcContainer.lxc_container(container_id)
-        libertine.LxcContainer.lxc_stop(container)
+        
+        libertine.LxcContainer.lxc_stop(container, options.get('freeze', False))
 
         return LifecycleResult() # no error case
 
