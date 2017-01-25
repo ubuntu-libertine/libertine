@@ -249,8 +249,6 @@ class LibertineContainerManager(object):
     def configure(self, args):
         container_id = self.containers_config.check_container_id(args.id)
 
-        container = LibertineContainer(container_id)
-
         if args.multiarch and self.host_info.get_host_architecture() == 'amd64':
             multiarch = 'disabled'
             if args.multiarch == 'enable':
@@ -261,7 +259,7 @@ class LibertineContainerManager(object):
                 libertine.utils.get_logger().error("i386 multiarch support is already %s" % multiarch)
                 sys.exit(1)
 
-            if container.configure_multiarch(args.multiarch) is not 0:
+            if LibertineContainer(container_id).configure_multiarch(args.multiarch) is not 0:
                 sys.exit(1)
 
             self.containers_config.update_container_multiarch_support(container_id, multiarch)
@@ -281,7 +279,7 @@ class LibertineContainerManager(object):
 
                 self.containers_config.add_container_archive(container_id, archive_name)
                 self.containers_config.update_archive_install_status(container_id, archive_name, 'installing')
-                if container.configure_add_archive(archive_name_esc, args.public_key_file) is not 0:
+                if LibertineContainer(container_id).configure_add_archive(archive_name_esc, args.public_key_file) is not 0:
                     self.containers_config.delete_container_archive(container_id, archive_name)
                     sys.exit(1)
 

@@ -255,7 +255,7 @@ def update_bind_mounts(container, config, home_path):
     else:
         mounts += utils.get_common_xdg_user_directories()
 
-    for user_dir in utils.generate_binding_directories(mounts, home_path):
+    for user_dir in utils.generate_binding_directories(mounts, home_path.rstrip('/')):
         if not os.path.exists(user_dir[0]):
             utils.get_logger().warning('Bind-mount path \'{}\' does not exist.'.format(user_dir[0]))
             continue
@@ -269,7 +269,7 @@ def update_bind_mounts(container, config, home_path):
 
         utils.get_logger().debug("Mounting {}:{} in container {}".format(user_dir[0], path, container.name))
 
-        container.devices[user_dir[1]] = {
+        container.devices[user_dir[1] or user_dir[0]] = {
                 'source': _readlink(user_dir[0]),
                 'path': path,
                 'optional': 'true',
