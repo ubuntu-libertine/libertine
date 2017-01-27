@@ -226,7 +226,7 @@ def _sync_application_dirs_to_host(container):
 
 
 def update_bind_mounts(container, config, home_path):
-    userdata_dir = utils.get_libertine_container_userdata_dir_path(container.name)
+    userdata_dir = utils.get_libertine_container_home_dir(container.name)
 
     container.devices.clear()
     container.devices['root'] = {'type': 'disk', 'path': '/'}
@@ -251,7 +251,7 @@ def update_bind_mounts(container, config, home_path):
 
     mounts = config.get_container_bind_mounts(container.name)
     if utils.is_snap_environment():
-        mounts += ["{}{}".format(home_path, d) for d in ["Documents", "Downloads", "Music", "Videos", "Pictures"]]
+        mounts += [os.path.join(home_path, d) for d in ["Documents", "Downloads", "Music", "Videos", "Pictures"]]
     else:
         mounts += utils.get_common_xdg_user_directories()
 
@@ -301,8 +301,7 @@ def env_home_path():
 
 class LibertineLXD(Libertine.BaseContainer):
     def __init__(self, name, config):
-        super().__init__(name, config)
-        self._config = config
+        super().__init__(name, 'lxd', config)
         self._host_info = HostInfo.HostInfo()
         self._container = None
         self._matchbox_pid = None
@@ -315,14 +314,15 @@ class LibertineLXD(Libertine.BaseContainer):
         self._client = pylxd.Client()
         self._window_manager = None
 
-        try:
-            if utils.set_session_dbus_env_var():
-                bus = dbus.SessionBus()
-                self._manager = bus.get_object(get_lxd_manager_dbus_name(), get_lxd_manager_dbus_path())
-        except PermissionError as e:
-            utils.get_logger().warning("Failed to set dbus session env var")
-        except dbus.exceptions.DBusException:
-            utils.get_logger().warning("D-Bus Service not found.")
+        if not utils.is_snap_environment():
+            try:
+                if utils.set_session_dbus_env_var():
+                    bus = dbus.SessionBus()
+                    self._manager = bus.get_object(get_lxd_manager_dbus_name(), get_lxd_manager_dbus_path())
+            except PermissionError as e:
+                utils.get_logger().warning("Failed to set dbus session env var")
+            except dbus.exceptions.DBusException:
+                utils.get_logger().warning("D-Bus Service not found.")
 
     def create_libertine_container(self, password=None, multiarch=False):
         if self._try_get_container():
@@ -353,7 +353,7 @@ class LibertineLXD(Libertine.BaseContainer):
         self.run_in_container("mkdir -p /home/{}".format(username))
         self.run_in_container("chown {0}:{0} /home/{0}".format(username))
 
-        utils.create_libertine_user_data_dir(self.container_id)
+        self._create_libertine_user_data_dir()
 
         _setup_bind_mount_service(self._container, uid, username)
 

@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -83,6 +83,13 @@ class TestTaskDispatcher(TestCase):
             self.assertEqual(123, self._dispatcher.list_apps('palpatine'))
             c.list_apps.assert_called_once_with()
 
+    def test_list_apps_calls_list_apps_on_container(self):
+        with unittest.mock.patch('libertine.service.task_dispatcher.Container') as MockContainer:
+            c = MockContainer.return_value
+            c.list_app_ids.return_value = 123
+            self.assertEqual(123, self._dispatcher.list_app_ids('palpatine'))
+            c.list_app_ids.assert_called_once_with()
+
     def test_containers_reused_on_subsequent_calls(self):
         with unittest.mock.patch('libertine.service.task_dispatcher.Container') as MockContainer:
             c = MockContainer.return_value
@@ -90,20 +97,20 @@ class TestTaskDispatcher(TestCase):
             self._dispatcher.list_apps('palpatine')
             self._dispatcher.list_apps('palpatine')
             self._dispatcher.list_apps('palpatine')
-            MockContainer.assert_called_once_with('palpatine', unittest.mock.ANY, unittest.mock.ANY, self._connection, unittest.mock.ANY)
+            MockContainer.assert_called_once_with('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY)
 
     def test_container_callback_removes_container(self):
         with unittest.mock.patch('libertine.service.task_dispatcher.Container') as MockContainer:
             c = MockContainer.return_value
             c.id = 'palpatine'
             self._dispatcher.list_apps('palpatine')
-            MockContainer.assert_called_once_with('palpatine', unittest.mock.ANY, unittest.mock.ANY, self._connection, unittest.mock.ANY)
+            MockContainer.assert_called_once_with('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY)
             name, args, kwargs = MockContainer.mock_calls[0]
             args[len(args)-1](MockContainer.return_value)
             self._dispatcher.list_apps('palpatine')
             MockContainer.assert_has_calls([ # verify container constructed twice
-                unittest.mock.call('palpatine', unittest.mock.ANY, unittest.mock.ANY, self._connection, unittest.mock.ANY),
-                unittest.mock.call('palpatine', unittest.mock.ANY, unittest.mock.ANY, self._connection, unittest.mock.ANY)
+                unittest.mock.call('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY),
+                unittest.mock.call('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY)
             ], any_order=True)
 
     def test_container_info_creates_container_info_task(self):
@@ -131,13 +138,13 @@ class TestTaskDispatcher(TestCase):
             task = MockListTask.return_value
             task.id = 123
             self.assertEqual(123, self._dispatcher.list())
-            MockListTask.assert_called_once_with(self._connection, unittest.mock.ANY)
+            MockListTask.assert_called_once_with(unittest.mock.ANY, self._connection, unittest.mock.ANY)
             task.start.assert_called_once_with()
 
     def test_containerless_tasks_are_cleaned_up(self):
         with unittest.mock.patch('libertine.service.task_dispatcher.ListTask') as MockListTask:
             self._dispatcher.list()
-            MockListTask.assert_called_once_with(self._connection, unittest.mock.ANY)
+            MockListTask.assert_called_once_with(unittest.mock.ANY, self._connection, unittest.mock.ANY)
             name, args, kwargs = MockListTask.mock_calls[0]
             self.assertEqual(1, len(self._dispatcher._tasks))
             args[len(args)-1](MockListTask.return_value)

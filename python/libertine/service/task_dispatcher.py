@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,6 @@ class TaskDispatcher(object):
     def __init__(self, connection):
         self._connection = connection
         self._config = libertine.ContainersConfig.ContainersConfig()
-        self._lock = Lock()
         self._containerless_tasks = []
         self._tasks = []
         self._containers = []
@@ -35,7 +34,7 @@ class TaskDispatcher(object):
             self._tasks.remove(task)
 
     def _cleanup_container(self, container):
-        utils.get_logger().debug("cleaning up container '%s'" % container)
+        utils.get_logger().debug("cleaning up container '%s'" % container.id)
         if container in self._containers:
             self._containers.remove(container)
 
@@ -45,7 +44,7 @@ class TaskDispatcher(object):
         if container is not None:
             utils.get_logger().debug("using existing container '%s'" % container_id)
             return container
-        container = Container(container_id, self._config, self._lock, self._connection, self._cleanup_container)
+        container = Container(container_id, self._config, self._connection, self._cleanup_container)
         self._containers.append(container)
 
         return container
@@ -89,6 +88,10 @@ class TaskDispatcher(object):
         utils.get_logger().debug("dispatching list all apps in container '%s'" % container_id)
         return self._find_or_create_container(container_id).list_apps()
 
+    def list_app_ids(self, container_id):
+        utils.get_logger().debug("dispatching list apps ids in container '%s'" % container_id)
+        return self._find_or_create_container(container_id).list_app_ids()
+
     # Containerless Tasks
 
     def container_info(self, container_id):
@@ -107,7 +110,7 @@ class TaskDispatcher(object):
     def list(self):
         utils.get_logger().debug("dispatching list all containers")
 
-        task = ListTask(self._connection, self._cleanup_task)
+        task = ListTask(self._config, self._connection, self._cleanup_task)
         self._tasks.append(task)
         task.start()
 

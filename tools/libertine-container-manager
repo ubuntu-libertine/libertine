@@ -218,8 +218,7 @@ class LibertineContainerManager(object):
         self.containers_config.update_container_install_status(container_id, "ready")
 
     def list(self, args):
-        containers = libertine.utils.Libertine.list_containers()
-        for container in containers:
+        for container in ContainersConfig().get_containers():
             print("%s" % container)
 
     def list_apps(self, args):

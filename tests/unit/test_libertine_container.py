@@ -1,5 +1,5 @@
 """Unit tests for the LibertineContainer interface."""
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -52,6 +52,7 @@ class TestLibertineContainer(TestCase):
 
     def test_container_name_default(self):
         container_id = "test-id-3"
+        self._config.get_container_name.return_value = None
         container = Libertine.LibertineContainer(container_id, self._config)
 
         self.assertThat(container.name, Equals("Unknown"))

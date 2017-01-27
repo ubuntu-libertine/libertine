@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,10 +14,6 @@
 
 import apt
 import re
-
-import gi
-gi.require_version('Libertine', '1')
-from gi.repository import Libertine
 
 from libertine import utils
 from os import path
@@ -67,7 +63,7 @@ class AptCache(object):
             if self._cache is None:
                 try:
                     utils.get_logger().debug("Trying aptcache for container %s" % self._container)
-                    container_path = Libertine.container_path(self._container)
+                    container_path = utils.get_libertine_container_rootfs_path(self._container)
                     if not container_path or not path.exists(container_path):
                         raise PermissionError
 

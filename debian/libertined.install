@@ -1,0 +1,3 @@
+usr/bin/libertined
+usr/lib/python*/*/libertine/service
+usr/share/dbus-1/services/com.canonical.libertine.Service.service

@@ -83,7 +83,7 @@ class Service(ContainerLifecycleService):
         mounts = self._sanitize_bind_mounts(libertine.utils.get_common_xdg_user_directories() + \
                                             self._containers_config.get_container_bind_mounts(container_id))
 
-        data_dir = libertine.utils.get_libertine_container_userdata_dir_path(container_id)
+        data_dir = libertine.utils.get_libertine_container_home_dir(container_id)
         for user_dir in libertine.utils.generate_binding_directories(mounts, self._home):
             if os.path.isabs(user_dir[1]):
                 path = user_dir[1].strip('/')

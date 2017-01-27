@@ -1,4 +1,4 @@
-# Copyright 2015-2016 Canonical Ltd.
+# Copyright 2015-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -13,7 +13,6 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from .AppDiscovery import AppLauncherCache
-from gi.repository import Libertine
 import abc
 import contextlib
 import os
@@ -81,14 +80,12 @@ class BaseContainer(metaclass=abc.ABCMeta):
 
     :param container_id: The machine-readable container name.
     """
-    def __init__(self, container_id, containers_config=None):
-        if containers_config is None:
-            containers_config = ContainersConfig()
-
-        self.container_type = 'unknown'
+    def __init__(self, container_id, container_type, config):
+        self.container_type = container_type
         self.container_id = container_id
+        self._config = config
         self.root_path = utils.get_libertine_container_rootfs_path(self.container_id)
-        self.locale = containers_config.get_container_locale(container_id)
+        self.locale = self._config.get_container_locale(container_id)
         self.language = self._get_language_from_locale()
         self.default_packages = ['matchbox-window-manager',
                                  'libnss-extrausers',
@@ -247,10 +244,10 @@ class BaseContainer(metaclass=abc.ABCMeta):
                 self.delete_file_in_container(dest)
 
             return ret
-        else:
-            if no_dialog:
-                os.environ['DEBIAN_FRONTEND'] = 'teletype'
-            ret = self.run_in_container(_apt_command_prefix() + " install '" + package_name + "'") == 0
+
+        if no_dialog:
+            os.environ['DEBIAN_FRONTEND'] = 'teletype'
+        ret = self.run_in_container(_apt_command_prefix() + " install '" + package_name + "'") == 0
 
         self.check_language_support()
 
@@ -313,19 +310,26 @@ class BaseContainer(metaclass=abc.ABCMeta):
         """
         The human-readable name of the container.
         """
-        name = Libertine.container_name(self.container_id)
-        if not name:
-            name = 'Unknown'
-        return name
+        return self._config.get_container_name(self.container_id) or 'Unknown'
+
+    def _create_libertine_user_data_dir(self):
+        user_data = utils.get_libertine_container_home_dir(self.container_id)
+
+        if not os.path.exists(user_data):
+            os.makedirs(user_data)
+
+        config_path = os.path.join(user_data, ".config", "dconf")
+
+        if not os.path.exists(config_path):
+            os.makedirs(config_path)
 
 
 class LibertineMock(BaseContainer):
     """
     A concrete mock container type.  Used for unit testing.
     """
-    def __init__(self, container_id, containers_config=None):
-        super().__init__(container_id, containers_config)
-        self.container_type = "mock"
+    def __init__(self, container_id, config):
+        super().__init__(container_id, 'mock', config)
 
     def create_libertine_container(self, password=None, multiarch=False):
         return True
@@ -395,7 +399,7 @@ class LibertineContainer(object):
             self.container = LibertineLXD(container_id, self.containers_config)
         elif container_type == "chroot":
             from  libertine.ChrootContainer import LibertineChroot
-            self.container = LibertineChroot(container_id)
+            self.container = LibertineChroot(container_id, self.containers_config)
         elif container_type == "mock":
             self.container = LibertineMock(container_id, self.containers_config)
         else:
@@ -514,7 +518,7 @@ class LibertineContainer(object):
         Enumerates all application launchers (based on .desktop files) available
         in the container.
 
-        :param use_json: Indicates the returned string should be i JSON format.
+        :param use_json: Indicates the returned string should be in JSON format.
             The default format is some human-readble format.
         :rtype: A printable string containing a list of application launchers
             available in the container.
@@ -525,6 +529,24 @@ class LibertineContainer(object):
         else:
             return str(AppLauncherCache(self.container.name,
                                         self.container.root_path))
+
+    def list_app_ids(self):
+        """
+        Finds application ids (based on .desktop files) available in the
+        container.
+
+        :rtype: A list of app ids consumable by tools such as ubuntu-app-launch
+        """
+        home = utils.get_libertine_container_home_dir(self.container_id)
+        app_ids = []
+        for apps_dir in ["{}/usr/share/applications".format(self.root_path),
+                         "{}/usr/local/share/applications".format(self.root_path),
+                         "{}/.local/share/applications".format(home)]:
+            if os.path.exists(apps_dir):
+                for root, dirs, files in os.walk(apps_dir):
+                    app_ids.extend(["{}_{}_0.0".format(self.container_id, f[:-8]) for f in files if f.endswith(".desktop")])
+
+        return app_ids
 
     def exec_command(self, exec_line):
         """

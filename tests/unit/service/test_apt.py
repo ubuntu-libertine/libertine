@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -14,8 +14,9 @@
 
 import os
 import unittest.mock
-from unittest import TestCase
+from libertine import utils
 from libertine.service import apt
+from unittest import TestCase
 
 
 def build_mock_app(name, summary, website, description):
@@ -30,13 +31,13 @@ def build_mock_app(name, summary, website, description):
 
 
 class TestAptCache(TestCase):
+    def setUp(self):
+        os.environ['XDG_CACHE_HOME'] = "{}/containerroot".format(os.environ['LIBERTINE_DATA_DIR'])
+
     def test_search_returns_empty_when_no_matching_results(self):
         with unittest.mock.patch('libertine.service.apt.apt.Cache') as MockCache:
             MockCache.return_value.keys.return_value = []
-
-            with unittest.mock.patch('libertine.service.apt.Libertine') as MockLibertine:
-                MockLibertine.container_path.return_value = '/some/junk'
-                self.assertEqual(apt.AptCache('palpatine').search('vim'), [])
+            self.assertEqual(apt.AptCache('palpatine').search('vim'), [])
 
     def test_search_returns_matching_results(self):
         with unittest.mock.patch('libertine.service.apt.apt.Cache') as MockCache:
@@ -47,9 +48,7 @@ class TestAptCache(TestCase):
                 "vim-common": build_mock_app("vim-common", "common vim stuff", "vim.common", "dependencies")
             }
 
-            with unittest.mock.patch('libertine.service.apt.Libertine') as MockLibertine:
-                MockLibertine.container_path.return_value = '/some/junk'
-                results = apt.AptCache('palpatine').search('vim')
+            results = apt.AptCache('palpatine').search('vim')
 
             self.assertEqual(len(results), 2)
             results = sorted(results, key=lambda xx: xx['id'])
@@ -67,15 +66,13 @@ class TestAptCache(TestCase):
             self.assertEqual(results[1]['website'], 'vim.common')
             self.assertEqual(results[1]['package'], 'vim-common')
 
-            MockCache.assert_called_once_with()
+            MockCache.assert_called_once_with(rootdir=utils.get_libertine_container_rootfs_path('palpatine'))
 
     def test_app_info_returns_empty_dict_when_no_such_app_exists(self):
         with unittest.mock.patch('libertine.service.apt.apt.Cache') as MockCache:
             MockCache.return_value = {}
-            with unittest.mock.patch('libertine.service.apt.Libertine') as MockLibertine:
-                MockLibertine.container_path.return_value = '/some/junk'
-                self.assertEqual(apt.AptCache('palpatine').app_info("vim"), {})
-            MockCache.assert_called_once_with()
+            self.assertEqual(apt.AptCache('palpatine').app_info("vim"), {})
+            MockCache.assert_called_once_with(rootdir=utils.get_libertine_container_rootfs_path('palpatine'))
 
     def test_app_info_returns_values_for_app(self):
         with unittest.mock.patch('libertine.service.apt.apt.Cache') as MockCache:
@@ -83,17 +80,15 @@ class TestAptCache(TestCase):
                 "vim": build_mock_app("vim", "vi improved", "vim.com", "who even uses raw vi"),
                 "gimp": build_mock_app("gimp", "foss photoshop", "gimp.com", "visual text editor"),
             }
-            with unittest.mock.patch('libertine.service.apt.Libertine') as MockLibertine:
-                MockLibertine.container_path.return_value = '/some/junk'
-                self.assertEqual(apt.AptCache('palpatine').app_info("vim"), {
-                    'name': 'vim',
-                    'id': 'vim',
-                    'package': 'vim',
-                    'summary': 'vi improved',
-                    'description': 'who even uses raw vi',
-                    'website': 'vim.com'
-                })
-            MockCache.assert_called_once_with()
+            self.assertEqual(apt.AptCache('palpatine').app_info("vim"), {
+                'name': 'vim',
+                'id': 'vim',
+                'package': 'vim',
+                'summary': 'vi improved',
+                'description': 'who even uses raw vi',
+                'website': 'vim.com'
+            })
+            MockCache.assert_called_once_with(rootdir=utils.get_libertine_container_rootfs_path('palpatine'))
 
     def test_loads_cache_from_container_directory(self):
         with unittest.mock.patch('libertine.service.apt.apt.Cache') as MockCache:
@@ -101,19 +96,17 @@ class TestAptCache(TestCase):
                 "vim": build_mock_app("vim", "vi improved", "vim.com", "who even uses raw vi"),
                 "gimp": build_mock_app("gimp", "foss photoshop", "gimp.com", "visual text editor"),
             }
-            with unittest.mock.patch('libertine.service.apt.Libertine') as MockLibertine:
-                containerpath = "%s/containerroot" % os.path.dirname(os.path.realpath(__file__))
-                MockLibertine.container_path.return_value = containerpath
-                self.assertEqual(apt.AptCache('palpatine').app_info("vim"), {
-                    'name': 'vim',
-                    'id': 'vim',
-                    'package': 'vim',
-                    'summary': 'vi improved',
-                    'description': 'who even uses raw vi',
-                    'website': 'vim.com'
-                })
 
-            MockCache.assert_called_once_with(rootdir=containerpath)
+            self.assertEqual(apt.AptCache('palpatine').app_info("vim"), {
+                'name': 'vim',
+                'id': 'vim',
+                'package': 'vim',
+                'summary': 'vi improved',
+                'description': 'who even uses raw vi',
+                'website': 'vim.com'
+            })
+
+            MockCache.assert_called_once_with(rootdir=utils.get_libertine_container_rootfs_path('palpatine'))
 
     def test_loads_cache_only_once(self):
         with unittest.mock.patch('libertine.service.apt.apt.Cache') as MockCache:
@@ -121,13 +114,12 @@ class TestAptCache(TestCase):
                 "vim": build_mock_app("vim", "vi improved", "vim.com", "who even uses raw vi"),
                 "gimp": build_mock_app("gimp", "foss photoshop", "gimp.com", "visual text editor"),
             }
-            with unittest.mock.patch('libertine.service.apt.Libertine') as MockLibertine:
-                MockLibertine.container_path.return_value = '/some/junk'
-                cache = apt.AptCache('palpatine')
-                cache.app_info("vim")
-                cache.app_info("vim")
 
-            MockCache.assert_called_once_with()
+            cache = apt.AptCache('palpatine')
+            cache.app_info("vim")
+            cache.app_info("vim")
+
+            MockCache.assert_called_once_with(rootdir=utils.get_libertine_container_rootfs_path('palpatine'))
 
 
 if __name__ == '__main__':

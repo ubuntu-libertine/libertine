@@ -1,4 +1,4 @@
-# Copyright 2015-2016 Canonical Ltd.
+# Copyright 2015-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -47,9 +47,8 @@ class LibertineChroot(BaseContainer):
     A concrete container type implemented using a plain old chroot.
     """
 
-    def __init__(self, container_id):
-        super().__init__(container_id)
-        self.container_type = "chroot"
+    def __init__(self, container_id, config):
+        super().__init__(container_id, 'chroot', config)
         self._window_manager = None
         # FIXME: Disabling seccomp is a temporary measure until we fully understand why we need
         #        it or figure out when we need it.
@@ -112,7 +111,7 @@ class LibertineChroot(BaseContainer):
             fd.write(archive + self.installed_release + " multiverse\n")
             fd.write(archive + self.installed_release + "-updates multiverse\n")
 
-        utils.create_libertine_user_data_dir(self.container_id)
+        self._create_libertine_user_data_dir()
 
         self.update_locale()
 
@@ -140,7 +139,7 @@ class LibertineChroot(BaseContainer):
             self.update_packages()
 
         # Check if the container was created as root and chown the user directories as necessary
-        chown_recursive_dirs(utils.get_libertine_container_userdata_dir_path(self.container_id))
+        chown_recursive_dirs(utils.get_libertine_container_home_dir(self.container_id))
 
         super().create_libertine_container()
 
@@ -186,7 +185,7 @@ class LibertineChroot(BaseContainer):
         # Bind-mount common XDG direcotries
         bind_mounts = (
             " -b %s:%s"
-            % (utils.get_libertine_container_userdata_dir_path(self.container_id), home_path)
+            % (utils.get_libertine_container_home_dir(self.container_id), home_path)
         )
 
         mounts = self._sanitize_bind_mounts(utils.get_common_xdg_user_directories() + \

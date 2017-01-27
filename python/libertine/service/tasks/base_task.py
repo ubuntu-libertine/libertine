@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +15,6 @@
 import libertine.service.progress
 import threading
 from abc import ABCMeta, abstractmethod
-from libertine import utils
 
 
 class BaseTask(metaclass=ABCMeta):
@@ -60,7 +59,7 @@ class BaseTask(metaclass=ABCMeta):
         if self._instant_callback:
             self._callback(self)
         else:
-            threading.Timer(30, lambda: self._callback(self)).start()
+            threading.Timer(10, lambda: self._callback(self)).start()
 
     def start(self):
         self._progress = libertine.service.progress.Progress(self._connection)
@@ -82,7 +81,6 @@ class BaseTask(metaclass=ABCMeta):
 
         if self.running:
             self._progress.finished(self.container)
-            utils.refresh_libertine_scope()
 
         self._delayed_callback()
 

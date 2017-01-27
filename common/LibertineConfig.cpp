@@ -3,7 +3,7 @@
  * @brief Libertine Manager application-wide configuration module
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -34,14 +34,6 @@ containers_config_file_name() const
   if (snap_common != nullptr)
   {
     path.replace(std::getenv("HOME"), snap_common);
-  }
-
-  // if libertine is installed as a snap but caller is not;
-  // workaround until ContainersConfig is only discovered from one location
-  if (QString(std::getenv("IGNORE_SNAP")) != "1" && QFile::exists("/snap/bin/libertine.libertine-launch"))
-  {
-    auto home = std::getenv("HOME");
-    path.replace(home, QString(home) + "/snap/libertine/common");
   }
 
   QDir dir(path);

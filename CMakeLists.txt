@@ -7,7 +7,6 @@ project(libertine
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 
 find_package(PkgConfig REQUIRED)
-find_package(GObjectIntrospection REQUIRED)
 include(GNUInstallDirs)
 include(CheckIncludeFile)
 include(CheckFunctionExists)
@@ -17,6 +16,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic")
 include_directories(${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 
 find_package(Qt5Core      REQUIRED)
+find_package(Qt5DBus      REQUIRED)
 find_package(Qt5Gui       REQUIRED)
 find_package(Qt5Quick     REQUIRED)
 find_package(Qt5Widgets   REQUIRED)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Canonical Ltd.
+ * Copyright 2015-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -15,8 +15,8 @@
  */
 #include <glib.h>
 
-#ifndef _LIBERTINE_COMMON_H_
-#define _LIBERTINE_COMMON_H_
+#ifndef _LIBLIBERTINE_H_
+#define _LIBLIBERTINE_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -80,4 +80,4 @@ gchar ** libertine_list_apps_for_container(const gchar * container_id);
 }
 #endif
 
-#endif /* _LIBERTINE_COMMON_H_ */
+#endif /* _LIBLIBERTINE_H_ */

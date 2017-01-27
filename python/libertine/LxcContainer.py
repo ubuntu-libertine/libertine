@@ -158,9 +158,8 @@ class LibertineLXC(BaseContainer):
     A concrete container type implemented using an LXC container.
     """
 
-    def __init__(self, container_id, config=None):
-        super().__init__(container_id)
-        self.container_type = "lxc"
+    def __init__(self, container_id, config):
+        super().__init__(container_id, 'lxc', config)
         self.container = lxc_container(container_id)
         self.lxc_manager_interface = None
         self.window_manager = None
@@ -247,7 +246,7 @@ class LibertineLXC(BaseContainer):
 
         self.container.load_config(config_file)
 
-        utils.create_libertine_user_data_dir(self.container_id)
+        self._create_libertine_user_data_dir()
 
         with EnvLxcSettings():
             lxc_logfile = get_logfile(self.container)
@@ -299,7 +298,7 @@ class LibertineLXC(BaseContainer):
         user_id = os.getuid()
         home_entry = (
             "%s %s none bind,create=dir"
-            % (utils.get_libertine_container_userdata_dir_path(self.container_id),
+            % (utils.get_libertine_container_home_dir(self.container_id),
                home_path.strip('/'))
         )
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2015-2016 Canonical Ltd.
+# Copyright (C) 2015-2017 Canonical Ltd.
 # Author: Christopher Townsend <christopher.townsend@canonical.com>
 
 # This program is free software: you can redistribute it and/or modify
@@ -21,10 +21,6 @@ import psutil
 import shlex
 import subprocess
 import xdg.BaseDirectory as basedir
-
-from gi import require_version
-require_version('Libertine', '1')
-from gi.repository import Libertine
 
 
 def get_logger():
@@ -64,12 +60,7 @@ def set_environmental_verbosity(verbosity):
 
 
 def get_libertine_container_rootfs_path(container_id):
-    path = Libertine.container_path(container_id)
-
-    if path is None:
-        path = os.path.join(get_libertine_containers_dir_path(), container_id, 'rootfs')
-
-    return path
+    return os.path.join(get_libertine_containers_dir_path(), container_id, 'rootfs')
 
 
 def get_libertine_containers_dir_path():
@@ -100,11 +91,8 @@ def get_libertine_database_file_path():
     return os.path.join(get_libertine_database_dir_path(), 'ContainersConfig.json')
 
 
-def get_libertine_container_userdata_dir_path(container_id):
-    path = Libertine.container_home_path(container_id)
-
-    if path is None:
-        path = os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data', container_id)
+def get_libertine_container_home_dir(container_id):
+    path = os.path.join(basedir.xdg_data_home, 'libertine-container', 'user-data', container_id)
 
     if is_snap_environment():
         path = path.replace(os.environ['HOME'], os.getenv('SNAP_USER_COMMON'))
@@ -153,18 +141,6 @@ def get_common_xdg_user_directories():
     return dirs
 
 
-def create_libertine_user_data_dir(container_id):
-    user_data = get_libertine_container_userdata_dir_path(container_id)
-
-    if not os.path.exists(user_data):
-        os.makedirs(user_data)
-
-    config_path = os.path.join(user_data, ".config", "dconf")
-
-    if not os.path.exists(config_path):
-        os.makedirs(config_path)
-
-
 def get_libertine_lxc_pulse_socket_path():
     return os.path.join(get_libertine_runtime_dir(), 'pulse_socket')
 
@@ -194,14 +170,17 @@ def set_session_dbus_env_var():
 
     if not dbus_session_set:
         for p in psutil.process_iter():
-            if p.name() == 'unity8' or p.name() == 'compiz':
-                p_environ = subprocess.check_output(["cat", "/proc/{}/environ".format(p.pid)])
-                for line in p_environ.decode().split('\0'):
-                    if line.startswith('DBUS_SESSION_BUS_ADDRESS'):
-                        os.environ['DBUS_SESSION_BUS_ADDRESS'] = line.partition('DBUS_SESSION_BUS_ADDRESS=')[2].rstrip('\n')
-                        dbus_session_set = True
-                        break
-                break
+            try:
+                if p.name() == 'unity8' or p.name() == 'compiz':
+                    p_environ = subprocess.check_output(["cat", "/proc/{}/environ".format(p.pid)])
+                    for line in p_environ.decode().split('\0'):
+                        if line.startswith('DBUS_SESSION_BUS_ADDRESS'):
+                            os.environ['DBUS_SESSION_BUS_ADDRESS'] = line.partition('DBUS_SESSION_BUS_ADDRESS=')[2].rstrip('\n')
+                            dbus_session_set = True
+                            break
+                    break
+            except psutil.NoSuchProcess as e:
+                get_logger().warning(str(e))
 
     return dbus_session_set
 

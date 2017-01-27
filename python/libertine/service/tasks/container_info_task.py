@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,6 +13,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import json
+
 from .base_task import BaseTask
 from libertine import utils
 
@@ -23,7 +25,21 @@ class ContainerInfoTask(BaseTask):
         self._tasks = tasks
 
     def _run(self):
-        container = {'id': str(self._container)}
-        container['status'] = self._config._get_value_by_key(self._container, 'installStatus') or ''
-        container['task_ids'] = self._tasks
-        self._progress.data(str(container))
+        utils.get_logger().debug("Gathering info for container '{}'".format(self._container))
+        container = {'id': str(self._container), 'task_ids': self._tasks}
+
+        container['status'] = self._config.get_container_install_status(self._container) or ''
+        container['name'] = self._config.get_container_name(self._container) or ''
+
+        container_type = self._config.get_container_type(self._container)
+        container['root'] = utils.get_libertine_container_rootfs_path(self._container)
+        container['home'] = utils.get_libertine_container_home_dir(self._container)
+
+        self._progress.data(json.dumps(container))
+
+    def _before(self):
+        if not self._config.container_exists(self._container):
+            self._progress.error("Container '%s' does not exist, ignoring info request" % self._container)
+            return False
+
+        return True

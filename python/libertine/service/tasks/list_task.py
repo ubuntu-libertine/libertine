@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,13 +13,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import json
+
 from .base_task import BaseTask
 from libertine import utils
 
 
 class ListTask(BaseTask):
-    def __init__(self, connection, callback):
-        super().__init__(lock=None, container_id=None, config=None, connection=connection, callback=callback)
+    def __init__(self, config, connection, callback):
+        super().__init__(lock=None, container_id=None, config=config, connection=connection, callback=callback)
 
     def _run(self):
-        self._progress.data(str(utils.Libertine.list_containers()))
+        self._progress.data(json.dumps(self._config.get_containers()))

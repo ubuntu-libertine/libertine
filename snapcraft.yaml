@@ -3,8 +3,14 @@ version: 1.5.1+17.04.20170118-0ubuntu1
 summary: Libertine suite
 description: |
     Suite for maintaining deb-based applications in a non-deb environment
-confinement: devmode # TODO: update to 'strict'
+confinement: strict # devmode # TODO: update to 'strict'
 grade: devel
+
+slots:
+  libertined:
+    interface: dbus
+    name: com.canonical.libertine.Service
+    bus: session
 
 apps:
   launch:
@@ -22,6 +28,12 @@ apps:
       - opengl
       - pulseaudio
       - alsa
+  libertined:
+    command: usr/bin/snap-runner.wrapper libertined
+    plugs:
+      - lxd
+      - network-bind
+    # daemon: simple # Waiting on LP:1613420
   container-manager:
     command: usr/bin/snap-runner.wrapper libertine-container-manager
     aliases:

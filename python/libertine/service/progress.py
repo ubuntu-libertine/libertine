@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@ from libertine import utils
 from time import time
 
 DOWNLOAD_INTERFACE = "com.canonical.applications.Download"
-PROGRESS_INTERFACE = "com.canonical.libertine.Progress"
+PROGRESS_INTERFACE = "com.canonical.libertine.Service.Progress"
 
 class Progress(dbus.service.Object):
     def __init__(self, connection):
@@ -28,7 +28,7 @@ class Progress(dbus.service.Object):
         self._error = ''
         dbus.service.Object.__init__(self, conn=connection, object_path=("/Progress/%s" % hex(int(time()*10000000))[2:]))
 
-        self.emit_processing()
+        # self.emit_processing() # Disabled until something requires the Download interface
 
     @property
     def id(self):

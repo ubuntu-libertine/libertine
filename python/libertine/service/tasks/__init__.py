@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -23,6 +23,7 @@ from .search_task import SearchTask
 from .update_task import UpdateTask
 from .list_task import ListTask
 from .list_apps_task import ListAppsTask
+from .list_app_ids_task import ListAppIdsTask
 
 __all__ = [
           'AppInfoTask',
@@ -35,5 +36,6 @@ __all__ = [
           'SearchTask',
           'UpdateTask',
           'ListTask',
-          'ListAppsTask'
+          'ListAppsTask',
+          'ListAppIdsTask'
           ]

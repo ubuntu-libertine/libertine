@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -70,6 +70,13 @@ class Manager(dbus.service.Object):
     def list_apps(self, container_id):
         utils.get_logger().debug("list_apps('{}')".format(container_id))
         return self._dispatcher.list_apps(container_id)
+
+    @dbus.service.method(LIBERTINE_MANAGER_INTERFACE,
+                         in_signature='s',
+                         out_signature='o')
+    def list_app_ids(self, container_id):
+        utils.get_logger().debug("list_app_ids('{}')".format(container_id))
+        return self._dispatcher.list_app_ids(container_id)
 
     @dbus.service.method(LIBERTINE_MANAGER_INTERFACE,
                          out_signature='o')

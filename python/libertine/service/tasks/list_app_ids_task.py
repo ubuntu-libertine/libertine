@@ -1,4 +1,4 @@
-# Copyright 2016-2017 Canonical Ltd.
+# Copyright 2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,18 +13,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import json
 from .base_task import BaseTask
 from libertine import LibertineContainer, utils
+import time
 
 
-class ListAppsTask(BaseTask):
+class ListAppIdsTask(BaseTask):
     def __init__(self, container_id, config, connection, callback):
         super().__init__(lock=None, container_id=container_id, config=config, connection=connection, callback=callback)
 
     def _run(self):
-        utils.get_logger().debug("Listing apps in container '%s'" % self._container)
-        container = LibertineContainer(self._container, self._config)
-        self._progress.data(str(container.list_app_launchers(use_json=True)))
+        utils.get_logger().debug("Listing app ids from container '%s'" % self._container)
+        self._progress.data(json.dumps(LibertineContainer(self._container, self._config).list_app_ids()))
 
     def _before(self):
         if not self._config.container_exists(self._container):

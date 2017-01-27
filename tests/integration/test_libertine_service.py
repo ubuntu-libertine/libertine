@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -12,20 +12,24 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+import ast
 import dbus
 import dbus.mainloop.glib
-import unittest.mock
-from unittest import TestCase
-from libertine.service import tasks, apt
-from libertine.ContainersConfig import ContainersConfig
-from subprocess import Popen, PIPE
-import time
-from gi.repository import GLib
-from gi.repository import GObject
 import os
 import tempfile
 import threading
-import ast
+import time
+import unittest.mock
+
+from gi.repository import GLib
+from gi.repository import GObject
+from libertine import utils
+from libertine.service import tasks, apt
+from libertine.ContainersConfig import ContainersConfig
+from subprocess import Popen, PIPE
+from unittest import TestCase
+
 
 class TestLibertineService(TestCase):
     _process = None
@@ -39,6 +43,7 @@ class TestLibertineService(TestCase):
 
         environ = os.environ.copy()
         environ['XDG_DATA_HOME'] = cls._tempdir.name
+
         cls._process = Popen(['libertined', '--debug'], stdout=PIPE, stderr=PIPE, env=environ)
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         cls._loop = GObject.MainLoop()
@@ -91,7 +96,7 @@ class TestLibertineService(TestCase):
         signals.append(self._bus.add_signal_receiver(path=obj_path, handler_function=self._finished_handler,
                                 dbus_interface='com.canonical.applications.Download', signal_name='finished'))
         signals.append(self._bus.add_signal_receiver(path=obj_path, handler_function=self._data_handler,
-                                 dbus_interface='com.canonical.libertine.Progress', signal_name='data'))
+                                 dbus_interface='com.canonical.libertine.Service.Progress', signal_name='data'))
         signals.append(self._bus.add_signal_receiver(path=obj_path, handler_function=self._error_handler,
                                  dbus_interface='com.canonical.applications.Download', signal_name='error'))
 
@@ -110,20 +115,25 @@ class TestLibertineService(TestCase):
 
     def test_container_management(self):
         try:
-            self.assertEqual('[]', self._send(lambda: self._libertined.list()))
+            self.assertEqual([], ast.literal_eval(self._send(lambda: self._libertined.list())))
             self._send(lambda: self._libertined.create('rey', 'Rey', 'xenial', 'mock'))
-            self.assertEqual('[\'rey\']', self._send(lambda: self._libertined.list()))
+            self.assertEqual(['rey'], ast.literal_eval(self._send(lambda: self._libertined.list())))
 
             self._send(lambda: self._libertined.create('kylo', 'Kylo Ren', 'xenial', 'mock'))
-            self.assertEqual('[\'rey\', \'kylo\']', self._send(lambda: self._libertined.list()))
+            self.assertEqual(['rey', 'kylo'], ast.literal_eval(self._send(lambda: self._libertined.list())))
 
             self._send(lambda: self._libertined.update('kylo'))
 
-            self.assertEqual({'id': 'rey', 'status': 'ready', 'task_ids': []},
-                             ast.literal_eval(self._send(lambda: self._libertined.container_info('rey'))))
+            self.assertEqual({'id': 'rey',
+                              'status': 'ready',
+                              'name': 'Rey',
+                              'task_ids': [],
+                              'root': utils.get_libertine_container_rootfs_path('rey'),
+                              'home': '{}/libertine-container/user-data/rey'.format(TestLibertineService._tempdir.name)
+                             }, ast.literal_eval(self._send(lambda: self._libertined.container_info('rey'))))
 
             self._send(lambda: self._libertined.destroy('kylo'))
-            self.assertEqual('[\'rey\']', self._send(lambda: self._libertined.list()))
+            self.assertEqual(['rey'], ast.literal_eval(self._send(lambda: self._libertined.list())))
         except AssertionError as e:
             raise
         except Exception as e:

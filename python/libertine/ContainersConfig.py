@@ -242,6 +242,9 @@ class ContainersConfig(object):
         if write_json:
             write_container_config_file(self.container_list)
 
+    def get_containers(self):
+        return [c["id"] for c in self.container_list.get('containerList', [])]
+
     """
     Operations for the container itself.
     """
@@ -302,6 +305,12 @@ class ContainersConfig(object):
 
     def get_container_locale(self, container_id):
         return self._get_value_by_key(container_id, 'locale')
+
+    def get_container_name(self, container_id):
+        return self._get_value_by_key(container_id, 'name')
+
+    def get_container_install_status(self, container_id):
+        return self._get_value_by_key(container_id, 'installStatus')
 
     """
     Operations for archive (PPA) maintenance in a Libertine container.

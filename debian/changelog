@@ -1,3 +1,10 @@
+libertine (1.5.2-0ubuntu1) UNRELEASED; urgency=medium
+
+  [ Larry Price ]
+  * Bump version to 1.5.2.
+
+ -- Larry Price <larry.price@canonical.com>  Thu, 26 Jan 2017 10:39:10 -0500
+
 libertine (1.5.1+17.04.20170118-0ubuntu1) zesty; urgency=medium
 
   [ Chris Townsend ]

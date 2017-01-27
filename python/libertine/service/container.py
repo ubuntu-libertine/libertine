@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,18 +14,27 @@
 
 from libertine.service.tasks import *
 from libertine import utils
-from libertine.service import apt
+from threading import Lock
+
+
+if not utils.is_snap_environment():
+    from libertine.service import apt
 
 
 class Container(object):
-    def __init__(self, container_id, config, lock, connection, callback):
+    def __init__(self, container_id, config, connection, callback):
         self._id = container_id
         self._connection = connection
         self._callback = callback
         self._config = config
-        self._lock = lock
+        self._lock = Lock()
         self._tasks = []
-        self._cache = apt.AptCache(self.id)
+
+        if utils.is_snap_environment():
+            utils.get_logger().warning("Using AptCache not currently supported in snap environment")
+            self._cache = None
+        else:
+            self._cache = apt.AptCache(self.id)
 
     def _cleanup_task(self, task):
         utils.get_logger().debug("cleaning up tasks for container '%s'" % self.id)
@@ -47,6 +56,9 @@ class Container(object):
     def search(self, query):
         utils.get_logger().debug("search container '%s' for package '%s'" % (self.id, query))
 
+        if utils.is_snap_environment():
+            raise Exception("This operation is not currently supported within the snap")
+
         task = SearchTask(self.id, self._cache, query, self._connection, self._cleanup_task)
         self._tasks.append(task)
         task.start()
@@ -55,6 +67,9 @@ class Container(object):
 
     def app_info(self, package_name):
         utils.get_logger().debug("get info for package '%s' in container '%s'" % (package_name, self.id))
+
+        if utils.is_snap_environment():
+            raise Exception("This operation is not currently supported within the snap")
 
         related_task_ids = [t.id for t in self._tasks if t.package == package_name and t.running]
         task = AppInfoTask(self.id, self._cache, package_name, related_task_ids, self._config, self._connection, self._cleanup_task)
@@ -133,6 +148,15 @@ class Container(object):
         utils.get_logger().debug("List all apps in container '%s'" % self.id)
 
         task = ListAppsTask(self.id, self._config, self._connection, self._cleanup_task)
+
+        self._tasks.append(task)
+        task.start()
+        return task.id
+
+    def list_app_ids(self):
+        utils.get_logger().debug("List all app ids in container '%s'" % self.id)
+
+        task = ListAppIdsTask(self.id, self._config, self._connection, self._cleanup_task)
 
         self._tasks.append(task)
         task.start()
