@@ -22,16 +22,14 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import time
 
-from .lifecycle import LifecycleResult
 from .Libertine import BaseContainer
+from .service.manager import LIBERTINE_MANAGER_NAME, LIBERTINE_STORE_PATH
 from . import utils, HostInfo
 
 
 home_path = os.environ['HOME']
-
-LIBERTINE_LXC_MANAGER_NAME = "com.canonical.libertine.LxcManager"
-LIBERTINE_LXC_MANAGER_PATH = "/LxcManager"
 
 
 def _check_lxc_net_entry(entry):
@@ -55,14 +53,6 @@ def _setup_host_environment(username):
 
 def _get_lxc_default_config_path():
     return os.path.join(home_path, '.config', 'lxc')
-
-
-def get_lxc_manager_dbus_name():
-    return LIBERTINE_LXC_MANAGER_NAME
-
-
-def get_lxc_manager_dbus_path():
-    return LIBERTINE_LXC_MANAGER_PATH
 
 
 def lxc_container(container_id):
@@ -103,19 +93,23 @@ def lxc_start(container):
 
     if container.state == 'STOPPED':
         if not container.start():
-            return LifecycleResult("Container failed to start.")
+            utils.get_logger().error("Container failed to start.")
+            return False
     elif container.state == 'FROZEN':
         if not container.unfreeze():
-            return LifecycleResult("Container failed to unfreeze.")
+            utils.get_logger().error("Container failed to unfreeze.")
+            return False
 
     if not container.wait("RUNNING", 10):
-        return LifecycleResult("Container failed to enter the RUNNING state.")
+        utils.get_logger().error("Container failed to enter the RUNNING state.")
+        return False
 
     if not container.get_ips(timeout=30):
         lxc_stop(container)
-        return LifecycleResult("Not able to connect to the network.")
+        utils.get_logger().error("Not able to connect to the network.")
+        return False
 
-    return LifecycleResult()
+    return True
 
 
 def lxc_stop(container, freeze_on_stop=False):
@@ -169,9 +163,52 @@ class LibertineLXC(BaseContainer):
         if utils.set_session_dbus_env_var():
             try:
                 bus = dbus.SessionBus()
-                self.lxc_manager_interface = bus.get_object(get_lxc_manager_dbus_name(), get_lxc_manager_dbus_path())
+                self.lxc_manager_interface = bus.get_object(LIBERTINE_MANAGER_NAME, LIBERTINE_STORE_PATH)
             except dbus.exceptions.DBusException:
                 pass
+
+    def _setup_pulse(self):
+        pulse_socket_path = os.path.join(utils.get_libertine_runtime_dir(), 'pulse_socket')
+
+        os.environ['PULSE_SERVER'] = pulse_socket_path
+
+        lsof_cmd = 'lsof -n %s' % pulse_socket_path
+        args = shlex.split(lsof_cmd)
+        lsof = subprocess.Popen(args, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
+        lsof.wait()
+
+        if not os.path.exists(pulse_socket_path) or lsof.returncode == 1:
+            pactl_cmd = (
+                'pactl load-module module-native-protocol-unix auth-anonymous=1 socket=%s'
+                % pulse_socket_path)
+            args = shlex.split(pactl_cmd)
+            subprocess.Popen(args).wait()
+
+    def _dynamic_bind_mounts(self):
+        self._config.refresh_database()
+        mounts = self._sanitize_bind_mounts(utils.get_common_xdg_user_directories() + \
+                                            self._config.get_container_bind_mounts(self.container_id))
+
+        data_dir = utils.get_libertine_container_home_dir(self.container_id)
+        for user_dir in utils.generate_binding_directories(mounts, home_path):
+            if os.path.isabs(user_dir[1]):
+                path = user_dir[1].strip('/')
+                fullpath = os.path.join(utils.get_libertine_container_rootfs_path(self.container_id), path)
+            else:
+                path = "{}/{}".format(home_path.strip('/'), user_dir[1])
+                fullpath = os.path.join(data_dir, user_dir[1])
+
+            os.makedirs(fullpath, exist_ok=True)
+
+            utils.get_logger().debug("Mounting {}:{} in container {}".format(user_dir[0], path, self.container_id))
+            xdg_user_dir_entry = (
+                "%s %s none bind,create=dir,optional"
+                % (user_dir[0], path)
+            )
+            self.container.append_config_item("lxc.mount.entry", xdg_user_dir_entry)
+
+    def _sanitize_bind_mounts(self, mounts):
+        return [mount.replace(" ", "\\040") for mount in mounts]
 
     def timezone_needs_update(self):
         with open(os.path.join(self.root_path, 'etc', 'timezone'), 'r') as fd:
@@ -179,17 +216,32 @@ class LibertineLXC(BaseContainer):
 
     def start_container(self):
         if self.lxc_manager_interface:
-            result = LifecycleResult.from_dict(self.lxc_manager_interface.container_service_start(self.container_id))
-        else:
-            result = lxc_start(self.container)
+            retries = 0
+            while not self.lxc_manager_interface.container_operation_start(self.container_id):
+                retries += 1
+                if retries > 5:
+                    return False
+                time.sleep(.5)
+             
+        if self.container.state == 'RUNNING':
+            return True
 
-        if not result.success:
+        if self.container.state == 'STOPPED':
+            self._dynamic_bind_mounts()
+            self._setup_pulse()
+
+        if not lxc_start(self.container):
             _dump_lxc_log(result.logfile)
-            raise RuntimeError(result.error)
+            return False
+
+        return True
 
     def stop_container(self):
         if self.lxc_manager_interface:
-            self.lxc_manager_interface.container_service_stop(self.container_id, {'freeze': self._freeze_on_stop})
+            stop = self.lxc_manager_interface.container_operation_finished(self.container_id)
+            if stop: 
+                lxc_stop(self.container, self._freeze_on_stop)
+                self.lxc_manager_interface.container_stopped(self.container_id)
         else:
             lxc_stop(self.container, self._freeze_on_stop)
 
@@ -261,10 +313,7 @@ class LibertineLXC(BaseContainer):
         self.create_libertine_config()
 
         utils.get_logger().info("starting container ...")
-        try:
-            self.start_container()
-        except RuntimeError as e:
-            utils.get_logger().error("Container failed to start: %s" % e)
+        if not self.start_container():
             self.destroy_libertine_container()
             return False
 
@@ -333,11 +382,8 @@ class LibertineLXC(BaseContainer):
         os.environ.clear()
         os.environ.update(environ)
 
-        result = LifecycleResult.from_dict(self.lxc_manager_interface.container_service_start(self.container_id))
-
-        if not result.success:
-            _dump_lxc_log(get_logfile(self.container))
-            utils.get_logger().error("%s" % result.error)
+        if not self.start_container():
+            self.lxc_manager_interface.container_stopped(self.container_id)
             return
 
         self.window_manager = self.container.attach(lxc.attach_run_command,
@@ -357,5 +403,4 @@ class LibertineLXC(BaseContainer):
 
         utils.terminate_window_manager(psutil.Process(self.window_manager))
 
-        # Tell libertine-lxc-manager that the app has stopped.
-        self.lxc_manager_interface.container_service_stop(self.container_id, {'freeze': self._freeze_on_stop})
+        self.stop_container()

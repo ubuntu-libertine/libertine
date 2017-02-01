@@ -15,6 +15,7 @@
 import dbus
 import dbus.service
 import libertine.service.task_dispatcher
+from collections import Counter
 from dbus.mainloop.glib import DBusGMainLoop
 from libertine.service import container
 from libertine import utils
@@ -28,6 +29,7 @@ LIBERTINE_STORE_PATH = "/Manager"
 class Manager(dbus.service.Object):
     def __init__(self):
         utils.get_logger().debug("creating service")
+        self._operations = Counter()
         DBusGMainLoop(set_as_default=True)
         try:
             bus_name = dbus.service.BusName(LIBERTINE_MANAGER_NAME,
@@ -120,3 +122,37 @@ class Manager(dbus.service.Object):
     def remove(self, container_id, package_name):
         utils.get_logger().debug("remove('%s', '%s')" % (container_id, package_name))
         return self._dispatcher.remove(container_id, package_name)
+
+    # Container Lifecycle
+
+    @dbus.service.method(LIBERTINE_MANAGER_INTERFACE,
+                         in_signature='s',
+                         out_signature='b')
+    def container_operation_start(self, container):
+        utils.get_logger().debug("container_operation_start({})".format(container))
+
+        if self._operations[container] == -1:
+            return False
+
+        self._operations[container] += 1
+        return True
+
+    @dbus.service.method(LIBERTINE_MANAGER_INTERFACE,
+                         in_signature='s',
+                         out_signature='b')
+    def container_operation_finished(self, container):
+        utils.get_logger().debug("container_operation_finished({})".format(container))
+        stop = False
+        self._operations[container] -= 1
+
+        if self._operations[container] == 0:
+            self._operations[container] -= 1
+            stop = True
+
+        return stop
+
+    @dbus.service.method(LIBERTINE_MANAGER_INTERFACE,
+                         in_signature='s')
+    def container_stopped(self, container):
+        utils.get_logger().debug("container_stopped({})".format(container))
+        del self._operations[container]

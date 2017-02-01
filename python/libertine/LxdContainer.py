@@ -22,20 +22,8 @@ import shlex
 import subprocess
 import time
 
-from .lifecycle import LifecycleResult
 from libertine import Libertine, utils, HostInfo
-
-
-LIBERTINE_LXC_MANAGER_NAME = "com.canonical.libertine.LxdManager"
-LIBERTINE_LXC_MANAGER_PATH = "/LxdManager"
-
-
-def get_lxd_manager_dbus_name():
-    return LIBERTINE_LXC_MANAGER_NAME
-
-
-def get_lxd_manager_dbus_path():
-    return LIBERTINE_LXC_MANAGER_PATH
+from .service.manager import LIBERTINE_MANAGER_NAME, LIBERTINE_STORE_PATH
 
 
 def _get_devices_map():
@@ -148,14 +136,15 @@ def lxd_start(container):
     container.sync(rollback=True) # required for pylxd=2.0.x
 
     if container.status != 'Running':
-        return LifecycleResult("Container {} failed to start".format(container.name))
+        utils.get_logger().error("Container {} failed to start".format(container.name))
+        return False
 
-    return LifecycleResult()
+    return True
 
 
 def lxd_stop(container, wait=True, freeze_on_stop=False):
     if container.status == 'Stopped':
-        return LifecycleResult()
+        return True
 
     if freeze_on_stop:
         container.freeze(wait=wait)
@@ -166,11 +155,13 @@ def lxd_stop(container, wait=True, freeze_on_stop=False):
 
     if wait:
         if freeze_on_stop and container.status != 'Frozen':
-            return LifecycleResult("Container {} failed to freeze".format(container.name))
-        elif container.status != 'Stopped':
-            return LifecycleResult("Container {} failed to stop".format(container.name))
+            utils.get_logger().error("Container {} failed to freeze".format(container.name))
+            return False
+        elif not freeze_on_stop and container.status != 'Stopped':
+            utils.get_logger().error("Container {} failed to stop".format(container.name))
+            return False
 
-    return LifecycleResult()
+    return True
 
 
 def _lxd_save(entity, error, wait=True):
@@ -318,7 +309,7 @@ class LibertineLXD(Libertine.BaseContainer):
             try:
                 if utils.set_session_dbus_env_var():
                     bus = dbus.SessionBus()
-                    self._manager = bus.get_object(get_lxd_manager_dbus_name(), get_lxd_manager_dbus_path())
+                    self._manager = bus.get_object(LIBERTINE_MANAGER_NAME, LIBERTINE_STORE_PATH)
             except PermissionError as e:
                 utils.get_logger().warning("Failed to set dbus session env var")
             except dbus.exceptions.DBusException:
@@ -417,37 +408,52 @@ class LibertineLXD(Libertine.BaseContainer):
         proc = subprocess.Popen(self._lxc_args(command))
         return proc.wait()
 
-    def start_container(self):
+    def start_container(self, home=env_home_path()):
         if not self._try_get_container():
             return False
 
         if self._manager:
-            result = LifecycleResult.from_dict(self._manager.container_service_start(self.container_id))
-        else:
-            result = lxd_start(self._container)
+            retries = 0
+            while not self._manager.container_operation_start(self.container_id):
+                retries += 1
+                if retries > 5:
+                    return False
+                time.sleep(.5)
 
-        if not result.success:
-            utils.get_logger().error(result.error)
+        if self._container.status == 'Running':
+            return True
+
+        requires_remount = self._container.status == 'Stopped'
+
+        if requires_remount:
+            update_libertine_profile(self._client)
+            update_bind_mounts(self._container, self._config, home)
+
+        if not lxd_start(self._container):
             return False
 
         if not _wait_for_network(self._container):
             utils.get_logger().warning("Network unavailable in container '{}'".format(self.container_id))
 
-        return result.success
+        if requires_remount:
+            self.run_in_container("/usr/bin/libertine-lxd-mount-update")
+
+        return True
 
     def stop_container(self, wait=False):
         if not self._try_get_container():
             return False
 
         if self._manager:
-            result = LifecycleResult.from_dict(self._manager.container_service_stop(self.container_id, {'wait': wait, 'freeze': self._freeze_on_stop}))
+            stop = self._manager.container_operation_finished(self.container_id)
+            if stop:
+                if not lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop):
+                    return False
+                self._manager.container_stopped(self.container_id)
         else:
-            result = lxd_stop(self._container, wait, self._freeze_on_stop)
+            return lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop)
 
-        if not result.success:
-            utils.get_logger().error(result.error)
-
-        return result.success
+        return True
 
     def _get_matchbox_pids(self):
         p = subprocess.Popen(self._lxc_args('pgrep matchbox'), stdout=subprocess.PIPE)
@@ -481,21 +487,10 @@ class LibertineLXD(Libertine.BaseContainer):
         if utils.is_snap_environment():
             environ['HOME'] = '/home/{}'.format(environ['USER'])
 
-        requires_remount = self._container.status != 'Running'
-
-        if self._manager:
-            result = LifecycleResult.from_dict(self._manager.container_service_start(self.container_id))
-        else:
-            update_libertine_profile(self._client)
-            update_bind_mounts(self._container, self._config, environ['HOME'])
-            result = lxd_start(self._container)
-
-        if not result.success:
-            utils.get_logger().error(result.error)
+        if not self.start_container(home=environ['HOME']):
+            if self._manager:
+                self.lxc_manager_interface.container_stopped(self.container_id)
             return False
-
-        if requires_remount:
-            self.run_in_container("/usr/bin/libertine-lxd-mount-update")
 
         args = self._lxc_args("sudo -E -u {} env PATH={}".format(environ['USER'], environ['PATH']), environ)
 
@@ -518,10 +513,7 @@ class LibertineLXD(Libertine.BaseContainer):
 
         app.wait()
 
-        if self._manager:
-            self._manager.container_service_stop(self.container_id, {'freeze': self._freeze_on_stop})
-        else:
-            lxd_stop(self._container, False, self._freeze_on_stop)
+        self.stop_container()
 
     def copy_file_to_container(self, source, dest):
         with open(source, 'rb') as f:

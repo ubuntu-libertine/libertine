@@ -177,7 +177,6 @@ Depends: lxc-templates,
          python3-libertine,
          python3-lxc,
          uidmap,
-         python3-gi,
          ${misc:Depends},
          ${python3:Depends}
 Replaces: libertine-tools (<< 1.3)
@@ -195,7 +194,6 @@ Depends: lxd,
          python3-libertine,
          python3-pexpect,
          python3-pylxd,
-         python3-gi,
          ${misc:Depends},
          ${python3:Depends}
 Description: Python3 scripts for the Libertine application sandbox

@@ -9,6 +9,4 @@ install(FILES libertine-xmir.conf
 install(FILES libertine-lxc-sudo libertine-lxd-sudo
         DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/sudoers.d)
 install(FILES com.canonical.libertine.Service.service
-              com.canonical.libertine.LxcManager.service
-              com.canonical.libertine.LxdManager.service
         DESTINATION ${CMAKE_INSTALL_DATADIR}/dbus-1/services)
