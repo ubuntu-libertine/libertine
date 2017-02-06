@@ -325,6 +325,14 @@ class LibertineContainerManager(object):
                     sys.exit(1)
                 self.containers_config.delete_bind_mount(container_id, mount_path)
 
+            container_type = self.containers_config.get_container_type(container_id)
+
+            if (container_type == 'lxc' or container_type == 'lxd' and
+                self.containers_config.get_freeze_on_stop(container_id)):
+                if not LibertineContainer(container_id).restart_libertine_container():
+                    libertine.utils.get_logger().warning("Container cannot be restarted at this time.  You will need to "
+                                                         "restart the container at a later time using the \'restart\' subcommand.")
+
         elif args.freeze is not None:
             container_type = self.containers_config.get_container_type(container_id)
 
@@ -371,6 +379,19 @@ class LibertineContainerManager(object):
         container_id = self.containers_config.check_container_id(args.id)
 
         self.containers_config.set_default_container_id(container_id, True)
+
+    def restart(self, args):
+        container_id = self.containers_config.check_container_id(args.id)
+
+        container_type = self.containers_config.get_container_type(container_id)
+
+        if container_type != 'lxc' and container_type != 'lxd':
+            libertine.utils.get_logger().error("The restart subcommand is only valid for LXC and LXD type containers.")
+            sys.exit(1)
+
+        container = LibertineContainer(container_id)
+
+        container.restart_libertine_container()
 
 
 if __name__ == '__main__':
@@ -599,6 +620,16 @@ if __name__ == '__main__':
         '-c', '--clear', action='store_true',
         help=("Clear the default container."))
     parser_default.set_defaults(func=container_manager.set_default)
+
+    # Handle the restart command and its options
+    parser_update = subparsers.add_parser(
+        'restart',
+        help=("Restart a frozen Libertine container.  This only works on LXC "
+              "and LXD type containers."))
+    parser_update.add_argument(
+        '-i', '--id',
+        help=("Container identifier.  Default container is used if omitted."))
+    parser_update.set_defaults(func=container_manager.restart)
 
     # Actually parse the args
     args = parser.parse_args()

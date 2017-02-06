@@ -54,6 +54,9 @@ _libertine-container-manager()
       "set-default" )
         opts="--help --id --clear"
         ;;
+      "restart" )
+        opts="--help --id"
+        ;;
       * )
         opts="--help --quiet --verbose"
         ;;
@@ -73,7 +76,7 @@ _libertine-container-manager()
     fi
 
     if [[ -z ${opts} && "${COMP_CWORD}" == "1" ]]; then
-      opts="create destroy install-package remove-package search-cache update list list-apps configure set-default"
+      opts="create destroy install-package remove-package search-cache update list list-apps configure set-default restart"
     fi
 
     if [[ -n "${opts}" ]]; then

@@ -114,12 +114,20 @@ def lxc_start(container):
 
 def lxc_stop(container, freeze_on_stop=False):
     if container.state == 'STOPPED' or not container.running:
-        return
+        return True
 
     if freeze_on_stop:
         container.freeze()
+        if not container.wait("FROZEN", 10):
+            utils.get_logger().error("Container failed to enter the FROZEN state.")
+            return False
     else:
         container.stop()
+        if not container.wait("STOPPED", 10):
+            utils.get_logger().error("Container failed to enter the STOPPED state.")
+            return False
+
+    return True
 
 
 class EnvLxcSettings(contextlib.ExitStack):
@@ -238,12 +246,32 @@ class LibertineLXC(BaseContainer):
 
     def stop_container(self):
         if self.lxc_manager_interface:
-            stop = self.lxc_manager_interface.container_operation_finished(self.container_id)
-            if stop: 
-                lxc_stop(self.container, self._freeze_on_stop)
+            if self.lxc_manager_interface.container_operation_finished(self.container_id):
+                if not lxc_stop(self.container, self._freeze_on_stop):
+                   return False
                 self.lxc_manager_interface.container_stopped(self.container_id)
+                return True
+            else:
+                return False
         else:
-            lxc_stop(self.container, self._freeze_on_stop)
+            return lxc_stop(self.container, self._freeze_on_stop)
+
+    def restart_container(self):
+        if self.container.state != 'FROZEN':
+            utils.get_logger().warning("Container {} is not frozen. Cannot restart.".format(self.container_id))
+            return False
+
+        orig_freeze = self._freeze_on_stop
+        self._freeze_on_stop = False
+
+        # We never want to use the manager when restarting.
+        self.lxc_manager_interface = None
+
+        if not (self.stop_container() and self.start_container()):
+            return False
+
+        self._freeze_on_stop = orig_freeze
+        return self.stop_container()
 
     def run_in_container(self, command_string):
         cmd_args = shlex.split(command_string)
@@ -388,9 +416,6 @@ class LibertineLXC(BaseContainer):
 
         self.window_manager = self.container.attach(lxc.attach_run_command,
                                                     self.setup_window_manager())
-
-        # Setup pulse to work inside the container
-        os.environ['PULSE_SERVER'] = utils.get_libertine_lxc_pulse_socket_path()
 
         app_launch_cmd = "sudo -E -u " + os.environ['USER'] + " env PATH=" + os.environ['PATH']
         cmd = shlex.split(app_launch_cmd)

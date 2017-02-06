@@ -190,6 +190,12 @@ class BaseContainer(metaclass=abc.ABCMeta):
         """
         pass
 
+    def restart_container(self):
+        """
+        Restarts the container.
+        """
+        pass
+
     @abc.abstractmethod
     def run_in_container(self, command_string):
         """
@@ -483,6 +489,12 @@ class LibertineContainer(object):
                 return self.container.run_in_container("/usr/bin/apt-cache search '" + search_string + "'")
         except RuntimeError as e:
             return handle_runtime_error(e)
+
+    def restart_libertine_container(self):
+        """
+        Restarts a frozen container.
+        """
+        return self.container.restart_container()
 
     def connect(self):
         """

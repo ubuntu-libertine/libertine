@@ -445,16 +445,36 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         if self._manager:
-            stop = self._manager.container_operation_finished(self.container_id)
-            if stop:
+            if self._manager.container_operation_finished(self.container_id):
                 if not lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop):
                     return False
                 self._manager.container_stopped(self.container_id)
+                return True
+            else:
+                return False
         else:
             return lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop)
 
-        return True
+    def restart_container(self, wait=True):
+        if not self._try_get_container():
+            return False
 
+        if self._container.status != 'Frozen':
+            utils.get_logger().warning("Container {} is not frozen. Cannot restart.".format(self._container.name))
+            return False
+
+        orig_freeze = self._freeze_on_stop
+        self._freeze_on_stop = False
+
+        # We never want to use the manager when restarting.
+        self._manager = None
+
+        if not (self.stop_container(wait=True) and self.start_container()):
+            return False
+
+        self._freeze_on_stop = orig_freeze
+        return self.stop_container(wait=True)
+ 
     def _get_matchbox_pids(self):
         p = subprocess.Popen(self._lxc_args('pgrep matchbox'), stdout=subprocess.PIPE)
         out, err = p.communicate()

@@ -1,4 +1,4 @@
-.TH libertine-container-manager "1" " January 2017" "libertine-container-manager 1.5.1" "User Commands"
+.TH libertine-container-manager "1" " February 2017" "libertine-container-manager 1.5.2" "User Commands"
 
 .SH NAME
 libertine-container-manager \- Manage Libertine containers for supporting legacy X applications on Unity 8
@@ -68,6 +68,9 @@ Configures various options in the specified Libertine container.
 .TP
 .B libertine-container-manager set-default [options]
 Sets default container.
+.TP
+.B libertine-container-manager restart [options]
+Restarts a frozen LXC or LXD Libertine container.
 
 .SH COMMAND REFERENCE
 .TP
@@ -322,6 +325,20 @@ Container identifier.
 .BR \-c ", " \-\-clear ""
 .RS 14
 Clear default container.
+.RE
+.TP
+
+.B libertine-container-manager restart [options]
+.TP
+.SS Options:
+.BR \-h ", " \-\-help ""
+.RS 14
+Prints help for this command and exits.
+.RE
+.IP
+.BR \-i " ID, " \-\-id " ID" ""
+.RS 14
+Container identifier.
 .RE
 .TP
 .BR
