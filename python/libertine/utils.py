@@ -186,10 +186,7 @@ def set_session_dbus_env_var():
 
 
 def is_snap_environment():
-    if 'SNAP' in os.environ:
-        return True
-    else:
-        return False
+    return 'SNAP' in os.environ
 
 
 def get_deb_package_name(package):

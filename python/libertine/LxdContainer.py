@@ -305,15 +305,14 @@ class LibertineLXD(Libertine.BaseContainer):
         self._client = pylxd.Client()
         self._window_manager = None
 
-        if not utils.is_snap_environment():
-            try:
-                if utils.set_session_dbus_env_var():
-                    bus = dbus.SessionBus()
-                    self._manager = bus.get_object(LIBERTINE_MANAGER_NAME, LIBERTINE_STORE_PATH)
-            except PermissionError as e:
-                utils.get_logger().warning("Failed to set dbus session env var")
-            except dbus.exceptions.DBusException:
-                utils.get_logger().warning("D-Bus Service not found.")
+        try:
+            if utils.set_session_dbus_env_var():
+                bus = dbus.SessionBus()
+                self._manager = bus.get_object(LIBERTINE_MANAGER_NAME, LIBERTINE_STORE_PATH)
+        except PermissionError as e:
+            utils.get_logger().warning("Failed to set dbus session env var")
+        except dbus.exceptions.DBusException:
+            utils.get_logger().warning("D-Bus Service not found.")
 
     def create_libertine_container(self, password=None, multiarch=False):
         if self._try_get_container():
@@ -430,6 +429,8 @@ class LibertineLXD(Libertine.BaseContainer):
             update_bind_mounts(self._container, self._config, home)
 
         if not lxd_start(self._container):
+            if self._manager:
+                self._manager.container_stopped(self.container_id)
             return False
 
         if not _wait_for_network(self._container):
@@ -508,8 +509,6 @@ class LibertineLXD(Libertine.BaseContainer):
             environ['HOME'] = '/home/{}'.format(environ['USER'])
 
         if not self.start_container(home=environ['HOME']):
-            if self._manager:
-                self.lxc_manager_interface.container_stopped(self.container_id)
             return False
 
         args = self._lxc_args("sudo -E -u {} env PATH={}".format(environ['USER'], environ['PATH']), environ)

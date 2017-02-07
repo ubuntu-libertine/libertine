@@ -364,6 +364,9 @@ class LibertineMock(BaseContainer):
     def finish_application(self, app):
         app.wait()
 
+    def start_container(self):
+        return True
+
 
 class ContainerRunning(contextlib.ExitStack):
     """
@@ -374,7 +377,9 @@ class ContainerRunning(contextlib.ExitStack):
     """
     def __init__(self, container):
         super().__init__()
-        container.start_container()
+        if not container.start_container():
+            raise RuntimeError("Container failed to start.")
+
         self.callback(lambda: container.stop_container())
 
 
