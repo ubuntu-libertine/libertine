@@ -149,21 +149,13 @@ class TestContainer(TestCase):
                 MockUpdateTask.assert_called_once_with('palpatine', self._config, unittest.mock.ANY, self._connection, unittest.mock.ANY)
                 MockUpdateTask.return_value.start.assert_called_once_with()
 
-    def test_list_apps_creates_list_apps_task(self):
-        with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._connection, lambda task: task)
-            with unittest.mock.patch('libertine.service.container.ListAppsTask') as MockListAppsTask:
-                c.list_apps()
-                MockListAppsTask.assert_called_once_with('palpatine', self._config, self._connection, unittest.mock.ANY)
-                MockListAppsTask.return_value.start.assert_called_once_with()
-
     def test_list_app_ids_creates_list_app_ids_task(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
             c = container.Container('palpatine', self._config, self._connection, lambda task: task)
-            with unittest.mock.patch('libertine.service.container.ListAppIdsTask') as MockListAppsTask:
+            with unittest.mock.patch('libertine.service.container.ListAppIdsTask') as MockListAppIdsTask:
                 c.list_app_ids()
-                MockListAppsTask.assert_called_once_with('palpatine', self._config, self._connection, unittest.mock.ANY)
-                MockListAppsTask.return_value.start.assert_called_once_with()
+                MockListAppIdsTask.assert_called_once_with('palpatine', self._config, self._connection, unittest.mock.ANY)
+                MockListAppIdsTask.return_value.start.assert_called_once_with()
 
     def test_removes_task_during_callback(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:

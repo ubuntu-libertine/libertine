@@ -144,15 +144,6 @@ class Container(object):
         task.start()
         return task.id
 
-    def list_apps(self):
-        utils.get_logger().debug("List all apps in container '%s'" % self.id)
-
-        task = ListAppsTask(self.id, self._config, self._connection, self._cleanup_task)
-
-        self._tasks.append(task)
-        task.start()
-        return task.id
-
     def list_app_ids(self):
         utils.get_logger().debug("List all app ids in container '%s'" % self.id)
 

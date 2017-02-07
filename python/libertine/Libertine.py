@@ -12,7 +12,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from .AppDiscovery import AppLauncherCache
 import abc
 import contextlib
 import os
@@ -529,23 +528,6 @@ class LibertineContainer(object):
         Finishes the currently running application in the container.
         """
         self.container.finish_application(app)
-
-    def list_app_launchers(self, use_json=False):
-        """
-        Enumerates all application launchers (based on .desktop files) available
-        in the container.
-
-        :param use_json: Indicates the returned string should be in JSON format.
-            The default format is some human-readble format.
-        :rtype: A printable string containing a list of application launchers
-            available in the container.
-        """
-        if use_json:
-            return AppLauncherCache(self.container.name,
-                                    self.container.root_path).to_json()
-        else:
-            return str(AppLauncherCache(self.container.name,
-                                        self.container.root_path))
 
     def list_app_ids(self):
         """

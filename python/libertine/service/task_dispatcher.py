@@ -84,10 +84,6 @@ class TaskDispatcher(object):
         utils.get_logger().debug("dispatching update container '%s'" % container_id)
         return self._find_or_create_container(container_id).update()
 
-    def list_apps(self, container_id):
-        utils.get_logger().debug("dispatching list all apps in container '%s'" % container_id)
-        return self._find_or_create_container(container_id).list_apps()
-
     def list_app_ids(self, container_id):
         utils.get_logger().debug("dispatching list apps ids in container '%s'" % container_id)
         return self._find_or_create_container(container_id).list_app_ids()

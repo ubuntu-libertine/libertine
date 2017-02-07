@@ -22,7 +22,6 @@ from .remove_task import RemoveTask
 from .search_task import SearchTask
 from .update_task import UpdateTask
 from .list_task import ListTask
-from .list_apps_task import ListAppsTask
 from .list_app_ids_task import ListAppIdsTask
 
 __all__ = [
@@ -36,6 +35,5 @@ __all__ = [
           'SearchTask',
           'UpdateTask',
           'ListTask',
-          'ListAppsTask',
           'ListAppIdsTask'
           ]

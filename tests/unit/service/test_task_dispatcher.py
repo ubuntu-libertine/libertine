@@ -76,14 +76,7 @@ class TestTaskDispatcher(TestCase):
             self.assertEqual(123, self._dispatcher.update('palpatine'))
             c.update.assert_called_once_with()
 
-    def test_list_apps_calls_list_apps_on_container(self):
-        with unittest.mock.patch('libertine.service.task_dispatcher.Container') as MockContainer:
-            c = MockContainer.return_value
-            c.list_apps.return_value = 123
-            self.assertEqual(123, self._dispatcher.list_apps('palpatine'))
-            c.list_apps.assert_called_once_with()
-
-    def test_list_apps_calls_list_apps_on_container(self):
+    def test_list_app_ids_calls_list_app_ids_on_container(self):
         with unittest.mock.patch('libertine.service.task_dispatcher.Container') as MockContainer:
             c = MockContainer.return_value
             c.list_app_ids.return_value = 123
@@ -94,20 +87,20 @@ class TestTaskDispatcher(TestCase):
         with unittest.mock.patch('libertine.service.task_dispatcher.Container') as MockContainer:
             c = MockContainer.return_value
             c.id = 'palpatine'
-            self._dispatcher.list_apps('palpatine')
-            self._dispatcher.list_apps('palpatine')
-            self._dispatcher.list_apps('palpatine')
+            self._dispatcher.list_app_ids('palpatine')
+            self._dispatcher.list_app_ids('palpatine')
+            self._dispatcher.list_app_ids('palpatine')
             MockContainer.assert_called_once_with('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY)
 
     def test_container_callback_removes_container(self):
         with unittest.mock.patch('libertine.service.task_dispatcher.Container') as MockContainer:
             c = MockContainer.return_value
             c.id = 'palpatine'
-            self._dispatcher.list_apps('palpatine')
+            self._dispatcher.list_app_ids('palpatine')
             MockContainer.assert_called_once_with('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY)
             name, args, kwargs = MockContainer.mock_calls[0]
             args[len(args)-1](MockContainer.return_value)
-            self._dispatcher.list_apps('palpatine')
+            self._dispatcher.list_app_ids('palpatine')
             MockContainer.assert_has_calls([ # verify container constructed twice
                 unittest.mock.call('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY),
                 unittest.mock.call('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY)
@@ -128,7 +121,7 @@ class TestTaskDispatcher(TestCase):
                 c = MockContainer.return_value
                 c.tasks = [1, 2, 3]
                 c.id = 'palpatine'
-                self._dispatcher.list_apps('palpatine') # creates container
+                self._dispatcher.list_app_ids('palpatine') # creates container
                 self._dispatcher.container_info('palpatine')
             MockContainerInfoTask.assert_called_once_with('palpatine', [1, 2, 3], unittest.mock.ANY, self._connection, unittest.mock.ANY)
             task.start.assert_called_once_with()

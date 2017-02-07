@@ -36,7 +36,7 @@ class TestListAppIdsTask(TestCase):
             task = tasks.ListAppIdsTask('palpatine', self.config, self.connection, self.callback)
             task._instant_callback = True
 
-            with unittest.mock.patch('libertine.service.tasks.list_apps_task.LibertineContainer') as MockContainer:
+            with unittest.mock.patch('libertine.service.tasks.list_app_ids_task.LibertineContainer') as MockContainer:
                 task.start().join()
 
             progress.error.assert_called_once_with('Container \'palpatine\' does not exist, skipping list')

@@ -147,8 +147,7 @@ class TestLibertineService(TestCase):
             config = ContainersConfig()
 
             self._send(lambda: self._libertined.create('jarjar', 'JarJar Binks', 'xenial', 'mock'))
-            self.assertEqual({'name': 'JarJar Binks', 'app_launchers': []},
-                             ast.literal_eval(self._send(lambda: self._libertined.list_apps('jarjar'))))
+            self.assertEqual([], ast.literal_eval(self._send(lambda: self._libertined.list_app_ids('jarjar'))))
 
             self._send(lambda: self._libertined.install('jarjar', 'the-force'))
             config.refresh_database()

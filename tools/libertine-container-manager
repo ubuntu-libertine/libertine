@@ -17,8 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import libertine.utils
 import getpass
+import json
+import libertine.utils
 import os
 import sys
 import re
@@ -224,8 +225,12 @@ class LibertineContainerManager(object):
     def list_apps(self, args):
         container_id = self.containers_config.check_container_id(args.id)
 
-        container = LibertineContainer(container_id)
-        print(container.list_app_launchers(use_json=args.json))
+        app_ids = LibertineContainer(container_id).list_app_ids()
+        if args.json:
+            print(json.dumps(app_ids))
+        else:
+            for app in app_ids:
+                print(app)
 
     def exec(self, args):
         container_id = self.containers_config.check_container_id(args.id)
