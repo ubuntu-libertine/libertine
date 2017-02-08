@@ -238,7 +238,7 @@ class LibertineLXC(BaseContainer):
             self._setup_pulse()
 
         if not lxc_start(self.container):
-            _dump_lxc_log(result.logfile)
+            _dump_lxc_log(get_logfile(self.container))
             return False
 
         return True
