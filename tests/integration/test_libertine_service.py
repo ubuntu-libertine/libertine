@@ -17,6 +17,8 @@ import ast
 import dbus
 import dbus.mainloop.glib
 import os
+import pexpect
+import sys
 import tempfile
 import threading
 import time
@@ -44,7 +46,16 @@ class TestLibertineService(TestCase):
         environ = os.environ.copy()
         environ['XDG_DATA_HOME'] = cls._tempdir.name
 
-        cls._process = Popen(['libertined', '--debug'], stdout=PIPE, stderr=PIPE, env=environ)
+        cls._process = pexpect.spawnu('libertined --debug', env=environ)
+        cls._process.logfile = sys.stdout
+
+        # give libertined enough time to start the whole process
+        verbosity = environ.get('LIBERTINE_DEBUG', '1')
+        if verbosity == '1':
+            cls._process.expect(['.+\n', pexpect.TIMEOUT], timeout=1)
+        elif environ['LIBERTINE_DEBUG'] == '2':
+            cls._process.expect(['.+\n.+\n.+\n', pexpect.TIMEOUT], timeout=1)
+
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         cls._loop = GObject.MainLoop()
 
@@ -54,9 +65,7 @@ class TestLibertineService(TestCase):
     @classmethod
     def tearDownClass(cls):
         cls._loop.quit()
-        cls._process.kill()
-        out, err = cls._process.communicate()
-        print(err)
+        cls._process.close()
         cls._tempdir.cleanup()
 
     def setUp(self):
