@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -214,9 +214,6 @@ class Config(object):
         """Create a collection of pre-launch tasks."""
         tasks = []
         tasks.append(TaskConfig(TaskType.LAUNCH_SERVICE, ["pasted"]))
-
-        if self.container_id is None:
-            tasks.append(TaskConfig(TaskType.LAUNCH_SERVICE, ['matchbox-window-manager', '-use_titlebar', 'no']))
 
         return tasks
 

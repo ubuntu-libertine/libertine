@@ -295,7 +295,6 @@ class LibertineLXD(Libertine.BaseContainer):
         super().__init__(name, 'lxd', config)
         self._host_info = HostInfo.HostInfo()
         self._container = None
-        self._matchbox_pid = None
         self._manager = None
         self._freeze_on_stop = config.get_freeze_on_stop(self.container_id)
 
@@ -303,7 +302,6 @@ class LibertineLXD(Libertine.BaseContainer):
             raise Exception("Failed to setup lxd.")
 
         self._client = pylxd.Client()
-        self._window_manager = None
 
         try:
             if utils.set_session_dbus_env_var():
@@ -476,30 +474,6 @@ class LibertineLXD(Libertine.BaseContainer):
         self._freeze_on_stop = orig_freeze
         return self.stop_container(wait=True)
  
-    def _get_matchbox_pids(self):
-        p = subprocess.Popen(self._lxc_args('pgrep matchbox'), stdout=subprocess.PIPE)
-        out, err = p.communicate()
-        return out.decode('utf-8').split('\n')
-
-    # FIXME: Remove once window management logic has been moved to the host
-    def _start_window_manager(self, args):
-        args.extend(self.setup_window_manager())
-
-        if 'matchbox-window-manager' in args:
-            pids = self._get_matchbox_pids()
-
-        self._window_manager = psutil.Popen(args)
-
-        time.sleep(.25) # Give matchbox a moment to start in the container
-        if self._window_manager.poll() is not None:
-            utils.get_logger().warning("Window manager terminated prematurely with exit code '{}'".format(
-                                       self._window_manager.returncode))
-            self._window_manager = None
-        elif 'matchbox-window-manager' in args:
-            after_pids = self._get_matchbox_pids()
-            if len(after_pids) > len(pids):
-                self._matchbox_pid = (set(after_pids) - set(pids)).pop()
-
     def start_application(self, app_exec_line, environ):
         if not self._try_get_container():
             utils.get_logger().error("Could not get container '{}'".format(self.container_id))
@@ -513,23 +487,10 @@ class LibertineLXD(Libertine.BaseContainer):
 
         args = self._lxc_args("sudo -E -u {} env PATH={}".format(environ['USER'], environ['PATH']), environ)
 
-        self._start_window_manager(args.copy())
-
         args.extend(app_exec_line)
         return psutil.Popen(args)
 
     def finish_application(self, app):
-        if self._window_manager is not None:
-            utils.terminate_window_manager(self._window_manager)
-            self._window_manager = None
-
-            # This is a workaround for an issue on xenial where the process
-            # running the window manager is not killed with the application
-            if self._matchbox_pid is not None:
-                utils.get_logger().debug("Manually killing matchbox-window-manager")
-                self.run_in_container("kill -9 {}".format(self._matchbox_pid))
-                self._matchbox_pid = None
-
         app.wait()
 
         self.stop_container()

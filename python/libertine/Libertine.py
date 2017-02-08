@@ -86,8 +86,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         self.root_path = utils.get_libertine_container_rootfs_path(self.container_id)
         self.locale = self._config.get_container_locale(container_id)
         self.language = self._get_language_from_locale()
-        self.default_packages = ['matchbox-window-manager',
-                                 'libnss-extrausers',
+        self.default_packages = ['libnss-extrausers',
                                  'humanity-icon-theme',
                                  'maliit-inputcontext-gtk2',
                                  'maliit-inputcontext-gtk3',
@@ -121,16 +120,6 @@ class BaseContainer(metaclass=abc.ABCMeta):
         except Exception as e:
             utils.get_logger().error("%s" % e)
             return False
-
-    def setup_window_manager(self, enable_toolbars=False):
-        if self._binary_exists('matchbox-window-manager'):
-            if enable_toolbars:
-                return ['matchbox-window-manager']
-
-            return ['matchbox-window-manager', '-use_titlebar', 'no']
-        else:
-            return ['compiz']
-
 
     def check_language_support(self):
         if not self._binary_exists('check-language-support'):

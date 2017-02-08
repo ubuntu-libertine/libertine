@@ -49,7 +49,6 @@ class LibertineChroot(BaseContainer):
 
     def __init__(self, container_id, config):
         super().__init__(container_id, 'chroot', config)
-        self._window_manager = None
         # FIXME: Disabling seccomp is a temporary measure until we fully understand why we need
         #        it or figure out when we need it.
         os.environ['PROOT_NO_SECCOMP'] = '1'
@@ -226,15 +225,10 @@ class LibertineChroot(BaseContainer):
         proot_cmd = self._build_proot_command()
 
         args = shlex.split(proot_cmd)
-        args.extend(self.setup_window_manager(enable_toolbars=True))
-        self._window_manager = psutil.Popen(args, env=environ)
-
-        args = shlex.split(proot_cmd)
         args.extend(app_exec_line)
         return psutil.Popen(args, env=environ)
 
     def finish_application(self, app):
-        utils.terminate_window_manager(self._window_manager)
         app.wait()
 
     def _run_ldconfig(self):

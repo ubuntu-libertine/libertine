@@ -145,15 +145,6 @@ def get_libertine_lxc_pulse_socket_path():
     return os.path.join(get_libertine_runtime_dir(), 'pulse_socket')
 
 
-def terminate_window_manager(window_manager):
-    for child in window_manager.children():
-        child.terminate()
-        child.wait()
-
-    window_manager.terminate()
-    window_manager.wait()
-
-
 def refresh_libertine_scope():
     scopes_object_path = "/com/canonical/unity/scopes"
     invalidate_signal = "com.canonical.unity.scopes.InvalidateResults"

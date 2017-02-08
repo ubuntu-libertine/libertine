@@ -164,7 +164,6 @@ class LibertineLXC(BaseContainer):
         super().__init__(container_id, 'lxc', config)
         self.container = lxc_container(container_id)
         self.lxc_manager_interface = None
-        self.window_manager = None
         self.host_info = HostInfo.HostInfo()
         self._freeze_on_stop = config.get_freeze_on_stop(self.container_id)
 
@@ -414,9 +413,6 @@ class LibertineLXC(BaseContainer):
             self.lxc_manager_interface.container_stopped(self.container_id)
             return
 
-        self.window_manager = self.container.attach(lxc.attach_run_command,
-                                                    self.setup_window_manager())
-
         app_launch_cmd = "sudo -E -u " + os.environ['USER'] + " env PATH=" + os.environ['PATH']
         cmd = shlex.split(app_launch_cmd)
         app = self.container.attach(lxc.attach_run_command,
@@ -425,7 +421,5 @@ class LibertineLXC(BaseContainer):
 
     def finish_application(self, app):
         os.waitpid(app.pid, 0)
-
-        utils.terminate_window_manager(psutil.Process(self.window_manager))
 
         self.stop_container()
