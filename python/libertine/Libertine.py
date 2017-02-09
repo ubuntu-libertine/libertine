@@ -170,7 +170,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         'running' state, the meaning of which depends on the type of the
         container.
         """
-        pass
+        return True
 
     def stop_container(self):
         """
