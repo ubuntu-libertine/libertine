@@ -102,21 +102,20 @@ class ContainersConfig(object):
         if not container:
             return
 
-        if (type(value) is str or
-            type(value) is bool):
-            container[key] = value
-        elif type(value) is dict:
+        if type(value) is dict:
             if key not in container:
-                container[key] = [value]
+                newvalue = [value]
             else:
-                container[key].append(value)
-        elif type(value) is list:
-            if key not in container:
-                container[key] = value
-            else:
-                container[key] = container[key] + value
+                newvalue = container[key].copy()
+                newvalue.append(value)
+        elif type(value) is list and key in container:
+            newvalue = container[key] + value
+        else:
+            newvalue = value
 
-        write_container_config_file(self.container_list)
+        if container.get(key, None) != newvalue:
+            container[key] = newvalue
+            write_container_config_file(self.container_list)
 
     def _set_array_object_value_by_key(self, container_id, array_key, object_key, matcher, key, value):
         container = self._get_container_entry(container_id)

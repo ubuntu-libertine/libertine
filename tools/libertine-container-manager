@@ -345,11 +345,7 @@ class LibertineContainerManager(object):
                 libertine.utils.get_logger().error("Configuring freeze is only valid on LXC and LXD container types.")
                 sys.exit(1)
 
-            current_freeze = self.containers_config.get_freeze_on_stop(container_id)
-            config_freeze = args.freeze == 'enable'
-
-            if current_freeze != config_freeze:
-               self.containers_config.update_freeze_on_stop(container_id, config_freeze)
+            self.containers_config.update_freeze_on_stop(container_id, args.freeze == 'enable')
 
         else:
             libertine.utils.get_logger().error("Configure called with no subcommand. See configure --help for usage.")
