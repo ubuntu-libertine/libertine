@@ -3,7 +3,7 @@
  * @brief Libertine containers view
  */
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -18,6 +18,7 @@
  */
 import Libertine 1.0
 import QtQuick 2.4
+import QtQuick.Layouts 1.0
 import Ubuntu.Components 1.3
 import Ubuntu.Components.Popups 1.3
 
@@ -35,6 +36,7 @@ Item {
             fill: parent
         }
         model: containerConfigList
+        visible: !containerConfigList.empty()
 
         function edit(id, status) {
             if (status === "removing") {
@@ -43,7 +45,7 @@ Item {
             }
             currentContainer = id
             containerAppsList.setContainerApps(currentContainer)
-            pageStack.push(Qt.resolvedUrl("../common/ContainerEditView.qml"), {currentContainer: currentContainer})
+            pageStack.addPageToNextColumn(containersView, Qt.resolvedUrl("../common/ContainerEditView.qml"), {currentContainer: currentContainer})
         }
 
         delegate: ListItem {
@@ -92,7 +94,7 @@ Item {
                         description: i18n.tr("Container Info")
                         onTriggered: {
                             currentContainer = containerId
-                            pageStack.push(Qt.resolvedUrl("../common/ContainerInfoView.qml"), {currentContainer: containerId})
+                            pageStack.addPageToNextColumn(containersView, Qt.resolvedUrl("../common/ContainerInfoView.qml"), {currentContainer: containerId})
                         }
                     },
                     Action {
@@ -110,6 +112,44 @@ Item {
         }
     }
 
+    ColumnLayout {
+        visible: !containersList.visible
+        spacing: units.gu(2)
+        anchors {
+            fill: parent
+            margins: units.gu(4)
+        }
+
+        Label {
+            Layout.fillWidth: true
+            wrapMode: Text.Wrap
+            horizontalAlignment: Text.AlignHCenter
+
+            text: i18n.tr("Welcome to the Ubuntu Classic Application Manager.")
+        }
+
+        Label {
+            Layout.fillWidth: true
+            wrapMode: Text.Wrap
+            horizontalAlignment: Text.AlignHCenter
+
+            text: i18n.tr("You do not have Classic Application Support configured at this time. Downloading and setting up the required environment may take some time and network bandwidth.")
+        }
+
+        Button {
+            Layout.alignment: Qt.AlignCenter
+            Layout.maximumWidth: units.gu(12)
+
+            text: i18n.tr("Get started")
+            color: UbuntuColors.green
+
+            onClicked: {
+                var dialog = PopupUtils.open(Qt.resolvedUrl("../common/ContainerOptionsDialog.qml"))
+                dialog.onCreateInitialized.connect(updateContainerList)
+            }
+        }
+    }
+
     Component.onCompleted: {
         containerConfigList.configChanged.connect(updateContainerList)
     }
@@ -120,9 +160,9 @@ Item {
 
     function updateContainerList() {
         containerConfigList.reloadContainerList()
+        containersList.visible = !containerConfigList.empty() // forces visibility refresh
 
-        if (currentContainer && !containerConfigList.getContainerStatus(currentContainer) && pageStack.currentPage !== containersView) {
-            pageStack.pop()
+        if (currentContainer && !containerConfigList.getContainerStatus(currentContainer)) {
             currentContainer = ""
             packageOperationDetails.error(i18n.tr("Container Unavailable"),
                                           i18n.tr("This container has been destroyed and is no longer valid. You have been returned to the containers overview."))

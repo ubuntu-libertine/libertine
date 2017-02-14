@@ -29,6 +29,7 @@ import "../common"
  */
 Page {
     id: containersView
+    clip: true
     header: PageHeader {
         id: pageHeader
         title: i18n.tr("My Containers")

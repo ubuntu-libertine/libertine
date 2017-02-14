@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Canonical Ltd.
+ * Copyright (C) 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -22,7 +22,8 @@ import Libertine 1.0
 import "../common"
 
 ItemPage {
-    id: mainView
+    id: containersView
+    clip: true
 
     header: PageHeader {
         id: pageHeader
@@ -45,10 +46,10 @@ ItemPage {
     ContainersList {
         anchors {
             topMargin: pageHeader.height
-            fill: mainView
+            fill: containersView
         }
 
-        currentContainer: mainView.currentContainer
+        currentContainer: containersView.currentContainer
     }
 
     onError: {

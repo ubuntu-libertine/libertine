@@ -3,7 +3,7 @@
  * @brief Libertine app main view.
  */
 /*
- * Copyright 2015-2016 Canonical Ltd
+ * Copyright 2015-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -31,31 +31,47 @@ MainView {
 
     signal error(string short_description, string details)
 
-    PageStack {
-        id: pageStack
-    }
-
     Component.onCompleted: {
         packageOperationDetails.error.connect(error)
-
         Qt.createComponent("../common/ContainerManager.qml").createObject(mainView).fixIntegrity()
-
-        var currentContainer = containerConfigList.defaultContainerId
-
-        if (!containerConfigList.empty()) {
-            pageStack.push(Qt.resolvedUrl("ContainersView.qml"), {currentContainer: currentContainer})
-            if (currentContainer) {
-                containerAppsList.setContainerApps(currentContainer)
-                pageStack.push(Qt.resolvedUrl("../common/ContainerEditView.qml"), {currentContainer: currentContainer})
-            }
-        }
-        else {
-            pageStack.push(Qt.resolvedUrl("WelcomeView.qml"))
-        }
     }
 
     onError: {
         PopupUtils.open(Qt.resolvedUrl("../common/GenericErrorDialog.qml"), null,
                                        {"short_description": short_description, "details": details})
+    }
+
+    AdaptivePageLayout {
+        anchors.fill: parent
+        primaryPageSource: Qt.resolvedUrl("ContainersView.qml")
+        layouts: [
+            PageColumnsLayout {
+                when: width > units.gu(120)
+                PageColumn {
+                    minimumWidth: units.gu(30)
+                    maximumWidth: units.gu(60)
+                    preferredWidth: units.gu(40)
+                }
+                PageColumn {
+                    minimumWidth: units.gu(30)
+                    maximumWidth: units.gu(60)
+                    preferredWidth: units.gu(40)
+                }
+                PageColumn {
+                    fillWidth: true
+                }
+            },
+            PageColumnsLayout {
+                when: width > units.gu(80)
+                PageColumn {
+                    minimumWidth: units.gu(30)
+                    maximumWidth: units.gu(60)
+                    preferredWidth: units.gu(40)
+                }
+                PageColumn {
+                    fillWidth: true
+                }
+            }
+        ]
     }
 }

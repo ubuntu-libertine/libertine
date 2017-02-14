@@ -3,7 +3,7 @@
  * @brief Libertine search packages dialog
  */
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -25,7 +25,10 @@ Dialog {
     id: searchPackageDialog
     title: i18n.tr("Search for packages")
     text: i18n.tr("Search archives for packages")
+    property bool calledFromSearch: null
     property string currentContainer: null
+
+    signal initializeSearch(string query, string container)
 
     TextField {
         id: searchPackageInput
@@ -43,12 +46,7 @@ Dialog {
             onClicked: {
                 if (searchPackageInput.text != "") {
                     PopupUtils.close(searchPackageDialog)
-                    if (pageStack.currentPage.objectName === "searchResultsView") {
-                        pageStack.currentPage.searchForPackages(searchPackageInput.text)
-                    }
-                    else {
-                        pageStack.push(Qt.resolvedUrl("SearchResultsView.qml"), {search_string : searchPackageInput.text, currentContainer: currentContainer})
-                    }
+                    initializeSearch(searchPackageInput.text, currentContainer)
                 }
             }
         }

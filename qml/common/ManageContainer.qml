@@ -74,7 +74,7 @@ Page {
                 progression: true
                 onClicked: {
                     containerArchivesList.setContainerArchives(currentContainer)
-                    pageStack.push(Qt.resolvedUrl("ExtraArchivesView.qml"), {currentContainer: currentContainer})
+                    pageStack.addPageToNextColumn(manageView, Qt.resolvedUrl("ExtraArchivesView.qml"), {currentContainer: currentContainer})
                 }
             }
 

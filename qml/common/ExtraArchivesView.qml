@@ -3,7 +3,7 @@
  * @brief Libertine container extra archive view
  */
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -22,6 +22,7 @@ import Ubuntu.Components 1.3
 
 Page {
     id: extraArchiveView
+    clip: true
     header: PageHeader {
         id: pageHeader
         title: i18n.tr("Additional Archives")
@@ -30,7 +31,7 @@ Page {
                 iconName: "add"
                 text: i18n.tr("add")
                 description: i18n.tr("Add a new archive")
-                onTriggered: pageStack.push(Qt.resolvedUrl("AddExtraArchiveView.qml"), {currentContainer: currentContainer})
+                onTriggered: pageStack.addPageToNextColumn(extraArchiveView, Qt.resolvedUrl("AddExtraArchiveView.qml"), {currentContainer: currentContainer})
             }
         ]
     }

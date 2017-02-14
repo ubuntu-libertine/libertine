@@ -3,7 +3,7 @@
  * @brief Libertine search packages results view
  */
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -35,17 +35,17 @@ Page {
                 text: i18n.tr("Search")
                 description: i18n.tr("Search for packages")
 
-                onTriggered: doSearch()
+                onTriggered: newSearch(currentContainer)
             }
         ]
     }
     objectName: "searchResultsView"
-    property var search_string: null
+    property var query: null
     property var search_comp: null
     property var search_obj: null
     property var currentContainer: null
 
-    signal doSearch
+    signal newSearch(string container)
 
     Component {
         id: noResultsPopup
@@ -60,7 +60,7 @@ Page {
                 color: UbuntuColors.green
                 onClicked: {
                     PopupUtils.close(noResultsDialog)
-                    PopupUtils.open(Qt.resolvedUrl("SearchPackagesDialog.qml"), {currentContainer: currentContainer})
+                    newSearch(currentContainer)
                 }
             }
 
@@ -109,10 +109,10 @@ Page {
     }
 
     Component.onCompleted: {
-        searchForPackages(search_string)
+        searchForPackages(query)
     }
 
-    function searchForPackages(search_string) {
+    function searchForPackages(query) {
         searchActivity.visible = true
 
         if (search_obj) {
@@ -124,25 +124,22 @@ Page {
         worker.finishedSearch.connect(finishedSearch)
         worker.error.connect(packageOperationDetails.error)
 
-        worker.searchPackageCache(currentContainer, search_string)
+        worker.searchPackageCache(currentContainer, query)
     }
 
     function finishedSearch(packageList) {
         searchActivity.visible = false
         if (packageList.length > 0) {
-            for (var i = 0; i < packageList.length; ++i)
-            {
+            for (var i = 0; i < packageList.length; ++i) {
                 packageListModel.append({"package_desc": packageList[i], "package_name": packageList[i].split(' ')[0]})
             }
             if (!search_comp) {
-                search_comp = Qt.createComponent("SearchResults.qml", {currentContainer: currentContainer})
+                search_comp = Qt.createComponent("SearchResults.qml")
             }
-            search_obj = search_comp.createObject(parent, {"model": packageListModel})
+            search_obj = search_comp.createObject(parent, {"model": packageListModel, currentContainer: currentContainer})
         }
         else {
             PopupUtils.open(noResultsPopup)
         }
     }
-
-    onDoSearch: PopupUtils.open(Qt.resolvedUrl("SearchPackagesDialog.qml"), {currentContainer: currentContainer})
 }

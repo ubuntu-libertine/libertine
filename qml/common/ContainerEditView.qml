@@ -3,7 +3,7 @@
  * @brief Libertine container apps view
  */
 /*
- * Copyright 2015-2016 Canonical Ltd
+ * Copyright 2015-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -24,6 +24,7 @@ import Ubuntu.Components.Popups 1.3
 
 Page {
     id: homeView
+    clip: true
     header: PageHeader {
         id: pageHeader
         title: i18n.tr("%1 - All Apps").arg(containerConfigList.getContainerName(currentContainer))
@@ -77,7 +78,7 @@ Page {
                             else {
                                 appExistsWarning.text = i18n.tr("The %1 package is already installed. Please try a different package name.").arg(enterPackageInput.text)
                                 appExistsWarning.visible = true
-                                enterPackageInput.text = "" 
+                                enterPackageInput.text = ""
                             }
                         }
                     }
@@ -105,21 +106,14 @@ Page {
                 text: i18n.tr("Manage Container")
                 onTriggered: {
                     PopupUtils.close(settingsDialog)
-                    pageStack.push(Qt.resolvedUrl("ManageContainer.qml"), {currentContainer: currentContainer})
+                    pageStack.addPageToNextColumn(homeView, Qt.resolvedUrl("ManageContainer.qml"), {currentContainer: currentContainer})
                 }
             }
             Button {
                 text: i18n.tr("Container Information")
                 onTriggered: {
                     PopupUtils.close(settingsDialog)
-                    pageStack.push(Qt.resolvedUrl("ContainerInfoView.qml"), {currentContainer: currentContainer})
-                }
-            }
-            Button {
-                text: i18n.tr("Switch Container")
-                onTriggered: {
-                    PopupUtils.close(settingsDialog)
-                    pageStack.pop()
+                    pageStack.addPageToNextColumn(homeView, Qt.resolvedUrl("ContainerInfoView.qml"), {currentContainer: currentContainer})
                 }
             }
         }
@@ -145,7 +139,7 @@ Page {
                 onClicked: {
                     PopupUtils.close(addAppsDialog)
                     var packages = containerConfigList.getDebianPackageFiles()
-                    pageStack.push(Qt.resolvedUrl("DebianPackagePicker.qml"), {packageList: packages})
+                    pageStack.addPageToNextColumn(homeView, Qt.resolvedUrl("DebianPackagePicker.qml"), {packageList: packages})
                 }
             }
             Button {
@@ -153,10 +147,26 @@ Page {
                 width: parent.width
                 onClicked: {
                     PopupUtils.close(addAppsDialog)
-                    PopupUtils.open(Qt.resolvedUrl("SearchPackagesDialog.qml"), {currentContainer: currentContainer})
+                    openSearchDialog(currentContainer)
                 }
             }
         }
+    }
+
+    property var searchResultsView: null
+    function openSearchDialog(container) {
+        var dialog = PopupUtils.open(Qt.resolvedUrl("SearchPackagesDialog.qml"), null, {currentContainer: container})
+        dialog.initializeSearch.connect(function(query, container) {
+            if (searchResultsView) {
+                pageStack.removePages(searchResultsView)
+                searchResultsView.destroy()
+            }
+
+            searchResultsView = Qt.createComponent("SearchResultsView.qml").createObject(homeView, {currentContainer: container, query: query})
+            searchResultsView.newSearch.connect(openSearchDialog)
+
+            pageStack.addPageToNextColumn(homeView, searchResultsView)
+        })
     }
 
     Component.onCompleted: {
@@ -180,10 +190,10 @@ Page {
             fill: parent
         }
         model: containerAppsList
-        visible: !containerAppsList.empty()  ? true : false
+        visible: !containerAppsList.empty()
 
         function info(packageName) {
-            pageStack.push(Qt.resolvedUrl("PackageInfoView.qml"), {"currentPackage": packageName, "currentContainer": currentContainer})
+            pageStack.addPageToNextColumn(homeView, Qt.resolvedUrl("PackageInfoView.qml"), {"currentPackage": packageName, "currentContainer": currentContainer})
         }
 
         delegate: ListItem {
