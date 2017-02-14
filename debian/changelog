@@ -1,9 +1,42 @@
-libertine (1.5.2-0ubuntu1) UNRELEASED; urgency=medium
+libertine (1.6+17.04.20170209-0ubuntu1) zesty; urgency=medium
 
   [ Larry Price ]
-  * Bump version to 1.5.2.
+  * Get libertine-container-manager and libertine-launch working in a confined
+    environment.
+  * Create a special desktop file to satisfy the snappy store.
+  * Update snap definition to include aliases, renamed commands, and internal
+    desktop file.
+  * Ensure absolute path lxd bind-mounts have a valid name by using the full
+    path as a backup.
+  * Refactor liblibertine as a client wrapper for libertined and bump version
+    to 1.5.2.
+  * Protect against containers that aren't started when running commands.
+  * Migrate the list-apps subcommand to list application ids. (LP: #1657877)
+  * Run the libertined integration test with its own dbus sesison to prevent
+    collisions with running service.
 
- -- Larry Price <larry.price@canonical.com>  Thu, 26 Jan 2017 10:39:10 -0500
+  [ Chris Townsend ]
+  * Discover if a session is running and if so, use it's dbus session to start
+    the container manager. (LP: #1657490)
+  * Replace all pylxd execute()'s with calls to 'lxc exec' as pylxd has
+    performance issues in execute().
+  * Add ability to freeze and unfreeze LXC/LXD containers. This is disabled by
+    default for now. (LP: #1654355)
+  * Add ability to enable and disable the freezing of LXC/LXD containers when
+    not in use. (LP: #1654355)
+  * Deprecate the lx[cd] managers and use libertined for managing the containers
+    and move the actual starting and stopping of containers to the respective
+    backends. (LP: #1660685)
+  * Add a restart subcommand to libertine-container-manager. Also try to restart
+    the container when adding/removing bind-mounts, if appropriate.
+    (LP: #1654355)
+  * Enable Xmir '-rootless' mode by default and remove using Matchbox for the
+    window manager. (LP: #1662555)
+  * Change when the libertine-xmir Upstart gets started to account for Unity 8
+    now directly starting apps.
+  * Bump release version to 1.6.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Thu, 09 Feb 2017 16:14:23 +0000
 
 libertine (1.5.1+17.04.20170118-0ubuntu1) zesty; urgency=medium
 
