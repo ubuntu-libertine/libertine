@@ -8,5 +8,4 @@ prime/
 stage/
 *.snap
 parts/*
-!parts/plugins
-parts/plugins/__pycache__
+snap/plugins/__pycache__

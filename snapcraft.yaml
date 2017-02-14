@@ -3,7 +3,7 @@ version: 1.6+17.04.20170209-0ubuntu1
 summary: Libertine suite
 description: |
     Suite for maintaining deb-based applications in a non-deb environment
-confinement: strict # devmode # TODO: update to 'strict'
+confinement: devmode # TODO: update to 'strict'
 grade: devel
 
 slots:
@@ -62,5 +62,6 @@ parts:
     plugin: libertine-deps
   env:
     plugin: dump
+    source: snap/
     organize:
-      data/snap-runner.wrapper: usr/bin/snap-runner.wrapper
+      snap-runner.wrapper: usr/bin/snap-runner.wrapper

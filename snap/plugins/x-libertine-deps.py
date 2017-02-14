@@ -142,7 +142,10 @@ class LibertineDependenciesPlugin(snapcraft.plugins.nil.NilPlugin):
 
     def _ignore_duplicate_files(self):
         self.options.stage.extend([
-            '-usr/lib/{}/liblibertine.so*'.format(self._arch)
+            '-usr/lib/{}/liblibertine.so*'.format(self._arch),
+            '-usr/bin/libertine*',
+            '-etc/sudoers.d/libertine*',
+            '-usr/lib/python3/dist-packages/libertine'
         ])
 
     def build(self):
