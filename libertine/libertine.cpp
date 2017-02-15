@@ -21,7 +21,6 @@
 #include "common/ContainerManager.h"
 #include "common/ContainerAppsList.h"
 #include "common/ContainerArchivesList.h"
-#include "common/ContainerConfig.h"
 #include "common/ContainerConfigList.h"
 #include "common/LibertineConfig.h"
 #include "common/PackageOperationDetails.h"
@@ -90,7 +89,6 @@ Libertine(int& argc, char** argv)
 : QGuiApplication(argc, argv)
 , main_qml_source_file_(find_main_qml_source_file())
 {
-  qmlRegisterType<ContainerConfig>("Libertine", 1, 0, "ContainerConfig");
   qmlRegisterType<ContainerManagerWorker>("Libertine", 1, 0, "ContainerManagerWorker");
   qmlRegisterType<PackageOperationDetails>("Libertine", 1, 0, "PackageOperationDetails");
 

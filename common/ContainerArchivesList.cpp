@@ -3,7 +3,7 @@
  * @brief Libertine Manager list of extra container archives, ie, PPAs
  */
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -18,7 +18,6 @@
  */
 #include "common/ContainerArchivesList.h"
 
-#include "common/ContainerConfig.h"
 #include "common/ContainerConfigList.h"
 
 ContainerArchivesList::
@@ -41,12 +40,12 @@ setContainerArchives(QString const& container_id)
 
 bool ContainerArchivesList::
 empty() const noexcept
-{ return archives_ == nullptr || archives_->empty(); }
+{ return archives_.empty(); }
 
 
 ContainerArchivesList::size_type ContainerArchivesList::
 size() const noexcept
-{ return archives_ != nullptr ? archives_->count() : 0; }
+{ return archives_.count(); }
 
 
 int ContainerArchivesList::
@@ -72,15 +71,15 @@ data(QModelIndex const& index, int role) const
 {
   QVariant result;
 
-  if (index.isValid() && index.row() <= archives_->count())
+  if (index.isValid() && index.row() <= this->size())
   {
     switch (static_cast<DataRole>(role))
     {
       case DataRole::ArchiveName:
-        result = (*archives_)[index.row()]->archive_name();
+        result = archives_[index.row()].name;
         break;
       case DataRole::ArchiveStatus:
-        result = (*archives_)[index.row()]->archive_status();
+        result = archives_[index.row()].status;
         break;
       case DataRole::Error:
         break;

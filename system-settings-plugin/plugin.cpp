@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Canonical Ltd.
+ * Copyright (C) 2016-2017 Canonical Ltd.
  *
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License version 3, as published
@@ -22,7 +22,6 @@
 #include "common/ContainerArchivesList.h"
 #include "common/ContainerConfigList.h"
 #include "common/LibertineConfig.h"
-#include "common/ContainerConfig.h"
 #include "common/PackageOperationDetails.h"
 #include <memory>
 #include <QQmlEngine>
@@ -65,7 +64,6 @@ LibertineItem(const QVariantMap &staticData, QObject *parent)
   , package_operation_details_(new PackageOperationDetails(this))
   , watcher_({config_->containers_config_file_name()})
 {
-  qmlRegisterType<ContainerConfig>("Libertine", 1, 0, "ContainerConfig");
   qmlRegisterType<ContainerManagerWorker>("Libertine", 1, 0, "ContainerManagerWorker");
   qmlRegisterType<PackageOperationDetails>("Libertine", 1, 0, "PackageOperationDetails");
 

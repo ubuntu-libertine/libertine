@@ -3,7 +3,7 @@
  * @brief Libertine Manager list of container applications
  */
 /*
- * Copyright 2015-2016 Canonical Ltd
+ * Copyright 2015-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -16,16 +16,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _CONTAINER_APPS_LIST_H_
-#define _CONTAINER_APPS_LIST_H_
+#pragma once
 
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include "common/ContainersConfig.h"
 
 
-class ContainerApps;
 class ContainerConfigList;
 
 
@@ -35,7 +34,7 @@ class ContainerAppsList
   Q_OBJECT
 
 public:
-  using AppsList = QList<ContainerApps*>;
+  using AppsList = QList<ContainersConfig::Container::InstalledApp>;
   using iterator = AppsList::iterator;
   using size_type = AppsList::size_type;
 
@@ -78,7 +77,5 @@ public:
 
 private:
   ContainerConfigList* container_config_list_;
-  AppsList*            apps_;
+  AppsList             apps_;
 };
-
-#endif /* _CONTAINER_APPS_LIST_H_ */

@@ -18,7 +18,6 @@
  */
 #include "common/ContainerConfigList.h"
 
-#include "common/ContainerConfig.h"
 #include "common/LibertineConfig.h"
 #include <algorithm>
 #include <QtCore/QDebug>
@@ -43,6 +42,19 @@ namespace
 static constexpr auto POLICY_INSTALLED_VERSION_LINE = 1;
 static constexpr auto POLICY_CANDIDATE_VERSION_LINE = 2;
 
+static ContainersConfig::Container
+find_container_by_id(QList<ContainersConfig::Container> const& containers, QString const& id)
+{
+  for (auto const& container: containers)
+  {
+    if (container.id == id)
+    {
+      return container;
+    }
+  }
+
+  return ContainersConfig::Container();
+}
 }
 
 
@@ -53,26 +65,8 @@ const QString ContainerConfigList::Json_default_container = "defaultContainer";
 ContainerConfigList::
 ContainerConfigList(QObject* parent)
 : QAbstractListModel(parent)
+, containers_config_(new ContainersConfig())
 { }
-
-
-ContainerConfigList::
-ContainerConfigList(QJsonObject const& json_object,
-                    QObject*           parent)
-: QAbstractListModel(parent)
-{
-  if (!json_object.empty())
-  {
-    default_container_id_ = json_object[Json_default_container].toString();
-
-    QJsonArray container_list = json_object[Json_container_list].toArray();
-    for (auto const& config: container_list)
-    {
-      QJsonObject containerConfig = config.toObject();
-      configs_.append(new ContainerConfig(containerConfig, this));
-    }
-  }
-}
 
 
 ContainerConfigList::
@@ -80,14 +74,19 @@ ContainerConfigList(LibertineConfig const* config,
                     QObject*               parent)
 : QAbstractListModel(parent)
 , config_(config)
+, containers_config_(new ContainersConfig())
 {
   load_config();
 }
 
 
 ContainerConfigList::
-~ContainerConfigList()
-{ }
+ContainerConfigList(QJsonObject const& json_object,
+                    QObject*               parent)
+: QAbstractListModel(parent)
+, containers_config_(new ContainersConfig(json_object))
+{
+}
 
 
 void ContainerConfigList::
@@ -96,6 +95,11 @@ reloadContainerList()
   beginResetModel();
   endResetModel();
 }
+
+
+void ContainerConfigList::
+deleteContainer()
+{ reloadContainerList(); }
 
 
 QString ContainerConfigList::
@@ -115,7 +119,7 @@ addNewContainer(QString const& type, QString name)
     }
   }
 
-  configs_.append(new ContainerConfig(container_id, name, type, distro_series, this));
+  containers_config_->containers.append(ContainersConfig::Container(container_id, name, type, distro_series));
   if (this->size() == 1)
     default_container_id_ = container_id;
 
@@ -123,45 +127,23 @@ addNewContainer(QString const& type, QString name)
 }
 
 
-void ContainerConfigList::
-deleteContainer()
-{
-  beginResetModel();
-  endResetModel();
-}
-
-
-QList<ContainerApps*> * ContainerConfigList::
+QList<ContainersConfig::Container::InstalledApp> ContainerConfigList::
 getAppsForContainer(QString const& container_id)
 {
-  for (auto const& config: configs_)
-  {
-    if (config->container_id() == container_id)
-    {
-      return &(config->container_apps());
-    }
-  }
-  return nullptr;
+  return find_container_by_id(containers_config_->containers, container_id).installed_apps;
 }
 
 
 bool ContainerConfigList::
 isAppInstalled(QString const& container_id, QString const& package_name)
 {
-  for (auto const& config: configs_)
+  for (auto const& app: find_container_by_id(containers_config_->containers, container_id).installed_apps)
   {
-    if (config->container_id() == container_id)
+    if (app.name == package_name)
     {
-      for (auto const& app: config->container_apps())
-      {
-        if (app->package_name() == package_name)
-        {
-          return true;
-        }
-      }
+      return true;
     }
   }
-
   return false;
 }
 
@@ -169,21 +151,14 @@ isAppInstalled(QString const& container_id, QString const& package_name)
 QString ContainerConfigList::
 getAppStatus(QString const& container_id, QString const& package_name)
 {
-  for (auto const& config: configs_)
+  for (auto const& app: find_container_by_id(containers_config_->containers, container_id).installed_apps)
   {
-    if (config->container_id() == container_id)
+    if (app.name == package_name)
     {
-      for (auto const& app: config->container_apps())
-      {
-        if (app->package_name() == package_name)
-        {
-          return app->app_status();
-        }
-      }
+      return app.status;
     }
   }
-
-  return nullptr;
+  return "";
 }
 
 
@@ -253,89 +228,45 @@ getDebianPackageFiles()
 }
 
 
-QList<ContainerArchives*> * ContainerConfigList::
+QList<ContainersConfig::Container::Archive> ContainerConfigList::
 getArchivesForContainer(QString const& container_id)
 {
-  for (auto const& config: configs_)
-  {
-    if (config->container_id() == container_id)
-    {
-      return &(config->container_archives());
-    }
-  }
-  return nullptr;
+  return find_container_by_id(containers_config_->containers, container_id).archives;
 }
 
 
 QString ContainerConfigList::
 getContainerType(QString const& container_id)
 {
-  QString default_type("lxc");
-
-  for (auto const& config: configs_)
-  {
-    if (config->container_id() == container_id)
-    {
-      return config->container_type();
-    }
-  }
-  return default_type;
+  return find_container_by_id(containers_config_->containers, container_id).type;
 }
 
 
 QString ContainerConfigList::
 getContainerDistro(QString const& container_id)
 {
-  for (auto const& config: configs_)
-  {
-    if (config->container_id() == container_id)
-    {
-      return config->distro_series();
-    }
-  }
-  return nullptr;
+  return find_container_by_id(containers_config_->containers, container_id).distro;
 }
 
 
 QString ContainerConfigList::
 getContainerName(QString const& container_id)
 {
-  for (auto const& config: configs_)
-  {
-    if (config->container_id() == container_id)
-    {
-      return config->name();
-    }
-  }
-  return nullptr;
+  return find_container_by_id(containers_config_->containers, container_id).name;
 }
 
 
 QString ContainerConfigList::
 getContainerMultiarchSupport(QString const& container_id)
 {
-  for (auto const& config: configs_)
-  {
-    if (config->container_id() == container_id)
-    {
-      return config->multiarch_support();
-    }
-  }
-  return nullptr;
+  return find_container_by_id(containers_config_->containers, container_id).multiarch;
 }
 
 
 QString ContainerConfigList::
 getContainerStatus(QString const& container_id)
 {
-  for (auto const& config: configs_)
-  {
-    if (config->container_id() == container_id)
-    {
-      return config->install_status();
-    }
-  }
-  return nullptr;
+  return find_container_by_id(containers_config_->containers, container_id).status;
 }
 
 
@@ -368,7 +299,6 @@ void ContainerConfigList::
 reloadConfigs()
 {
   load_config();
-
   emit configChanged();
 }
 
@@ -376,38 +306,28 @@ reloadConfigs()
 QJsonObject ContainerConfigList::
 toJson() const
 {
-  QJsonObject json_object;
-  json_object[Json_default_container] = default_container_id_;
-
-  QJsonArray contents;
-  for (auto const& config: configs_)
-  {
-    contents.append(config->toJson());
-  }
-  json_object[Json_container_list] = contents;
-
-  return json_object;
+  return containers_config_->dump();
 }
 
 
 QString const& ContainerConfigList::
 default_container_id() const
-{ return default_container_id_; }
+{ return containers_config_->default_container; }
 
 
 void ContainerConfigList::
 default_container_id(QString const& container_id)
-{ default_container_id_ = container_id; }
+{ containers_config_->default_container = container_id; }
 
 
 bool ContainerConfigList::
 empty() const noexcept
-{ return configs_.empty(); }
+{ return containers_config_->containers.empty(); }
 
 
 ContainerConfigList::size_type ContainerConfigList::
 size() const noexcept
-{ return configs_.count(); }
+{ return containers_config_->containers.count(); }
 
 
 int ContainerConfigList::
@@ -435,24 +355,24 @@ data(QModelIndex const& index, int role) const
 {
   QVariant result;
 
-  if (index.isValid() && index.row() <= configs_.count())
+  if (index.isValid() && index.row() <= containers_config_->containers.count())
   {
     switch (static_cast<DataRole>(role))
     {
       case DataRole::ContainerId:
-        result = configs_[index.row()]->container_id();
+        result = containers_config_->containers[index.row()].id;
         break;
       case DataRole::ContainerName:
-        result = configs_[index.row()]->name();
+        result = containers_config_->containers[index.row()].name;
         break;
       case DataRole::ContainerType:
-        result = configs_[index.row()]->container_type();
+        result = containers_config_->containers[index.row()].type;
         break;
       case DataRole::DistroSeries:
-        result = configs_[index.row()]->distro_series();
+        result = containers_config_->containers[index.row()].distro;
         break;
       case DataRole::InstallStatus:
-        result = configs_[index.row()]->install_status();
+        result = containers_config_->containers[index.row()].status;
         break;
       case DataRole::Error:
         break;
@@ -469,9 +389,9 @@ generate_bis(QString const& id)
   int bis = 0;
   int max = 0;
   QRegExp re = QRegExp("^(\\w*)(?:-(\\d+))?$", Qt::CaseInsensitive);
-  for (auto const& config: configs_)
+  for (auto const& container: containers_config_->containers)
   {
-    int found = re.indexIn(config->container_id());
+    int found = re.indexIn(container.id);
     if (found >= 0 && re.cap(1) == id)
     {
       ++bis;
@@ -490,14 +410,7 @@ generate_bis(QString const& id)
 void ContainerConfigList::
 clear_config()
 {
-  for (auto const& config: configs_)
-  {
-    qDeleteAll(config->container_apps());
-    config->container_apps().clear();
-  }
-
-  qDeleteAll(configs_);
-  configs_.clear();
+  containers_config_.reset();
 }
 
 
@@ -516,28 +429,15 @@ load_config()
     else if (config_file.size() != 0)
     {
       QJsonParseError parse_error;
-
       QJsonDocument json = QJsonDocument::fromJson(config_file.readAll(), &parse_error);
 
       if (parse_error.error)
       {
         qWarning() << "error parsing containers config file: " << parse_error.errorString();
       }
-      if (!json.object().empty())
+      else
       {
-        default_container_id_ = json.object()[Json_default_container].toString();
-
-        if (!configs_.empty())
-        {
-          clear_config();
-        }
-
-        QJsonArray container_list = json.object()[Json_container_list].toArray();
-        for (auto const& config: container_list)
-        {
-          QJsonObject containerConfig = config.toObject();
-          configs_.append(new ContainerConfig(containerConfig, this));
-        }
+        containers_config_.reset(new ContainersConfig(json.object()));
       }
     }
   }

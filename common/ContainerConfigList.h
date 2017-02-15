@@ -3,7 +3,7 @@
  * @brief Libertine Manager list of containers configurations
  */
 /*
- * Copyright 2015-2016 Canonical Ltd
+ * Copyright 2015-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -16,13 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef CONTAINER_CONTAINERCONFIGLIST_H
-#define CONTAINER_CONTAINERCONFIGLIST_H
+#pragma once
 
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QJsonObject>
 #include <QtCore/QList>
-
+#include <memory>
+#include "common/ContainersConfig.h"
 
 class ContainerApps;
 class ContainerArchives;
@@ -72,21 +72,21 @@ public:
   ContainerConfigList(QObject* parent = nullptr);
 
   /**
-   * Constructs a container config list from an (in-memory) JSON string.
-   */
-  ContainerConfigList(QJsonObject const& json_object,
-                      QObject*           parent = nullptr);
-
-  /**
    * Constructs a container config list from a container config.
    */
   ContainerConfigList(LibertineConfig const* config,
                       QObject*               parent = nullptr);
 
   /**
-   * Tears dow the container config list.
+   * Constructs a container config list from a raw json string
    */
-  ~ContainerConfigList();
+  ContainerConfigList(QJsonObject const& json_object,
+                      QObject*               parent = nullptr);
+
+  /**
+   * Tears down the container config list.
+   */
+  virtual ~ContainerConfigList() = default;
 
   Q_INVOKABLE void
   reloadContainerList();
@@ -98,7 +98,7 @@ public:
   Q_INVOKABLE void
   deleteContainer();
 
-  QList<ContainerApps*> *
+  QList<ContainersConfig::Container::InstalledApp>
   getAppsForContainer(QString const& container_id);
 
   Q_INVOKABLE bool
@@ -124,7 +124,7 @@ public:
   Q_INVOKABLE QStringList
   getDebianPackageFiles();
 
-  QList<ContainerArchives*> *
+  QList<ContainersConfig::Container::Archive>
   getArchivesForContainer(QString const& container_id);
 
   Q_INVOKABLE QString
@@ -227,9 +227,8 @@ private:
   getHostDistroDescription();
 
 private:
-  LibertineConfig const* config_;
-  ConfigList             configs_;
-  QString                default_container_id_;
+  LibertineConfig const*            config_;
+  ConfigList                        configs_;
+  QString                           default_container_id_;
+  std::unique_ptr<ContainersConfig> containers_config_;
 };
-
-#endif /* CONTAINER_CONTAINERCONFIGLIST_H */

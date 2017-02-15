@@ -5,8 +5,8 @@ add_definitions ( -DCMAKE_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}" )
 
 add_executable(
   test_container_config
-  ContainerConfigTests.cpp
   ContainerConfigListTests.cpp
+  ContainersConfigTests.cpp
 )
 target_link_libraries(
   test_container_config

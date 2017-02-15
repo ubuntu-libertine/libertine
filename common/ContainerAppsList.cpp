@@ -3,7 +3,7 @@
  * @brief Libertine Manager list of container applications
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -18,7 +18,6 @@
  */
 #include "common/ContainerAppsList.h"
 
-#include "common/ContainerConfig.h"
 #include "common/ContainerConfigList.h"
 
 ContainerAppsList::
@@ -33,7 +32,6 @@ void ContainerAppsList::
 setContainerApps(QString const& container_id)
 {
   apps_ = container_config_list_->getAppsForContainer(container_id);
-
   reloadAppsList();
 }
 
@@ -48,12 +46,12 @@ reloadAppsList()
 
 bool ContainerAppsList::
 empty() const noexcept
-{ return apps_ == nullptr || apps_->empty(); }
+{ return apps_.empty(); }
 
 
 ContainerAppsList::size_type ContainerAppsList::
 size() const noexcept
-{ return apps_ != nullptr ? apps_->count() : 0;}
+{ return apps_.count();}
 
 
 int ContainerAppsList::
@@ -78,15 +76,15 @@ data(QModelIndex const& index, int role) const
 {
   QVariant result;
 
-  if (index.isValid() && index.row() <= apps_->count())
+  if (index.isValid() && index.row() <= size())
   {
     switch (static_cast<DataRole>(role))
     {
       case DataRole::PackageName:
-        result = (*apps_)[index.row()]->package_name();
+        result = apps_[index.row()].name;
         break;
       case DataRole::AppStatus:
-        result = (*apps_)[index.row()]->app_status();
+        result = apps_[index.row()].status;
         break;
       case DataRole::Error:
         break;

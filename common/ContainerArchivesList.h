@@ -3,7 +3,7 @@
  * @brief Libertine Manager list of extra container archives (PPAs)
  */
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -16,13 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef _CONTAINER_ARCHIVES_LIST_H_
-#define _CONTAINER_ARCHIVES_LIST_H_
+#pragma once
 
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include "common/ContainersConfig.h"
 
 
 class ContainerArchives;
@@ -34,7 +34,7 @@ class ContainerArchivesList
   Q_OBJECT
 
 public:
-  using ArchivesList = QList<ContainerArchives*>;
+  using ArchivesList = QList<ContainersConfig::Container::Archive>;
   using iterator = ArchivesList::iterator;
   using size_type = ArchivesList::size_type;
 
@@ -74,7 +74,5 @@ public:
 
 private:
   ContainerConfigList* container_config_list_;
-  ArchivesList*        archives_;
+  ArchivesList         archives_;
 };
-
-#endif /* _CONTAINER_ARCHIVES_LIST_H_ */
