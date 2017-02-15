@@ -7,6 +7,6 @@ export LXD_DIR=/var/snap/lxd/common/lxd
 
 # Useful debug variables
 # export FAKECHROOT_DEBUG=1
-# export LIBERTINE_DEBUG=1
+# export LIBERTINE_DEBUG=2
 
 exec $SNAP/bin/desktop-launch "$@"

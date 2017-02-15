@@ -159,19 +159,23 @@ def refresh_libertine_scope():
 def set_session_dbus_env_var():
     dbus_session_set = 'SESSION' in os.environ
 
-    if not dbus_session_set:
-        for p in psutil.process_iter():
-            try:
-                if p.name() == 'unity8' or p.name() == 'compiz':
-                    p_environ = subprocess.check_output(["cat", "/proc/{}/environ".format(p.pid)])
-                    for line in p_environ.decode().split('\0'):
-                        if line.startswith('DBUS_SESSION_BUS_ADDRESS'):
-                            os.environ['DBUS_SESSION_BUS_ADDRESS'] = line.partition('DBUS_SESSION_BUS_ADDRESS=')[2].rstrip('\n')
-                            dbus_session_set = True
-                            break
-                    break
-            except psutil.NoSuchProcess as e:
-                get_logger().warning(str(e))
+    try:
+        if not dbus_session_set:
+            for p in psutil.process_iter():
+                try:
+                    if p.name() == 'unity8' or p.name() == 'compiz':
+                        p_environ = subprocess.check_output(["cat", "/proc/{}/environ".format(p.pid)])
+                        for line in p_environ.decode().split('\0'):
+                            if line.startswith('DBUS_SESSION_BUS_ADDRESS'):
+                                os.environ['DBUS_SESSION_BUS_ADDRESS'] = line.partition('DBUS_SESSION_BUS_ADDRESS=')[2].rstrip('\n')
+                                dbus_session_set = True
+                                break
+                        break
+                except psutil.NoSuchProcess as e:
+                    get_logger().warning(str(e))
+    except subprocess.CalledProcessError as e:
+        get_logger().warning("Exception caught while setting session dbus address: {}".format(str(e)))
+        dbus_session_set = 'DBUS_SESSION_BUS_ADDRESS' in os.environ
 
     return dbus_session_set
 

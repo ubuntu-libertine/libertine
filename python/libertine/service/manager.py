@@ -21,9 +21,9 @@ from libertine.service import container
 from libertine import utils
 
 
-LIBERTINE_MANAGER_NAME = "com.canonical.libertine.Service"
+LIBERTINE_MANAGER_NAME      = "com.canonical.libertine.Service"
 LIBERTINE_MANAGER_INTERFACE = LIBERTINE_MANAGER_NAME
-LIBERTINE_STORE_PATH = "/Manager"
+LIBERTINE_MANAGER_OBJECT    = "/Manager"
 
 
 class Manager(dbus.service.Object):
@@ -39,7 +39,7 @@ class Manager(dbus.service.Object):
             utils.get_logger().warning("service is already running")
             raise
 
-        super().__init__(bus_name, LIBERTINE_STORE_PATH)
+        super().__init__(bus_name, LIBERTINE_MANAGER_OBJECT)
 
         self._dispatcher = libertine.service.task_dispatcher.TaskDispatcher(self.connection)
 

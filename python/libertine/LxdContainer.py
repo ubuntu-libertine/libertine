@@ -22,8 +22,7 @@ import shlex
 import subprocess
 import time
 
-from libertine import Libertine, utils, HostInfo
-from .service.manager import LIBERTINE_MANAGER_NAME, LIBERTINE_STORE_PATH
+from . import Libertine, utils, HostInfo, Client
 
 
 def _get_devices_map():
@@ -295,22 +294,13 @@ class LibertineLXD(Libertine.BaseContainer):
         super().__init__(name, 'lxd', config)
         self._host_info = HostInfo.HostInfo()
         self._container = None
-        self._manager = None
         self._freeze_on_stop = config.get_freeze_on_stop(self.container_id)
 
         if not _setup_lxd():
             raise Exception("Failed to setup lxd.")
 
         self._client = pylxd.Client()
-
-        try:
-            if utils.set_session_dbus_env_var():
-                bus = dbus.SessionBus()
-                self._manager = bus.get_object(LIBERTINE_MANAGER_NAME, LIBERTINE_STORE_PATH)
-        except PermissionError as e:
-            utils.get_logger().warning("Failed to set dbus session env var")
-        except dbus.exceptions.DBusException:
-            utils.get_logger().warning("D-Bus Service not found.")
+        self._manager = Client.Client()
 
     def create_libertine_container(self, password=None, multiarch=False):
         if self._try_get_container():
@@ -409,13 +399,7 @@ class LibertineLXD(Libertine.BaseContainer):
         if not self._try_get_container():
             return False
 
-        if self._manager:
-            retries = 0
-            while not self._manager.container_operation_start(self.container_id):
-                retries += 1
-                if retries > 5:
-                    return False
-                time.sleep(.5)
+        self._manager.container_operation_start(self.container_id)
 
         if self._container.status == 'Running':
             return True
@@ -427,8 +411,7 @@ class LibertineLXD(Libertine.BaseContainer):
             update_bind_mounts(self._container, self._config, home)
 
         if not lxd_start(self._container):
-            if self._manager:
-                self._manager.container_stopped(self.container_id)
+            self._manager.container_stopped()
             return False
 
         if not _wait_for_network(self._container):
@@ -443,14 +426,14 @@ class LibertineLXD(Libertine.BaseContainer):
         if not self._try_get_container():
             return False
 
-        if self._manager:
-            if self._manager.container_operation_finished(self.container_id):
-                if not lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop):
-                    return False
-                self._manager.container_stopped(self.container_id)
-                return True
-            else:
+        if self._manager.valid:
+            if not self._manager.container_operation_finished(self.container_id):
                 return False
+
+            if not lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop):
+                return False
+
+            return self._manager.container_stopped(self.container_id)
         else:
             return lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop)
 
@@ -473,7 +456,7 @@ class LibertineLXD(Libertine.BaseContainer):
 
         self._freeze_on_stop = orig_freeze
         return self.stop_container(wait=True)
- 
+
     def start_application(self, app_exec_line, environ):
         if not self._try_get_container():
             utils.get_logger().error("Could not get container '{}'".format(self.container_id))

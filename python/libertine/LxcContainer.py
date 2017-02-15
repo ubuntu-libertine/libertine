@@ -25,8 +25,7 @@ import tempfile
 import time
 
 from .Libertine import BaseContainer
-from .service.manager import LIBERTINE_MANAGER_NAME, LIBERTINE_STORE_PATH
-from . import utils, HostInfo
+from . import utils, HostInfo, Client
 
 
 home_path = os.environ['HOME']
@@ -163,16 +162,10 @@ class LibertineLXC(BaseContainer):
     def __init__(self, container_id, config):
         super().__init__(container_id, 'lxc', config)
         self.container = lxc_container(container_id)
-        self.lxc_manager_interface = None
         self.host_info = HostInfo.HostInfo()
         self._freeze_on_stop = config.get_freeze_on_stop(self.container_id)
 
-        if utils.set_session_dbus_env_var():
-            try:
-                bus = dbus.SessionBus()
-                self.lxc_manager_interface = bus.get_object(LIBERTINE_MANAGER_NAME, LIBERTINE_STORE_PATH)
-            except dbus.exceptions.DBusException:
-                pass
+        self._manager = Client.Client()
 
     def _setup_pulse(self):
         pulse_socket_path = os.path.join(utils.get_libertine_runtime_dir(), 'pulse_socket')
@@ -222,14 +215,8 @@ class LibertineLXC(BaseContainer):
             return fd.read().strip('\n') != self.host_info.get_host_timezone()
 
     def start_container(self):
-        if self.lxc_manager_interface:
-            retries = 0
-            while not self.lxc_manager_interface.container_operation_start(self.container_id):
-                retries += 1
-                if retries > 5:
-                    return False
-                time.sleep(.5)
-             
+        self._manager.container_operation_start(self.container_id)
+
         if self.container.state == 'RUNNING':
             return True
 
@@ -244,14 +231,14 @@ class LibertineLXC(BaseContainer):
         return True
 
     def stop_container(self):
-        if self.lxc_manager_interface:
-            if self.lxc_manager_interface.container_operation_finished(self.container_id):
-                if not lxc_stop(self.container, self._freeze_on_stop):
-                   return False
-                self.lxc_manager_interface.container_stopped(self.container_id)
-                return True
-            else:
+        if self._manager.valid:
+            if not self._manager.container_operation_finished(self.container_id):
                 return False
+
+            if not lxc_stop(self.container, self._freeze_on_stop):
+               return False
+
+            return self._manager.container_stopped(self.container_id)
         else:
             return lxc_stop(self.container, self._freeze_on_stop)
 
@@ -264,7 +251,7 @@ class LibertineLXC(BaseContainer):
         self._freeze_on_stop = False
 
         # We never want to use the manager when restarting.
-        self.lxc_manager_interface = None
+        self._manager = None
 
         if not (self.stop_container() and self.start_container()):
             return False
@@ -402,7 +389,7 @@ class LibertineLXC(BaseContainer):
         self.container.save_config()
 
     def start_application(self, app_exec_line, environ):
-        if self.lxc_manager_interface == None:
+        if not self._manager.valid:
             utils.get_logger().error("No interface to libertine-lxc-manager.  Failing application launch.")
             return
 
@@ -410,7 +397,7 @@ class LibertineLXC(BaseContainer):
         os.environ.update(environ)
 
         if not self.start_container():
-            self.lxc_manager_interface.container_stopped(self.container_id)
+            self._manager.container_stopped(self.container_id)
             return
 
         app_launch_cmd = "sudo -E -u " + os.environ['USER'] + " env PATH=" + os.environ['PATH']
