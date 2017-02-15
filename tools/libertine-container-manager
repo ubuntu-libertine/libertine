@@ -118,9 +118,13 @@ class LibertineContainerManager(object):
 
     def destroy_container_by_id(self, id):
         container = LibertineContainer(id)
+        fallback = self.containers_config.get_container_install_status(id)
 
         self.containers_config.update_container_install_status(id, "removing")
-        container.destroy_libertine_container()
+        if not container.destroy_libertine_container():
+            self.containers_config.update_container_install_status(id, fallback)
+            return
+
         self.containers_config.update_container_install_status(id, "removed")
         self.containers_config.delete_container(id)
 
