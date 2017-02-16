@@ -84,9 +84,7 @@ Description: common files for qt-based libertine applications
 Package: libertine-tools
 Architecture: any
 Depends: libglib2.0-bin,
-         lsb-release,
          python3-dbus,
-         python3-distro-info,
          python3-libertine,
          ${misc:Depends},
          ${python3:Depends},
@@ -158,7 +156,9 @@ Package: python3-libertine
 Architecture: any
 Section: python
 Multi-Arch: allowed
-Depends: python3-psutil,
+Depends: lsb-release,
+         python3-distro-info,
+         python3-psutil,
          python3-xdg,
          xdg-user-dirs,
          ${misc:Depends},
