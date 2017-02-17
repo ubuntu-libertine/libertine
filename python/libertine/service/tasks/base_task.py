@@ -59,7 +59,7 @@ class BaseTask(metaclass=ABCMeta):
         if self._instant_callback:
             self._callback(self)
         else:
-            threading.Timer(10, lambda: self._callback(self)).start()
+            threading.Timer(10, lambda: (self._progress.remove_from_connection(), self._callback(self))).start()
 
     def start(self):
         self._progress = libertine.service.progress.Progress(self._connection)
