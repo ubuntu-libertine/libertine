@@ -369,7 +369,7 @@ class LibertineLXD(Libertine.BaseContainer):
             utils.get_logger().error("No such container '%s'" % self.container_id)
             return False
 
-        if not self.stop_container(wait=True):
+        if not (self.stop_container(wait=True) or self._container.status == 'Stopped'):
             utils.get_logger().error("Canceling destruction due to running container")
             return False
 
