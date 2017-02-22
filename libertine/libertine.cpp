@@ -21,6 +21,7 @@
 #include "common/ContainerManager.h"
 #include "common/ContainerAppsList.h"
 #include "common/ContainerArchivesList.h"
+#include "common/ContainerBindMountsList.h"
 #include "common/ContainerConfigList.h"
 #include "common/LibertineConfig.h"
 #include "common/PackageOperationDetails.h"
@@ -114,6 +115,7 @@ Libertine(int& argc, char** argv)
   containers_ = new ContainerConfigList(config_.data(), this);
   container_apps_ = new ContainerAppsList(containers_, this);
   container_archives_ = new ContainerArchivesList(containers_, this);
+  container_bind_mounts_ = new ContainerBindMountsList(containers_, this);
   package_operation_details_ = new PackageOperationDetails(this);
 
   initialize_view();
@@ -141,6 +143,7 @@ initialize_view()
   ctxt->setContextProperty("containerConfigList", containers_);
   ctxt->setContextProperty("containerAppsList", container_apps_);
   ctxt->setContextProperty("containerArchivesList", container_archives_);
+  ctxt->setContextProperty("containerBindMountsList", container_bind_mounts_);
   ctxt->setContextProperty("packageOperationDetails", package_operation_details_);
 
   view_.setSource(QUrl::fromLocalFile(main_qml_source_file_));

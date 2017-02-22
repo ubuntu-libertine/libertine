@@ -1,9 +1,9 @@
 /**
- * @file ContainerArchivesList.h
+ * @file ContainerBindMountsList.h
  * @brief Libertine Manager list of extra container archives (PPAs)
  */
 /*
- * Copyright 2016-2017 Canonical Ltd
+ * Copyright 2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -27,34 +27,33 @@
 
 class ContainerConfigList;
 
-class ContainerArchivesList
+class ContainerBindMountsList
 : public QAbstractListModel
 {
   Q_OBJECT
 
 public:
-  using ArchivesList = QList<ContainersConfig::Container::Archive>;
-  using iterator = ArchivesList::iterator;
-  using size_type = ArchivesList::size_type;
+  using BindMountsList = QList<ContainersConfig::Container::BindMount>;
+  using iterator = BindMountsList::iterator;
+  using size_type = BindMountsList::size_type;
 
   enum class DataRole
   : int
   {
-    ArchiveName = Qt::UserRole + 1,
-    ArchiveStatus,
+    BindMountPath = Qt::UserRole + 1,
     Error
   };
 
 public:
   explicit
-  ContainerArchivesList(ContainerConfigList* container_config_list,
+  ContainerBindMountsList(ContainerConfigList* container_config_list,
                         QObject* parent = nullptr);
 
   virtual
-  ~ContainerArchivesList() = default;
+  ~ContainerBindMountsList() = default;
 
   Q_INVOKABLE void
-  setContainerArchives(QString const& container_id);
+  setContainerBindMounts(QString const& container_id);
 
   Q_INVOKABLE bool
   empty() const noexcept;
@@ -73,5 +72,5 @@ public:
 
 private:
   ContainerConfigList* container_config_list_;
-  ArchivesList         archives_;
+  BindMountsList       mounts_;
 };

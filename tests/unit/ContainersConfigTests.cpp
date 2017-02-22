@@ -48,6 +48,9 @@ static const QByteArray test_json(R"EOF(
             "archiveName": "ppa:some/archive",
             "archiveStatus": "installed"
           }
+        ],
+        "bindMounts": [
+          "/media/lrp/PEPPER"
         ]
       },
       {
@@ -107,6 +110,9 @@ TEST(ContainersConfigTest, loadsContainerInformationFromJson)
   ASSERT_EQ(config.containers[0].archives.size(), 1);
   EXPECT_EQ(config.containers[0].archives[0].status, "installed");
   EXPECT_EQ(config.containers[0].archives[0].name, "ppa:some/archive");
+
+  ASSERT_EQ(config.containers[0].mounts.size(), 1);
+  EXPECT_EQ(config.containers[0].mounts[0].path, "/media/lrp/PEPPER");
 }
 
 
@@ -124,6 +130,7 @@ TEST(ContainersConfigTest, dumpsAllDataBackIntoJson)
   auto zesty = json["containerList"].toArray()[1].toObject();
   zesty["installedApps"] = QJsonArray();
   zesty["extraArchives"] = QJsonArray();
+  zesty["bindMounts"] = QJsonArray();
   json["containerList"] = QJsonArray{xenial, zesty};
 
   EXPECT_EQ(json, actual);
@@ -141,4 +148,5 @@ TEST(ContainersConfigTest, createsDefaultContainer)
   EXPECT_EQ(container.status, "unknown");
   EXPECT_TRUE(container.archives.isEmpty());
   EXPECT_TRUE(container.installed_apps.isEmpty());
+  EXPECT_TRUE(container.mounts.isEmpty());
 }

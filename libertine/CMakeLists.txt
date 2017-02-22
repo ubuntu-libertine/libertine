@@ -12,8 +12,6 @@ set(libertine_SRC
 )
 
 add_executable(${LIBERTINE_EXE_NAME} ${libertine_SRC})
-target_link_libraries(${LIBERTINE_EXE_NAME} ${LIBERTINE_COMMON} ${LIBERTINE_CORE} Qt5::Core Qt5::Quick Qt5::Gui)
-
-install(DIRECTORY qml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${CMAKE_PROJECT_NAME})
+target_link_libraries(${LIBERTINE_EXE_NAME} ${LIBERTINE_COMMON} Qt5::Core Qt5::Quick Qt5::Gui)
 
 install(TARGETS ${LIBERTINE_EXE_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

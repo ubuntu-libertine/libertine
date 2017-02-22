@@ -307,7 +307,7 @@ class LibertineContainerManager(object):
                 libertine.utils.get_logger().error("Configure bind-mounts called without mount path. See configure --help for usage")
                 sys.exit(1)
 
-            mount_path = args.mount_path.rstrip('/')
+            mount_path = args.mount_path.rstrip('/').strip('"')
 
             # validate bind-mount
             if not mount_path.startswith(os.environ['HOME']) and not mount_path.startswith('/media/%s' % os.environ['USER']):

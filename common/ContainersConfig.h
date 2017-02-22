@@ -73,6 +73,19 @@ public:
       QString status;
     };
 
+
+    class BindMount
+    {
+    public:
+      explicit BindMount(QString const& json);
+      virtual ~BindMount() = default;
+
+      QString dump() const;
+
+    public:
+      QString path;
+    };
+
   private:
     QString status_; // untranslated
 
@@ -84,6 +97,7 @@ public:
     QString             type;
     QString             multiarch;
     QList<Archive>      archives;
+    QList<BindMount>    mounts;
     QList<InstalledApp> installed_apps;
   };
 

@@ -30,6 +30,7 @@ class ContainerConfigList;
 class LibertineConfig;
 class ContainerAppsList;
 class ContainerArchivesList;
+class ContainerBindMountsList;
 class PackageOperationDetails;
 
 
@@ -57,6 +58,7 @@ private:
     ContainerConfigList*            containers_;
     ContainerAppsList*              container_apps_;
     ContainerArchivesList*          container_archives_;
+    ContainerBindMountsList*        container_bind_mounts_;
     PackageOperationDetails*        package_operation_details_;
     QQuickView                      view_;
 };

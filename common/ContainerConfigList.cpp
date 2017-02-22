@@ -34,8 +34,8 @@
 #include <QtCore/QStandardPaths>
 #include <QtCore/QString>
 #include <QtCore/QSysInfo>
-
 #include <sys/file.h>
+
 
 namespace
 {
@@ -232,6 +232,13 @@ QList<ContainersConfig::Container::Archive> ContainerConfigList::
 getArchivesForContainer(QString const& container_id)
 {
   return find_container_by_id(containers_config_->containers, container_id).archives;
+}
+
+
+QList<ContainersConfig::Container::BindMount> ContainerConfigList::
+getBindMountsForContainer(QString const& container_id)
+{
+  return find_container_by_id(containers_config_->containers, container_id).mounts;
 }
 
 

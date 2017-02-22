@@ -73,6 +73,7 @@ Description: system settings plugin for managing container-based applications
 Package: libertine-qt-common
 Architecture: any
 Depends: qml-module-qtquick2,
+         qml-module-qtquick-dialogs,
          qtdeclarative5-ubuntu-ui-toolkit-plugin,
          ${misc:Depends},
          ${shlibs:Depends}

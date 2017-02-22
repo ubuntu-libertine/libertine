@@ -1,6 +1,7 @@
 add_library(${LIBERTINE_COMMON}
     ContainerAppsList.cpp
     ContainerArchivesList.cpp
+    ContainerBindMountsList.cpp
     ContainersConfig.cpp
     ContainerConfigList.cpp
     ContainerManager.cpp

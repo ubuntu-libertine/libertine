@@ -18,15 +18,15 @@
  */
 #pragma once
 
+
+#include "common/ContainersConfig.h"
+#include <memory>
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QJsonObject>
 #include <QtCore/QList>
-#include <memory>
-#include "common/ContainersConfig.h"
+
 
 class ContainerApps;
-class ContainerArchives;
-class ContainerConfig;
 class LibertineConfig;
 
 
@@ -44,9 +44,7 @@ class ContainerConfigList
              NOTIFY defaultContainerChanged)
 
 public:
-  using ConfigList = QList<ContainerConfig*>;
-  using iterator = ConfigList::iterator;
-  using size_type = ConfigList::size_type;
+  using size_type = QList<ContainersConfig::Container>::size_type;
 
   static const QString Json_container_list;
   static const QString Json_default_container;
@@ -74,12 +72,14 @@ public:
   /**
    * Constructs a container config list from a container config.
    */
+  explicit
   ContainerConfigList(LibertineConfig const* config,
                       QObject*               parent = nullptr);
 
   /**
    * Constructs a container config list from a raw json string
    */
+  explicit
   ContainerConfigList(QJsonObject const& json_object,
                       QObject*               parent = nullptr);
 
@@ -126,6 +126,9 @@ public:
 
   QList<ContainersConfig::Container::Archive>
   getArchivesForContainer(QString const& container_id);
+
+  QList<ContainersConfig::Container::BindMount>
+  getBindMountsForContainer(QString const& container_id);
 
   Q_INVOKABLE QString
   getContainerType(QString const& container_id);
@@ -228,7 +231,6 @@ private:
 
 private:
   LibertineConfig const*            config_;
-  ConfigList                        configs_;
   QString                           default_container_id_;
   std::unique_ptr<ContainersConfig> containers_config_;
 };

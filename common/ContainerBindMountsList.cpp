@@ -1,9 +1,9 @@
 /**
- * @file ContainerArchivesList.cpp
- * @brief Libertine Manager list of extra container archives, ie, PPAs
+ * @file ContainerBindMountsList.cpp
+ * @brief Libertine Manager list of all mapped directories
  */
 /*
- * Copyright 2016-2017 Canonical Ltd
+ * Copyright 2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -16,71 +16,67 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "common/ContainerArchivesList.h"
+#include "common/ContainerBindMountsList.h"
 
 #include "common/ContainerConfigList.h"
 
 
-ContainerArchivesList::
-ContainerArchivesList(ContainerConfigList* container_config_list,
+ContainerBindMountsList::
+ContainerBindMountsList(ContainerConfigList* container_config_list,
                       QObject* parent)
 : QAbstractListModel(parent)
 , container_config_list_(container_config_list)
 { }
 
 
-void ContainerArchivesList::
-setContainerArchives(QString const& container_id)
+void ContainerBindMountsList::
+setContainerBindMounts(QString const& container_id)
 {
-  archives_ = container_config_list_->getArchivesForContainer(container_id);
+  mounts_ = container_config_list_->getBindMountsForContainer(container_id);
 
   beginResetModel();
   endResetModel();
 }
 
 
-bool ContainerArchivesList::
+bool ContainerBindMountsList::
 empty() const noexcept
-{ return archives_.empty(); }
+{ return mounts_.empty(); }
 
 
-ContainerArchivesList::size_type ContainerArchivesList::
+ContainerBindMountsList::size_type ContainerBindMountsList::
 size() const noexcept
-{ return archives_.count(); }
+{ return mounts_.count(); }
 
 
-int ContainerArchivesList::
+int ContainerBindMountsList::
 rowCount(QModelIndex const&) const
 {
   return this->size();
 }
 
 
-QHash<int, QByteArray> ContainerArchivesList::
+QHash<int, QByteArray> ContainerBindMountsList::
 roleNames() const
 {
   QHash<int, QByteArray> roles;
-  roles[static_cast<int>(DataRole::ArchiveName)] = "archiveName";
-  roles[static_cast<int>(DataRole::ArchiveStatus)] = "archiveStatus";
+  roles[static_cast<int>(DataRole::BindMountPath)] = "path";
 
   return roles;
 }
 
 
-QVariant ContainerArchivesList::
+QVariant ContainerBindMountsList::
 data(QModelIndex const& index, int role) const
 {
   QVariant result;
 
-  if (index.isValid() && index.row() <= this->size())
+  if (index.isValid() && index.row() <= mounts_.count())
   {
     switch (static_cast<DataRole>(role))
     {
-      case DataRole::ArchiveName:
-        result = archives_[index.row()].name;
-        break;
-      case DataRole::ArchiveStatus:
-        result = archives_[index.row()].status;
+      case DataRole::BindMountPath:
+        result = mounts_[index.row()].path;
         break;
       case DataRole::Error:
         break;

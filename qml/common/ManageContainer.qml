@@ -78,6 +78,15 @@ Page {
                 }
             }
 
+            ListItem.SingleValue {
+                text: i18n.tr("Additional bind-mounts")
+                progression: true
+                onClicked: {
+                    containerBindMountsList.setContainerBindMounts(currentContainer)
+                    pageStack.addPageToNextColumn(manageView, Qt.resolvedUrl("ExtraBindMountsView.qml"), {currentContainer: currentContainer})
+                }
+            }
+
             ListItem.Standard {
                 control: Button {
                     id: updateButton

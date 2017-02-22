@@ -12,7 +12,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include "ContainersConfig.h"
 
 #include <QJsonArray>
@@ -63,6 +62,19 @@ dump() const
 }
 
 
+ContainersConfig::Container::BindMount::
+BindMount(QString const& json)
+: path(json)
+{ }
+
+
+QString ContainersConfig::Container::BindMount::
+dump() const
+{
+  return path;
+}
+
+
 ContainersConfig::Container::InstalledApp::
 InstalledApp(QJsonObject const& json)
 : status_(try_get_string(json, "appStatus"))
@@ -110,6 +122,11 @@ Container(QJsonObject const& json)
   {
     installed_apps.append(InstalledApp(app.toObject()));
   }
+
+  for (auto const& mount: json["bindMounts"].toArray())
+  {
+    mounts.append(BindMount(mount.toString()));
+  }
 }
 
 
@@ -137,6 +154,13 @@ dump() const
     installed_apps_list.append(app.dump());
   }
   object["installedApps"] = installed_apps_list;
+
+  QJsonArray mounts_list;
+  for (auto const& mount: mounts)
+  {
+    mounts_list.append(mount.dump());
+  }
+  object["bindMounts"] = mounts_list;
 
   return object;
 }
