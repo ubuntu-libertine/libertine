@@ -219,7 +219,6 @@ def update_bind_mounts(container, config, home_path):
     userdata_dir = utils.get_libertine_container_home_dir(container.name)
 
     container.devices.clear()
-    container.devices['root'] = {'type': 'disk', 'path': '/'}
     container.devices['home'] = {'type': 'disk', 'path': home_path, 'source': userdata_dir}
 
     # applications and icons directories
