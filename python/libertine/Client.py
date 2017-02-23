@@ -20,6 +20,9 @@ from . import utils
 
 class Client(object):
     def __init__(self):
+        self._get_manager()
+
+    def _get_manager(self):
         self._manager = None
 
         try:
@@ -33,16 +36,25 @@ class Client(object):
         except dbus.exceptions.DBusException as e:
             utils.get_logger().warning("Exception raised while discovering d-bus service: {}".format(str(e)))
 
+    def _do_operation(self, operation):
+        # It's possible that the service has gone down from when first getting the object.
+        # This catches the dbus excpetion if it did, and tries to reconnect to the service
+        # and then retry the dbus method.
+        while self.valid:
+            try:
+                return operation()
+            except dbus.exceptions.DBusException as e:
+                self._get_manager()
+        else:
+            return False
+
     @property
     def valid(self):
         return self._manager is not None
 
     def container_operation_start(self, id):
-        if not self.valid:
-            return False
-
         retries = 0
-        while not self._manager.get_dbus_method('container_operation_start', self._interface)(id):
+        while not self._do_operation(lambda: self._manager.get_dbus_method('container_operation_start', self._interface)(id)):
             retries += 1
             if retries > 5:
                 return False
@@ -50,12 +62,8 @@ class Client(object):
 
         return True
 
-    def container_operation_finished(self, id):
-        return self.valid and self._manager.get_dbus_method("container_operation_finished", self._interface)(id)
+    def container_operation_finished(self, id, app_name, pid):
+        return self._do_operation(lambda: self._manager.get_dbus_method("container_operation_finished", self._interface)(id, app_name, pid))
 
     def container_stopped(self, id):
-        if not self.valid:
-            return False
-
-        self._manager.get_dbus_method('container_stopped', self._interface)(id)
-        return True
+        return self._do_operation(lambda: self._manager.get_dbus_method('container_stopped', self._interface)(id))

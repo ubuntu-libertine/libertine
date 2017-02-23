@@ -14,7 +14,6 @@
 
 import contextlib
 import crypt
-import dbus
 import os
 import psutil
 import pylxd
@@ -368,8 +367,12 @@ class LibertineLXD(Libertine.BaseContainer):
             utils.get_logger().error("No such container '%s'" % self.container_id)
             return False
 
-        if not (self.stop_container(wait=True) or self._container.status == 'Stopped'):
+        if self._container.status == 'Running':
             utils.get_logger().error("Canceling destruction due to running container")
+            return False
+
+        if self._container.status == 'Frozen' and not lxd_stop(self._container):
+            utils.get_logger().error("Canceling destruction due to container not stopped")
             return False
 
         self._container.delete()
@@ -398,7 +401,8 @@ class LibertineLXD(Libertine.BaseContainer):
         if not self._try_get_container():
             return False
 
-        self._manager.container_operation_start(self.container_id)
+        if not self._manager.container_operation_start(self.container_id):
+            return False
 
         if self._container.status == 'Running':
             return True
@@ -425,16 +429,11 @@ class LibertineLXD(Libertine.BaseContainer):
         if not self._try_get_container():
             return False
 
-        if self._manager.valid:
-            if not self._manager.container_operation_finished(self.container_id):
-                return False
-
-            if not lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop):
-                return False
-
+        if (self._manager.container_operation_finished(self.container_id, self._app_name, self._pid) and
+            lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop)):
             return self._manager.container_stopped(self.container_id)
-        else:
-            return lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop)
+
+        return False
 
     def restart_container(self, wait=True):
         if not self._try_get_container():
@@ -444,17 +443,10 @@ class LibertineLXD(Libertine.BaseContainer):
             utils.get_logger().warning("Container {} is not frozen. Cannot restart.".format(self._container.name))
             return False
 
-        orig_freeze = self._freeze_on_stop
-        self._freeze_on_stop = False
-
-        # We never want to use the manager when restarting.
-        self._manager = None
-
-        if not (self.stop_container(wait=True) and self.start_container()):
+        if not (lxd_stop(self._container) and lxd_start(self._container)):
             return False
 
-        self._freeze_on_stop = orig_freeze
-        return self.stop_container(wait=True)
+        return lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop)
 
     def start_application(self, app_exec_line, environ):
         if not self._try_get_container():
@@ -467,10 +459,16 @@ class LibertineLXD(Libertine.BaseContainer):
         if not self.start_container(home=environ['HOME']):
             return False
 
+        self._app_name = app_exec_line[0]
+
         args = self._lxc_args("sudo -E -u {} env PATH={}".format(environ['USER'], environ['PATH']), environ)
 
         args.extend(app_exec_line)
-        return psutil.Popen(args)
+
+        proc = psutil.Popen(args)
+        self._pid = proc.pid
+
+        return proc
 
     def finish_application(self, app):
         app.wait()

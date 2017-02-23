@@ -364,9 +364,18 @@ class ContainersConfig(object):
         app_obj = {'appExecName': app_exec_name, 'pid': pid}
         self._set_value_by_key(container_id, 'runningApps', app_obj)
 
-    def delete_running_app(self, container_id, app_exec_name):
-        self._delete_array_object_by_key_value(container_id, 'runningApps',
-                                               'appExecName', app_exec_name)
+    def delete_running_app(self, container_id, app_obj):
+        self._delete_array_object_by_value(container_id, 'runningApps', app_obj)
+
+    def find_running_app_by_name_and_pid(self, container_id, app_exec_name, pid):
+        for app in self.get_running_apps(container_id):
+            if app['appExecName'] == app_exec_name and app['pid'] == pid:
+                return app
+
+        return None
+
+    def get_running_apps(self, container_id):
+        return self._get_value_by_key(container_id, 'runningApps') or []
 
     """
     Operations for bind-mount maintenance in a Libertine container.

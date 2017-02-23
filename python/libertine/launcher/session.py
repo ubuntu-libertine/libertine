@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -234,25 +234,36 @@ class Session(ExitStack):
                     handler, datum = key.data
                     handler(key.fd, datum)
         self._container.finish_application(self._app)
+
+        if self._config.container_id:
+            self._remove_running_app()
+
         self._stop_services()
 
     def start_application(self):
         """Connect to the container and start the application running."""
         self._container.connect()
         self.callback(self._container.disconnect)
-        self._add_running_app()
         self._app = self._container.start_application(self._config.exec_line,
                                                       self._config.session_environ)
+        if self._app:
+            self._add_running_app()
 
     def _add_running_app(self):
         """Add a running app entry to ContainersConfig.json."""
         if self._config.container_id:
-            ContainersConfig().add_running_app(self._config.container_id, self._config.exec_line[0])
+            ContainersConfig().add_running_app(self._config.container_id, self._config.exec_line[0], self._app.pid)
 
     def _remove_running_app(self):
         """Remove a running app entry from ContainersConfig.json."""
         if self._config.container_id:
-            ContainersConfig().delete_running_app(self._config.container_id, self._config.exec_line[0])
+            containers_config = ContainersConfig()
+            running_app = containers_config.find_running_app_by_name_and_pid(self._config.container_id,
+                                                                             self._config.exec_line[0],
+                                                                             self._app.pid)
+
+            if running_app:
+                containers_config.delete_running_app(self._config.container_id, running_app)
 
     def _create_bridge_listener(self, bridge_config):
         """Create a socket bridge listener for a socket bridge configuration.
@@ -342,9 +353,6 @@ class Session(ExitStack):
         signal.signal(signal.SIGCHLD, self._sigchld_handler)
         signal.signal(signal.SIGINT,  self._sigint_handler)
         signal.signal(signal.SIGTERM, self._sigterm_handler)
-
-        if self._config.container_id:
-            self._remove_running_app()
 
         for bridge_pair in self._config.socket_bridges:
             os.remove(translate_to_real_address(bridge_pair.session_address))

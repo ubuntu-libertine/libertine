@@ -15,7 +15,7 @@
 import dbus
 import dbus.service
 import libertine.service.task_dispatcher
-from collections import Counter
+import libertine.service.operations_state
 from dbus.mainloop.glib import DBusGMainLoop
 from libertine.service import container
 from libertine import utils
@@ -29,8 +29,9 @@ LIBERTINE_MANAGER_OBJECT    = "/Manager"
 class Manager(dbus.service.Object):
     def __init__(self):
         utils.get_logger().debug("creating service")
-        self._operations = Counter()
         DBusGMainLoop(set_as_default=True)
+        self._operations_state = libertine.service.operations_state.OperationsState()
+
         try:
             bus_name = dbus.service.BusName(LIBERTINE_MANAGER_NAME,
                                             bus=dbus.SessionBus(),
@@ -124,28 +125,20 @@ class Manager(dbus.service.Object):
     def container_operation_start(self, container):
         utils.get_logger().debug("container_operation_start({})".format(container))
 
-        if self._operations[container] == -1:
-            return False
+        return self._operations_state.operation_start(container)
 
-        self._operations[container] += 1
-        return True
+    @dbus.service.method(LIBERTINE_MANAGER_INTERFACE,
+                         in_signature='ssi',
+                         out_signature='b')
+    def container_operation_finished(self, container, app_name='', pid=0):
+        utils.get_logger().debug("container_operation_finished({})".format(container))
+
+        return self._operations_state.operation_finished(container, app_name, pid)
 
     @dbus.service.method(LIBERTINE_MANAGER_INTERFACE,
                          in_signature='s',
                          out_signature='b')
-    def container_operation_finished(self, container):
-        utils.get_logger().debug("container_operation_finished({})".format(container))
-        stop = False
-        self._operations[container] -= 1
-
-        if self._operations[container] == 0:
-            self._operations[container] -= 1
-            stop = True
-
-        return stop
-
-    @dbus.service.method(LIBERTINE_MANAGER_INTERFACE,
-                         in_signature='s')
     def container_stopped(self, container):
         utils.get_logger().debug("container_stopped({})".format(container))
-        del self._operations[container]
+
+        return self._operations_state.operation_stopped(container)

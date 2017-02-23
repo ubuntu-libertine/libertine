@@ -14,7 +14,6 @@
 
 import contextlib
 import crypt
-import dbus
 import lxc
 import os
 import psutil
@@ -22,7 +21,6 @@ import shlex
 import subprocess
 import sys
 import tempfile
-import time
 
 from .Libertine import BaseContainer
 from . import utils, HostInfo, Client
@@ -215,7 +213,8 @@ class LibertineLXC(BaseContainer):
             return fd.read().strip('\n') != self.host_info.get_host_timezone()
 
     def start_container(self):
-        self._manager.container_operation_start(self.container_id)
+        if not self._manager.container_operation_start(self.container_id):
+            return False
 
         if self.container.state == 'RUNNING':
             return True
@@ -231,33 +230,21 @@ class LibertineLXC(BaseContainer):
         return True
 
     def stop_container(self):
-        if self._manager.valid:
-            if not self._manager.container_operation_finished(self.container_id):
-                return False
-
-            if not lxc_stop(self.container, self._freeze_on_stop):
-               return False
-
+        if (self._manager.container_operation_finished(self.container_id, self._app_name, self._pid) and
+            lxc_stop(self.container, self._freeze_on_stop)):
             return self._manager.container_stopped(self.container_id)
-        else:
-            return lxc_stop(self.container, self._freeze_on_stop)
+
+        return False
 
     def restart_container(self):
         if self.container.state != 'FROZEN':
             utils.get_logger().warning("Container {} is not frozen. Cannot restart.".format(self.container_id))
             return False
 
-        orig_freeze = self._freeze_on_stop
-        self._freeze_on_stop = False
-
-        # We never want to use the manager when restarting.
-        self._manager = None
-
-        if not (self.stop_container() and self.start_container()):
+        if not (lxc_stop(self.container) and lxc_start(self.container)):
             return False
 
-        self._freeze_on_stop = orig_freeze
-        return self.stop_container()
+        return lxc_stop(self.container, self._freeze_on_stop)
 
     def run_in_container(self, command_string):
         cmd_args = shlex.split(command_string)
@@ -276,7 +263,14 @@ class LibertineLXC(BaseContainer):
         if not self.container.defined:
             return False
 
-        self.container.stop()
+        if self.container.state == 'RUNNING':
+            utils.get_logger().error("Canceling destruction due to running container")
+            return False
+
+        if self.container.state == 'FROZEN' and not lxc_stop(self.container):
+            utils.get_logger().error("Canceling destruction due to container not stopped")
+            return False
+
         self.container.destroy()
         return True
 
@@ -389,10 +383,6 @@ class LibertineLXC(BaseContainer):
         self.container.save_config()
 
     def start_application(self, app_exec_line, environ):
-        if not self._manager.valid:
-            utils.get_logger().error("No interface to libertine-lxc-manager.  Failing application launch.")
-            return
-
         os.environ.clear()
         os.environ.update(environ)
 
@@ -400,11 +390,17 @@ class LibertineLXC(BaseContainer):
             self._manager.container_stopped(self.container_id)
             return
 
+        self._app_name = app_exec_line[0]
+
         app_launch_cmd = "sudo -E -u " + os.environ['USER'] + " env PATH=" + os.environ['PATH']
         cmd = shlex.split(app_launch_cmd)
         app = self.container.attach(lxc.attach_run_command,
                                     cmd + app_exec_line)
-        return psutil.Process(app)
+
+        proc = psutil.Process(app)
+        self._pid = proc.pid
+
+        return proc
 
     def finish_application(self, app):
         os.waitpid(app.pid, 0)
