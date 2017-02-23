@@ -20,6 +20,15 @@ from threading import Lock
 from libertine import utils
 
 
+# Decorator to refresh database before making a call
+def _refresh_config(func):
+    def wrapper(*args, **kwargs):
+        args[0]._config.refresh_database()
+        return func(*args, **kwargs)
+
+    return wrapper
+
+
 class TaskDispatcher(object):
     def __init__(self, connection):
         self._connection = connection
@@ -56,40 +65,49 @@ class TaskDispatcher(object):
 
     # Tasks (usually) run within a container
 
+    @_refresh_config
     def search(self, container_id, query):
         utils.get_logger().debug("dispatching search in container '%s' for package '%s'" % (container_id, query))
         return self._find_or_create_container(container_id).search(query)
 
+    @_refresh_config
     def app_info(self, container_id, app_id):
         utils.get_logger().debug("dispatching app_info in container '%s' for package '%s'" % (container_id, app_id))
         return self._find_or_create_container(container_id).app_info(app_id)
 
+    @_refresh_config
     def install(self, container_id, package_name):
         utils.get_logger().debug("dispatching install of package '%s' from container '%s'" % (package_name, container_id))
         return self._find_or_create_container(container_id).install(package_name)
 
+    @_refresh_config
     def remove(self, container_id, package_name):
         utils.get_logger().debug("dispatching remove of package '%s' from container '%s'" % (package_name, container_id))
         return self._find_or_create_container(container_id).remove(package_name)
 
+    @_refresh_config
     def create(self, container_id, container_name, distro, container_type, enable_multiarch):
         utils.get_logger().debug("dispatching create of container '%s'" % container_id)
         return self._find_or_create_container(container_id).create(container_name, distro, container_type, enable_multiarch)
 
+    @_refresh_config
     def destroy(self, container_id):
         utils.get_logger().debug("dispatching destroy container '%s'" % container_id)
         return self._find_or_create_container(container_id).destroy()
 
+    @_refresh_config
     def update(self, container_id):
         utils.get_logger().debug("dispatching update container '%s'" % container_id)
         return self._find_or_create_container(container_id).update()
 
+    @_refresh_config
     def list_app_ids(self, container_id):
         utils.get_logger().debug("dispatching list apps ids in container '%s'" % container_id)
         return self._find_or_create_container(container_id).list_app_ids()
 
     # Containerless Tasks
 
+    @_refresh_config
     def container_info(self, container_id):
         utils.get_logger().debug("dispatching get info for container '%s'" % container_id)
 
@@ -103,6 +121,7 @@ class TaskDispatcher(object):
 
         return task.id
 
+    @_refresh_config
     def list(self):
         utils.get_logger().debug("dispatching list all containers")
 
