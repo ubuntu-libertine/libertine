@@ -38,8 +38,8 @@ def main():
         container = NoContainer()
 
     with launcher.Session(config, container) as session:
-        session.start_application()
-        session.run()
+        if session.start_application():
+            session.run()
 
 if __name__ == '__main__':
     main()

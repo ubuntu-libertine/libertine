@@ -233,6 +233,7 @@ class Session(ExitStack):
                 for key, mask in events:
                     handler, datum = key.data
                     handler(key.fd, datum)
+
         self._container.finish_application(self._app)
 
         if self._config.container_id:
@@ -248,6 +249,10 @@ class Session(ExitStack):
                                                       self._config.session_environ)
         if self._app:
             self._add_running_app()
+        else:
+            self._stop_services()
+
+        return self._app != None
 
     def _add_running_app(self):
         """Add a running app entry to ContainersConfig.json."""
