@@ -1,3 +1,16 @@
+libertine (1.6+17.04.20170214.2-0ubuntu1) zesty; urgency=medium
+
+  [ Chris Townsend ]
+  * Fix missing lsb-release dependency after moving file to a different
+    package.
+  * Ensure we don't leak references to the DBus session bus.
+
+  [ Ken VanDine ]
+  * Fix missing python3-distro-info dependency after moving file to a
+    different package.
+
+ -- Ken VanDine <ken.vandine@canonical.com>  Tue, 14 Feb 2017 22:13:20 +0000
+
 libertine (1.6+17.04.20170209-0ubuntu1) zesty; urgency=medium
 
   [ Larry Price ]
