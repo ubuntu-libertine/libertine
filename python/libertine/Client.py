@@ -14,6 +14,7 @@
 
 
 import dbus
+import time
 
 from . import utils
 
@@ -38,7 +39,7 @@ class Client(object):
 
     def _do_operation(self, operation):
         # It's possible that the service has gone down from when first getting the object.
-        # This catches the dbus excpetion if it did, and tries to reconnect to the service
+        # This catches the dbus exception if it did, and tries to reconnect to the service
         # and then retry the dbus method.
         while self.valid:
             try:
