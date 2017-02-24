@@ -18,6 +18,7 @@ import os
 import psutil
 import pylxd
 import shlex
+import shutil
 import subprocess
 import time
 
@@ -172,46 +173,125 @@ def _lxd_save(entity, error, wait=True):
 _CONTAINER_DATA_DIRS = ["/usr/share/applications", "/usr/share/icons", "/usr/local/share/applications", "/usr/share/pixmaps"]
 
 
-class RestoreDevice(contextlib.ExitStack):
-    def __init__(self, container, device):
-        super().__init__()
-        self._container = container
-        self._device = device
-        self._source = None
-        self.remove()
-        self.callback(self.restore)
-
-    def remove(self):
-        if self._device in self._container.devices:
-            self._source = self._container.devices[self._device]
-            del self._container.devices[self._device]
-            _lxd_save(self._container, 'Saving bind mounts for container \'{}\' raised:'.format(self._container.name))
-
-    def restore(self):
-        if self._source is not None:
-            self._container.devices[self._device] = self._source
-            _lxd_save(self._container, 'Saving bind mounts for container \'{}\' raised:'.format(self._container.name), False)
-
-
 def _sync_application_dirs_to_host(container):
     host_root = utils.get_libertine_container_rootfs_path(container.name)
     for container_path in _CONTAINER_DATA_DIRS:
         utils.get_logger().info("Syncing applications directory: {}".format(container_path))
         os.makedirs(os.path.join(host_root, container_path.lstrip("/")), exist_ok=True)
-        with RestoreDevice(container, container_path):
-            # find a list of files within the container
-            find = subprocess.Popen(shlex.split("lxc exec {} -- find {} -type f".format(container.name, container_path)), stdout=subprocess.PIPE)
-            stdout, stderr = find.communicate()
 
-        if find.returncode == 0:
-            for filepath in stdout.decode('utf-8').strip().split('\n'):
-                if filepath:
-                    host_path = os.path.join(host_root, filepath.lstrip("/"))
-                    if not os.path.exists(host_path):
-                        utils.get_logger().debug("Syncing file: {}:{}".format(filepath, host_path))
-                        os.makedirs(os.path.dirname(host_path), exist_ok=True)
-                        with open(host_path, 'wb') as f:
-                            f.write(container.files.get(filepath))
+        # find a list of files within the container
+        find = subprocess.Popen(shlex.split("lxc exec {} -- find {} -type f".format(container.name, container_path)), stdout=subprocess.PIPE)
+        stdout, stderr = find.communicate()
+
+        if find.returncode != 0:
+            return
+
+        for filepath in stdout.decode('utf-8').strip().split('\n'):
+            if not filepath:
+                continue
+
+            host_path = os.path.join(host_root, filepath.lstrip("/"))
+            if not os.path.exists(host_path):
+                utils.get_logger().warning("Syncing file: {}:{}".format(filepath, host_path))
+                os.makedirs(os.path.dirname(host_path), exist_ok=True)
+                with open(host_path, 'wb') as f:
+                    f.write(container.files.get(filepath))
+
+
+def _lxc_args(container_id, command, environ={}):
+    env_as_args = ' '
+    for k, v in environ.items():
+        env_as_args += '--env {}="{}" '.format(k, v)
+    return shlex.split('lxc exec {}{}-- {}'.format(container_id,
+                                                   env_as_args,
+                                                   command))
+
+
+def _add_local_files_for_ual(container):
+    root_path = utils.get_libertine_container_rootfs_path(container.name)
+    find = subprocess.Popen(shlex.split("find %s/usr/ -type l -! -exec test -e {} \; -print" % root_path),
+                            stdout=subprocess.PIPE)
+    find_stdout, stderr = find.communicate()
+    if find.returncode != 0:
+        utils.get_logger().warning(stderr.decode('utf-8').strip())
+        return
+
+    broken_host_links = [link for link in find_stdout.decode('utf-8').strip().split('\n') if link]
+    if len(broken_host_links) == 0:
+        return # no broken links means no reason to continue
+
+    broken_container_links = [link.replace(root_path, '') for link in broken_host_links]
+    links = subprocess.Popen(_lxc_args(container.name, 'bash -c "echo -n {} | xargs -d , -n 1 readlink -m"'.format(','.join(broken_container_links))),
+                             stdout=subprocess.PIPE)
+    links_stdout, stderr = links.communicate()
+    if links.returncode != 0:
+        utils.get_logger().warning(stderr.decode('utf-8').strip())
+        return
+
+    container_link_endpoints = [link for link in links_stdout.decode('utf-8').strip().split('\n') if link]
+    if len(broken_host_links) != len(container_link_endpoints):
+        utils.get_logger().warning("Link mismatch while trying to fix symbolic links.")
+        return
+
+    for i in range(0, len(broken_host_links)):
+        if broken_container_links[i] == container_link_endpoints[i] or container_link_endpoints[i].startswith(root_path):
+            continue # link wasn't found
+
+        host_linkpath = "{}/{}".format(root_path, container_link_endpoints[i])
+        if not os.path.exists(host_linkpath):
+            os.makedirs(os.path.dirname(host_linkpath), exist_ok=True)
+            with open(host_linkpath, 'wb') as f:
+                try:
+                    f.write(container.files.get(container_link_endpoints[i]))
+                except pylxd.exceptions.NotFound as e:
+                    utils.get_logger().warning("Error during symlink copy of {}: {}".format(container_link_endpoints[i], str(e)))
+                    continue
+
+        subprocess.Popen(_lxc_args(container.name, "ln -sf --relative {} {}".format(
+                                   container_link_endpoints[i],
+                                   broken_host_links[i].replace(root_path, '')))).wait()
+
+
+def _remove_local_files_for_ual(container):
+    root_path = utils.get_libertine_container_rootfs_path(container.name)
+    find = subprocess.Popen(shlex.split("find {} -type f".format(root_path)), stdout=subprocess.PIPE)
+    find_stdout, stderr = find.communicate()
+    if find.returncode != 0:
+        utils.get_logger().warning("Finding local files to remove failed.")
+        return
+
+    existing_files = [f.replace(root_path, '') for f in find_stdout.decode('UTF-8').strip().split('\n') if f]
+    for d in  _CONTAINER_DATA_DIRS:
+        existing_files = [f for f in existing_files if not f.startswith(d)]
+    if len(existing_files) == 0:
+        return
+
+    missing_files = subprocess.Popen(_lxc_args(container.name,
+                                               'bash -c "echo -n {} | xargs -d , -I % bash -c \'test -e % || echo %\'"'.format(','.join(existing_files))), stdout=subprocess.PIPE)
+    remove_stdout, stderr = missing_files.communicate()
+    if missing_files.returncode != 0:
+        utils.get_logger().warning("Checking for missing files failed.")
+        return
+
+    for f in [os.path.join(root_path, f.lstrip('/')) for f in remove_stdout.decode('UTF-8').strip().split('\n') if f]:
+        try:
+            os.remove(f)
+        except PermissionError as e:
+            utils.get_logger().warning("Error while trying to remove local file {}: {}".format(f, str(e)))
+
+    # now remove any dangling directories
+    empty_dirs = subprocess.Popen(shlex.split("find {} -depth -type d -empty".format(root_path)), stdout=subprocess.PIPE)
+    empty_out, stderr = empty_dirs.communicate()
+    if empty_dirs.returncode != 0:
+        utils.get_logger().warning("Looking for local empty directories failed.")
+        return
+
+    deleteable_dirs = [d for d in empty_out.decode('UTF-8').strip().split('\n') if d]
+    for d in _CONTAINER_DATA_DIRS:
+        deleteable_dirs = [dd for dd in deleteable_dirs if not dd.startswith(os.path.join(root_path, d.lstrip('/')))]
+
+    for d in deleteable_dirs:
+        subprocess.Popen(shlex.split("rmdir -p --ignore-fail-on-non-empty {}".format(d))).wait()
 
 
 def update_bind_mounts(container, config, home_path):
@@ -350,6 +430,16 @@ class LibertineLXD(Libertine.BaseContainer):
 
         return True
 
+    def install_package(self, package_name, no_dialog=False, update_cache=True):
+        ret = super().install_package(package_name, no_dialog, update_cache)
+        _add_local_files_for_ual(self._container)
+        return ret
+
+    def remove_package(self, package_name):
+        ret = super().remove_package(package_name)
+        _remove_local_files_for_ual(self._container)
+        return ret
+
     def update_packages(self, update_locale=False):
         if not self._timezone_in_sync():
             utils.get_logger().info("Re-syncing timezones")
@@ -357,8 +447,9 @@ class LibertineLXD(Libertine.BaseContainer):
             self.run_in_container("rm -f /etc/localtime")
             self.run_in_container("dpkg-reconfigure -f noninteractive tzdata")
 
-        _sync_application_dirs_to_host(self._container)
         update_bind_mounts(self._container, self._config, env_home_path())
+        _add_local_files_for_ual(self._container)
+        _remove_local_files_for_ual(self._container)
 
         return super().update_packages(update_locale)
 
@@ -385,13 +476,7 @@ class LibertineLXD(Libertine.BaseContainer):
         return out.decode('UTF-8').strip('\n') == self._host_info.get_host_timezone()
 
     def _lxc_args(self, command, environ={}):
-        env_as_args = ' '
-        for k, v in environ.items():
-            env_as_args += '--env {}="{}" '.format(k, v)
-
-        return shlex.split('lxc exec {}{}-- {}'.format(self.container_id,
-                                                       env_as_args,
-                                                       command))
+        return _lxc_args(self.container_id, command, environ)
 
     def run_in_container(self, command):
         proc = subprocess.Popen(self._lxc_args(command))
