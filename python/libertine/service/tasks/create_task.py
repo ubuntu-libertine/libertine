@@ -56,8 +56,10 @@ class CreateTask(BaseTask):
 
         if not self._type:
             self._type = info.select_container_type_by_kernel()
-        elif self._type == 'lxc' and not info.has_lxc_support():
-            self._progress.error("System kernel does not support lxc type containers. Please either use chroot or leave empty.")
+        elif (self._type == 'lxd' and not info.has_lxd_support()) or \
+             (self._type == 'lxc' and not info.has_lxc_support()):
+            self._progress.error("System kernel does not support %s type containers. "
+                                 "Please either use chroot or leave empty." % self._type)
             return False
 
         if not self._name:

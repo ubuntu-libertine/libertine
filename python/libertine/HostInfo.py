@@ -25,17 +25,20 @@ from distro_info import UbuntuDistroInfo
 class HostInfo(object):
 
     def select_container_type_by_kernel(self):
-        if self.has_lxc_support():
-            if libertine.utils.is_snap_environment():
-                return "lxd"
-            else:
-                return "lxc"
+        if self.has_lxd_support():
+            return "lxd"
+        elif self.has_lxc_support():
+            return "lxc"
         else:
             return "chroot"
 
     def has_lxc_support(self):
         kernel_release = platform.release().split('.')
         return int(kernel_release[0]) >= 4 or (int(kernel_release[0]) == 3 and int(kernel_release[1]) >= 13)
+
+    def has_lxd_support(self):
+        kernel_release = platform.release().split('.')
+        return int(kernel_release[0]) >= 4 or (int(kernel_release[0]) == 4)
 
     def get_host_distro_release(self):
         distinfo = lsb_release.get_distro_information()

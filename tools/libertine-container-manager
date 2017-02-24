@@ -60,9 +60,10 @@ class LibertineContainerManager(object):
         if not args.type:
             container_type = self.host_info.select_container_type_by_kernel()
         else:
-            if (args.type == 'lxc' or args.type == 'lxd') and not self.host_info.has_lxc_support():
-                libertine.utils.get_logger().error("System kernel does not support lxc type containers. "
-                                                   "Please either use chroot or omit the -t option.")
+            if (args.type == 'lxc' and not self.host_info.has_lxc_support()) or \
+               (args.type == 'lxd' and not self.host_info.has_lxd_support()):
+                libertine.utils.get_logger().error("System kernel does not support %s type containers. "
+                                                   "Please either use chroot or omit the -t option." % args.type)
                 sys.exit(1)
             container_type = args.type
 
@@ -428,7 +429,7 @@ if __name__ == '__main__':
         help=("Container identifier of form ([a-z0-9][a-z0-9+.-]+). Required."))
     parser_create.add_argument(
         '-t', '--type',
-        help=("Type of Libertine container to create. Either 'lxc' or 'chroot'."))
+        help=("Type of Libertine container to create. Either 'lxd', 'lxc' or 'chroot'."))
     parser_create.add_argument(
         '-d', '--distro',
         help=("Ubuntu distro series to create."))
