@@ -297,7 +297,11 @@ def _remove_local_files_for_ual(container):
 def update_bind_mounts(container, config, home_path):
     userdata_dir = utils.get_libertine_container_home_dir(container.name)
 
+    old_root = container.devices.get('root')
     container.devices.clear()
+    if old_root:
+        container.devices['root'] = old_root
+
     container.devices['home'] = {'type': 'disk', 'path': home_path, 'source': userdata_dir}
 
     # applications and icons directories
