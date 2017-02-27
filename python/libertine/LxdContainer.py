@@ -192,7 +192,7 @@ def _sync_application_dirs_to_host(container):
 
             host_path = os.path.join(host_root, filepath.lstrip("/"))
             if not os.path.exists(host_path):
-                utils.get_logger().warning("Syncing file: {}:{}".format(filepath, host_path))
+                utils.get_logger().info("Syncing file: {}:{}".format(filepath, host_path))
                 os.makedirs(os.path.dirname(host_path), exist_ok=True)
                 with open(host_path, 'wb') as f:
                     f.write(container.files.get(filepath))
@@ -209,8 +209,8 @@ def _lxc_args(container_id, command, environ={}):
 
 def _add_local_files_for_ual(container):
     root_path = utils.get_libertine_container_rootfs_path(container.name)
-    find = subprocess.Popen(shlex.split("find %s/usr/ -type l -! -exec test -e {} \; -print" % root_path),
-                            stdout=subprocess.PIPE)
+    find = subprocess.Popen(shlex.split("find %s -type l -! -exec test -e {} \; -print" % os.path.join(root_path, 'usr')),
+                            stdout=subprocess.PIPE, stderr = subprocess.PIPE)
     find_stdout, stderr = find.communicate()
     if find.returncode != 0:
         utils.get_logger().warning(stderr.decode('utf-8').strip())
@@ -221,23 +221,22 @@ def _add_local_files_for_ual(container):
         return # no broken links means no reason to continue
 
     broken_container_links = [link.replace(root_path, '') for link in broken_host_links]
-    links = subprocess.Popen(_lxc_args(container.name, 'bash -c "echo -n {} | xargs -d , -n 1 readlink -m"'.format(','.join(broken_container_links))),
+    links = subprocess.Popen(_lxc_args(container.name, 'bash -c "echo -n {} | xargs -d , -n 1 -I % bash -c \'readlink -e  % || echo\'"'.format(','.join(broken_container_links))),
                              stdout=subprocess.PIPE)
     links_stdout, stderr = links.communicate()
-    if links.returncode != 0:
-        utils.get_logger().warning(stderr.decode('utf-8').strip())
-        return
 
-    container_link_endpoints = [link for link in links_stdout.decode('utf-8').strip().split('\n') if link]
+    container_link_endpoints = [link.strip() for link in links_stdout.decode('utf-8').split('\n')[:-1]]
+
     if len(broken_host_links) != len(container_link_endpoints):
         utils.get_logger().warning("Link mismatch while trying to fix symbolic links.")
         return
 
     for i in range(0, len(broken_host_links)):
-        if broken_container_links[i] == container_link_endpoints[i] or container_link_endpoints[i].startswith(root_path):
+        if not container_link_endpoints[i] or broken_container_links[i] == container_link_endpoints[i] \
+           or container_link_endpoints[i].startswith(root_path):
             continue # link wasn't found
 
-        host_linkpath = "{}/{}".format(root_path, container_link_endpoints[i])
+        host_linkpath = os.path.join(root_path, container_link_endpoints[i].lstrip('/'))
         if not os.path.exists(host_linkpath):
             os.makedirs(os.path.dirname(host_linkpath), exist_ok=True)
             with open(host_linkpath, 'wb') as f:
@@ -307,7 +306,7 @@ def update_bind_mounts(container, config, home_path):
     # applications and icons directories
     rootfs_path = utils.get_libertine_container_rootfs_path(container.name)
     for data_dir in _CONTAINER_DATA_DIRS:
-        host_path = "{}{}".format(rootfs_path, data_dir)
+        host_path = os.path.join(rootfs_path, data_dir.lstrip('/'))
         os.makedirs(host_path, exist_ok=True)
         container.devices[data_dir] = {'type': 'disk', 'path': data_dir, 'source': host_path}
 
@@ -432,6 +431,8 @@ class LibertineLXD(Libertine.BaseContainer):
 
         super().create_libertine_container()
 
+        lxd_stop(self._container)
+
         return True
 
     def install_package(self, package_name, no_dialog=False, update_cache=True):
@@ -466,9 +467,10 @@ class LibertineLXD(Libertine.BaseContainer):
             utils.get_logger().error("Canceling destruction due to running container")
             return False
 
-        if self._container.status == 'Frozen' and not lxd_stop(self._container):
-            utils.get_logger().error("Canceling destruction due to container not stopped")
-            return False
+        lxd_start(self._container)
+        dirs = ' '.join(['{}/*'.format(d) for d in _CONTAINER_DATA_DIRS])
+        self.run_in_container('bash -c "rm -rf {}"'.format(dirs))
+        lxd_stop(self._container)
 
         self._container.delete()
 
@@ -483,8 +485,7 @@ class LibertineLXD(Libertine.BaseContainer):
         return _lxc_args(self.container_id, command, environ)
 
     def run_in_container(self, command):
-        proc = subprocess.Popen(self._lxc_args(command))
-        return proc.wait()
+        return subprocess.Popen(self._lxc_args(command)).wait()
 
     def start_container(self, home=env_home_path()):
         if not self._try_get_container():
