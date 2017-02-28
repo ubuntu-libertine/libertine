@@ -350,6 +350,18 @@ def update_bind_mounts(container, config, home_path):
     _lxd_save(container, 'Saving bind mounts for container \'{}\' raised:'.format(container.name))
 
 
+def _setup_etc_hosts(container):
+    self_host = '127.0.1.1 %s' % container.name
+    hosts = container.files.get("/etc/hosts")
+
+    lines = [line for line in hosts.decode('utf-8').split('\n')]
+    found = [line for line in lines if line == self_host]
+    if len(found) == 0:
+        lines.insert(1, self_host)
+
+    container.files.put("/etc/hosts", '\n'.join(lines).encode('utf-8'))
+
+
 def update_libertine_profile(client):
     try:
         profile = client.profiles.get('libertine')
@@ -415,6 +427,7 @@ class LibertineLXD(Libertine.BaseContainer):
         self._create_libertine_user_data_dir()
 
         _setup_bind_mount_service(self._container, uid, username)
+        _setup_etc_hosts(self._container)
 
         if multiarch and self.architecture == 'amd64':
             utils.get_logger().info("Adding i386 multiarch support to container '{}'".format(self.container_id))
