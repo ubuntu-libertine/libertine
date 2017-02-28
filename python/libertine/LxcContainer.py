@@ -259,16 +259,16 @@ class LibertineLXC(BaseContainer):
 
         return super().update_packages(update_locale)
 
-    def destroy_libertine_container(self):
+    def destroy_libertine_container(self, force):
         if not self.container.defined:
             return False
 
-        if self.container.state == 'RUNNING':
-            utils.get_logger().error("Canceling destruction due to running container")
+        if self.container.state == 'RUNNING' and not force:
+            utils.get_logger().error("Canceling destruction due to running container. Use --force to override.")
             return False
 
-        if self.container.state == 'FROZEN' and not lxc_stop(self.container):
-            utils.get_logger().error("Canceling destruction due to container not stopped")
+        if not lxc_stop(self.container):
+            utils.get_logger().error("Failed to force container to stop. Canceling destruction.")
             return False
 
         self.container.destroy()

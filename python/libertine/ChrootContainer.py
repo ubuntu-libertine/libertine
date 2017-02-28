@@ -63,7 +63,7 @@ class LibertineChroot(BaseContainer):
         cmd = subprocess.Popen(args)
         return cmd.wait()
 
-    def destroy_libertine_container(self):
+    def destroy_libertine_container(self, force):
         return self._delete_rootfs()
 
     def create_libertine_container(self, password=None, multiarch=False):

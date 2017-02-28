@@ -471,13 +471,13 @@ class LibertineLXD(Libertine.BaseContainer):
 
         return super().update_packages(update_locale)
 
-    def destroy_libertine_container(self):
+    def destroy_libertine_container(self, force):
         if not self._try_get_container():
             utils.get_logger().error("No such container '%s'" % self.container_id)
             return False
 
-        if self._container.status == 'Running':
-            utils.get_logger().error("Canceling destruction due to running container")
+        if self._container.status == 'Running' and not force:
+            utils.get_logger().error("Canceling destruction due to running container. Use --force to override.")
             return False
 
         lxd_start(self._container)

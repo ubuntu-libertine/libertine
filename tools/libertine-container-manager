@@ -108,8 +108,7 @@ class LibertineContainerManager(object):
         except Exception as e:
             libertine.utils.get_logger().error("Failed to create container: '{}'".format(str(e)))
             if container:
-                container.stop_container()
-                container.destroy_libertine_container()
+                container.destroy_libertine_container(force=True)
 
             self.containers_config.delete_container(args.id)
             sys.exit(1)
@@ -118,12 +117,12 @@ class LibertineContainerManager(object):
 
         libertine.utils.refresh_libertine_scope()
 
-    def destroy_container_by_id(self, id):
+    def destroy_container_by_id(self, id, force):
         container = LibertineContainer(id)
         fallback = self.containers_config.get_container_install_status(id)
 
         self.containers_config.update_container_install_status(id, "removing")
-        if not container.destroy_libertine_container():
+        if not container.destroy_libertine_container(force):
             self.containers_config.update_container_install_status(id, fallback)
             return
 
@@ -133,7 +132,7 @@ class LibertineContainerManager(object):
     def destroy(self, args):
         args.id = self.containers_config.check_container_id(args.id)
 
-        self.destroy_container_by_id(args.id)
+        self.destroy_container_by_id(args.id, args.force)
 
         libertine.utils.refresh_libertine_scope()
 
@@ -458,6 +457,9 @@ if __name__ == '__main__':
     parser_destroy.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
+    parser_destroy.add_argument(
+        '-f', '--force', action='store_true', required=False,
+        help=("Force destroy.  Forces running containers to stop before destruction."))
     parser_destroy.set_defaults(func=container_manager.destroy)
 
     # Handle the install-package command and its options

@@ -34,7 +34,7 @@ _libertine-container-manager()
         opts="--help --id --type --distro --name --force --multiarch --password"
         ;;
       "destroy" )
-        opts="--help --id"
+        opts="--help --id --force"
         ;;
       "search-cache" )
         opts="--help --id --search-string"

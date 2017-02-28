@@ -141,7 +141,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
     def create_libertine_container(self, password=None, multiarch=False):
         self.install_base_language_packs()
 
-    def destroy_libertine_container(self):
+    def destroy_libertine_container(self, force):
         pass
 
     def copy_file_to_container(self, source, dest):
@@ -330,7 +330,7 @@ class LibertineMock(BaseContainer):
     def create_libertine_container(self, password=None, multiarch=False):
         return True
 
-    def destroy_libertine_container(self):
+    def destroy_libertine_container(self, force):
         return True
 
     def update_packages(self, new_locale=None):
@@ -422,11 +422,11 @@ class LibertineContainer(object):
     def root_path(self):
         return self.container.root_path
 
-    def destroy_libertine_container(self):
+    def destroy_libertine_container(self, force=False):
         """
         Destroys the container and releases all its system resources.
         """
-        return self.container.destroy_libertine_container()
+        return self.container.destroy_libertine_container(force)
 
     def create_libertine_container(self, password=None, multiarch=False):
         """
