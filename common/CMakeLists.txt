@@ -6,7 +6,7 @@ add_library(${LIBERTINE_COMMON}
     ContainerConfigList.cpp
     ContainerManager.cpp
     LibertineConfig.cpp
-    PackageOperationDetails.cpp
+    ContainerOperationDetails.cpp
 )
 
 target_link_libraries(${LIBERTINE_COMMON} ${LIBERTINE_CORE} Qt5::Core)

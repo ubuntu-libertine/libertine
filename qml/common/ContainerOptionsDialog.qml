@@ -3,7 +3,7 @@
  * @brief Libertine container options dialog
  */
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -99,9 +99,9 @@ Dialog {
         var container_id = containerConfigList.addNewContainer("lxc", containerNameInput.text)
         var worker = Qt.createComponent("ContainerManager.qml").createObject(parent)
 
-        worker.updateOperationDetails.connect(packageOperationDetails.update)
-        worker.operationFinished.connect(packageOperationDetails.clear)
-        worker.error.connect(packageOperationDetails.error)
+        worker.updateOperationDetails.connect(containerOperationDetails.update)
+        worker.operationFinished.connect(containerOperationDetails.clear)
+        worker.error.connect(containerOperationDetails.error)
 
         worker.createContainer(container_id,
                                containerConfigList.getContainerName(container_id),

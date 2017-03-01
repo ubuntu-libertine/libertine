@@ -122,7 +122,7 @@ Page {
 
         var worker = Qt.createComponent("ContainerManager.qml").createObject(parent)
         worker.finishedSearch.connect(finishedSearch)
-        worker.error.connect(packageOperationDetails.error)
+        worker.error.connect(containerOperationDetails.error)
 
         worker.searchPackageCache(currentContainer, query)
     }

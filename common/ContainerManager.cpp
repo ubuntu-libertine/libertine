@@ -3,7 +3,7 @@
  * @brief Threaded Libertine container manager
  */
 /*
- * Copyright 2015-2016 Canonical Ltd
+ * Copyright 2015-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -98,7 +98,7 @@ createContainer(const QString& id, const QString& name, const QString& distro, b
     auto output = process_.readAllStandardOutput();
     if (!output.isEmpty())
     {
-      emit updateOperationDetails(id, "", output);
+      emit updateOperationDetails(id, output);
     }
   });
   connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
@@ -107,7 +107,7 @@ createContainer(const QString& id, const QString& name, const QString& distro, b
     {
       emit error(CONTAINER_CREATE_FAILED.arg(id), process_.readAllStandardError());
     }
-    emit operationFinished(id, "");
+    emit operationFinished(id);
   });
   connect(&process_, &QProcess::started, [=]() {
     process_.write(password.toUtf8());
@@ -140,7 +140,7 @@ destroyContainer(const QString& id)
 
 
 void ContainerManagerWorker::
-packageOperationInteraction(const QString& input)
+containerOperationInteraction(const QString& input)
 {
   if (process_.state() == QProcess::Running)
   {
@@ -156,7 +156,7 @@ installPackage(const QString& container_id, const QString& package_name)
     auto output = process_.readAllStandardOutput();
     if (!output.isEmpty())
     {
-      emit updateOperationDetails(container_id, package_name, output);
+      emit updateOperationDetails(container_id, output);
       process_output_ += output;
     }
   });
@@ -167,7 +167,7 @@ installPackage(const QString& container_id, const QString& package_name)
       auto stderr = process_.readAllStandardError();
       emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), stderr.isEmpty() ? process_output_ : stderr);
     }
-     emit operationFinished(container_id, package_name);
+     emit operationFinished(container_id);
   });
 
   process_.start(libertine_container_manager_tool, QStringList{"install-package", "-i", container_id, "-p", package_name, "--no-dialog"});
@@ -181,7 +181,7 @@ removePackage(const QString& container_id, const QString& package_name)
     auto output = process_.readAllStandardOutput();
     if (!output.isEmpty())
     {
-      emit updateOperationDetails(container_id, package_name, output);
+      emit updateOperationDetails(container_id, output);
       process_output_ += output;
     }
   });
@@ -191,7 +191,7 @@ removePackage(const QString& container_id, const QString& package_name)
     {
       emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), readAllStdOutOrStdErr(process_, process_output_));
     }
-    emit operationFinished(container_id, package_name);
+    emit operationFinished(container_id);
   });
 
   process_.start(libertine_container_manager_tool, QStringList{"remove-package", "-i", container_id, "-p", package_name, "--no-dialog"});
@@ -239,7 +239,7 @@ updateContainer(const QString& container_id, const QString& container_name)
     auto output = process_.readAllStandardOutput();
     if (!output.isEmpty())
     {
-      emit updateOperationDetails(container_id, "", output);
+      emit updateOperationDetails(container_id, output);
     }
   });
   connect(&process_, static_cast<void(QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished),
@@ -248,7 +248,7 @@ updateContainer(const QString& container_id, const QString& container_name)
     {
       emit error(CONTAINER_UPDATE_FAILED.arg(container_name), readAllStdOutOrStdErr(process_));
     }
-    emit operationFinished(container_id, "");
+    emit operationFinished(container_id);
   });
 
   process_.start(libertine_container_manager_tool, QStringList{"update", "-i", container_id});
@@ -281,7 +281,7 @@ configureContainer(const QString& container_id, const QString& container_name, c
     auto output = process_.readAllStandardOutput();
     if (!output.isEmpty())
     {
-      emit updateOperationDetails(container_id, "", output);
+      emit updateOperationDetails(container_id, output);
       process_output_ += output;
     }
   });
@@ -295,7 +295,7 @@ configureContainer(const QString& container_id, const QString& container_name, c
     {
       emit finishedConfigure();
     }
-    emit operationFinished(container_id, "");
+    emit operationFinished(container_id);
   });
 
   QStringList args{"configure", "-i", container_id};

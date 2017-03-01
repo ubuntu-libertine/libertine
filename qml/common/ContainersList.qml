@@ -40,7 +40,7 @@ Item {
 
         function edit(id, status) {
             if (status === "removing") {
-                packageOperationDetails.error(i18n.tr("Container Unavailable"), i18n.tr("Container is being destroyed and is no longer editable."))
+                containerOperationDetails.error(i18n.tr("Container Unavailable"), i18n.tr("Container is being destroyed and is no longer editable."))
                 return
             }
             currentContainer = id
@@ -65,7 +65,10 @@ Item {
                     rightMargin: units.gu(2)
                 }
                 visible: installStatus === i18n.tr("installing") ||
-                          installStatus === i18n.tr("removing")
+                         installStatus === i18n.tr("removing") ||
+                         installStatus === i18n.tr("installing packages") ||
+                         installStatus === i18n.tr("removing packages") ||
+                         installStatus === i18n.tr("updating")
                 running: containerActivity.visible
             }
 
@@ -79,7 +82,7 @@ Item {
                         description: i18n.tr("Delete Container")
                         onTriggered: {
                             var worker = Qt.createComponent("../common/ContainerManager.qml").createObject(parent)
-                            worker.error.connect(packageOperationDetails.error)
+                            worker.error.connect(containerOperationDetails.error)
                             worker.destroyContainer(containerId)
                         }
                     }
@@ -164,8 +167,8 @@ Item {
 
         if (currentContainer && !containerConfigList.getContainerStatus(currentContainer)) {
             currentContainer = ""
-            packageOperationDetails.error(i18n.tr("Container Unavailable"),
-                                          i18n.tr("This container has been destroyed and is no longer valid. You have been returned to the containers overview."))
+            containerOperationDetails.error(i18n.tr("Container Unavailable"),
+                                            i18n.tr("This container has been destroyed and is no longer valid. You have been returned to the containers overview."))
         }
     }
 }

@@ -3,7 +3,7 @@
  * @brief Libertine app wrapper
  */
 /*
- * Copyright 2015 Canonical Ltd
+ * Copyright 2015-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -31,7 +31,7 @@ class LibertineConfig;
 class ContainerAppsList;
 class ContainerArchivesList;
 class ContainerBindMountsList;
-class PackageOperationDetails;
+class ContainerOperationDetails;
 
 
 class Libertine
@@ -59,7 +59,7 @@ private:
     ContainerAppsList*              container_apps_;
     ContainerArchivesList*          container_archives_;
     ContainerBindMountsList*        container_bind_mounts_;
-    PackageOperationDetails*        package_operation_details_;
+    ContainerOperationDetails*      container_operation_details_;
     QQuickView                      view_;
 };
 

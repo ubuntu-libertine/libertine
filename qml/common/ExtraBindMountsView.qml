@@ -85,13 +85,13 @@ Page {
 
     function deleteBindMount(mount) {
         var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
-        worker.error.connect(packageOperationDetails.error)
+        worker.error.connect(containerOperationDetails.error)
         worker.configureContainer(currentContainer, containerConfigList.getContainerName(currentContainer), ["--bind-mount", "remove", "--mount-path", "\"" + mount + "\""])
     }
 
     function addBindMount(mount) {
         var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
-        worker.error.connect(packageOperationDetails.error)
+        worker.error.connect(containerOperationDetails.error)
         worker.configureContainer(currentContainer, containerConfigList.getContainerName(currentContainer), ["--bind-mount", "add", "--mount-path", "\"" + mount + "\""])
     }
 

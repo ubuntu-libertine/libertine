@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -19,25 +19,25 @@
 #include <QMap>
 
 
-class PackageOperationDetails : public QObject
+class ContainerOperationDetails : public QObject
 {
   Q_OBJECT
 
 public:
-  explicit PackageOperationDetails(QObject* parent = nullptr);
-  virtual ~PackageOperationDetails() = default;
+  explicit ContainerOperationDetails(QObject* parent = nullptr);
+  virtual ~ContainerOperationDetails() = default;
 
-  Q_INVOKABLE QString details(QString const& container_id, QString const& package_id) const;
-  Q_INVOKABLE void clear(QString const& container_id, QString const& package_id);
+  Q_INVOKABLE QString details(QString const& container_id) const;
+  Q_INVOKABLE void clear(QString const& container_id);
 
 public slots:
-  void update(QString const& container_id, QString const& package_id, QString const& new_details);
+  void update(QString const& container_id, QString const& new_details);
 
 signals:
-  void updated(QString const& container_id, QString const& package_id, QString const& new_details);
+  void updated(QString const& container_id, QString const& new_details);
   void send(QString const& input);
   void error(QString const& short_description, QString const& details);
 
 private:
-  QMap<QString, QMap<QString, QString> > details_;
+  QMap<QString, QString> details_;
 };

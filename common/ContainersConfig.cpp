@@ -22,14 +22,16 @@ namespace
 QString translate_status(QString const& original)
 {
   static const QMap<QString, QString> translations{
-    {"new",        QObject::tr("new")},
-    {"installing", QObject::tr("installing")},
-    {"installed",  QObject::tr("installed")},
-    {"ready",      QObject::tr("ready")},
-    {"updating",   QObject::tr("updating")},
-    {"removing",   QObject::tr("removing")},
-    {"removed",    QObject::tr("removed")},
-    {"unknown",    QObject::tr("unknown")}
+    {"new",                 QObject::tr("new")},
+    {"installing",          QObject::tr("installing")},
+    {"installed",           QObject::tr("installed")},
+    {"installing packages", QObject::tr("installing packages")},
+    {"removing packages",   QObject::tr("removing packages")},
+    {"ready",               QObject::tr("ready")},
+    {"updating",            QObject::tr("updating")},
+    {"removing",            QObject::tr("removing")},
+    {"removed",             QObject::tr("removed")},
+    {"unknown",             QObject::tr("unknown")}
   };
 
   return translations.value(original, "");

@@ -3,7 +3,7 @@
  * @brief Threaded Libertine container manager
  */
 /*
- * Copyright 2015-2016 Canonical Ltd
+ * Copyright 2015-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -47,7 +47,7 @@ public:
   Q_INVOKABLE void setDefaultContainer(const QString& container_id, bool should_clear);
 
 public slots:
-  void packageOperationInteraction(const QString& input);
+  void containerOperationInteraction(const QString& input);
 
 private:
   QProcess process_;
@@ -67,8 +67,8 @@ signals:
   void finishedSearch(QList<QString> packageList);
   void finishedCommand(QString const& command_output);
   void finishedConfigure();
-  void updateOperationDetails(const QString& container_id, const QString& package_name, const QString& details);
-  void operationFinished(const QString& container_id, const QString& package_name);
+  void updateOperationDetails(const QString& container_id, const QString& details);
+  void operationFinished(const QString& container_id);
 
   void error(const QString& short_description, const QString& details);
 };

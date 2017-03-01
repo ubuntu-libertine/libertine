@@ -3,7 +3,7 @@
  * @brief Container info view
  */
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -37,6 +37,8 @@ Page {
     property var statusText: containerConfigList.getContainerStatus(currentContainer)
     property bool showDetails: false
     property string operationDetails: ""
+
+    signal sendOperationInteraction(string text)
 
     Flickable {
         anchors {
@@ -103,10 +105,24 @@ Page {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 height: Math.max(containerInfoView.height - pageHeader.height - idView.height - nameView.height - distroView.height
-                                                          - statusView.height - showDetailsView.height,
-                                 units.gu(35))
+                                                          - statusView.height - showDetailsView.height - operationInputField.height,
+                                 units.gu(30))
                 readOnly: true
                 text: operationDetails
+            }
+
+            TextField {
+                id: operationInputField
+                visible: showDetails && (statusText === "installing packages" ||
+                                         statusText === "removing packages" ||
+                                         statusText === "updating")
+                anchors.left: parent.left
+                anchors.right: parent.right
+                text: ""
+                onAccepted: {
+                    sendOperationInteraction(text)
+                    text = ""
+                }
             }
         }
     }
@@ -115,21 +131,23 @@ Page {
         containerConfigList.configChanged.connect(reloadStatus)
 
         var worker = Qt.createComponent("ContainerManager.qml").createObject(parent)
-        operationDetails = packageOperationDetails.details(currentContainer, "")
-        packageOperationDetails.updated.connect(updateDetails)
+        operationDetails = containerOperationDetails.details(currentContainer)
+        containerOperationDetails.updated.connect(updateDetails)
 
         operationDetailsView.cursorPosition = operationDetailsView.length
         if (operationDetails !== "") {
             showDetails = !showDetails
         }
+        sendOperationInteraction.connect(containerOperationDetails.send)
     }
 
     Component.onDestruction: {
         containerConfigList.configChanged.disconnect(reloadStatus)
+        sendOperationInteraction.disconnect(containerOperationDetails.send)
     }
 
-    function updateDetails(container_id, package_name, details) {
-        if (container_id === currentContainer && package_name === "") {
+    function updateDetails(container_id, details) {
+        if (container_id === currentContainer) {
             operationDetails += details
             operationDetailsView.cursorPosition = operationDetailsView.length
         }

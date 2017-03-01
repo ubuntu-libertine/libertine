@@ -3,7 +3,7 @@
  * @brief Libertine manage container view
  */
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -52,8 +52,8 @@ Page {
                     onClicked: {
                         var worker = Qt.createComponent("ContainerManager.qml").createObject(parent)
 
-                        worker.updateOperationDetails.connect(packageOperationDetails.update)
-                        worker.operationFinished.connect(packageOperationDetails.clear)
+                        worker.updateOperationDetails.connect(containerOperationDetails.update)
+                        worker.operationFinished.connect(containerOperationDetails.clear)
 
                         if (checked) {
                             worker.configureContainer(currentContainer,
@@ -115,7 +115,7 @@ Page {
                     checked: isDefaultContainer
                     onClicked: {
                         var worker = Qt.createComponent("ContainerManager.qml").createObject(parent)
-                        worker.error.connect(packageOperationDetails.error)
+                        worker.error.connect(containerOperationDetails.error)
 
                         var fallback = checked
                         worker.error.connect(function() {
@@ -141,10 +141,10 @@ Page {
 
     function updateContainer() {
         var worker = Qt.createComponent("ContainerManager.qml").createObject(parent)
-        worker.error.connect(packageOperationDetails.error);
+        worker.error.connect(containerOperationDetails.error);
 
-        worker.updateOperationDetails.connect(packageOperationDetails.update)
-        worker.operationFinished.connect(packageOperationDetails.clear)
+        worker.updateOperationDetails.connect(containerOperationDetails.update)
+        worker.operationFinished.connect(containerOperationDetails.clear)
 
         worker.updateContainer(currentContainer, containerConfigList.getContainerName(currentContainer))
     }

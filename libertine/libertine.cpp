@@ -3,7 +3,7 @@
  * @brief Libertine app wrapper
  */
 /*
- * Copyright 2015-2016 Canonical Ltd
+ * Copyright 2015-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -24,7 +24,7 @@
 #include "common/ContainerBindMountsList.h"
 #include "common/ContainerConfigList.h"
 #include "common/LibertineConfig.h"
-#include "common/PackageOperationDetails.h"
+#include "common/ContainerOperationDetails.h"
 #include "libertine/config.h"
 #include <cstdlib>
 #include <QtCore/QCommandLineParser>
@@ -91,7 +91,7 @@ Libertine(int& argc, char** argv)
 , main_qml_source_file_(find_main_qml_source_file())
 {
   qmlRegisterType<ContainerManagerWorker>("Libertine", 1, 0, "ContainerManagerWorker");
-  qmlRegisterType<PackageOperationDetails>("Libertine", 1, 0, "PackageOperationDetails");
+  qmlRegisterType<ContainerOperationDetails>("Libertine", 1, 0, "ContainerOperationDetails");
 
   setApplicationName(LIBERTINE_APPLICATION_NAME);
   setApplicationVersion(LIBERTINE_VERSION);
@@ -116,7 +116,7 @@ Libertine(int& argc, char** argv)
   container_apps_ = new ContainerAppsList(containers_, this);
   container_archives_ = new ContainerArchivesList(containers_, this);
   container_bind_mounts_ = new ContainerBindMountsList(containers_, this);
-  package_operation_details_ = new PackageOperationDetails(this);
+  container_operation_details_ = new ContainerOperationDetails(this);
 
   initialize_view();
   view_.show();
@@ -144,7 +144,7 @@ initialize_view()
   ctxt->setContextProperty("containerAppsList", container_apps_);
   ctxt->setContextProperty("containerArchivesList", container_archives_);
   ctxt->setContextProperty("containerBindMountsList", container_bind_mounts_);
-  ctxt->setContextProperty("packageOperationDetails", package_operation_details_);
+  ctxt->setContextProperty("containerOperationDetails", container_operation_details_);
 
   view_.setSource(QUrl::fromLocalFile(main_qml_source_file_));
   connect(view_.engine(), SIGNAL(quit()), SLOT(quit()));

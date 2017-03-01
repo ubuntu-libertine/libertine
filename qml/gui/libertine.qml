@@ -32,7 +32,7 @@ MainView {
     signal error(string short_description, string details)
 
     Component.onCompleted: {
-        packageOperationDetails.error.connect(error)
+        containerOperationDetails.error.connect(error)
         Qt.createComponent("../common/ContainerManager.qml").createObject(mainView).fixIntegrity()
     }
 

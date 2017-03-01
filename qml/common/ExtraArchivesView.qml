@@ -97,7 +97,7 @@ Page {
     function deleteArchive(archive) {
         var worker = Qt.createComponent("ContainerManager.qml").createObject(mainView)
         worker.finishedConfigure.connect(finishedConfigure)
-        worker.error.connect(packageOperationDetails.error)
+        worker.error.connect(containerOperationDetails.error)
         worker.configureContainer(currentContainer, containerConfigList.getContainerName(currentContainer), ["--archive", "remove", "--archive-name", "\"" + archive + "\""])
     }
 

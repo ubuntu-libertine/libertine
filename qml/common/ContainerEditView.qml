@@ -260,10 +260,10 @@ Page {
 
     function operationSetup() {
         var worker = Qt.createComponent("ContainerManager.qml").createObject(parent)
-        worker.error.connect(packageOperationDetails.error)
-        worker.updateOperationDetails.connect(packageOperationDetails.update)
-        packageOperationDetails.send.connect(worker.packageOperationInteraction)
-        worker.operationFinished.connect(packageOperationDetails.clear)
+        worker.error.connect(containerOperationDetails.error)
+        worker.updateOperationDetails.connect(containerOperationDetails.update)
+        containerOperationDetails.send.connect(worker.containerOperationInteraction)
+        worker.operationFinished.connect(containerOperationDetails.clear)
         return worker
     }
 

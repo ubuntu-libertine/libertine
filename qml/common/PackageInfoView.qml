@@ -3,7 +3,7 @@
  * @brief Container package info view
  */
 /*
- * Copyright 2016 Canonical Ltd
+ * Copyright 2016-2017 Canonical Ltd
  *
  * Libertine is free software: you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, version 3, as published by the
@@ -33,11 +33,7 @@ Page {
     property var currentPackage: null
     property var statusText: containerConfigList.getAppStatus(currentContainer, currentPackage)
     property var packageVersionText: i18n.tr("Obtaining package version…")
-    property string currentDetails: ""
     property var worker: null
-    property bool showDetails: false
-
-    signal sendOperationInteraction(string text)
 
     Flickable {
         anchors {
@@ -74,36 +70,14 @@ Page {
                 id: showDetailsView
                 control: Button {
                     text: enabled ?
-                              showDetails ? i18n.tr('Hide') : i18n.tr('Show')
+                              i18n.tr('View')
                             : i18n.tr('None')
-                    enabled: currentDetails != ""
+                    enabled: statusText === 'installing' || statusText === 'removing'
                     onClicked: {
-                        showDetails = !showDetails
+                        pageStack.addPageToNextColumn(packageInfoView, Qt.resolvedUrl("ContainerInfoView.qml"), {currentContainer: currentContainer})
                     }
                 }
                 text: i18n.tr("Operation details")
-            }
-
-            TextArea {
-                id: packageDetailsView
-                visible: showDetails
-                anchors.left: parent.left
-                anchors.right: parent.right
-                height: Math.max(packageInfoView.height - pageHeader.height - packageListItem.height - showDetailsView.height - statusListItem.height - 35, units.gu(35))
-                readOnly: true
-                text: currentDetails
-            }
-
-            TextField {
-                id: packageInputField
-                visible: showDetails && (statusText === "installing" || statusText === "removing")
-                anchors.left: parent.left
-                anchors.right: parent.right
-                text: ""
-                onAccepted: {
-                    sendOperationInteraction(text)
-                    text = ""
-                }
             }
         }
     }
@@ -113,32 +87,12 @@ Page {
         var command = "apt-cache policy " + currentPackage
         var worker = Qt.createComponent("ContainerManager.qml").createObject(parent)
         worker.finishedCommand.connect(getPackageVersion)
-
-        currentDetails = packageOperationDetails.details(currentContainer, currentPackage)
-        packageDetailsView.cursorPosition = packageDetailsView.length
-        if (currentDetails != "") {
-            showDetails = !showDetails
-        }
-
-        packageOperationDetails.updated.connect(updatePackageDetails)
-        sendOperationInteraction.connect(packageOperationDetails.send)
-
         worker.error.connect(onError)
-        worker.error.connect(packageOperationDetails.error)
         worker.runCommand(currentContainer, containerConfigList.getContainerName(currentContainer), command)
     }
 
     Component.onDestruction: {
         containerConfigList.configChanged.disconnect(reloadStatus)
-        packageOperationDetails.updated.disconnect(updatePackageDetails)
-        sendOperationInteraction.disconnect(packageOperationDetails.send)
-    }
-
-    function updatePackageDetails(container_id, package_name, details) {
-        if (container_id === currentContainer && package_name === currentPackage) {
-            currentDetails += details
-            packageDetailsView.cursorPosition = packageDetailsView.length
-        }
     }
 
     function reloadStatus() {

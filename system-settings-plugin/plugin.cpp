@@ -21,8 +21,8 @@
 #include "common/ContainerAppsList.h"
 #include "common/ContainerArchivesList.h"
 #include "common/ContainerConfigList.h"
+#include "common/ContainerOperationDetails.h"
 #include "common/LibertineConfig.h"
-#include "common/PackageOperationDetails.h"
 #include <memory>
 #include <QQmlEngine>
 #include <QQmlContext>
@@ -47,7 +47,7 @@ private:
     ContainerConfigList*            containers_;
     ContainerAppsList*              container_apps_;
     ContainerArchivesList*          container_archives_;
-    PackageOperationDetails*        package_operation_details_;
+    ContainerOperationDetails*      container_operation_details_;
     QFileSystemWatcher              watcher_;
 
 private slots:
@@ -61,11 +61,11 @@ LibertineItem(const QVariantMap &staticData, QObject *parent)
   , containers_(new ContainerConfigList(config_.get(), this))
   , container_apps_(new ContainerAppsList(containers_, this))
   , container_archives_(new ContainerArchivesList(containers_, this))
-  , package_operation_details_(new PackageOperationDetails(this))
+  , container_operation_details_(new ContainerOperationDetails(this))
   , watcher_({config_->containers_config_file_name()})
 {
   qmlRegisterType<ContainerManagerWorker>("Libertine", 1, 0, "ContainerManagerWorker");
-  qmlRegisterType<PackageOperationDetails>("Libertine", 1, 0, "PackageOperationDetails");
+  qmlRegisterType<ContainerOperationDetails>("Libertine", 1, 0, "ContainerOperationDetails");
 
   connect(&watcher_, &QFileSystemWatcher::fileChanged, this, &LibertineItem::reload_config);
 }
@@ -77,7 +77,7 @@ pageComponent(QQmlEngine *engine, QObject *parent)
   ctxt->setContextProperty("containerConfigList", containers_);
   ctxt->setContextProperty("containerAppsList", container_apps_);
   ctxt->setContextProperty("containerArchivesList", container_archives_);
-  ctxt->setContextProperty("packageOperationDetails", package_operation_details_);
+  ctxt->setContextProperty("containerOperationDetails", container_operation_details_);
 
   auto component = new QQmlComponent(engine,
                            QUrl(LIBERTINE_PLUGIN_QML_DIR "/MainSettingsPage.qml"),
