@@ -44,7 +44,7 @@ Page {
         visible: packageList.length > 0  ? true : false
 
         function install(fileName) {
-            pageStack.pop()
+            pageStack.removePages(debianPackagePicker)
             pageStack.currentPage.installPackage(containerConfigList.getDownloadsLocation() + "/" + fileName)
         }
 

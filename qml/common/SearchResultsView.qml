@@ -75,7 +75,7 @@ Page {
 
             Component.onDestruction: {
                 if (returnHome) {
-                    pageStack.pop()
+                    pageStack.removePages(searchResultsView)
                 }
             }
         }
@@ -92,6 +92,7 @@ Page {
             leftMargin: units.gu(2)
         }
     }
+
     Label {
         id: searchLabel
         text: i18n.tr("Searching for packages…")

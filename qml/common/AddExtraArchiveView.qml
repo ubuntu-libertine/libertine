@@ -104,7 +104,7 @@ Page {
         worker.addArchive(currentContainer, containerConfigList.getContainerName(currentContainer),
                           extraArchiveString.text, publicSigningKey.text.trim())
 
-        pageStack.pop()
+        pageStack.removePages(addExtraArchiveView)
     }
 
     Component.onCompleted: {

@@ -22,7 +22,7 @@ import Ubuntu.Components.Popups 1.3
 
 
 UbuntuListView {
-    id: listView
+    id: searchResultsListView
     anchors {
         topMargin: pageHeader.height
         fill: parent
@@ -32,14 +32,14 @@ UbuntuListView {
 
     function install(packageName) {
         if (!containerConfigList.isAppInstalled(currentContainer, packageName)) {
-            pageStack.pop()
+            pageStack.removePages(searchResultsListView)
             pageStack.currentPage.installPackage(packageName)
         }
         else {
             PopupUtils.open(Qt.resolvedUrl("PackageExistsDialog.qml"), null, {"package_name": packageName})
         }
     }
-    
+
     delegate: ListItem {
         id: packageItem
         Label {
@@ -52,7 +52,7 @@ UbuntuListView {
         }
 
         onClicked: {
-            listView.install(model.package_name)
+            searchResultsListView.install(model.package_name)
         }
 
         trailingActions: ListItemActions {
@@ -61,7 +61,7 @@ UbuntuListView {
                     iconName: "select"
                     description: i18n.tr("Install Package")
                     onTriggered: {
-                        listView.install(model.package_name)
+                        searchResultsListView.install(model.package_name)
                     }
                 }
             ]
