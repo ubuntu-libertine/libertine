@@ -1,4 +1,4 @@
-.TH libertine-container-manager "1" " February 2017" "libertine-container-manager 1.5.2" "User Commands"
+.TH libertine-container-manager "1" " February 2017" "libertine-container-manager 1.6" "User Commands"
 
 .SH NAME
 libertine-container-manager \- Manage Libertine containers for supporting legacy X applications on Unity 8
@@ -43,10 +43,10 @@ Create a new Libertine container.
 Destroy (delete) an existing Liberine container.
 .TP
 .B libertine-container-manager install-package [options]
-Install a package inside an existing Libertine container.
+Install a package or packages inside an existing Libertine container.
 .TP
 .B libertine-container-manager remove-package [options]
-Remove an installed package inside an existing Libertine container.
+Remove an installed package or packages inside an existing Libertine container.
 .TP
 .B libertine-container-manager search-cache [options]
 Searches the apt cache inside an existing Libertine container for matches based on the given search string.
@@ -150,9 +150,9 @@ Prints help for this command and exits.
 Container identifier. Default container is used if omitted.
 .RE
 .IP
-.BR \-p " PACKAGE, " \-\-package " PACKAGE" ""
+.BR \-p " PACKAGE [PACKAGE ...], " \-\-package " PACKAGE [PACKAGE ...]" ""
 .RS 14
-Name of package to install. Required.
+Name of package or full path to a Debian package. Multiple packages can entered, separated by a space. Required.
 .RE
 .IP
 .BR \-n ", " \-\-no-dialog ""
@@ -174,9 +174,9 @@ Prints help for this command and exits.
 Container identifier. Default container is used if omitted.
 .RE
 .IP
-.BR \-p " PACKAGE, " \-\-package " PACKAGE" ""
+.BR \-p " PACKAGE [PACKAGE ...], " \-\-package " PACKAGE [PACKAGE ...]" ""
 .RS 14
-Name of package to remove. Required.
+Name of package to remove. Multiple packages can entered, separated by a space. Required.
 .RE
 .IP
 .BR \-n ", " \-\-no-dialog ""

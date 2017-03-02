@@ -24,8 +24,8 @@
 namespace
 {
 static const QString FAILED_TO_START = QObject::tr("%1 failed to start");
-static const QString PACKAGE_INSTALLATION_FAILED = QObject::tr("Installation of package %1 failed");
-static const QString PACKAGE_REMOVAL_FAILED = QObject::tr("Removal of package %1 failed");
+static const QString PACKAGE_INSTALLATION_FAILED = QObject::tr("Installation of packages failed");
+static const QString PACKAGE_REMOVAL_FAILED = QObject::tr("Removal of packages failed");
 static const QString PACKAGE_SEARCH_FAILED = QObject::tr("Searching for query %1 failed");
 static const QString CONTAINER_UPDATE_FAILED = QObject::tr("Updating container %1 failed");
 static const QString CONTAINER_CREATE_FAILED = QObject::tr("Creating container %1 failed");
@@ -150,7 +150,7 @@ containerOperationInteraction(const QString& input)
 
 
 void ContainerManagerWorker::
-installPackage(const QString& container_id, const QString& package_name)
+installPackage(const QString& container_id, const QString& packages)
 {
   connect(&process_, &QProcess::readyRead, [=](){
     auto output = process_.readAllStandardOutput();
@@ -165,17 +165,17 @@ installPackage(const QString& container_id, const QString& package_name)
     if (exitCode != 0)
     {
       auto stderr = process_.readAllStandardError();
-      emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), stderr.isEmpty() ? process_output_ : stderr);
+      emit error(PACKAGE_INSTALLATION_FAILED, stderr.isEmpty() ? process_output_ : stderr);
     }
      emit operationFinished(container_id);
   });
 
-  process_.start(libertine_container_manager_tool, QStringList{"install-package", "-i", container_id, "-p", package_name, "--no-dialog"});
+  process_.start(libertine_container_manager_tool, QStringList() << "install-package" << "-i" << container_id << "-p" << packages.split(" ") << "--no-dialog");
 }
 
 
 void ContainerManagerWorker::
-removePackage(const QString& container_id, const QString& package_name)
+removePackage(const QString& container_id, const QString& packages)
 {
   connect(&process_, &QProcess::readyRead, [=](){
     auto output = process_.readAllStandardOutput();
@@ -189,12 +189,12 @@ removePackage(const QString& container_id, const QString& package_name)
           [=](int exitCode, QProcess::ExitStatus){
     if (exitCode != 0)
     {
-      emit error(PACKAGE_INSTALLATION_FAILED.arg(package_name), readAllStdOutOrStdErr(process_, process_output_));
+      emit error(PACKAGE_INSTALLATION_FAILED, readAllStdOutOrStdErr(process_, process_output_));
     }
     emit operationFinished(container_id);
   });
 
-  process_.start(libertine_container_manager_tool, QStringList{"remove-package", "-i", container_id, "-p", package_name, "--no-dialog"});
+  process_.start(libertine_container_manager_tool, QStringList() << "remove-package" << "-i" << container_id << "-p" << packages.split(" ") << "--no-dialog");
 }
 
 

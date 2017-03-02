@@ -24,7 +24,7 @@ import os
 import sys
 import re
 
-from libertine import LibertineContainer
+from libertine import ContainerRunning, LibertineContainer
 from libertine.ContainersConfig import ContainersConfig
 from libertine.HostInfo import HostInfo
 
@@ -117,92 +117,108 @@ class LibertineContainerManager(object):
 
         libertine.utils.refresh_libertine_scope()
 
-    def destroy_container_by_id(self, id, force):
-        container = LibertineContainer(id)
-        fallback = self.containers_config.get_container_install_status(id)
+    def destroy_container(self, container, force):
+        fallback = self.containers_config.get_container_install_status(container.container_id)
 
-        self.containers_config.update_container_install_status(id, "removing")
+        self.containers_config.update_container_install_status(container.container_id, "removing")
         if not container.destroy_libertine_container(force):
-            self.containers_config.update_container_install_status(id, fallback)
+            self.containers_config.update_container_install_status(container.container_id, fallback)
             return
 
-        self.containers_config.update_container_install_status(id, "removed")
-        self.containers_config.delete_container(id)
+        self.containers_config.update_container_install_status(container.container_id, "removed")
+        self.containers_config.delete_container(container.container_id)
 
     def destroy(self, args):
-        args.id = self.containers_config.check_container_id(args.id)
+        container_id = self.containers_config.check_container_id(args.id)
+        container = LibertineContainer(container_id, self.containers_config)
 
-        self.destroy_container_by_id(args.id, args.force)
+        self.destroy_container(container, args.force)
 
         libertine.utils.refresh_libertine_scope()
 
     def install_package(self, args):
         container_id = self.containers_config.check_container_id(args.id)
-
-        is_debian_package = args.package.endswith('.deb')
-
-        if is_debian_package:
-            if os.path.exists(args.package):
-                package = libertine.utils.get_deb_package_name(args.package)
-            else:
-                libertine.utils.get_logger().error("%s does not exist." % args.package)
-                sys.exit(1)
-        else:
-            package = args.package
-
-        if self.containers_config.package_exists(container_id, package):
-            if not is_debian_package:
-                libertine.utils.get_logger().error("Package '%s' is already installed." % package)
-                sys.exit(1)
-        else:
-            self.containers_config.add_new_package(container_id, package)
-
         container = LibertineContainer(container_id, self.containers_config)
+        failure = False
 
-        self.containers_config.update_package_install_status(container_id, package, "installing")
         self.containers_config.update_container_install_status(container_id, "installing packages")
-        if not container.install_package(args.package, args.no_dialog):
-            libertine.utils.get_logger().error("Package '{}' failed to install in container '{}'"
-                                               .format(package, container_id))
-            self.containers_config.delete_package(container_id, package)
-            self.containers_config.update_container_install_status(args.id, "ready")
-            sys.exit(1)
 
-        self.containers_config.update_package_install_status(container_id, package, "installed")
+        with ContainerRunning(container.container):
+            for i, pkg in enumerate(args.package):
+                is_debian_package = pkg.endswith('.deb')
+
+                if is_debian_package:
+                    if os.path.exists(pkg):
+                        package = libertine.utils.get_deb_package_name(pkg)
+                    else:
+                        libertine.utils.get_logger().error("%s does not exist." % pkg)
+                        failure = True
+                        continue
+                else:
+                    package = pkg
+
+                if self.containers_config.package_exists(container_id, package):
+                    if not is_debian_package:
+                        libertine.utils.get_logger().error("Package '%s' is already installed." % package)
+                        failure = True
+                        continue
+                else:
+                    self.containers_config.add_new_package(container_id, package)
+
+                self.containers_config.update_package_install_status(container_id, package, "installing")
+                if not container.install_package(pkg, args.no_dialog, update_cache=i==0):
+                    libertine.utils.get_logger().error("Package '{}' failed to install in container '{}'"
+                                                       .format(package, container_id))
+                    self.containers_config.delete_package(container_id, package)
+                    failure = True
+                    continue
+
+                self.containers_config.update_package_install_status(container_id, package, "installed")
+
         self.containers_config.update_container_install_status(args.id, "ready")
-
         libertine.utils.refresh_libertine_scope()
 
-    def remove_package_by_name(self, container_id, package_name, no_dialog=False):
-        fallback_status = self.containers_config.get_package_install_status(container_id, package_name)
-        self.containers_config.update_package_install_status(container_id, package_name, "removing")
+        if failure:
+            sys.exit(1)
 
-        container = LibertineContainer(container_id)
+    def remove_package_by_name(self, container, package_name, no_dialog=False):
+        fallback_status = self.containers_config.get_package_install_status(container.container_id, package_name)
+        self.containers_config.update_package_install_status(container.container_id, package_name, "removing")
+
         if not container.remove_package(package_name, no_dialog) and fallback_status == 'installed':
-            self.containers_config.update_package_install_status(container_id, package_name, fallback_status)
+            self.containers_config.update_package_install_status(container.container_id, package_name, fallback_status)
             return False
 
-        self.containers_config.update_package_install_status(container_id, package_name, "removed")
-        self.containers_config.delete_package(container_id, package_name)
+        self.containers_config.update_package_install_status(container.container_id, package_name, "removed")
+        self.containers_config.delete_package(container.container_id, package_name)
 
         return True
 
     def remove_package(self, args):
         container_id = self.containers_config.check_container_id(args.id)
-
-        if self.containers_config.get_package_install_status(container_id, args.package) != 'installed':
-            libertine.utils.get_logger().error("Package \'%s\' is not installed." % args.package)
-            sys.exit(1)
+        container = LibertineContainer(container_id)
+        failure = False
 
         self.containers_config.update_container_install_status(container_id, "removing packages")
-        if not self.remove_package_by_name(container_id, args.package, args.no_dialog):
-            libertine.utils.get_logger().error("Package '{}' failed to be removed from container '{}'"
-                                               .format(args.package, container_id))
-            self.containers_config.update_container_install_status(args.id, "ready")
-            sys.exit(1)
+
+        with ContainerRunning(container.container):
+            for pkg in args.package:
+                if self.containers_config.get_package_install_status(container_id, pkg) != 'installed':
+                    libertine.utils.get_logger().error("Package \'%s\' is not installed." % pkg)
+                    failure = True
+                    continue
+
+                if not self.remove_package_by_name(container, pkg, args.no_dialog):
+                    libertine.utils.get_logger().error("Package '{}' failed to be removed from container '{}'"
+                                                       .format(pkg, container_id))
+                    failure = True
+                    continue
 
         self.containers_config.update_container_install_status(args.id, "ready")
         libertine.utils.refresh_libertine_scope()
+
+        if failure:
+            sys.exit(1)
 
     def search_cache(self, args):
         container_id = self.containers_config.check_container_id(args.id)
@@ -251,18 +267,19 @@ class LibertineContainerManager(object):
         if not container.exec_command(args.command):
             sys.exit(1)
 
-    def delete_archive_by_name(self, container_id, archive_name):
-        if self.containers_config.get_archive_install_status(container_id, archive_name) == 'installed':
-            self.containers_config.update_archive_install_status(container_id, archive_name, 'removing')
-            if LibertineContainer(container_id).configure_remove_archive("\"" + archive_name + "\"") is not 0:
-                self.containers_config.update_archive_install_status(container_id, archive_name, 'installed')
+    def delete_archive_by_name(self, container, archive_name):
+        if self.containers_config.get_archive_install_status(container.container_id, archive_name) == 'installed':
+            self.containers_config.update_archive_install_status(container.container_id, archive_name, 'removing')
+            if container.configure_remove_archive("\"" + archive_name + "\"") is not 0:
+                self.containers_config.update_archive_install_status(container.container_id, archive_name, 'installed')
                 return False
 
-        self.containers_config.delete_container_archive(container_id, archive_name)
+        self.containers_config.delete_container_archive(container.container_id, archive_name)
         return True
 
     def configure(self, args):
         container_id = self.containers_config.check_container_id(args.id)
+        container = LibertineContainer(container_id)
 
         if args.multiarch and self.host_info.get_host_architecture() == 'amd64':
             multiarch = 'disabled'
@@ -274,7 +291,7 @@ class LibertineContainerManager(object):
                 libertine.utils.get_logger().error("i386 multiarch support is already %s" % multiarch)
                 sys.exit(1)
 
-            if LibertineContainer(container_id).configure_multiarch(args.multiarch) is not 0:
+            if container.configure_multiarch(args.multiarch) is not 0:
                 sys.exit(1)
 
             self.containers_config.update_container_multiarch_support(container_id, multiarch)
@@ -294,7 +311,7 @@ class LibertineContainerManager(object):
 
                 self.containers_config.add_container_archive(container_id, archive_name)
                 self.containers_config.update_archive_install_status(container_id, archive_name, 'installing')
-                if LibertineContainer(container_id).configure_add_archive(archive_name_esc, args.public_key_file) is not 0:
+                if container.configure_add_archive(archive_name_esc, args.public_key_file) is not 0:
                     self.containers_config.delete_container_archive(container_id, archive_name)
                     sys.exit(1)
 
@@ -305,7 +322,8 @@ class LibertineContainerManager(object):
                     libertine.utils.get_logger().error("%s is not added in container." % archive_name)
                     sys.exit(1)
 
-                if not self.delete_archive_by_name(container_id, archive_name):
+                if not self.delete_archive_by_name(container, archive_name):
+
                     libertine.utils.get_logger().error("%s was not properly deleted." % archive_name)
                     sys.exit(1)
 
@@ -345,7 +363,7 @@ class LibertineContainerManager(object):
 
             if (container_type == 'lxc' or container_type == 'lxd' and
                 self.containers_config.get_freeze_on_stop(container_id)):
-                if not LibertineContainer(container_id).restart_libertine_container():
+                if not container.restart_libertine_container():
                     libertine.utils.get_logger().warning("Container cannot be restarted at this time.  You will need to "
                                                          "restart the container at a later time using the \'restart\' subcommand.")
 
@@ -369,19 +387,21 @@ class LibertineContainerManager(object):
     def fix_integrity(self, args):
         if 'containerList' in self.containers_config.container_list:
             for container in self.containers_config.container_list['containerList']:
+                libertine_container = LibertineContainer(container['id'])
+
                 if 'installStatus' not in container or container['installStatus'] != 'ready':
-                    self.destroy_container_by_id(container['id'])
+                    self.destroy_container(libertine_container)
                     continue
-                LibertineContainer(container['id']).exec_command('dpkg --configure -a')
+                libertine_container.exec_command('dpkg --configure -a')
 
                 for package in container['installedApps']:
                     if package['appStatus'] != 'installed':
-                        self.remove_package_by_name(container['id'], package['packageName'])
+                        self.remove_package_by_name(libertine_container, package['packageName'])
 
                 if 'extraArchives' in container:
                     for archive in container['extraArchives']:
                         if archive['archiveStatus'] != 'installed':
-                            self.delete_archive_by_name(container['id'], archive['archiveName'])
+                            self.delete_archive_by_name(libertine_container, archive['archiveName'])
 
     def set_default(self, args):
         if args.clear:
@@ -471,11 +491,13 @@ if __name__ == '__main__':
     # Handle the install-package command and its options
     parser_install = subparsers.add_parser(
         'install-package',
-        help=("Install a package in the specified Libertine container."))
+        help=("Install a package or packages in the specified Libertine container."))
     parser_install.add_argument(
         '-p', '--package',
         required=True,
-        help=("Name of package to install or full path to a Debian package. Required."))
+        nargs='+',
+        help=("Name of package or full path to a Debian package. Multiple packages "
+              "can be entered, separated by a space. Required."))
     parser_install.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))
@@ -491,7 +513,9 @@ if __name__ == '__main__':
     parser_remove.add_argument(
         '-p', '--package',
         required=True,
-        help=("Name of package to remove. Required."))
+        nargs='+',
+        help=("Name of package to remove. Multiple packages can be entered, separated "
+              "by a space. Required."))
     parser_remove.add_argument(
         '-i', '--id',
         help=("Container identifier.  Default container is used if omitted."))

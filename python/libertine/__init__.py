@@ -6,7 +6,7 @@
    :synopsis: A sandbox for running DEB-packaged X11-based applications
 """
 
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -22,6 +22,7 @@
 
 __all__ = [
           # from Libertine
+          'ContainerRunning',
           'LibertineContainer',
           'NoContainer',
           'utils',
@@ -29,5 +30,4 @@ __all__ = [
 
 __docformat__ = "restructuredtext en"
 
-from libertine.Libertine import LibertineContainer
-from libertine.Libertine import NoContainer
+from libertine.Libertine import ContainerRunning, LibertineContainer, NoContainer
