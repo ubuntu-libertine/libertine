@@ -516,9 +516,13 @@ class LibertineLXD(Libertine.BaseContainer):
             update_libertine_profile(self._client)
             update_bind_mounts(self._container, self._config, home)
 
+        self._config.update_container_install_status(self.container_id, "starting")
         if not lxd_start(self._container):
             self._manager.container_stopped()
+            self._config.update_container_install_status(self.container_id, self._container.status.lower())
             return False
+
+        self._config.update_container_install_status(self.container_id, "running")
 
         if not _wait_for_network(self._container):
             utils.get_logger().warning("Network unavailable in container '{}'".format(self.container_id))
@@ -532,9 +536,16 @@ class LibertineLXD(Libertine.BaseContainer):
         if not self._try_get_container():
             return False
 
-        if (self._manager.container_operation_finished(self.container_id, self._app_name, self._pid) and
-            lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop)):
-            return self._manager.container_stopped(self.container_id)
+        stopped = False
+        self._config.refresh_database()
+
+        if self._manager.container_operation_finished(self.container_id, self._app_name, self._pid):
+            self._config.update_container_install_status(self.container_id, self._get_stop_type_string(self._freeze_on_stop))
+ 
+            if lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop):
+                stopped = self._manager.container_stopped(self.container_id)
+
+            self._config.update_container_install_status(self.container_id, self._container.status.lower())
 
         return False
 

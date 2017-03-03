@@ -141,8 +141,6 @@ class LibertineContainerManager(object):
         container = LibertineContainer(container_id, self.containers_config)
         failure = False
 
-        self.containers_config.update_container_install_status(container_id, "installing packages")
-
         with ContainerRunning(container.container):
             for i, pkg in enumerate(args.package):
                 is_debian_package = pkg.endswith('.deb')
@@ -175,7 +173,6 @@ class LibertineContainerManager(object):
 
                 self.containers_config.update_package_install_status(container_id, package, "installed")
 
-        self.containers_config.update_container_install_status(args.id, "ready")
         libertine.utils.refresh_libertine_scope()
 
         if failure:
@@ -199,8 +196,6 @@ class LibertineContainerManager(object):
         container = LibertineContainer(container_id)
         failure = False
 
-        self.containers_config.update_container_install_status(container_id, "removing packages")
-
         with ContainerRunning(container.container):
             for pkg in args.package:
                 if self.containers_config.get_package_install_status(container_id, pkg) != 'installed':
@@ -214,7 +209,6 @@ class LibertineContainerManager(object):
                     failure = True
                     continue
 
-        self.containers_config.update_container_install_status(args.id, "ready")
         libertine.utils.refresh_libertine_scope()
 
         if failure:
@@ -235,15 +229,11 @@ class LibertineContainerManager(object):
 
         container = LibertineContainer(container_id)
 
-        self.containers_config.update_container_install_status(container_id, "updating")
         if not container.update_libertine_container(new_locale):
-            self.containers_config.update_container_install_status(container_id, "ready")
             sys.exit(1)
 
         if new_locale:
             self.containers_config.update_container_locale(container_id, new_locale)
-
-        self.containers_config.update_container_install_status(container_id, "ready")
 
     def list(self, args):
         for container in ContainersConfig().get_containers():
@@ -389,7 +379,7 @@ class LibertineContainerManager(object):
             for container in self.containers_config.container_list['containerList']:
                 libertine_container = LibertineContainer(container['id'])
 
-                if 'installStatus' not in container or container['installStatus'] != 'ready':
+                if 'installStatus' not in container or container['installStatus'] == 'removing':
                     self.destroy_container(libertine_container)
                     continue
                 libertine_container.exec_command('dpkg --configure -a')

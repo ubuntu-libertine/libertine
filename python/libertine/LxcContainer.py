@@ -223,18 +223,28 @@ class LibertineLXC(BaseContainer):
             self._dynamic_bind_mounts()
             self._setup_pulse()
 
+        self._config.update_container_install_status(self.container_id, "starting")
         if not lxc_start(self.container):
+            self._config.update_container_install_status(self.container_id, self.container.state.lower())
             _dump_lxc_log(get_logfile(self.container))
             return False
 
+        self._config.update_container_install_status(self.container_id, "running")
         return True
 
     def stop_container(self):
-        if (self._manager.container_operation_finished(self.container_id, self._app_name, self._pid) and
-            lxc_stop(self.container, self._freeze_on_stop)):
-            return self._manager.container_stopped(self.container_id)
+        stopped = False
+        self._config.refresh_database()
 
-        return False
+        if self._manager.container_operation_finished(self.container_id, self._app_name, self._pid):
+            self._config.update_container_install_status(self.container_id, self._get_stop_type_string(self._freeze_on_stop))
+
+            if lxc_stop(self.container, self._freeze_on_stop):
+                stopped = self._manager.container_stopped(self.container_id)
+
+            self._config.update_container_install_status(self.container_id, self.container.state.lower())
+
+        return stopped
 
     def restart_container(self):
         if self.container.state != 'FROZEN':

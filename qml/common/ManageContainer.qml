@@ -91,7 +91,6 @@ Page {
                 control: Button {
                     id: updateButton
                     text: i18n.tr("Update…")
-                    visible: (containerConfigList.getContainerStatus(currentContainer) === i18n.tr("ready")) ? true : false
                     onClicked: {
                         updateContainer()
                     }

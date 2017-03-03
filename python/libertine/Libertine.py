@@ -123,6 +123,12 @@ class BaseContainer(metaclass=abc.ABCMeta):
             utils.get_logger().error("%s" % e)
             return False
 
+    def _get_stop_type_string(self, freeze):
+        if freeze:
+            return 'freezing'
+        else:
+            return 'stopping'
+
     def check_language_support(self):
         if not self._binary_exists('check-language-support'):
             self.install_package('language-selector-common', update_cache=False)
@@ -172,13 +178,15 @@ class BaseContainer(metaclass=abc.ABCMeta):
         'running' state, the meaning of which depends on the type of the
         container.
         """
+        self._config.update_container_install_status(self.container_id, "running")
         return True
 
     def stop_container(self):
         """
         Stops the container.  The opposite of start_container().
         """
-        pass
+        self._config.update_container_install_status(self.container_id, "ready")
+        return True
 
     def restart_container(self):
         """
@@ -443,6 +451,7 @@ class LibertineContainer(object):
         """
         try:
             with ContainerRunning(self.container):
+                self.containers_config.update_container_install_status(self.container_id, "updating")
                 return self.container.update_packages(new_locale)
         except RuntimeError as e:
             return handle_runtime_error(e)
@@ -453,6 +462,7 @@ class LibertineContainer(object):
         """
         try:
             with ContainerRunning(self.container):
+                self.containers_config.update_container_install_status(self.container_id, "installing packages")
                 return self.container.install_package(package_name, no_dialog, update_cache)
         except RuntimeError as e:
             return handle_runtime_error(e)
@@ -468,6 +478,7 @@ class LibertineContainer(object):
                 if no_dialog:
                     os.environ['DEBIAN_FRONTEND'] = 'teletype'
 
+                self.containers_config.update_container_install_status(self.container_id, "removing packages")
                 return self.container.remove_package(package_name)
         except RuntimeError as e:
             return handle_runtime_error(e)
