@@ -114,8 +114,8 @@ class TestLibertineService(TestCase):
             self.event.wait(5)
             self.assertIsNone(self.error)
 
-        self.assertEqual('', task.last_error())
-        self.result = task.result()
+        self.assertEqual('', task.get_dbus_method('last_error', 'com.canonical.libertine.Service.Progress')())
+        self.result = task.get_dbus_method('result', 'com.canonical.libertine.Service.Progress')()
 
         for signal in signals:
             self._bus._clean_up_signal_match(signal)
