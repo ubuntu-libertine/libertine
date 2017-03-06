@@ -30,6 +30,8 @@ Page {
     }
     property bool isDefaultContainer: null
     property bool isMultiarchEnabled: null
+    property bool showFreezeOption: false
+    property bool freezeOnStop: null
     property string currentContainer: null
 
     Flickable {
@@ -67,6 +69,30 @@ Page {
                     }
                 }
                 text: i18n.tr("i386 multiarch support")
+            }
+
+            ListItem.Standard {
+                visible: showFreezeOption
+                control: CheckBox {
+                    checked: freezeOnStop
+                    onClicked: {
+                        var worker = Qt.createComponent("ContainerManager.qml").createObject(parent)
+
+                        worker.updateOperationDetails.connect(containerOperationDetails.update)
+                        worker.operationFinished.connect(containerOperationDetails.clear)
+
+                        if (checked) {
+                            worker.configureContainer(currentContainer,
+                                                      containerConfigList.getContainerName(currentContainer),
+                                                      ["--freeze", "enable"])
+                        } else {
+                            worker.configureContainer(currentContainer,
+                                                      containerConfigList.getContainerName(currentContainer),
+                                                      ["--freeze", "disable"])
+                        }
+                    }
+                }
+                text: i18n.tr("Freeze on stop")
             }
 
             ListItem.SingleValue {
@@ -107,7 +133,6 @@ Page {
                 }
                 text: i18n.tr("Update container")
             }
-
 
             ListItem.Standard {
                 control: CheckBox {
@@ -152,6 +177,12 @@ Page {
         updateStatus()
         isDefaultContainer = containerConfigList.defaultContainerId === currentContainer
         isMultiarchEnabled = containerConfigList.getContainerMultiarchSupport(currentContainer) === 'enabled'
+        var containerType = containerConfigList.getContainerType(currentContainer)
+
+        if (containerType === 'lxc' || containerType === 'lxd') {
+            showFreezeOption = true
+            freezeOnStop = containerConfigList.getFreezeOnStop(currentContainer)
+        }
     }
 
     function updateStatus() {

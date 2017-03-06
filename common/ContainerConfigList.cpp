@@ -277,6 +277,13 @@ getContainerStatus(QString const& container_id)
 }
 
 
+bool ContainerConfigList::
+getFreezeOnStop(QString const& container_id)
+{
+  return find_container_by_id(containers_config_->containers, container_id).freeze;
+}
+
+
 QString ContainerConfigList::
 getHostArchitecture()
 {

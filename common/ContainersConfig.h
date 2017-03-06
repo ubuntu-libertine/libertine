@@ -35,7 +35,8 @@ public:
                        QString const& type = "unknown",
                        QString const& distro = "unknown",
                        QString const& status = "unknown",
-                       QString const& multiarch = "disabled");
+                       QString const& multiarch = "disabled",
+                       bool freeze = false);
     virtual ~Container() = default;
 
     QJsonObject dump() const;
@@ -96,6 +97,7 @@ public:
     QString             status;
     QString             type;
     QString             multiarch;
+    bool                freeze;
     QList<Archive>      archives;
     QList<BindMount>    mounts;
     QList<InstalledApp> installed_apps;

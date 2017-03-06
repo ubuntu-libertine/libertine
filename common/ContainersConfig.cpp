@@ -48,6 +48,13 @@ QString try_get_string(QJsonObject object, QString const& key, QString fallback 
   auto value = object.value(key);
   return value.isUndefined() ? fallback : value.toString();
 }
+
+
+bool try_get_bool(QJsonObject object, QString const& key)
+{
+  auto value = object.value(key);
+  return value.isUndefined() ? false : value.toBool();
+}
 }
 
 
@@ -104,7 +111,8 @@ dump() const
 
 ContainersConfig::Container::
 Container(QString const& id, QString const& name, QString const& type,
-          QString const& distro, QString const& status, QString const& multiarch)
+          QString const& distro, QString const& status, QString const& multiarch,
+          bool freeze)
   : status_(status)
   , name(name)
   , id(id)
@@ -112,6 +120,7 @@ Container(QString const& id, QString const& name, QString const& type,
   , status(translate_status(status_))
   , type(type)
   , multiarch(multiarch)
+  , freeze(freeze)
 { }
 
 
@@ -119,7 +128,7 @@ ContainersConfig::Container::
 Container(QJsonObject const& json)
 : Container(try_get_string(json, "id"), try_get_string(json, "name"), try_get_string(json, "type"),
             try_get_string(json, "distro"), try_get_string(json, "installStatus"),
-            try_get_string(json, "multiarch", "disabled"))
+            try_get_string(json, "multiarch", "disabled"), try_get_bool(json, "freezeOnStop"))
 {
   for (auto const& archive: json["extraArchives"].toArray())
   {
@@ -148,6 +157,7 @@ dump() const
   object["installStatus"] = status_;
   object["multiarch"] = multiarch;
   object["type"] = type;
+  object["freezeOnStop"] = freeze;
 
   QJsonArray archives_list;
   for (auto const& archive: archives)

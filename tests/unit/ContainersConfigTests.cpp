@@ -31,6 +31,7 @@ static const QByteArray test_json(R"EOF(
         "id":            "xenial-test",
         "name":          "Xenial Xerus",
         "distro":        "xenial",
+        "freezeOnStop":  true,
         "type":          "lxc",
         "installStatus": "ready",
         "installedApps": [
@@ -131,6 +132,7 @@ TEST(ContainersConfigTest, dumpsAllDataBackIntoJson)
   zesty["installedApps"] = QJsonArray();
   zesty["extraArchives"] = QJsonArray();
   zesty["bindMounts"] = QJsonArray();
+  zesty["freezeOnStop"] = false;
   json["containerList"] = QJsonArray{xenial, zesty};
 
   EXPECT_EQ(json, actual);

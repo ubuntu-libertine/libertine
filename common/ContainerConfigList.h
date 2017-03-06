@@ -145,6 +145,9 @@ public:
   Q_INVOKABLE QString
   getContainerStatus(QString const& container_id);
 
+  Q_INVOKABLE bool
+  getFreezeOnStop(QString const& container_id);
+
   Q_INVOKABLE QString
   getHostArchitecture();
 
