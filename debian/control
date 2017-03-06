@@ -116,7 +116,8 @@ Description: helper apps for using and interacting with Xmir
 Package: libertined
 Architecture: any
 Multi-Arch: same
-Depends: python3-libertine,
+Depends: procps,
+         python3-libertine,
          python3-apt,
          python3-dbus,
          python3-gi,
