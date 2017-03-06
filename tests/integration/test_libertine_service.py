@@ -25,7 +25,6 @@ import time
 import unittest.mock
 
 from gi.repository import GLib
-from gi.repository import GObject
 from libertine import utils
 from libertine.service import tasks, apt
 from libertine.ContainersConfig import ContainersConfig
@@ -57,7 +56,7 @@ class TestLibertineService(TestCase):
             cls._process.expect(['.+\n.+\n.+\n', pexpect.TIMEOUT], timeout=1)
 
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        cls._loop = GObject.MainLoop()
+        cls._loop = GLib.MainLoop()
 
         cls._thread = threading.Thread(target=cls._loop.run)
         cls._thread.start()
