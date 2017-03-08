@@ -38,7 +38,7 @@ Replaces: libertine (<= 1.4.3+17.04.20161118.1-0ubuntu1)
 Breaks: libertine (<= 1.4.3+17.04.20161118.1-0ubuntu1)
 Depends: libertine-qt-common,
          libertine-tools,
-         python3-libertine-lxc,
+         python3-libertine-lxd,
          ${misc:Depends},
          ${shlibs:Depends}
 Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
@@ -60,7 +60,7 @@ Package: ubuntu-system-settings-libertine
 Architecture: any
 Depends: libertine-qt-common,
          libertine-tools,
-         python3-libertine-lxc,
+         python3-libertine-lxd,
          libsystemsettings1,
          ${misc:Depends},
          ${shlibs:Depends}
@@ -165,8 +165,9 @@ Depends: lsb-release,
          xdg-user-dirs,
          ${misc:Depends},
          ${python3:Depends}
-Recommends: python3-libertine-lxc
-Suggests: python3-libertine-chroot
+Recommends: python3-libertine-lxd
+Suggests: python3-libertine-chroot,
+          python3-libertine-lxc
 Description: Python3 scripts for the Libertine application sandbox
  Python3 modules for the Libertine application sandbox tools.  Requires at
  least one of the container back end modules installed to be of any use.
