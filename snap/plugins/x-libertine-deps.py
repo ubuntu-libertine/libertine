@@ -145,7 +145,8 @@ class LibertineDependenciesPlugin(snapcraft.plugins.nil.NilPlugin):
             '-usr/lib/{}/liblibertine.so*'.format(self._arch),
             '-usr/bin/libertine*',
             '-etc/sudoers.d/libertine*',
-            '-usr/lib/python3/dist-packages/libertine'
+            '-usr/lib/python3/dist-packages/libertine',
+            '-usr/share/bash-completion/completions/*'
         ])
 
     def build(self):
