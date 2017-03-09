@@ -21,9 +21,10 @@ from libertine.ContainersConfig import ContainersConfig
 
 class TestInstallTask(TestCase):
     def setUp(self):
-        self.config      = unittest.mock.create_autospec(ContainersConfig)
-        self.lock        = unittest.mock.MagicMock()
-        self.monitor    = unittest.mock.create_autospec(operations_monitor.OperationsMonitor)
+        self.config  = unittest.mock.create_autospec(ContainersConfig)
+        self.lock    = unittest.mock.MagicMock()
+        self.client  = unittest.mock.Mock()
+        self.monitor = unittest.mock.create_autospec(operations_monitor.OperationsMonitor)
 
         self.monitor.new_operation.return_value = "/com/canonical/libertine/Service/Download/123456"
         self.called_with = None
@@ -33,7 +34,7 @@ class TestInstallTask(TestCase):
 
     def test_sends_error_on_existing_package(self):
         self.config.package_exists.return_value = True
-        task = tasks.InstallTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.InstallTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
         task.start().join()
 
@@ -42,7 +43,7 @@ class TestInstallTask(TestCase):
 
     def test_sends_error_on_failed_install(self):
         self.config.package_exists.return_value = False
-        task = tasks.InstallTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.InstallTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.install_task.LibertineContainer') as MockContainer:
@@ -57,7 +58,7 @@ class TestInstallTask(TestCase):
     def test_successfully_install(self):
         self.config.package_exists.return_value = False
         self.monitor.done.return_value = False
-        task = tasks.InstallTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.InstallTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.install_task.LibertineContainer') as MockContainer:

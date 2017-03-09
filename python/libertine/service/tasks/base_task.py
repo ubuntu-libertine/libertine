@@ -94,3 +94,9 @@ class BaseTask(metaclass=ABCMeta):
 
     def _error(self, message):
         self._monitor.error(self._operation_id, message)
+
+
+class ContainerBaseTask(BaseTask):
+    def __init__(self, lock, container_id, config, monitor, client, callback):
+        super().__init__(lock=lock, container_id=container_id, config=config, monitor=monitor, callback=callback)
+        self._client = client

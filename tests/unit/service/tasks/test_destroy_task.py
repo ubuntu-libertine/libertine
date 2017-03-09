@@ -23,6 +23,7 @@ class TestDestroyTask(TestCase):
     def setUp(self):
         self.config  = unittest.mock.create_autospec(ContainersConfig)
         self.lock    = unittest.mock.MagicMock()
+        self.client  = unittest.mock.Mock()
         self.monitor = unittest.mock.create_autospec(operations_monitor.OperationsMonitor)
 
         self.monitor.new_operation.return_value = "/com/canonical/libertine/Service/Download/123456"
@@ -34,7 +35,7 @@ class TestDestroyTask(TestCase):
     def test_sends_error_on_non_ready_container(self):
         self.config._get_value_by_key.return_value = ''
         self.monitor.done.return_value = False
-        task = tasks.DestroyTask('palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.DestroyTask('palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.destroy_task.LibertineContainer') as MockContainer:
@@ -46,7 +47,7 @@ class TestDestroyTask(TestCase):
 
     def test_sends_error_on_failed_destroy(self):
         self.config._get_value_by_key.return_value = 'ready'
-        task = tasks.DestroyTask('palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.DestroyTask('palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.destroy_task.LibertineContainer') as MockContainer:
@@ -64,7 +65,7 @@ class TestDestroyTask(TestCase):
     def test_successfully_destroys(self):
         self.config._get_value_by_key.return_value = 'ready'
         self.monitor.done.return_value = False
-        task = tasks.DestroyTask('palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.DestroyTask('palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.destroy_task.LibertineContainer') as MockContainer:

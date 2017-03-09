@@ -13,13 +13,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .base_task import BaseTask
+from .base_task import ContainerBaseTask
 from libertine import LibertineContainer, utils
 
 
-class RemoveTask(BaseTask):
-    def __init__(self, package_name, container_id, config, lock, monitor, callback):
-        super().__init__(lock=lock, container_id=container_id, config=config, monitor=monitor, callback=callback)
+class RemoveTask(ContainerBaseTask):
+    def __init__(self, package_name, container_id, config, lock, monitor, client, callback):
+        super().__init__(lock=lock, container_id=container_id, config=config, monitor=monitor, client=client, callback=callback)
         self._package = package_name
 
     def matches(self, package, klass):
@@ -31,7 +31,7 @@ class RemoveTask(BaseTask):
 
     def _run(self):
         utils.get_logger().debug("Removing package '%s'" % self._package)
-        container = LibertineContainer(self._container, self._config)
+        container = LibertineContainer(self._container, self._config, self._client)
         if container.remove_package(self._package):
             self._config.delete_package(self._container, self._package)
         else:

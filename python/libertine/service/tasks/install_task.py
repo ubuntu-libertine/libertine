@@ -13,13 +13,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .base_task import BaseTask
+from .base_task import ContainerBaseTask
 from libertine import LibertineContainer, utils
 
 
-class InstallTask(BaseTask):
-    def __init__(self, package_name, container_id, config, lock, monitor, callback):
-        super().__init__(lock=lock, container_id=container_id, config=config, monitor=monitor, callback=callback)
+class InstallTask(ContainerBaseTask):
+    def __init__(self, package_name, container_id, config, lock, monitor, client, callback):
+        super().__init__(lock=lock, container_id=container_id, config=config,
+                         monitor=monitor, client=client, callback=callback)
         self._package = package_name
 
     def matches(self, package, klass):
@@ -31,7 +32,7 @@ class InstallTask(BaseTask):
 
     def _run(self):
         utils.get_logger().debug("Installing package '%s'" % self._package)
-        container = LibertineContainer(self._container, self._config)
+        container = LibertineContainer(self._container, self._config, self._client)
         if container.install_package(self._package):
             self._config.update_package_install_status(self._container, self._package, "installed")
         else:

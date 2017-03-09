@@ -21,10 +21,10 @@ from libertine import utils
 
 
 class Operations(dbus.service.Object):
-    def __init__(self, bus_name):
+    def __init__(self, bus_name, client):
         super().__init__(bus_name, constants.OPERATIONS_OBJECT)
 
-        self._dispatcher = task_dispatcher.TaskDispatcher(operations_monitor.OperationsMonitor(self.connection))
+        self._dispatcher = task_dispatcher.TaskDispatcher(operations_monitor.OperationsMonitor(self.connection), client)
 
     # Information
 

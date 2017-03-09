@@ -17,7 +17,7 @@ import contextlib
 import os
 import shutil
 
-from . import utils
+from . import utils, ContainerControlClient
 from libertine.ContainersConfig import ContainersConfig
 from libertine.HostInfo import HostInfo
 
@@ -79,10 +79,11 @@ class BaseContainer(metaclass=abc.ABCMeta):
 
     :param container_id: The machine-readable container name.
     """
-    def __init__(self, container_id, container_type, config):
+    def __init__(self, container_id, container_type, config, service):
         self.container_type = container_type
         self.container_id = container_id
         self._config = config
+        self._service = service
         self._app_name = ''
         self._pid = 0
         self.root_path = utils.get_libertine_container_rootfs_path(self.container_id)
@@ -332,8 +333,8 @@ class LibertineMock(BaseContainer):
     """
     A concrete mock container type.  Used for unit testing.
     """
-    def __init__(self, container_id, config):
-        super().__init__(container_id, 'mock', config)
+    def __init__(self, container_id, config, service):
+        super().__init__(container_id, 'mock', config, service)
 
     def create_libertine_container(self, password=None, multiarch=False):
         return True
@@ -386,7 +387,7 @@ class LibertineContainer(object):
     A sandbox for DEB-packaged X11-based applications.
     """
 
-    def __init__(self, container_id, containers_config=None):
+    def __init__(self, container_id, containers_config=None, service=None):
         """
         Initializes the container object.
 
@@ -394,23 +395,22 @@ class LibertineContainer(object):
         """
         super().__init__()
 
-        if containers_config is None:
-            containers_config = ContainersConfig()
-        self.containers_config = containers_config
+        self.containers_config = containers_config or ContainersConfig()
+        service = service or ContainerControlClient.ContainerControlClient()
 
         container_type = self.containers_config.get_container_type(container_id)
 
         if container_type == "lxc":
             from  libertine.LxcContainer import LibertineLXC
-            self.container = LibertineLXC(container_id, self.containers_config)
+            self.container = LibertineLXC(container_id, self.containers_config, service)
         elif container_type == "lxd":
             from libertine.LxdContainer import LibertineLXD
-            self.container = LibertineLXD(container_id, self.containers_config)
+            self.container = LibertineLXD(container_id, self.containers_config, service)
         elif container_type == "chroot":
             from  libertine.ChrootContainer import LibertineChroot
-            self.container = LibertineChroot(container_id, self.containers_config)
+            self.container = LibertineChroot(container_id, self.containers_config, service)
         elif container_type == "mock":
-            self.container = LibertineMock(container_id, self.containers_config)
+            self.container = LibertineMock(container_id, self.containers_config, service)
         else:
             raise RuntimeError("Unsupported container type %s" % container_type)
 

@@ -21,9 +21,10 @@ from libertine.ContainersConfig import ContainersConfig
 
 class TestRemoveTask(TestCase):
     def setUp(self):
-        self.config      = unittest.mock.create_autospec(ContainersConfig)
-        self.lock      = unittest.mock.MagicMock()
-        self.monitor    = unittest.mock.create_autospec(operations_monitor.OperationsMonitor)
+        self.config  = unittest.mock.create_autospec(ContainersConfig)
+        self.lock    = unittest.mock.MagicMock()
+        self.client = unittest.mock.Mock()
+        self.monitor = unittest.mock.create_autospec(operations_monitor.OperationsMonitor)
 
         self.monitor.new_operation.return_value = "/com/canonical/libertine/Service/Download/123456"
         self.called_with = None
@@ -33,7 +34,7 @@ class TestRemoveTask(TestCase):
 
     def test_sends_error_on_non_installed_package(self):
         self.config.get_package_install_status.return_value = 'installing'
-        task = tasks.RemoveTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.RemoveTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
         task.start().join()
 
@@ -42,7 +43,7 @@ class TestRemoveTask(TestCase):
 
     def test_sends_error_on_failed_install(self):
         self.config.get_package_install_status.return_value = 'installed'
-        task = tasks.RemoveTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.RemoveTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.remove_task.LibertineContainer') as MockContainer:
@@ -59,7 +60,7 @@ class TestRemoveTask(TestCase):
     def test_successfully_install(self):
         self.config.get_package_install_status.return_value = 'installed'
         self.monitor.done.return_value = False
-        task = tasks.RemoveTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.RemoveTask('darkside-common', 'palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.remove_task.LibertineContainer') as MockContainer:

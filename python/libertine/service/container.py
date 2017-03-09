@@ -22,11 +22,13 @@ if not utils.is_snap_environment():
 
 
 class Container(object):
-    def __init__(self, container_id, config, monitor, callback):
+    def __init__(self, container_id, config, monitor, client, callback):
         self._id = container_id
-        self._monitor = monitor
-        self._callback = callback
         self._config = config
+        self._monitor = monitor
+        self._client = client
+        self._callback = callback
+
         self._lock = Lock()
         self._tasks = []
 
@@ -53,6 +55,83 @@ class Container(object):
     def tasks(self):
         return [task.id for task in self._tasks if task.running]
 
+    def install(self, package_name):
+        utils.get_logger().debug("Install package '%s' from container '%s'" % (package_name, self.id))
+
+        tasks = [t for t in self._tasks if t.matches(package_name, InstallTask) and t.running]
+        if len(tasks) > 0:
+            utils.get_logger().debug("Install already in progress for '%s':'%s'" % (package_name, self.id))
+            return tasks[0].id
+
+        task = InstallTask(package_name, self.id, self._config, self._lock, self._monitor, self._client, self._cleanup_task)
+        self._tasks.append(task)
+        task.start()
+        return task.id
+
+    def remove(self, package_name):
+        utils.get_logger().debug("Remove package '%s' from container '%s'" % (package_name, self.id))
+
+        tasks = [t for t in self._tasks if t.matches(package_name, RemoveTask) and t.running]
+        if len(tasks) > 0:
+            utils.get_logger().debug("Remove already in progress for '%s':'%s'" % (package_name, self.id))
+            return tasks[0].id
+
+        task = RemoveTask(package_name, self.id, self._config, self._lock, self._monitor, self._client, self._cleanup_task)
+        self._tasks.append(task)
+        task.start()
+        return task.id
+
+    def create(self, container_name, distro, container_type, enable_multiarch):
+        utils.get_logger().debug("Create container with ID '%s'" % self.id)
+
+        tasks = [t for t in self._tasks if t.matches(self.id, CreateTask) and t.running]
+        if len(tasks) > 0:
+            utils.get_logger().debug("Create already in progress for '%s'" % self.id)
+            return tasks[0].id
+
+        task = CreateTask(self.id, container_name, distro, container_type, enable_multiarch,
+                          self._config, self._lock, self._monitor, self._client, self._cleanup_task)
+        self._tasks.append(task)
+        task.start()
+        return task.id
+
+    def destroy(self):
+        utils.get_logger().debug("Destroy container with ID '%s'" % self.id)
+
+        tasks = [t for t in self._tasks if t.matches(self.id, DestroyTask) and t.running]
+        if len(tasks) > 0:
+            utils.get_logger().debug("Destroy already in progress for '%s'" % self.id)
+            return tasks[0].id
+
+        task = DestroyTask(self.id, self._config, self._lock, self._monitor, self._client, self._cleanup_task)
+        self._tasks.append(task)
+        task.start()
+        return task.id
+
+    def update(self):
+        utils.get_logger().debug("Update container with ID '%s'" % self.id)
+
+        tasks = [t for t in self._tasks if t.matches(self.id, UpdateTask) and t.running]
+        if len(tasks) > 0:
+            utils.get_logger().debug("Update already in progress for '%s'" % self.id)
+            return tasks[0].id
+
+        task = UpdateTask(self.id, self._config, self._lock, self._monitor, self._client, self._cleanup_task)
+        self._tasks.append(task)
+        task.start()
+        return task.id
+
+    # Tasks which don't require starting/stopping the container
+
+    def list_app_ids(self):
+        utils.get_logger().debug("List all app ids in container '%s'" % self.id)
+
+        task = ListAppIdsTask(self.id, self._config, self._monitor, self._cleanup_task)
+
+        self._tasks.append(task)
+        task.start()
+        return task.id
+
     def search(self, query):
         utils.get_logger().debug("search container '%s' for package '%s'" % (self.id, query))
 
@@ -73,81 +152,6 @@ class Container(object):
 
         related_task_ids = [t.id for t in self._tasks if t.package == package_name and t.running]
         task = AppInfoTask(self.id, self._cache, package_name, related_task_ids, self._config, self._monitor, self._cleanup_task)
-
-        self._tasks.append(task)
-        task.start()
-        return task.id
-
-    def install(self, package_name):
-        utils.get_logger().debug("Install package '%s' from container '%s'" % (package_name, self.id))
-
-        tasks = [t for t in self._tasks if t.matches(package_name, InstallTask) and t.running]
-        if len(tasks) > 0:
-            utils.get_logger().debug("Install already in progress for '%s':'%s'" % (package_name, self.id))
-            return tasks[0].id
-
-        task = InstallTask(package_name, self.id, self._config, self._lock, self._monitor, self._cleanup_task)
-        self._tasks.append(task)
-        task.start()
-        return task.id
-
-    def remove(self, package_name):
-        utils.get_logger().debug("Remove package '%s' from container '%s'" % (package_name, self.id))
-
-        tasks = [t for t in self._tasks if t.matches(package_name, RemoveTask) and t.running]
-        if len(tasks) > 0:
-            utils.get_logger().debug("Remove already in progress for '%s':'%s'" % (package_name, self.id))
-            return tasks[0].id
-
-        task = RemoveTask(package_name, self.id, self._config, self._lock, self._monitor, self._cleanup_task)
-        self._tasks.append(task)
-        task.start()
-        return task.id
-
-    def create(self, container_name, distro, container_type, enable_multiarch):
-        utils.get_logger().debug("Create container with ID '%s'" % self.id)
-
-        tasks = [t for t in self._tasks if t.matches(self.id, CreateTask) and t.running]
-        if len(tasks) > 0:
-            utils.get_logger().debug("Create already in progress for '%s'" % self.id)
-            return tasks[0].id
-
-        task = CreateTask(self.id, container_name, distro, container_type, enable_multiarch,
-                          self._config, self._lock, self._monitor, self._cleanup_task)
-        self._tasks.append(task)
-        task.start()
-        return task.id
-
-    def destroy(self):
-        utils.get_logger().debug("Destroy container with ID '%s'" % self.id)
-
-        tasks = [t for t in self._tasks if t.matches(self.id, DestroyTask) and t.running]
-        if len(tasks) > 0:
-            utils.get_logger().debug("Destroy already in progress for '%s'" % self.id)
-            return tasks[0].id
-
-        task = DestroyTask(self.id, self._config, self._lock, self._monitor, self._cleanup_task)
-        self._tasks.append(task)
-        task.start()
-        return task.id
-
-    def update(self):
-        utils.get_logger().debug("Update container with ID '%s'" % self.id)
-
-        tasks = [t for t in self._tasks if t.matches(self.id, UpdateTask) and t.running]
-        if len(tasks) > 0:
-            utils.get_logger().debug("Update already in progress for '%s'" % self.id)
-            return tasks[0].id
-
-        task = UpdateTask(self.id, self._config, self._lock, self._monitor, self._cleanup_task)
-        self._tasks.append(task)
-        task.start()
-        return task.id
-
-    def list_app_ids(self):
-        utils.get_logger().debug("List all app ids in container '%s'" % self.id)
-
-        task = ListAppIdsTask(self.id, self._config, self._monitor, self._cleanup_task)
 
         self._tasks.append(task)
         task.start()

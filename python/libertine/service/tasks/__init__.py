@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from .base_task import BaseTask
+from .base_task import BaseTask, ContainerBaseTask
 from .app_info_task import AppInfoTask
 from .container_info_task import ContainerInfoTask
 from .create_task import CreateTask
@@ -27,6 +27,7 @@ from .list_app_ids_task import ListAppIdsTask
 __all__ = [
           'AppInfoTask',
           'BaseTask',
+          'ContainerBaseTask',
           'ContainerInfoTask',
           'CreateTask',
           'DestroyTask',

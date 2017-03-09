@@ -30,8 +30,9 @@ def _refresh_config(func):
 
 
 class TaskDispatcher(object):
-    def __init__(self, monitor):
+    def __init__(self, monitor, client):
         self._monitor = monitor
+        self._client = client
         self._config = libertine.ContainersConfig.ContainersConfig()
         self._containerless_tasks = []
         self._tasks = []
@@ -55,7 +56,7 @@ class TaskDispatcher(object):
             utils.get_logger().debug("using existing container '%s'" % container_id)
             return container
 
-        container = Container(container_id, self._config, self._monitor, self._cleanup_container)
+        container = Container(container_id, self._config, self._monitor, self._client, self._cleanup_container)
         self._containers.append(container)
 
         return container

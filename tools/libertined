@@ -25,7 +25,7 @@ import sys
 from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
 from libertine import utils
-from libertine.service import constants, operations, container_control
+from libertine.service import constants, operations, container_control, container_control_client
 
 
 class OutputRedirector(object):
@@ -151,9 +151,10 @@ def main():
             utils.get_logger().warning("service is already running")
             raise
 
-        manager = operations.Operations(bus_name)
-        container_control.ContainerControl(manager.connection)
-        
+        client = container_control_client.ContainerControlClient()
+        manager = operations.Operations(bus_name, client)
+        container_control.ContainerControl(manager.connection, client)
+
         try:
             loop.run()
         except KeyboardInterrupt:

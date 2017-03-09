@@ -22,11 +22,12 @@ class TestContainer(TestCase):
     def setUp(self):
         self._monitor = unittest.mock.Mock()
         self._config = unittest.mock.Mock()
+        self._client = unittest.mock.Mock()
 
     def test_search_creates_search_task(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
             cache = MockCache.return_value
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.SearchTask') as MockSearchTask:
                 c.search('darkseid')
                 MockSearchTask.assert_called_once_with('palpatine', cache, 'darkseid', self._monitor, unittest.mock.ANY)
@@ -35,7 +36,7 @@ class TestContainer(TestCase):
     def test_app_info_creates_app_info_task(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
             cache = MockCache.return_value
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.AppInfoTask') as MockAppInfoTask:
                 c.app_info('force')
                 MockAppInfoTask.assert_called_once_with('palpatine', cache, 'force', [], self._config, self._monitor, unittest.mock.ANY)
@@ -44,7 +45,7 @@ class TestContainer(TestCase):
     def test_app_info_gets_related_task_info(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
             cache = MockCache.return_value
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.InstallTask') as MockInstallTask:
                 MockInstallTask.return_value.package = 'darkside'
                 MockInstallTask.return_value.matches.return_value = False
@@ -59,99 +60,99 @@ class TestContainer(TestCase):
 
     def test_install_creates_install_task(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.InstallTask') as MockInstallTask:
                 c.install('force')
-                MockInstallTask.assert_called_once_with('force', 'palpatine', self._config, unittest.mock.ANY, self._monitor, unittest.mock.ANY)
+                MockInstallTask.assert_called_once_with('force', 'palpatine', self._config, unittest.mock.ANY, self._monitor, self._client, unittest.mock.ANY)
                 MockInstallTask.return_value.start.assert_called_once_with()
 
     def test_install_only_calls_once_when_unfinished(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.InstallTask') as MockInstallTask:
                 c.install('darkside')
                 c.install('darkside')
                 c.install('darkside')
-                MockInstallTask.assert_called_once_with('darkside', 'palpatine', self._config, unittest.mock.ANY, self._monitor, unittest.mock.ANY)
+                MockInstallTask.assert_called_once_with('darkside', 'palpatine', self._config, unittest.mock.ANY, self._monitor, self._client, unittest.mock.ANY)
                 MockInstallTask.return_value.start.assert_called_once_with()
 
     def test_remove_creates_remove_task(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.RemoveTask') as MockRemoveTask:
                 c.remove('force')
-                MockRemoveTask.assert_called_once_with('force', 'palpatine', self._config, unittest.mock.ANY, self._monitor, unittest.mock.ANY)
+                MockRemoveTask.assert_called_once_with('force', 'palpatine', self._config, unittest.mock.ANY, self._monitor, self._client, unittest.mock.ANY)
                 MockRemoveTask.return_value.start.assert_called_once_with()
 
     def test_remove_only_calls_once_when_unfinished(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.RemoveTask') as MockRemoveTask:
                 c.remove('darkside')
                 c.remove('darkside')
                 c.remove('darkside')
-                MockRemoveTask.assert_called_once_with('darkside', 'palpatine', self._config, unittest.mock.ANY, self._monitor, unittest.mock.ANY)
+                MockRemoveTask.assert_called_once_with('darkside', 'palpatine', self._config, unittest.mock.ANY, self._monitor, self._client, unittest.mock.ANY)
                 MockRemoveTask.return_value.start.assert_called_once_with()
 
     def test_create_creates_create_task(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.CreateTask') as MockCreateTask:
                 c.create('Emperor Palpatine', 'zesty', 'lxd', False)
                 MockCreateTask.assert_called_once_with('palpatine', 'Emperor Palpatine', 'zesty', 'lxd', False,
-                                                       self._config, unittest.mock.ANY, self._monitor, unittest.mock.ANY)
+                                                       self._config, unittest.mock.ANY, self._monitor, self._client, unittest.mock.ANY)
                 MockCreateTask.return_value.start.assert_called_once_with()
 
     def test_create_only_calls_once_when_unfinished(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.CreateTask') as MockCreateTask:
                 c.create('Emperor Palpatine', 'zesty', 'lxd', False)
                 c.create('Emperor Palpatine', 'zesty', 'lxd', False)
                 c.create('Emperor Palpatine', 'zesty', 'lxd', False)
                 MockCreateTask.assert_called_once_with('palpatine', 'Emperor Palpatine', 'zesty', 'lxd', False,
-                                                       self._config, unittest.mock.ANY, self._monitor, unittest.mock.ANY)
+                                                       self._config, unittest.mock.ANY, self._monitor, self._client, unittest.mock.ANY)
                 MockCreateTask.return_value.start.assert_called_once_with()
 
     def test_destroy_creates_destroy_task(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.DestroyTask') as MockDestroyTask:
                 c.destroy()
-                MockDestroyTask.assert_called_once_with('palpatine', self._config, unittest.mock.ANY, self._monitor, unittest.mock.ANY)
+                MockDestroyTask.assert_called_once_with('palpatine', self._config, unittest.mock.ANY, self._monitor, self._client, unittest.mock.ANY)
                 MockDestroyTask.return_value.start.assert_called_once_with()
 
     def test_destroy_only_calls_once_when_unfinished(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.DestroyTask') as MockDestroyTask:
                 c.destroy()
                 c.destroy()
                 c.destroy()
-                MockDestroyTask.assert_called_once_with('palpatine', self._config, unittest.mock.ANY, self._monitor, unittest.mock.ANY)
+                MockDestroyTask.assert_called_once_with('palpatine', self._config, unittest.mock.ANY, self._monitor, self._client, unittest.mock.ANY)
                 MockDestroyTask.return_value.start.assert_called_once_with()
 
     def test_update_creates_update_task(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.UpdateTask') as MockUpdateTask:
                 c.update()
-                MockUpdateTask.assert_called_once_with('palpatine', self._config, unittest.mock.ANY, self._monitor, unittest.mock.ANY)
+                MockUpdateTask.assert_called_once_with('palpatine', self._config, unittest.mock.ANY, self._monitor, self._client, unittest.mock.ANY)
                 MockUpdateTask.return_value.start.assert_called_once_with()
 
     def test_update_only_calls_once_when_unfinished(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.UpdateTask') as MockUpdateTask:
                 c.update()
                 c.update()
                 c.update()
-                MockUpdateTask.assert_called_once_with('palpatine', self._config, unittest.mock.ANY, self._monitor, unittest.mock.ANY)
+                MockUpdateTask.assert_called_once_with('palpatine', self._config, unittest.mock.ANY, self._monitor, self._client, unittest.mock.ANY)
                 MockUpdateTask.return_value.start.assert_called_once_with()
 
     def test_list_app_ids_creates_list_app_ids_task(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.ListAppIdsTask') as MockListAppIdsTask:
                 c.list_app_ids()
                 MockListAppIdsTask.assert_called_once_with('palpatine', self._config, self._monitor, unittest.mock.ANY)
@@ -159,7 +160,7 @@ class TestContainer(TestCase):
 
     def test_removes_task_during_callback(self):
         with unittest.mock.patch('libertine.service.container.apt.AptCache') as MockCache:
-            c = container.Container('palpatine', self._config, self._monitor, lambda task: task)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.InstallTask') as MockInstallTask:
                 MockInstallTask.return_value.package = 'force'
                 c.install('force')
@@ -176,7 +177,7 @@ class TestContainer(TestCase):
             self._container_id = None
             def callback(container):
                 self._container_id = container.id
-            c = container.Container('palpatine', self._config, self._monitor, callback)
+            c = container.Container('palpatine', self._config, self._monitor, self._client, callback)
             with unittest.mock.patch('libertine.service.container.InstallTask') as MockInstallTask:
                 c.install('force')
                 name, args, kwargs = MockInstallTask.mock_calls[0]

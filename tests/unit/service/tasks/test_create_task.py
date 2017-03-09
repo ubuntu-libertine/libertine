@@ -23,6 +23,7 @@ class TestCreateTask(TestCase):
     def setUp(self):
         self.config  = unittest.mock.create_autospec(ContainersConfig)
         self.lock    = unittest.mock.MagicMock()
+        self.client  = unittest.mock.Mock()
         self.monitor = unittest.mock.create_autospec(operations_monitor.OperationsMonitor)
 
         self.monitor.new_operation.return_value = "/com/canonical/libertine/Service/Download/123456"
@@ -34,7 +35,8 @@ class TestCreateTask(TestCase):
     def test_success_creates_lxc_container(self):
         self.config.container_exists.return_value = False
         self.monitor.done.return_value = False
-        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'lxc', False, self.config, self.lock, self.monitor, self.callback)
+        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'lxc', False,
+                                self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.create_task.HostInfo') as MockHostInfo:
@@ -56,7 +58,8 @@ class TestCreateTask(TestCase):
     def test_success_creates_chroot_container(self):
         self.config.container_exists.return_value = False
         self.monitor.done.return_value = False
-        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'chroot', False, self.config, self.lock, self.monitor, self.callback)
+        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'chroot', False,
+                                self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.create_task.HostInfo') as MockHostInfo:
@@ -76,7 +79,8 @@ class TestCreateTask(TestCase):
 
     def test_container_runtime_error_sends_error(self):
         self.config.container_exists.return_value = False
-        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'lxc', False, self.config, self.lock, self.monitor, self.callback)
+        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'lxc', False,
+                                self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.create_task.HostInfo') as MockHostInfo:
@@ -97,7 +101,8 @@ class TestCreateTask(TestCase):
 
     def test_failed_container_exists_sends_error(self):
         self.config.container_exists.return_value = True
-        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'lxc', False, self.config, self.lock, self.monitor, self.callback)
+        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'lxc', False,
+                                self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
         task.start().join()
 
@@ -108,7 +113,8 @@ class TestCreateTask(TestCase):
         self.config.container_exists.return_value = False
         with unittest.mock.patch('libertine.service.tasks.create_task.HostInfo') as MockHostInfo:
             MockHostInfo.return_value.is_distro_valid.return_value = False
-            task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'vesty', 'lxc', False, self.config, self.lock, self.monitor, self.callback)
+            task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'vesty', 'lxc', False,
+                                    self.config, self.lock, self.monitor, self.client, self.callback)
             task._instant_callback = True
             task.start().join()
 
@@ -120,7 +126,8 @@ class TestCreateTask(TestCase):
         with unittest.mock.patch('libertine.service.tasks.create_task.HostInfo') as MockHostInfo:
             MockHostInfo.return_value.is_distro_valid.return_value = True
             MockHostInfo.return_value.has_lxc_support.return_value = False
-            task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'lxc', False, self.config, self.lock, self.monitor, self.callback)
+            task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'lxc', False,
+                                    self.config, self.lock, self.monitor, self.client, self.callback)
             task._instant_callback = True
             task.start().join()
 
@@ -131,7 +138,8 @@ class TestCreateTask(TestCase):
     def test_sets_generic_name_when_empty(self):
         self.config.container_exists.return_value = False
         self.monitor.done.return_value = False
-        task = tasks.CreateTask('palpatine', None, 'zesty', 'chroot', False, self.config, self.lock, self.monitor, self.callback)
+        task = tasks.CreateTask('palpatine', None, 'zesty', 'chroot', False, self.config,
+                                self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.create_task.HostInfo') as MockHostInfo:
@@ -153,7 +161,8 @@ class TestCreateTask(TestCase):
     def test_sets_multiarch(self):
         self.config.container_exists.return_value = False
         self.monitor.done.return_value = False
-        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'chroot', True, self.config, self.lock, self.monitor, self.callback)
+        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', 'chroot', True,
+                                self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.create_task.HostInfo') as MockHostInfo:
@@ -175,7 +184,8 @@ class TestCreateTask(TestCase):
     def test_sets_default_type(self):
         self.config.container_exists.return_value = False
         self.monitor.done.return_value = False
-        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', None, False, self.config, self.lock, self.monitor, self.callback)
+        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', 'zesty', None, False,
+                                self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.create_task.HostInfo') as MockHostInfo:
@@ -197,7 +207,8 @@ class TestCreateTask(TestCase):
     def test_sets_default_distro(self):
         self.config.container_exists.return_value = False
         self.monitor.done.return_value = False
-        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', None, 'lxc', False, self.config, self.lock, self.monitor, self.callback)
+        task = tasks.CreateTask('palpatine', 'Emperor Palpatine', None, 'lxc', False,
+                                self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.create_task.HostInfo') as MockHostInfo:

@@ -13,14 +13,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .base_task import BaseTask
+from .base_task import ContainerBaseTask
 from libertine import LibertineContainer, utils
 from libertine.HostInfo import HostInfo
 
 
-class CreateTask(BaseTask):
-    def __init__(self, container_id, container_name, distro, container_type, enable_multiarch, config, lock, monitor, callback):
-        super().__init__(lock=lock, container_id=container_id, config=config, monitor=monitor, callback=callback)
+class CreateTask(ContainerBaseTask):
+    def __init__(self, container_id, container_name, distro, container_type, enable_multiarch,
+                       config, lock, monitor, client, callback):
+        super().__init__(lock=lock, container_id=container_id, config=config,
+                         monitor=monitor, client=client, callback=callback)
         self._name = container_name
         self._distro = distro
         self._type = container_type
@@ -30,7 +32,7 @@ class CreateTask(BaseTask):
         utils.get_logger().debug("Creating container '%s'" % self._container)
 
         try:
-            container = LibertineContainer(self._container, self._config)
+            container = LibertineContainer(self._container, self._config, self._client)
 
             if not container.create_libertine_container(password='', multiarch=self._multiarch):
                 self._config.delete_container(self._container)

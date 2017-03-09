@@ -20,9 +20,10 @@ from libertine.service import task_dispatcher
 class TestTaskDispatcher(TestCase):
     def setUp(self):
         self._connection = unittest.mock.Mock()
+        self._client = unittest.mock.Mock()
         self._config_patcher = unittest.mock.patch('libertine.service.task_dispatcher.libertine.ContainersConfig.ContainersConfig')
         self._config_patcher.start()
-        self._dispatcher = task_dispatcher.TaskDispatcher(self._connection)
+        self._dispatcher = task_dispatcher.TaskDispatcher(self._connection, self._client)
 
     def tearDown(self):
         self._config_patcher.stop()
@@ -90,20 +91,20 @@ class TestTaskDispatcher(TestCase):
             self._dispatcher.list_app_ids('palpatine')
             self._dispatcher.list_app_ids('palpatine')
             self._dispatcher.list_app_ids('palpatine')
-            MockContainer.assert_called_once_with('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY)
+            MockContainer.assert_called_once_with('palpatine', unittest.mock.ANY, self._connection, self._client, unittest.mock.ANY)
 
     def test_container_callback_removes_container(self):
         with unittest.mock.patch('libertine.service.task_dispatcher.Container') as MockContainer:
             c = MockContainer.return_value
             c.id = 'palpatine'
             self._dispatcher.list_app_ids('palpatine')
-            MockContainer.assert_called_once_with('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY)
+            MockContainer.assert_called_once_with('palpatine', unittest.mock.ANY, self._connection, self._client, unittest.mock.ANY)
             name, args, kwargs = MockContainer.mock_calls[0]
             args[len(args)-1](MockContainer.return_value)
             self._dispatcher.list_app_ids('palpatine')
             MockContainer.assert_has_calls([ # verify container constructed twice
-                unittest.mock.call('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY),
-                unittest.mock.call('palpatine', unittest.mock.ANY, self._connection, unittest.mock.ANY)
+                unittest.mock.call('palpatine', unittest.mock.ANY, self._connection, self._client, unittest.mock.ANY),
+                unittest.mock.call('palpatine', unittest.mock.ANY, self._connection, self._client, unittest.mock.ANY)
             ], any_order=True)
 
     def test_container_info_creates_container_info_task(self):

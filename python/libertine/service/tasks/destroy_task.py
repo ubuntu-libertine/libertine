@@ -13,18 +13,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from .base_task import BaseTask
+from .base_task import ContainerBaseTask
 from libertine import LibertineContainer, utils
 
 
-class DestroyTask(BaseTask):
-    def __init__(self, container_id, config, lock, monitor, callback):
-        super().__init__(lock=lock, container_id=container_id, config=config, monitor=monitor, callback=callback)
+class DestroyTask(ContainerBaseTask):
+    def __init__(self, container_id, config, lock, monitor, client, callback):
+        super().__init__(lock=lock, container_id=container_id, config=config,
+                         monitor=monitor, client=client, callback=callback)
 
     def _run(self):
         utils.get_logger().debug("Destroying container '%s'" % self._container)
 
-        container = LibertineContainer(self._container, self._config)
+        container = LibertineContainer(self._container, self._config, self._client)
         if not container.destroy_libertine_container():
             self._error("Destroying container '%s' failed" % self._container)
             self._config.update_container_install_status(self._container, "ready")

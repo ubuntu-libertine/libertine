@@ -23,6 +23,7 @@ class TestUpdateTask(TestCase):
     def setUp(self):
         self.config  = unittest.mock.create_autospec(ContainersConfig)
         self.lock    = unittest.mock.MagicMock()
+        self.client  = unittest.mock.Mock()
         self.monitor = unittest.mock.create_autospec(operations_monitor.OperationsMonitor)
 
         self.monitor.new_operation.return_value = "/com/canonical/libertine/Service/Download/123456"
@@ -33,7 +34,7 @@ class TestUpdateTask(TestCase):
 
     def test_sends_error_on_non_existent_container(self):
         self.config.container_exists.return_value = False
-        task = tasks.UpdateTask('palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.UpdateTask('palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.update_task.LibertineContainer') as MockContainer:
@@ -45,7 +46,7 @@ class TestUpdateTask(TestCase):
 
     def test_sends_error_on_failed_update(self):
         self.config.container_exists.return_value = True
-        task = tasks.UpdateTask('palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.UpdateTask('palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.update_task.LibertineContainer') as MockContainer:
@@ -63,7 +64,7 @@ class TestUpdateTask(TestCase):
     def test_successfully_updates(self):
         self.config.container_exists.return_value = True
         self.monitor.done.return_value = False
-        task = tasks.UpdateTask('palpatine', self.config, self.lock, self.monitor, self.callback)
+        task = tasks.UpdateTask('palpatine', self.config, self.lock, self.monitor, self.client, self.callback)
         task._instant_callback = True
 
         with unittest.mock.patch('libertine.service.tasks.update_task.LibertineContainer') as MockContainer:

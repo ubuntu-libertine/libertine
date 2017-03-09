@@ -23,7 +23,7 @@ import sys
 import tempfile
 
 from .Libertine import BaseContainer
-from . import utils, HostInfo, Client
+from . import utils, HostInfo
 
 
 home_path = os.environ['HOME']
@@ -157,13 +157,11 @@ class LibertineLXC(BaseContainer):
     A concrete container type implemented using an LXC container.
     """
 
-    def __init__(self, container_id, config):
-        super().__init__(container_id, 'lxc', config)
+    def __init__(self, container_id, config, service):
+        super().__init__(container_id, 'lxc', config, service)
         self.container = lxc_container(container_id)
         self.host_info = HostInfo.HostInfo()
         self._freeze_on_stop = config.get_freeze_on_stop(self.container_id)
-
-        self._manager = Client.Client()
 
     def _setup_pulse(self):
         pulse_socket_path = os.path.join(utils.get_libertine_runtime_dir(), 'pulse_socket')
@@ -213,7 +211,7 @@ class LibertineLXC(BaseContainer):
             return fd.read().strip('\n') != self.host_info.get_host_timezone()
 
     def start_container(self):
-        if not self._manager.container_operation_start(self.container_id):
+        if not self._service.container_operation_start(self.container_id):
             return False
 
         if self.container.state == 'RUNNING':
@@ -236,11 +234,11 @@ class LibertineLXC(BaseContainer):
         stopped = False
         self._config.refresh_database()
 
-        if self._manager.container_operation_finished(self.container_id, self._app_name, self._pid):
+        if self._service.container_operation_finished(self.container_id, self._app_name, self._pid):
             self._config.update_container_install_status(self.container_id, self._get_stop_type_string(self._freeze_on_stop))
 
             if lxc_stop(self.container, self._freeze_on_stop):
-                stopped = self._manager.container_stopped(self.container_id)
+                stopped = self._service.container_stopped(self.container_id)
 
             self._config.update_container_install_status(self.container_id, self.container.state.lower())
 
@@ -397,7 +395,7 @@ class LibertineLXC(BaseContainer):
         os.environ.update(environ)
 
         if not self.start_container():
-            self._manager.container_stopped(self.container_id)
+            self._service.container_stopped(self.container_id)
             return
 
         self._app_name = app_exec_line[0]

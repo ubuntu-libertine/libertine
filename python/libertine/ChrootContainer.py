@@ -47,8 +47,8 @@ class LibertineChroot(BaseContainer):
     A concrete container type implemented using a plain old chroot.
     """
 
-    def __init__(self, container_id, config):
-        super().__init__(container_id, 'chroot', config)
+    def __init__(self, container_id, config, service):
+        super().__init__(container_id, 'chroot', config, service)
         # FIXME: Disabling seccomp is a temporary measure until we fully understand why we need
         #        it or figure out when we need it.
         os.environ['PROOT_NO_SECCOMP'] = '1'

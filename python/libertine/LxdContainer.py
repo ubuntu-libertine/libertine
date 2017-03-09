@@ -22,7 +22,7 @@ import shutil
 import subprocess
 import time
 
-from . import Libertine, utils, HostInfo, Client
+from . import Libertine, utils, HostInfo
 
 
 def _get_devices_map():
@@ -383,8 +383,8 @@ def env_home_path():
 
 
 class LibertineLXD(Libertine.BaseContainer):
-    def __init__(self, name, config):
-        super().__init__(name, 'lxd', config)
+    def __init__(self, name, config, service):
+        super().__init__(name, 'lxd', config, service)
         self._host_info = HostInfo.HostInfo()
         self._container = None
         self._freeze_on_stop = config.get_freeze_on_stop(self.container_id)
@@ -392,15 +392,14 @@ class LibertineLXD(Libertine.BaseContainer):
         if not _setup_lxd():
             raise Exception("Failed to setup lxd.")
 
-        self._client = pylxd.Client()
-        self._manager = Client.Client()
+        self._lxd_client = pylxd.Client()
 
     def create_libertine_container(self, password=None, multiarch=False):
         if self._try_get_container():
             utils.get_logger().error("Container already exists")
             return False
 
-        update_libertine_profile(self._client)
+        update_libertine_profile(self._lxd_client)
 
         utils.get_logger().info("Creating container '%s' with distro '%s'" % (self.container_id, self.installed_release))
         create = subprocess.Popen(shlex.split('lxc launch ubuntu-daily:{distro} {id} --profile '
@@ -504,7 +503,7 @@ class LibertineLXD(Libertine.BaseContainer):
         if not self._try_get_container():
             return False
 
-        if not self._manager.container_operation_start(self.container_id):
+        if not self._service.container_operation_start(self.container_id):
             return False
 
         if self._container.status == 'Running':
@@ -513,12 +512,12 @@ class LibertineLXD(Libertine.BaseContainer):
         requires_remount = self._container.status == 'Stopped'
 
         if requires_remount:
-            update_libertine_profile(self._client)
+            update_libertine_profile(self._lxd_client)
             update_bind_mounts(self._container, self._config, home)
 
         self._config.update_container_install_status(self.container_id, "starting")
         if not lxd_start(self._container):
-            self._manager.container_stopped()
+            self._service.container_stopped()
             self._config.update_container_install_status(self.container_id, self._container.status.lower())
             return False
 
@@ -539,11 +538,11 @@ class LibertineLXD(Libertine.BaseContainer):
         stopped = False
         self._config.refresh_database()
 
-        if self._manager.container_operation_finished(self.container_id, self._app_name, self._pid):
+        if self._service.container_operation_finished(self.container_id, self._app_name, self._pid):
             self._config.update_container_install_status(self.container_id, self._get_stop_type_string(self._freeze_on_stop))
- 
+
             if lxd_stop(self._container, freeze_on_stop=self._freeze_on_stop):
-                stopped = self._manager.container_stopped(self.container_id)
+                stopped = self._service.container_stopped(self.container_id)
 
             self._config.update_container_install_status(self.container_id, self._container.status.lower())
 
@@ -598,6 +597,6 @@ class LibertineLXD(Libertine.BaseContainer):
 
     def _try_get_container(self):
         if self._container is None:
-            self._container = lxd_container(self._client, self.container_id)
+            self._container = lxd_container(self._lxd_client, self.container_id)
 
         return self._container is not None

@@ -19,7 +19,11 @@ import time
 from . import utils
 
 
-class Client(object):
+class ContainerControlClient(object):
+    """
+    A client for ContainerControl using D-BUS, to be used in clients
+    external to the libertine service.
+    """
     def __init__(self):
         self._get_manager()
 
