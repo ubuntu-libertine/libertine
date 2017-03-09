@@ -20,8 +20,8 @@ from libertine import utils
 
 
 class ListTask(BaseTask):
-    def __init__(self, config, connection, callback):
-        super().__init__(lock=None, container_id=None, config=config, connection=connection, callback=callback)
+    def __init__(self, config, monitor, callback):
+        super().__init__(lock=None, container_id=None, config=config, monitor=monitor, callback=callback)
 
     def _run(self):
-        self._progress.data(json.dumps(self._config.get_containers()))
+        self._data(json.dumps(self._config.get_containers()))

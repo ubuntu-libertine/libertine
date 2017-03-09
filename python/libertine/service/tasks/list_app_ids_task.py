@@ -20,16 +20,16 @@ import time
 
 
 class ListAppIdsTask(BaseTask):
-    def __init__(self, container_id, config, connection, callback):
-        super().__init__(lock=None, container_id=container_id, config=config, connection=connection, callback=callback)
+    def __init__(self, container_id, config, monitor, callback):
+        super().__init__(lock=None, container_id=container_id, config=config, monitor=monitor, callback=callback)
 
     def _run(self):
         utils.get_logger().debug("Listing app ids from container '%s'" % self._container)
-        self._progress.data(json.dumps(LibertineContainer(self._container, self._config).list_app_ids()))
+        self._data(json.dumps(LibertineContainer(self._container, self._config).list_app_ids()))
 
     def _before(self):
         if not self._config.container_exists(self._container):
-            self._progress.error("Container '%s' does not exist, skipping list" % self._container)
+            self._error("Container '%s' does not exist, skipping list" % self._container)
             return False
 
         return True

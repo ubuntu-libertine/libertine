@@ -1,0 +1,19 @@
+{
+  "containerList": [
+    {
+      "id": "jarjar",
+      "name": "JarJar Binks",
+      "type": "mock"
+    },
+    {
+      "id": "padme",
+      "name": "Padme Amedala",
+      "type": "mock"
+    },
+    {
+      "id": "anakin",
+      "name": "Anakin Skywalker",
+      "type": "mock"
+    }
+  ]
+}

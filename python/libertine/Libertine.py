@@ -547,7 +547,7 @@ class LibertineContainer(object):
                 for root, dirs, files in os.walk(apps_dir):
                     app_ids.extend(["{}_{}_0.0".format(self.container_id, f[:-8]) for f in files if f.endswith(".desktop")])
 
-        return app_ids
+        return sorted(app_ids)
 
     def exec_command(self, exec_line):
         """

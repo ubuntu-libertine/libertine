@@ -34,6 +34,7 @@ TEST(LibertineContainerConfigList, constructDefault)
   EXPECT_EQ(container_configs.size(), 0);
 }
 
+
 /** Verify constructing a ContainerConfig from JSON DTRT. */
 TEST(LibertineContainerConfigList, constructFromJson)
 {

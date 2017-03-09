@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,15 +18,15 @@ from libertine import LibertineContainer, utils
 
 
 class DestroyTask(BaseTask):
-    def __init__(self, container_id, config, lock, connection, callback):
-        super().__init__(lock=lock, container_id=container_id, config=config, connection=connection, callback=callback)
+    def __init__(self, container_id, config, lock, monitor, callback):
+        super().__init__(lock=lock, container_id=container_id, config=config, monitor=monitor, callback=callback)
 
     def _run(self):
         utils.get_logger().debug("Destroying container '%s'" % self._container)
 
         container = LibertineContainer(self._container, self._config)
         if not container.destroy_libertine_container():
-            self._progress.error("Destroying container '%s' failed" % self._container)
+            self._error("Destroying container '%s' failed" % self._container)
             self._config.update_container_install_status(self._container, "ready")
             return
 
@@ -35,7 +35,7 @@ class DestroyTask(BaseTask):
     def _before(self):
         utils.get_logger().debug("CreateTask::_before")
         if self._config._get_value_by_key(self._container, 'installStatus') != 'ready':
-            self._progress.error("Container '%s' does not exist" % self._container)
+            self._error("Container '%s' does not exist" % self._container)
             return False
 
         self._config.update_container_install_status(self._container, 'removing')

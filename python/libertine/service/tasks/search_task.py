@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@ from libertine import utils
 
 
 class SearchTask(BaseTask):
-    def __init__(self, container_id, cache, query, connection, callback):
-        super().__init__(lock=None, container_id=container_id, config=None, connection=connection, callback=callback)
+    def __init__(self, container_id, cache, query, monitor, callback):
+        super().__init__(lock=None, container_id=container_id, config=None, monitor=monitor, callback=callback)
         self._cache = cache
         self._query = query
 
     def _run(self):
-        self._progress.data(str(self._cache.search(self._query)))
+        self._data(str(self._cache.search(self._query)))

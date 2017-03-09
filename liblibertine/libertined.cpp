@@ -25,12 +25,16 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
+
 namespace
 {
-constexpr auto SERVICE_INTERFACE = "com.canonical.libertine.Service";
-constexpr auto PROGRESS_INTERFACE = "com.canonical.libertine.Service.Progress";
-constexpr auto SESSION_DBUS_ENV_VAR = "DBUS_SESSION_BUS_ADDRESS";
-constexpr auto SERVICE_NAME = "libertined";
+constexpr auto SERVICE_INTERFACE            = "com.canonical.libertine.Service";
+constexpr auto OPERATIONS_INTERFACE         = "com.canonical.libertine.Service.Operations";
+constexpr auto OPERATIONS_OBJECT            = "/com/canonical/libertine/Service/Operations";
+constexpr auto OPERATIONS_MONITOR_INTERFACE = "com.canonical.libertine.Service.OperationsMonitor";
+constexpr auto OPERATIONS_MONITOR_OBJECT    = "/com/canonical/libertine/Service/OperationsMonitor";
+constexpr auto SESSION_DBUS_ENV_VAR         = "DBUS_SESSION_BUS_ADDRESS";
+constexpr auto SERVICE_NAME                 = "libertined";
 
 
 class SessionBus
@@ -69,7 +73,7 @@ dbusCall(QDBusConnection const& bus, QString const& iface, QString const& path,
 static bool
 isRunning(QDBusConnection const& bus, QString const& path)
 {
-  auto args = dbusCall(bus, PROGRESS_INTERFACE, path, "running", QVariantList());
+  auto args = dbusCall(bus, OPERATIONS_MONITOR_INTERFACE, OPERATIONS_MONITOR_OBJECT, "running", QVariantList{path});
 
   if (args.isEmpty())
   {
@@ -83,12 +87,12 @@ isRunning(QDBusConnection const& bus, QString const& path)
 static QString
 result(QDBusConnection const& bus, QString const& path)
 {
-  auto args = dbusCall(bus, PROGRESS_INTERFACE, path, "result");
+  auto args = dbusCall(bus, OPERATIONS_MONITOR_INTERFACE, OPERATIONS_MONITOR_OBJECT, "result", QVariantList{path});
 
   if (args.isEmpty())
   {
     qWarning() << "lastError - no arguments?";
-    return "";
+    return QString();
   }
 
   return args.first().toString();
@@ -97,12 +101,12 @@ result(QDBusConnection const& bus, QString const& path)
 static QString
 lastError(QDBusConnection const& bus, QString const& path)
 {
-  auto args = dbusCall(bus, PROGRESS_INTERFACE, path, "last_error");
+  auto args = dbusCall(bus, OPERATIONS_MONITOR_INTERFACE, OPERATIONS_MONITOR_OBJECT, "last_error", QVariantList{path});
 
   if (args.isEmpty())
   {
     qWarning() << "lastError - no arguments?";
-    return "";
+    return QString();
   }
 
   return args.first().toString();
@@ -111,7 +115,7 @@ lastError(QDBusConnection const& bus, QString const& path)
 static QString
 call(QDBusConnection const& bus, QString const& method, QVariantList const& args)
 {
-  auto results = dbusCall(bus, SERVICE_INTERFACE, "/Manager", method, args);
+  auto results = dbusCall(bus, OPERATIONS_INTERFACE, OPERATIONS_OBJECT, method, args);
 
   if (results.isEmpty())
   {
@@ -157,6 +161,7 @@ container_info(char const* container_id, QString const& key)
   return QJsonDocument::fromJson(result(session.bus, path).toLatin1()).object().value(key).toString();
 }
 }
+
 
 QJsonArray
 libertined_list()

@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@ from libertine import LibertineContainer, utils
 
 
 class RemoveTask(BaseTask):
-    def __init__(self, package_name, container_id, config, lock, connection, callback):
-        super().__init__(lock=lock, container_id=container_id, config=config, connection=connection, callback=callback)
+    def __init__(self, package_name, container_id, config, lock, monitor, callback):
+        super().__init__(lock=lock, container_id=container_id, config=config, monitor=monitor, callback=callback)
         self._package = package_name
 
     def matches(self, package, klass):
@@ -36,7 +36,7 @@ class RemoveTask(BaseTask):
             self._config.delete_package(self._container, self._package)
         else:
             self._config.update_package_install_status(self._container, self._package, 'installed')
-            self._progress.error("Package removal failed for '%s'" % self._package)
+            self._error("Package removal failed for '%s'" % self._package)
 
     def _before(self):
         utils.get_logger().debug("RemoveTask::_before")
@@ -44,5 +44,5 @@ class RemoveTask(BaseTask):
             self._config.update_package_install_status(self._container, self._package, "removing")
             return True
         else:
-            self._progress.error("Package '%s' not installed, skipping remove" % self._package)
+            self._error("Package '%s' not installed, skipping remove" % self._package)
             return False

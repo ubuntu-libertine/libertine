@@ -26,7 +26,7 @@ import unittest.mock
 
 from gi.repository import GLib
 from libertine import utils
-from libertine.service import tasks, apt
+from libertine.service import tasks, apt, constants
 from libertine.ContainersConfig import ContainersConfig
 from subprocess import Popen, PIPE
 from unittest import TestCase
@@ -75,7 +75,7 @@ class TestLibertineService(TestCase):
         for retries in range(1, 11):
             try:
                 self._bus =  dbus.SessionBus()
-                self._libertined = self._bus.get_object('com.canonical.libertine.Service', '/Manager')
+                self._libertined = self._bus.get_object(constants.SERVICE_NAME, constants.OPERATIONS_OBJECT)
                 break
             except dbus.DBusException as e:
                 print("Service not available (attempt %i/10). Exception: %s" % (retries, str(e)))
@@ -101,20 +101,20 @@ class TestLibertineService(TestCase):
 
         obj_path = func()
         signals = []
-        signals.append(self._bus.add_signal_receiver(path=obj_path, handler_function=self._finished_handler,
-                                dbus_interface='com.canonical.applications.Download', signal_name='finished'))
-        signals.append(self._bus.add_signal_receiver(path=obj_path, handler_function=self._data_handler,
-                                 dbus_interface='com.canonical.libertine.Service.Progress', signal_name='data'))
-        signals.append(self._bus.add_signal_receiver(path=obj_path, handler_function=self._error_handler,
-                                 dbus_interface='com.canonical.applications.Download', signal_name='error'))
+        signals.append(self._bus.add_signal_receiver(path=constants.OPERATIONS_MONITOR_OBJECT, handler_function=self._finished_handler,
+                                dbus_interface=constants.OPERATIONS_MONITOR_INTERFACE, signal_name='finished'))
+        signals.append(self._bus.add_signal_receiver(path=constants.OPERATIONS_MONITOR_OBJECT, handler_function=self._data_handler,
+                                 dbus_interface=constants.OPERATIONS_MONITOR_INTERFACE, signal_name='data'))
+        signals.append(self._bus.add_signal_receiver(path=constants.OPERATIONS_MONITOR_OBJECT, handler_function=self._error_handler,
+                                 dbus_interface=constants.OPERATIONS_MONITOR_INTERFACE, signal_name='error'))
 
-        task = self._bus.get_object('com.canonical.libertine.Service', obj_path)
-        if task.running():
+        monitor = self._bus.get_object(constants.SERVICE_NAME, constants.OPERATIONS_MONITOR_OBJECT)
+        if monitor.running(obj_path):
             self.event.wait(5)
             self.assertIsNone(self.error)
 
-        self.assertEqual('', task.get_dbus_method('last_error', 'com.canonical.libertine.Service.Progress')())
-        self.result = task.get_dbus_method('result', 'com.canonical.libertine.Service.Progress')()
+        self.assertEqual('', monitor.last_error(obj_path))
+        self.result = monitor.result(obj_path)
 
         for signal in signals:
             self._bus._clean_up_signal_match(signal)

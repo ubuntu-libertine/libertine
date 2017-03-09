@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,22 +18,22 @@ from libertine import LibertineContainer, utils
 
 
 class UpdateTask(BaseTask):
-    def __init__(self, container_id, config, lock, connection, callback):
-        super().__init__(lock=lock, container_id=container_id, config=config, connection=connection, callback=callback)
+    def __init__(self, container_id, config, lock, monitor, callback):
+        super().__init__(lock=lock, container_id=container_id, config=config, monitor=monitor, callback=callback)
 
     def _run(self):
         utils.get_logger().debug("Updating container '%s'" % self._container)
         container = LibertineContainer(self._container, self._config)
         self._config.update_container_install_status(self._container, "updating")
         if not container.update_libertine_container():
-            self._progress.error("Failed to update container '%s'" % self._container)
+            self._error("Failed to update container '%s'" % self._container)
 
         self._config.update_container_install_status(self._container, "ready")
 
     def _before(self):
         utils.get_logger().debug("UpdateTask::_before")
         if not self._config.container_exists(self._container):
-            self._progress.error("Container '%s' does not exist, skipping update" % self._container)
+            self._error("Container '%s' does not exist, skipping update" % self._container)
             return False
-        else:
-            return True
+
+        return True

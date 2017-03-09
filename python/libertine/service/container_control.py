@@ -12,16 +12,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+import dbus
 import libertine.ContainersConfig
 import psutil
 
+from . import constants
 from collections import Counter
 from libertine import utils
 
 
-class OperationsState(object):
-    def __init__(self):
+class ContainerControl(dbus.service.Object):
+    def __init__(self, connection):
         self._get_running_apps_per_container()
+
+        dbus.service.Object.__init__(self, conn=connection, object_path=constants.CONTAINER_CONTROL_OBJECT)
 
     def _get_running_apps_per_container(self):
         self._invalid_apps = dict()
@@ -47,7 +52,12 @@ class OperationsState(object):
                     config.delete_running_app(container, app)
                     continue
 
-    def operation_start(self, container):
+
+    @dbus.service.method(constants.CONTAINER_CONTROL_INTERFACE,
+                         in_signature='s',
+                         out_signature='b')
+    def start(self, container):
+        utils.get_logger().debug("start({})".format(container))
         if self._operations[container] == -1:
             return False
 
@@ -55,7 +65,13 @@ class OperationsState(object):
 
         return True
 
-    def operation_finished(self, container, app_name, pid):
+
+    @dbus.service.method(constants.CONTAINER_CONTROL_INTERFACE,
+                         in_signature='ssi',
+                         out_signature='b')
+    def finished(self, container, app_name, pid):
+        utils.get_logger().debug("finished({})".format(container))
+
         if container in self._invalid_apps and {app_name, pid} in self._invalid_apps[container]:
             self._invalid_apps[container].remove({app_name, pid})
             if not self._invalid_apps[container]:
@@ -69,7 +85,11 @@ class OperationsState(object):
 
         return False
 
-    def operation_stopped(self, container):
-        del self._operations[container]
+    @dbus.service.method(constants.CONTAINER_CONTROL_INTERFACE,
+                         in_signature='s',
+                         out_signature='b')
+    def stopped(self, container):
+        utils.get_logger().debug("stopped({})".format(container))
 
+        del self._operations[container]
         return True

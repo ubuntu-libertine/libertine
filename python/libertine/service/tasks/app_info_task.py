@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@ from libertine import utils
 
 
 class AppInfoTask(BaseTask):
-    def __init__(self, container_id, cache, app_id, tasks, config, connection, callback):
-        super().__init__(lock=None, container_id=container_id, config=config, connection=connection, callback=callback)
+    def __init__(self, container_id, cache, app_id, tasks, config, monitor, callback):
+        super().__init__(lock=None, container_id=container_id, config=config, monitor=monitor, callback=callback)
         self._cache = cache
         self._app_id = app_id
         self._tasks = tasks
@@ -27,9 +27,9 @@ class AppInfoTask(BaseTask):
     def _run(self):
         app = self._cache.app_info(self._app_id)
         if app == {}:
-            self._progress.error("Could not find app info for '%s' in container '%s'" % (self._app_id, self._container))
+            self._error("Could not find app info for '%s' in container '%s'" % (self._app_id, self._container))
             return
 
         app['status'] = self._config.get_package_install_status(self._container, app['package']) or ''
         app['task_ids'] = self._tasks
-        self._progress.data(str(app))
+        self._data(str(app))

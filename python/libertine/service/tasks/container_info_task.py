@@ -20,8 +20,8 @@ from libertine import utils
 
 
 class ContainerInfoTask(BaseTask):
-    def __init__(self, container_id, tasks, config, connection, callback):
-        super().__init__(lock=None, container_id=container_id, config=config, connection=connection, callback=callback)
+    def __init__(self, container_id, tasks, config, monitor, callback):
+        super().__init__(lock=None, container_id=container_id, config=config, monitor=monitor, callback=callback)
         self._tasks = tasks
 
     def _run(self):
@@ -35,11 +35,11 @@ class ContainerInfoTask(BaseTask):
         container['root'] = utils.get_libertine_container_rootfs_path(self._container)
         container['home'] = utils.get_libertine_container_home_dir(self._container)
 
-        self._progress.data(json.dumps(container))
+        self._data(json.dumps(container))
 
     def _before(self):
         if not self._config.container_exists(self._container):
-            self._progress.error("Container '%s' does not exist, ignoring info request" % self._container)
+            self._error("Container '%s' does not exist, ignoring info request" % self._container)
             return False
 
         return True

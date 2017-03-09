@@ -30,8 +30,8 @@ def _refresh_config(func):
 
 
 class TaskDispatcher(object):
-    def __init__(self, connection):
-        self._connection = connection
+    def __init__(self, monitor):
+        self._monitor = monitor
         self._config = libertine.ContainersConfig.ContainersConfig()
         self._containerless_tasks = []
         self._tasks = []
@@ -49,11 +49,13 @@ class TaskDispatcher(object):
 
     def _find_or_create_container(self, container_id):
         utils.get_logger().debug("finding or creating container '%s'" % container_id)
+
         container = self._find_container(container_id)
         if container is not None:
             utils.get_logger().debug("using existing container '%s'" % container_id)
             return container
-        container = Container(container_id, self._config, self._connection, self._cleanup_container)
+
+        container = Container(container_id, self._config, self._monitor, self._cleanup_container)
         self._containers.append(container)
 
         return container
@@ -115,7 +117,7 @@ class TaskDispatcher(object):
         container = self._find_container(container_id)
         if container is not None:
             related_task_ids = container.tasks
-        task = ContainerInfoTask(container_id, related_task_ids, self._config, self._connection, self._cleanup_task)
+        task = ContainerInfoTask(container_id, related_task_ids, self._config, self._monitor, self._cleanup_task)
         self._tasks.append(task)
         task.start()
 
@@ -125,7 +127,7 @@ class TaskDispatcher(object):
     def list(self):
         utils.get_logger().debug("dispatching list all containers")
 
-        task = ListTask(self._config, self._connection, self._cleanup_task)
+        task = ListTask(self._config, self._monitor, self._cleanup_task)
         self._tasks.append(task)
         task.start()
 

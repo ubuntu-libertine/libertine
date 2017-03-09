@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -15,7 +15,7 @@
 
 import unittest.mock
 from unittest import TestCase
-from libertine.service import tasks, apt
+from libertine.service import tasks, apt, operations_monitor
 from libertine.ContainersConfig import ContainersConfig
 
 
@@ -23,39 +23,37 @@ class TestAppInfoTask(TestCase):
     def setUp(self):
         self.config     = unittest.mock.create_autospec(ContainersConfig)
         self.cache      = unittest.mock.create_autospec(apt.AptCache)
-        self.connection = unittest.mock.Mock()
+        self.monitor    = unittest.mock.create_autospec(operations_monitor.OperationsMonitor)
+        self.monitor.new_operation.return_value = "/com/canonical/libertine/Service/Download/123456"
 
     def test_app_not_found_causes_error(self):
         self.called_with = None
         def callback(t):
             self.called_with = t
 
-        with unittest.mock.patch('libertine.service.tasks.base_task.libertine.service.progress.Progress') as MockProgress:
-            progress = MockProgress.return_value
-            self.cache.app_info.return_value = {}
-            task = tasks.AppInfoTask('palpatine', self.cache, 'lightside', [1, 2], self.config, self.connection, callback)
-            task._instant_callback = True
-            task.start().join()
+        self.cache.app_info.return_value = {}
+        task = tasks.AppInfoTask('palpatine', self.cache, 'lightside', [1, 2], self.config, self.monitor, callback)
+        task._instant_callback = True
+        task.start().join()
 
-            progress.error.assert_called_once_with('Could not find app info for \'lightside\' in container \'palpatine\'')
+        self.monitor.error.assert_called_once_with(self.monitor.new_operation.return_value, 'Could not find app info for \'lightside\' in container \'palpatine\'')
 
-            self.assertEqual(task, self.called_with)
+        self.assertEqual(task, self.called_with)
 
     def test_success_sends_data(self):
         self.called_with = None
         def callback(t):
             self.called_with = t
 
-        with unittest.mock.patch('libertine.service.tasks.base_task.libertine.service.progress.Progress') as MockProgress:
-            progress = MockProgress.return_value
-            progress.done = False
+        self.monitor.done.return_value = False
 
-            self.cache.app_info.return_value = {'package': 'darkside-common'}
-            self.config.get_package_install_status.return_value = 'installed'
-            task = tasks.AppInfoTask('palpatine', self.cache, 'darkside', [1, 2, 3], self.config, self.connection, callback)
-            task._instant_callback = True
-            task.start().join()
+        self.cache.app_info.return_value = {'package': 'darkside-common'}
+        self.config.get_package_install_status.return_value = 'installed'
+        task = tasks.AppInfoTask('palpatine', self.cache, 'darkside', [1, 2, 3], self.config, self.monitor, callback)
+        task._instant_callback = True
+        task.start().join()
 
-            progress.data.assert_called_once_with(str({'package': 'darkside-common', 'status': 'installed', 'task_ids': [1, 2, 3]}))
+        self.monitor.data.assert_called_once_with(self.monitor.new_operation.return_value, str({'package': 'darkside-common', 'status': 'installed', 'task_ids': [1, 2, 3]}))
+        self.monitor.finished.assert_called_once_with(self.monitor.new_operation.return_value)
 
-            self.assertEqual(task, self.called_with)
+        self.assertEqual(task, self.called_with)

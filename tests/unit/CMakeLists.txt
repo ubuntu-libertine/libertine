@@ -8,9 +8,10 @@ add_executable(
   ContainerConfigListTests.cpp
   ContainersConfigTests.cpp
 )
+
 target_link_libraries(
   test_container_config
-  libertine-common
+  ${LIBERTINE_COMMON}
   gtest gtest_main
   Qt5::Core
 )

@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@ from libertine.HostInfo import HostInfo
 
 
 class CreateTask(BaseTask):
-    def __init__(self, container_id, container_name, distro, container_type, enable_multiarch, config, lock, connection, callback):
-        super().__init__(lock=lock, container_id=container_id, config=config, connection=connection, callback=callback)
+    def __init__(self, container_id, container_name, distro, container_type, enable_multiarch, config, lock, monitor, callback):
+        super().__init__(lock=lock, container_id=container_id, config=config, monitor=monitor, callback=callback)
         self._name = container_name
         self._distro = distro
         self._type = container_type
@@ -34,31 +34,31 @@ class CreateTask(BaseTask):
 
             if not container.create_libertine_container(password='', multiarch=self._multiarch):
                 self._config.delete_container(self._container)
-                self._progress.error("Creating container '%s' failed" % self._container)
+                self._error("Creating container '%s' failed" % self._container)
             else:
                 self._config.update_container_install_status(self._container, "ready")
         except RuntimeError as e:
-            self._progress.error(str(e))
+            self._error(str(e))
             self._config.delete_container(self._container)
 
     def _before(self):
         utils.get_logger().debug("CreateTask::_before")
         if self._config.container_exists(self._container):
-            self._progress.error("Container '%s' already exists" % self._container)
+            self._error("Container '%s' already exists" % self._container)
             return False
 
         info = HostInfo()
         if not self._distro:
             self._distro = info.get_host_distro_release()
         elif not info.is_distro_valid(self._distro):
-            self._progress.error("Invalid distro '%s'." % self._distro)
+            self._error("Invalid distro '%s'." % self._distro)
             return False
 
         if not self._type:
             self._type = info.select_container_type_by_kernel()
         elif (self._type == 'lxd' and not info.has_lxd_support()) or \
              (self._type == 'lxc' and not info.has_lxc_support()):
-            self._progress.error("System kernel does not support %s type containers. "
+            self._error("System kernel does not support %s type containers. "
                                  "Please either use chroot or leave empty." % self._type)
             return False
 

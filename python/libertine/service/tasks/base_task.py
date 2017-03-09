@@ -12,8 +12,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import libertine.service.progress
+
 import threading
+
 from abc import ABCMeta, abstractmethod
 
 
@@ -24,24 +25,21 @@ class BaseTask(metaclass=ABCMeta):
     in a separate thread. Override _before to implement pre-execution actions
     without locking; if _before returns False, _run will not be executed.
     """
-    def __init__(self, lock, container_id, config, connection, callback):
+    def __init__(self, lock, container_id, config, monitor, callback):
         self._lock = lock
         self._container = container_id
         self._config = config
         self._callback = callback
-        self._connection = connection
-        self._progress = None
-        self._instant_callback = False
+        self._monitor = monitor
+        self._operation_id = None
+        self._instant_callback = False # for testing
 
     def matches(self, container, klass):
         return self._container == container and self.__class__ == klass
 
     @property
     def id(self):
-        if self._progress is not None:
-            return self._progress.id
-        else:
-            return None
+        return self._operation_id
 
     @property
     def container(self):
@@ -53,23 +51,23 @@ class BaseTask(metaclass=ABCMeta):
 
     @property
     def running(self):
-        return not self._progress.done
+        return not self._monitor.done(self._operation_id)
 
     def _delayed_callback(self):
         if self._instant_callback:
             self._callback(self)
         else:
-            threading.Timer(10, lambda: (self._progress.remove_from_connection(), self._callback(self))).start()
+            threading.Timer(10, lambda: (self._monitor.remove_from_connection(self._operation_id), self._callback(self))).start()
 
     def start(self):
-        self._progress = libertine.service.progress.Progress(self._connection)
+        self._operation_id = self._monitor.new_operation()
         thread = threading.Thread(target=self.run)
         thread.start()
         return thread
 
     def run(self):
         if not self._before():
-            self._progress.finished(self.container)
+            self._monitor.finished(self._operation_id)
             self._delayed_callback()
             return
 
@@ -80,7 +78,7 @@ class BaseTask(metaclass=ABCMeta):
             self._run()
 
         if self.running:
-            self._progress.finished(self.container)
+            self._monitor.finished(self._operation_id)
 
         self._delayed_callback()
 
@@ -90,3 +88,9 @@ class BaseTask(metaclass=ABCMeta):
 
     def _before(self):
         return True
+
+    def _data(self, message):
+        self._monitor.data(self._operation_id, message)
+
+    def _error(self, message):
+        self._monitor.error(self._operation_id, message)

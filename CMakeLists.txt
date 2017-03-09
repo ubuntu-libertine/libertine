@@ -30,6 +30,12 @@ include_directories(${GLIB2_INCLUDE_DIRS})
 pkg_check_modules(PYTHON3 REQUIRED python3)
 include_directories(${PYTHON3_INCLUDE_DIRS})
 
+pkg_check_modules(DBUSTEST REQUIRED dbustest-1>=14.04.0)
+include_directories(${DBUSTEST_INCLUDE_DIRS})
+
+pkg_check_modules(GIO2 REQUIRED gio-2.0 gio-unix-2.0)
+include_directories(${GIO2_INCLUDE_DIRS})
+
 set(CMAKE_AUTOMOC ON)
 
 set(LIBERTINE_COMMON libertine-common)

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,13 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import argparse
+import dbus
+import os
 import signal
 import sys
-import os
-from gi.repository import GLib, GObject
+
+from dbus.mainloop.glib import DBusGMainLoop
+from gi.repository import GLib
 from libertine import utils
-from libertine.service import manager
+from libertine.service import constants, operations, container_control
 
 
 class OutputRedirector(object):
@@ -116,6 +120,7 @@ class Loop(object):
                          signal.SIGTERM,
                          self.sigterm,
                          None)
+        DBusGMainLoop(set_as_default=True)
         self.loop = GLib.MainLoop()
 
     def sigterm(self, code):
@@ -136,8 +141,19 @@ def main():
 
     with OutputRedirector(config):
         utils.get_logger().info("Starting libertine service")
-        service = manager.Manager()
         loop = Loop()
+
+        try:
+            bus_name = dbus.service.BusName(constants.SERVICE_NAME,
+                                            bus=dbus.SessionBus(),
+                                            do_not_queue=True)
+        except dbus.exceptions.NameExistsException:
+            utils.get_logger().warning("service is already running")
+            raise
+
+        manager = operations.Operations(bus_name)
+        container_control.ContainerControl(manager.connection)
+        
         try:
             loop.run()
         except KeyboardInterrupt:

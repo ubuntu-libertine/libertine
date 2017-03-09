@@ -22,9 +22,9 @@ if not utils.is_snap_environment():
 
 
 class Container(object):
-    def __init__(self, container_id, config, connection, callback):
+    def __init__(self, container_id, config, monitor, callback):
         self._id = container_id
-        self._connection = connection
+        self._monitor = monitor
         self._callback = callback
         self._config = config
         self._lock = Lock()
@@ -59,7 +59,7 @@ class Container(object):
         if utils.is_snap_environment():
             raise Exception("This operation is not currently supported within the snap")
 
-        task = SearchTask(self.id, self._cache, query, self._connection, self._cleanup_task)
+        task = SearchTask(self.id, self._cache, query, self._monitor, self._cleanup_task)
         self._tasks.append(task)
         task.start()
 
@@ -72,7 +72,7 @@ class Container(object):
             raise Exception("This operation is not currently supported within the snap")
 
         related_task_ids = [t.id for t in self._tasks if t.package == package_name and t.running]
-        task = AppInfoTask(self.id, self._cache, package_name, related_task_ids, self._config, self._connection, self._cleanup_task)
+        task = AppInfoTask(self.id, self._cache, package_name, related_task_ids, self._config, self._monitor, self._cleanup_task)
 
         self._tasks.append(task)
         task.start()
@@ -86,7 +86,7 @@ class Container(object):
             utils.get_logger().debug("Install already in progress for '%s':'%s'" % (package_name, self.id))
             return tasks[0].id
 
-        task = InstallTask(package_name, self.id, self._config, self._lock, self._connection, self._cleanup_task)
+        task = InstallTask(package_name, self.id, self._config, self._lock, self._monitor, self._cleanup_task)
         self._tasks.append(task)
         task.start()
         return task.id
@@ -99,7 +99,7 @@ class Container(object):
             utils.get_logger().debug("Remove already in progress for '%s':'%s'" % (package_name, self.id))
             return tasks[0].id
 
-        task = RemoveTask(package_name, self.id, self._config, self._lock, self._connection, self._cleanup_task)
+        task = RemoveTask(package_name, self.id, self._config, self._lock, self._monitor, self._cleanup_task)
         self._tasks.append(task)
         task.start()
         return task.id
@@ -113,7 +113,7 @@ class Container(object):
             return tasks[0].id
 
         task = CreateTask(self.id, container_name, distro, container_type, enable_multiarch,
-                          self._config, self._lock, self._connection, self._cleanup_task)
+                          self._config, self._lock, self._monitor, self._cleanup_task)
         self._tasks.append(task)
         task.start()
         return task.id
@@ -126,7 +126,7 @@ class Container(object):
             utils.get_logger().debug("Destroy already in progress for '%s'" % self.id)
             return tasks[0].id
 
-        task = DestroyTask(self.id, self._config, self._lock, self._connection, self._cleanup_task)
+        task = DestroyTask(self.id, self._config, self._lock, self._monitor, self._cleanup_task)
         self._tasks.append(task)
         task.start()
         return task.id
@@ -139,7 +139,7 @@ class Container(object):
             utils.get_logger().debug("Update already in progress for '%s'" % self.id)
             return tasks[0].id
 
-        task = UpdateTask(self.id, self._config, self._lock, self._connection, self._cleanup_task)
+        task = UpdateTask(self.id, self._config, self._lock, self._monitor, self._cleanup_task)
         self._tasks.append(task)
         task.start()
         return task.id
@@ -147,7 +147,7 @@ class Container(object):
     def list_app_ids(self):
         utils.get_logger().debug("List all app ids in container '%s'" % self.id)
 
-        task = ListAppIdsTask(self.id, self._config, self._connection, self._cleanup_task)
+        task = ListAppIdsTask(self.id, self._config, self._monitor, self._cleanup_task)
 
         self._tasks.append(task)
         task.start()

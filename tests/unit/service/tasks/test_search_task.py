@@ -1,4 +1,4 @@
-# Copyright 2016 Canonical Ltd.
+# Copyright 2016-2017 Canonical Ltd.
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -15,29 +15,29 @@
 
 import unittest.mock
 from unittest import TestCase
-from libertine.service import tasks, apt
+from libertine.service import tasks, apt, operations_monitor
 
 
 class TestSearchTask(TestCase):
     def setUp(self):
-        self.connection  = unittest.mock.Mock()
         self.lock      = unittest.mock.MagicMock()
         self.cache     = unittest.mock.create_autospec(apt.AptCache)
+        self.monitor    = unittest.mock.create_autospec(operations_monitor.OperationsMonitor)
+
+        self.monitor.new_operation.return_value = "/com/canonical/libertine/Service/Download/123456"
         self.called_with = None
 
     def callback(self, task):
         self.called_with = task
 
     def test_successfully_lists_apps(self):
-        with unittest.mock.patch('libertine.service.tasks.base_task.libertine.service.progress.Progress') as MockProgress:
-            progress = MockProgress.return_value
-            progress.done = False
-            task = tasks.SearchTask('palpatine', self.cache, 'jarjar', self.connection, self.callback)
+            self.monitor.done.return_value = False
+            task = tasks.SearchTask('palpatine', self.cache, 'jarjar', self.monitor, self.callback)
             task._instant_callback = True
 
             self.cache.search.return_value = ['jarjar', 'sidius']
             task.start().join()
 
-            progress.finished.assert_called_once_with('palpatine')
-            progress.data.assert_called_once_with(str(['jarjar', 'sidius']))
+            self.monitor.finished.assert_called_once_with(self.monitor.new_operation.return_value)
+            self.monitor.data.assert_called_once_with(self.monitor.new_operation.return_value, str(['jarjar', 'sidius']))
             self.assertEqual(task, self.called_with)
