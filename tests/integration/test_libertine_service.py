@@ -71,11 +71,19 @@ class TestLibertineService(TestCase):
         self.error = None
         self.result = None
         self.event = threading.Event()
+        self.signals = []
 
         for retries in range(1, 11):
             try:
                 self._bus =  dbus.SessionBus()
                 self._libertined = self._bus.get_object(constants.SERVICE_NAME, constants.OPERATIONS_OBJECT)
+
+                self.signals.append(self._bus.add_signal_receiver(path=constants.OPERATIONS_MONITOR_OBJECT, handler_function=self._finished_handler,
+                                        dbus_interface=constants.OPERATIONS_MONITOR_INTERFACE, signal_name='finished'))
+                self.signals.append(self._bus.add_signal_receiver(path=constants.OPERATIONS_MONITOR_OBJECT, handler_function=self._data_handler,
+                                         dbus_interface=constants.OPERATIONS_MONITOR_INTERFACE, signal_name='data'))
+                self.signals.append(self._bus.add_signal_receiver(path=constants.OPERATIONS_MONITOR_OBJECT, handler_function=self._error_handler,
+                                         dbus_interface=constants.OPERATIONS_MONITOR_INTERFACE, signal_name='error'))
                 break
             except dbus.DBusException as e:
                 print("Service not available (attempt %i/10). Exception: %s" % (retries, str(e)))
@@ -85,39 +93,36 @@ class TestLibertineService(TestCase):
             except Exception as e:
                 self.fail('Exception occurred during connection: %s' % str(e))
 
+    def tearDown(self):
+        for signal in self.signals:
+            self._bus._clean_up_signal_match(signal)
+
     def _finished_handler(self, path):
-        self.event.set()
+        if self.path == path:
+            self.event.set()
 
-    def _data_handler(self, message):
-        self.result = message
+    def _data_handler(self, path, message):
+        if self.path == path:
+            self.result = message
 
-    def _error_handler(self, message):
-        self.error = message
-        self.event.set()
+    def _error_handler(self, path, message):
+        if self.path == path:
+            self.error = message
+            self.event.set()
 
     def _send(self, func):
         self.event.clear()
         self.result = None
 
-        obj_path = func()
-        signals = []
-        signals.append(self._bus.add_signal_receiver(path=constants.OPERATIONS_MONITOR_OBJECT, handler_function=self._finished_handler,
-                                dbus_interface=constants.OPERATIONS_MONITOR_INTERFACE, signal_name='finished'))
-        signals.append(self._bus.add_signal_receiver(path=constants.OPERATIONS_MONITOR_OBJECT, handler_function=self._data_handler,
-                                 dbus_interface=constants.OPERATIONS_MONITOR_INTERFACE, signal_name='data'))
-        signals.append(self._bus.add_signal_receiver(path=constants.OPERATIONS_MONITOR_OBJECT, handler_function=self._error_handler,
-                                 dbus_interface=constants.OPERATIONS_MONITOR_INTERFACE, signal_name='error'))
+        self.path = func()
 
         monitor = self._bus.get_object(constants.SERVICE_NAME, constants.OPERATIONS_MONITOR_OBJECT)
-        if monitor.running(obj_path):
+        if monitor.running(self.path):
             self.event.wait(5)
             self.assertIsNone(self.error)
 
-        self.assertEqual('', monitor.last_error(obj_path))
-        self.result = monitor.result(obj_path)
-
-        for signal in signals:
-            self._bus._clean_up_signal_match(signal)
+        self.assertEqual('', monitor.last_error(self.path))
+        self.result = monitor.result(self.path)
 
         return self.result
 
