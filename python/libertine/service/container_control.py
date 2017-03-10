@@ -43,4 +43,4 @@ class ContainerControl(dbus.service.Object):
                          out_signature='b')
     def stopped(self, container):
         utils.get_logger().debug("stopped({})".format(container))
-        return self._client.container_operation_stopped(container)
+        return self._client.container_stopped(container)
