@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: libertine\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2017-02-22 18:21+0000\n"
+"PO-Revision-Date: 2017-02-25 15:41+0000\n"
 "Last-Translator: Anne017 <anneonyme017@openmailbox.org>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-02-23 06:48+0000\n"
-"X-Generator: Launchpad (build 18326)\n"
+"X-Launchpad-Export-Date: 2017-02-27 05:53+0000\n"
+"X-Generator: Launchpad (build 18328)\n"
 
 #: ../common/ContainerConfig.cpp:147 ../common/ContainerConfig.cpp:184
 msgid "new"
@@ -355,6 +355,8 @@ msgstr "Bienvenue"
 #: ../qml/gui/WelcomeView.qml:50
 msgid "Welcome to the Ubuntu Legacy Application Support Manager."
 msgstr ""
+"Bienvenue dans le gestionnaire de prise en charge des applications "
+"historiques sur Ubuntu."
 
 #: ../qml/gui/WelcomeView.qml:59
 msgid ""
@@ -362,6 +364,9 @@ msgid ""
 "Downloading and setting up the required environment takes some time and "
 "network bandwidth."
 msgstr ""
+"La prise en charge des applications historiques n'est pas encore configurée "
+"pour le moment. Le téléchargement et la configuration de l'environnement "
+"requis prend un certain temps et de la bande passante."
 
 #: ../qml/gui/WelcomeView.qml:67
 msgid "Install"
@@ -369,7 +374,7 @@ msgstr "Installer"
 
 #: ../libertine/qml/ContainerInfoView.qml:30
 msgid "Container information for %1"
-msgstr ""
+msgstr "Information du conteneur pour %1"
 
 #: ../qml/common/ContainerInfoView.qml:56
 msgid "ID"
@@ -419,11 +424,13 @@ msgstr "Options du conteneur"
 
 #: ../qml/common/ContainerOptionsDialog.qml:28
 msgid "Configure options for container creation."
-msgstr ""
+msgstr "Configurer les options pour la création d'un conteneur."
 
 #: ../qml/common/ContainerOptionsDialog.qml:51
 msgid "Enter a name for the container or leave blank for default name:"
 msgstr ""
+"Saisissez un nom pour le conteneur ou laissez vide pour prendre le nom par "
+"défaut :"
 
 #: ../qml/common/ContainerOptionsDialog.qml:57
 msgid "container name"
@@ -434,6 +441,8 @@ msgid ""
 "Enter password for your user in the Libertine container or leave blank for "
 "no password:"
 msgstr ""
+"Saisissez un mot de passe pour votre utilisateur dans le conteneur de "
+"Libertine ou laissez vide pour ne pas configurer de mot de passe :"
 
 #: ../qml/common/ContainerOptionsDialog.qml:71
 msgid "password"

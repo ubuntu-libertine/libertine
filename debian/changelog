@@ -1,3 +1,44 @@
+libertine (1.7+17.04.20170308-0ubuntu1) zesty; urgency=medium
+
+  [ Chris Townsend ]
+  * Fix libertined such that it can probe for currently running X apps and
+    rebuild application running state. (LP: #1637579)
+  * Gracefully handle the case where an application does not start.
+    (LP: #1666177)
+  * Kill the libertined service during the libertined package removal and
+    upgrades (LP: #1667368)
+  * Refactor package operation details into container operation details.
+  * Allowing specifying multiple packages to be installed or removed.
+    (LP: #1665647)
+  * Show the current container state in the 'Status' section of the
+    Container Info page in the UI. (LP: #1667726)
+  * Add ability to configure stopping or freezing a container from within
+    the UI. (LP: #1667717)
+  * Bump version to 1.7.
+
+  [ Larry Price ]
+  * Prevent rewriting existing data in ContainersConfig. (LP: #1659115)
+  * Prevent staging libertine files when installing dependencies and fix
+    deprecations for the snap.
+  * Use AdaptivePageLayout instead of PageStack for app navigation.
+    (LP: #1550365) (LP: #1659076)
+  * Refactor ContainersConfig handling from the GUI.
+  * Prevent removing container from the database when destroy fails.
+  * Various fixes for getting the confined snap working with libertined.
+  * Remove /Progress objects from d-bus connection during cleanup.
+  * LXD container status will override d-bus result during destroy only.
+  * Implement GUI for adding and removing bind-mounts in containers.
+  * Use a decorator to refresh the database during any libertined operations
+    involving ContainersConfig.
+  * Fix any broken symlinks in the local lxd rootfs during update and package
+    installation. (LP: #1659646)
+  * Update the default container type to lxd. (LP: #1665645)
+  * Properly remove bind-mounted files in local rootfs during lxd destroy.
+  * Add container hostname to /etc/hosts in lxd containers.
+  * Add a force option for destroying running containers.
+
+ -- Christopher Townsend <christopher.townsend@canonical.com>  Wed, 08 Mar 2017 14:53:46 +0000
+
 libertine (1.6+17.04.20170214.2-0ubuntu1) zesty; urgency=medium
 
   [ Chris Townsend ]
