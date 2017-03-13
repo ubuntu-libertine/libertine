@@ -166,9 +166,9 @@ Depends: lsb-release,
          xdg-user-dirs,
          ${misc:Depends},
          ${python3:Depends}
-Recommends: python3-libertine-lxd
 Suggests: python3-libertine-chroot,
-          python3-libertine-lxc
+          python3-libertine-lxc,
+          python3-libertine-lxd
 Description: Python3 scripts for the Libertine application sandbox
  Python3 modules for the Libertine application sandbox tools.  Requires at
  least one of the container back end modules installed to be of any use.

@@ -1,3 +1,10 @@
+libertine (1.7+17.04.20170313-0ubuntu1) zesty; urgency=medium
+
+  * Have python3-libertine suggest instead of recommend the lxd backend
+    (LP: #1672178) (LP: #1672178)
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 13 Mar 2017 14:04:22 +0000
+
 libertine (1.7+17.04.20170308-0ubuntu1) zesty; urgency=medium
 
   [ Chris Townsend ]
