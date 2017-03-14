@@ -1,4 +1,3 @@
 usr/bin/libertine-container-manager
-usr/bin/libertine-launch
 usr/share/bash-completion/completions/libertine-container-manager
-usr/share/man
+usr/share/man/*/libertine-container-manager.1

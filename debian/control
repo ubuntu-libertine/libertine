@@ -85,13 +85,14 @@ Description: common files for qt-based libertine applications
 
 Package: libertine-tools
 Architecture: any
-Depends: libglib2.0-bin,
+Depends: libertine-xmir-tools (>= 1.7.1),
+         libglib2.0-bin,
          python3-dbus,
          python3-libertine,
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
-Recommends: libertine-xmir-tools (>= 1.4.3)
+Recommends: python3-libertine-lxd
 Breaks: libertine-demo
 Replaces: libertine-demo
 Description: CLI tools for running deb-packaged X11 apps on Ubuntu Personal
@@ -104,12 +105,13 @@ Depends: libcontent-hub0,
          libqt5core5a,
          libqt5gui5,
          libqt5widgets5,
+         python3-libertine,
          xmir [amd64 armhf arm64 i386],
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
-Breaks: libertine-tools (<< 1.4.3)
-Replaces: libertine-tools (<< 1.4.3)
+Breaks: libertine-tools (<< 1.7.1)
+Replaces: libertine-tools (<< 1.7.1)
 Description: helper apps for using and interacting with Xmir
  Helper applications for using and interacting with Xmir such as launching
  Xmir and allowing copy and paste.
