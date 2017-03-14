@@ -19,6 +19,10 @@
 import os
 import sys
 
+import gettext
+gettext.textdomain('libertine')
+_ = gettext.gettext
+
 from libertine import launcher
 
 def main():
@@ -30,8 +34,14 @@ def main():
             utils.get_logger().error("No container with id '%s'" % config.container_id)
             sys.exit(1)
 
-        from libertine import LibertineContainer
-        container = LibertineContainer(container_id=config.container_id)
+        try:
+            from libertine import LibertineContainer
+            container = LibertineContainer(container_id=config.container_id)
+        except ImportError as e:
+            container_type = self.containers_config.get_container_type(container_id)
+            libertine.utils.get_logger().error(_("Backend for container '{id}' not installed. Install "
+                                               "'python3-libertine-{type}' and try again.").format(id=config.container_id, type=container_type))
+            sys.exit(1)
     else:
         from libertine import NoContainer
 

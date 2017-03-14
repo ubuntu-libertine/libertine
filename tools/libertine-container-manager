@@ -24,6 +24,10 @@ import os
 import sys
 import re
 
+import gettext
+gettext.textdomain('libertine')
+_ = gettext.gettext
+
 from libertine import ContainerRunning, LibertineContainer
 from libertine.ContainersConfig import ContainersConfig
 from libertine.HostInfo import HostInfo
@@ -34,6 +38,16 @@ class LibertineContainerManager(object):
     def __init__(self):
         self.containers_config = ContainersConfig()
         self.host_info = HostInfo()
+
+
+    def _container(self, container_id):
+        try:
+            return LibertineContainer(container_id, self.containers_config)
+        except ImportError as e:
+            container_type = self.containers_config.get_container_type(container_id)
+            libertine.utils.get_logger().error(_("Backend for container '{id}' not installed. Install "
+                                               "'python3-libertine-{type}' and try again.").format(id=container_id, type=container_type))
+            sys.exit(1)
 
     def _get_updated_locale(self, container_id):
         host_locale = self.host_info.get_host_locale()
@@ -99,7 +113,7 @@ class LibertineContainerManager(object):
 
         try:
             self.containers_config.update_container_locale(args.id, self.host_info.get_host_locale())
-            container = LibertineContainer(args.id)
+            container = LibertineContainer(args.id, self.containers_config)
             self.containers_config.update_container_install_status(args.id, "installing")
             if not container.create_libertine_container(password, args.multiarch):
                 libertine.utils.get_logger().error("Failed to create container")
@@ -130,7 +144,7 @@ class LibertineContainerManager(object):
 
     def destroy(self, args):
         container_id = self.containers_config.check_container_id(args.id)
-        container = LibertineContainer(container_id, self.containers_config)
+        container = self._container(container_id)
 
         self.destroy_container(container, args.force)
 
@@ -138,7 +152,7 @@ class LibertineContainerManager(object):
 
     def install_package(self, args):
         container_id = self.containers_config.check_container_id(args.id)
-        container = LibertineContainer(container_id, self.containers_config)
+        container = self._container(container_id)
         failure = False
 
         with ContainerRunning(container.container):
@@ -193,7 +207,7 @@ class LibertineContainerManager(object):
 
     def remove_package(self, args):
         container_id = self.containers_config.check_container_id(args.id)
-        container = LibertineContainer(container_id)
+        container = self._container(container_id)
         failure = False
 
         with ContainerRunning(container.container):
@@ -216,8 +230,8 @@ class LibertineContainerManager(object):
 
     def search_cache(self, args):
         container_id = self.containers_config.check_container_id(args.id)
+        container = self._container(container_id)
 
-        container = LibertineContainer(container_id)
         if container.search_package_cache(args.search_string) is not 0:
             libertine.utils.get_logger().error("Search for '{}' in container '{}' exited with non-zero status"
                                                .format(args.id, args.search_string))
@@ -225,9 +239,9 @@ class LibertineContainerManager(object):
 
     def update(self, args):
         container_id = self.containers_config.check_container_id(args.id)
-        new_locale = self._get_updated_locale(container_id)
+        container = self._container(container_id)
 
-        container = LibertineContainer(container_id)
+        new_locale = self._get_updated_locale(container_id)
 
         if not container.update_libertine_container(new_locale):
             sys.exit(1)
@@ -242,7 +256,7 @@ class LibertineContainerManager(object):
     def list_apps(self, args):
         container_id = self.containers_config.check_container_id(args.id)
 
-        app_ids = LibertineContainer(container_id).list_app_ids()
+        app_ids = self._container(container_id).list_app_ids()
         if args.json:
             print(json.dumps(app_ids))
         else:
@@ -252,7 +266,7 @@ class LibertineContainerManager(object):
     def exec(self, args):
         container_id = self.containers_config.check_container_id(args.id)
 
-        container = LibertineContainer(container_id)
+        container = self._container(container_id)
 
         if not container.exec_command(args.command):
             sys.exit(1)
@@ -269,7 +283,7 @@ class LibertineContainerManager(object):
 
     def configure(self, args):
         container_id = self.containers_config.check_container_id(args.id)
-        container = LibertineContainer(container_id)
+        container = self._container(container_id)
 
         if args.multiarch and self.host_info.get_host_architecture() == 'amd64':
             multiarch = 'disabled'
@@ -377,7 +391,7 @@ class LibertineContainerManager(object):
     def fix_integrity(self, args):
         if 'containerList' in self.containers_config.container_list:
             for container in self.containers_config.container_list['containerList']:
-                libertine_container = LibertineContainer(container['id'])
+                libertine_container = self._container(container['id'])
 
                 if 'installStatus' not in container or container['installStatus'] == 'removing':
                     self.destroy_container(libertine_container)
@@ -411,7 +425,7 @@ class LibertineContainerManager(object):
             libertine.utils.get_logger().error("The restart subcommand is only valid for LXC and LXD type containers.")
             sys.exit(1)
 
-        container = LibertineContainer(container_id)
+        container = self._container(container_id)
 
         container.restart_libertine_container()
 
