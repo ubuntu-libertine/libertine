@@ -66,6 +66,29 @@ static QString getPersistentSurfaceId()
   return persistentSurfaceId;
 }
 
+
+void checkXServer()
+{
+  char *display = getenv("DISPLAY");
+
+  if (display == nullptr)
+  {
+    qCritical() << "DISPLAY environment variable not set!";
+    exit(-1);
+  }
+
+  Display *dpy = XOpenDisplay(display);
+  if (dpy == nullptr)
+  {
+    qCritical() << "Xmir is not running on DISPLAY" << display << "!";
+    exit(-1);
+  }
+
+  XCloseDisplay(dpy);
+
+  return;
+}
+
 } //anonymous namespace
 
 
@@ -251,6 +274,8 @@ int
 main(int argc, char* argv[])
 {
   qSetMessagePattern(QString("%{appname}: %{message}"));
+
+  checkXServer();
 
   Pasted pasted(argc, argv);
 
