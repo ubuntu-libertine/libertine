@@ -39,14 +39,22 @@ class XEventWorker
   Q_OBJECT
 
   public:
-    XEventWorker() = default;
-    virtual ~XEventWorker() = default;
+    XEventWorker(Display *dpy);
+    virtual ~XEventWorker();
+
+  private:
+    bool isSurfaceFocused(const Window& focus_window);
 
   signals:
-    void focusChanged();
+    void focusChanged(const QString& surfaceId);
 
   public slots:
     void checkForAppFocus();
+
+  private:
+    Display *dpy_;
+    QDBusInterface *unityFocus_; 
+    QString surfaceId_;
 };
 
 
@@ -60,13 +68,13 @@ class Pasted
     virtual ~Pasted() = default;
 
   public slots:
-    void appFocused();
+    void appFocused(const QString& surfaceId);
 
   private:
     void updateLastMimeData(const QMimeData *source);
     void updateXMimeData(const QMimeData *source);
     void handleContentHubPasteboard();
-    void setPersistentSurfaceId();
+    void setPersistentSurfaceId(const QString& surfaceId);
 
     static bool compareMimeData(const QMimeData *a, const QMimeData *b);
     static void copyMimeData(QMimeData& target, const QMimeData *source);

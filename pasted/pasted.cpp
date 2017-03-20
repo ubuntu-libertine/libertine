@@ -36,9 +36,8 @@ constexpr auto UNITY_FOCUSINFO_INTERFACE = "com.canonical.Unity.FocusInfo";
 constexpr auto UNITY_FOCUSINFO_METHOD = "isSurfaceFocused";
 
 
-static QString getPersistentSurfaceId()
+static QString getPersistentSurfaceId(Display *dpy, const Window& id)
 {
-  Display *dpy  = XOpenDisplay(NULL);
   Atom prop = XInternAtom(dpy, MIR_WM_PERSISTENT_ID, 0),
        type; // unused
   int form, // unused
@@ -48,7 +47,7 @@ static QString getPersistentSurfaceId()
   unsigned char *data = nullptr;
   QString persistentSurfaceId;
 
-  status = XGetWindowProperty(dpy, XDefaultRootWindow(dpy), prop, 0, 1024, 0,
+  status = XGetWindowProperty(dpy, id, prop, 0, 1024, 0,
                               XA_STRING, &type, &form, &len, &remain, &data);
 
   if (status)
@@ -60,14 +59,13 @@ static QString getPersistentSurfaceId()
     persistentSurfaceId = (const char *)data;
   }
 
-  XCloseDisplay(dpy);
   XFree(data);
 
   return persistentSurfaceId;
 }
 
 
-void checkXServer()
+Display *checkXServer()
 {
   char *display = getenv("DISPLAY");
 
@@ -84,55 +82,86 @@ void checkXServer()
     exit(-1);
   }
 
-  XCloseDisplay(dpy);
-
-  return;
+  return dpy;
 }
 
 } //anonymous namespace
+
+
+XEventWorker::
+XEventWorker(Display *dpy)
+: dpy_(dpy)
+{
+  unityFocus_ = new QDBusInterface(UNITY_FOCUSINFO_SERVICE,
+                                   UNITY_FOCUSINFO_PATH,
+                                   UNITY_FOCUSINFO_INTERFACE,
+                                   QDBusConnection::sessionBus(),
+                                   this);
+}
+
+
+XEventWorker::
+~XEventWorker()
+{
+  XCloseDisplay(dpy_);
+}
+
+
+bool XEventWorker::
+isSurfaceFocused(const Window& focus_window)
+{
+  surfaceId_ = getPersistentSurfaceId(dpy_, focus_window);
+
+  QDBusReply<bool> isFocused = unityFocus_->call(UNITY_FOCUSINFO_METHOD, surfaceId_);
+
+  return isFocused;
+}
 
 
 void XEventWorker::
 checkForAppFocus()
 {
   bool hasFocus = false;
-  XEvent event;
+  int focus_state;
+  Window focus_window;
 
-  QDBusInterface *unityFocus = new QDBusInterface(UNITY_FOCUSINFO_SERVICE,
-                                                  UNITY_FOCUSINFO_PATH,
-                                                  UNITY_FOCUSINFO_INTERFACE,
-                                                  QDBusConnection::sessionBus(),
-                                                  this);
+  XGetInputFocus(dpy_, &focus_window, &focus_state);
 
-  QString surfaceId = getPersistentSurfaceId();
-
-  QDBusReply<bool> isFocused = unityFocus->call(UNITY_FOCUSINFO_METHOD, surfaceId);
-
-  if (isFocused == true)
+  if (focus_window > PointerRoot)
   {
-    focusChanged();
-    hasFocus = true;
-  }
-
-  Display *dpy = XOpenDisplay(NULL);
-  XSelectInput(dpy, XDefaultRootWindow(dpy), FocusChangeMask);
-  
-  while (1)
-  {
-    XNextEvent(dpy, &event);
-
-    isFocused = unityFocus->call(UNITY_FOCUSINFO_METHOD, surfaceId);
-
-    if (hasFocus == false && isFocused == true)
+    if (isSurfaceFocused(focus_window))
     {
-      qDebug() << "Surface is focused";
-      focusChanged();
+      focusChanged(surfaceId_);
       hasFocus = true;
     }
-    else if (hasFocus == true && isFocused == false)
+  }
+
+  XSelectInput(dpy_, XDefaultRootWindow(dpy_), FocusChangeMask);
+  
+  bool focused = false;
+  XEvent event;
+
+  while (1)
+  {
+    XNextEvent(dpy_, &event);
+
+    XGetInputFocus(dpy_, &focus_window, &focus_state);
+
+    if (focus_window > PointerRoot)
     {
-      qDebug() << "Surface lost focus";
-      hasFocus = false;
+      focused = isSurfaceFocused(focus_window);
+
+      if (hasFocus == false && focused == true)
+      {
+        qDebug() << "Surface is focused";
+        focusChanged(surfaceId_);
+        hasFocus = true;
+      }
+      else if (hasFocus == true && focused == false)
+      {
+        qDebug() << "Surface lost focus";
+        hasFocus = false;
+      }
     }
   }
 }
@@ -253,19 +282,19 @@ updateXMimeData(const QMimeData *source)
 
 
 void Pasted::
-setPersistentSurfaceId()
+setPersistentSurfaceId(const QString& surfaceId)
 {
-  if (persistentSurfaceId_.isEmpty())
+  if (persistentSurfaceId_ != surfaceId)
   {
-    persistentSurfaceId_ = getPersistentSurfaceId();
+    persistentSurfaceId_ = surfaceId;
   }
 }
 
 
 void Pasted::
-appFocused()
+appFocused(const QString& surfaceId)
 {
-  setPersistentSurfaceId();
+  setPersistentSurfaceId(surfaceId);
   handleContentHubPasteboard();
 }
 
@@ -275,12 +304,12 @@ main(int argc, char* argv[])
 {
   qSetMessagePattern(QString("%{appname}: %{message}"));
 
-  checkXServer();
+  Display *dpy = checkXServer();
 
   Pasted pasted(argc, argv);
 
   QThread t;
-  XEventWorker worker;
+  XEventWorker worker(dpy);
 
   worker.moveToThread(&t);
 
