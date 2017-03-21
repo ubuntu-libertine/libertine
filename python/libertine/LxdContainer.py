@@ -497,7 +497,7 @@ class LibertineLXD(Libertine.BaseContainer):
         return _lxc_args(self.container_id, command, environ)
 
     def run_in_container(self, command):
-        return subprocess.Popen(self._lxc_args(command)).wait()
+        return subprocess.Popen(self._lxc_args(command, os.environ.copy())).wait()
 
     def start_container(self, home=env_home_path()):
         if not self._try_get_container():
