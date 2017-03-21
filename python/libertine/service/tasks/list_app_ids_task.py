@@ -14,18 +14,18 @@
 
 
 import json
-from .base_task import BaseTask
+from .base_task import ContainerBaseTask
 from libertine import LibertineContainer, utils
 import time
 
 
-class ListAppIdsTask(BaseTask):
-    def __init__(self, container_id, config, monitor, callback):
-        super().__init__(lock=None, container_id=container_id, config=config, monitor=monitor, callback=callback)
+class ListAppIdsTask(ContainerBaseTask):
+    def __init__(self, container_id, config, monitor, client, callback):
+        super().__init__(lock=None, container_id=container_id, config=config, monitor=monitor, client=client, callback=callback)
 
     def _run(self):
         utils.get_logger().debug("Listing app ids from container '%s'" % self._container)
-        self._data(json.dumps(LibertineContainer(self._container, self._config).list_app_ids()))
+        self._data(json.dumps(LibertineContainer(self._container, self._config, self._client).list_app_ids()))
 
     def _before(self):
         if not self._config.container_exists(self._container):

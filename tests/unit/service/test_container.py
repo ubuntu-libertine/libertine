@@ -155,7 +155,7 @@ class TestContainer(TestCase):
             c = container.Container('palpatine', self._config, self._monitor, self._client, lambda task: task)
             with unittest.mock.patch('libertine.service.container.ListAppIdsTask') as MockListAppIdsTask:
                 c.list_app_ids()
-                MockListAppIdsTask.assert_called_once_with('palpatine', self._config, self._monitor, unittest.mock.ANY)
+                MockListAppIdsTask.assert_called_once_with('palpatine', self._config, self._monitor, self._client, unittest.mock.ANY)
                 MockListAppIdsTask.return_value.start.assert_called_once_with()
 
     def test_removes_task_during_callback(self):
