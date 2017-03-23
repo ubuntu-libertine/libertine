@@ -159,6 +159,9 @@ class LibertineContainerManager(object):
 
         with ContainerRunning(container.container):
             for i, pkg in enumerate(args.package):
+                if not pkg:
+                    continue
+
                 is_debian_package = pkg.endswith('.deb')
 
                 if is_debian_package:
@@ -214,6 +217,9 @@ class LibertineContainerManager(object):
 
         with ContainerRunning(container.container):
             for pkg in args.package:
+                if not pkg:
+                    continue
+
                 if self.containers_config.get_package_install_status(container_id, pkg) != 'installed':
                     libertine.utils.get_logger().error("Package \'%s\' is not installed." % pkg)
                     failure = True

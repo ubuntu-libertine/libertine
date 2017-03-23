@@ -463,7 +463,10 @@ class LibertineContainer(object):
         try:
             with ContainerRunning(self.container):
                 self.containers_config.update_container_install_status(self.container_id, "installing packages")
-                return self.container.install_package(package_name, no_dialog, update_cache)
+                retval = self.container.install_package(package_name, no_dialog, update_cache)
+
+                self.containers_config.update_container_install_status(self.container_id, "running")
+                return retval
         except RuntimeError as e:
             return handle_runtime_error(e)
 
@@ -479,7 +482,10 @@ class LibertineContainer(object):
                     os.environ['DEBIAN_FRONTEND'] = 'teletype'
 
                 self.containers_config.update_container_install_status(self.container_id, "removing packages")
-                return self.container.remove_package(package_name)
+                retval = self.container.remove_package(package_name)
+
+                self.containers_config.update_container_install_status(self.container_id, "running")
+                return retval
         except RuntimeError as e:
             return handle_runtime_error(e)
 
