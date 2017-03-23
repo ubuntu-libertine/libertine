@@ -114,15 +114,17 @@ class LibertineContainerManager(object):
         try:
             self.containers_config.update_container_locale(args.id, self.host_info.get_host_locale())
             container = LibertineContainer(args.id, self.containers_config)
-            self.containers_config.update_container_install_status(args.id, "installing")
-            if not container.create_libertine_container(password, args.multiarch):
-                libertine.utils.get_logger().error("Failed to create container")
-                self.containers_config.delete_container(args.id)
-                sys.exit(1)
+            try:
+                self.containers_config.update_container_install_status(args.id, "installing")
+                if not container.create_libertine_container(password, args.multiarch):
+                    libertine.utils.get_logger().error("Failed to create container")
+                    self.containers_config.delete_container(args.id)
+                    sys.exit(1)
+            except Exception as e:
+                container.destroy_libertine_container(force=True)
+                raise
         except Exception as e:
             libertine.utils.get_logger().error("Failed to create container: '{}'".format(str(e)))
-            if container:
-                container.destroy_libertine_container(force=True)
 
             self.containers_config.delete_container(args.id)
             sys.exit(1)

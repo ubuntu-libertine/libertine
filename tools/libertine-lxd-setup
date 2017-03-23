@@ -20,20 +20,43 @@ if [ -z "`grep ${idmap} /etc/subuid`" ]; then
   echo ${idmap} | tee -a /etc/subuid /etc/subgid
 fi
 
-# find the right lxc command
-lxc=`which lxc`
-if [ -z "${lxc}" ]; then
-  if [ -n `which lxd.lxc` ]; then
-    lxc=`which lxd.lxc`
-  else
-    echo "No lxc command found on this system."
-    exit 1
-  fi
-fi
 
-# Run lxd init if there are no containers already on the system
-if [ 2 -ge `${lxc} list | grep -e "^+" | wc -l` ]; then
-  lxd init
+lxc profile device list default | grep "nic\|disk" > /dev/null
+requires_init=$?
+version=`lxd --version`
+if [ ${version%%.*} -lt 2 -o ${version#*.} -lt 3 ]; then
+  if [ "$requires_init" -ne "0" ]; then
+    # Running lxd init without args to force the caller to pick the options
+    lxd init
+  fi
+else
+  if [ "$requires_init" -ne "0" ]; then
+    # Running lxd init with auto flag to choose most of the right options
+    lxd init --auto
+  fi
+
+  # networking
+  ifconfig lxdbr0 > /dev/null
+  bridge_exists=$?
+
+  lxc network show lxdbr0 > /dev/null
+  network_exists=$?
+
+  # no managed network, no bridge means we need to create a managed network
+  if [ "$bridge_exists" -ne "0" ]; then
+    if [ "$network_exists" -ne "0" ]; then
+      lxc network create lxdbr0
+
+      network_name=`lxc profile device get default eth0 parent`
+      if [ "$network_name" != "lxdbr0" ]; then
+        lxc network attach-profile lxdbr0 default eth0
+      fi
+    else
+      # a managed network and no bridge means the bridge should be recreated
+      # when we restart the lxd service
+      service lxd restart
+    fi
+  fi
 fi
 
 mkdir -p /home/$USERNAME/.config/lxc

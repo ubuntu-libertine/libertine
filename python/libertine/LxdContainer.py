@@ -62,10 +62,11 @@ def _readlink(source):
 
 def _setup_lxd():
     if utils.is_snap_environment():
-        utils.get_logger().warning("Running in snap environment, skipping automatic lxd setup.")
+        utils.get_logger().warning("Snapped libertine detected, you may need to run `sudo lxd init` manually.")
         return True
 
-    utils.get_logger().info("Running LXD setup.")
+    utils.get_logger().debug("Running LXD setup.")
+
     import pexpect
     child = pexpect.spawnu('sudo libertine-lxd-setup {}'.format(os.environ['USER']), env={'TERM': 'dumb'})
 
@@ -74,6 +75,7 @@ def _setup_lxd():
                               # The following are required for lxd=2.0.x
                               '.+\[yes/no\].*',
                               '.+\(e.g. (?P<example>[a-z0-9\.:]+)\).+'])
+
         if index == 0:
             child.sendline()
         elif index == 1:
