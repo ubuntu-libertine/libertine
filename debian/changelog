@@ -4,6 +4,12 @@ libertine (1.7.1-0ubuntu1) UNRELEASED; urgency=medium
 
  -- Larry Price <larry.price@canonical.com>  Mon, 13 Mar 2017 11:35:33 -0400
 
+libertine (1.7+17.04.20170320.1-0ubuntu1) zesty; urgency=medium
+
+  * No change rebuild
+
+ -- Ted Gould <ted@gould.cx>  Mon, 20 Mar 2017 15:34:36 +0000
+
 libertine (1.7+17.04.20170313-0ubuntu1) zesty; urgency=medium
 
   * Have python3-libertine suggest instead of recommend the lxd backend
