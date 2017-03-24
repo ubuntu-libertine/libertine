@@ -1,358 +1,356 @@
-# English (United Kingdom) translation for libertine
-# Copyright (c) 2016 Rosetta Contributors and Canonical Ltd 2016
+# Catalan translation for libertine
+# Copyright (c) 2017 Rosetta Contributors and Canonical Ltd 2017
 # This file is distributed under the same license as the libertine package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: libertine\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2016-08-05 10:40+0000\n"
-"Last-Translator: Andi Chandler <Unknown>\n"
-"Language-Team: English (United Kingdom) <en_GB@li.org>\n"
+"PO-Revision-Date: 2017-03-18 11:19+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: Catalan <ca@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2017-03-19 06:49+0000\n"
 "X-Generator: Launchpad (build 18332)\n"
-"Language: \n"
 
 #: ../common/ContainersConfig.cpp:25
 msgid "new"
-msgstr "new"
+msgstr ""
 
 #: ../common/ContainersConfig.cpp:26 ../qml/common/ContainerEditView.qml:215
 #: ../qml/common/ContainersList.qml:67 ../qml/common/ExtraArchivesView.qml:68
 msgid "installing"
-msgstr "installing"
+msgstr ""
 
 #: ../common/ContainersConfig.cpp:36 ../qml/common/ContainersList.qml:107
 #: ../qml/common/ManageContainer.qml:193
 msgid "ready"
-msgstr "ready"
+msgstr ""
 
 #: ../common/ContainersConfig.cpp:37 ../qml/common/ContainersList.qml:71
 #: ../qml/common/ContainersList.qml:108 ../qml/common/ManageContainer.qml:131
 #: ../qml/common/ManageContainer.qml:189
 msgid "updating"
-msgstr "updating"
+msgstr ""
 
 #: ../common/ContainersConfig.cpp:38 ../qml/common/ContainerEditView.qml:216
 #: ../qml/common/ContainersList.qml:68 ../qml/common/ExtraArchivesView.qml:69
 msgid "removing"
-msgstr "removing"
+msgstr ""
 
 #: ../common/ContainersConfig.cpp:39 ../qml/common/ContainerInfoView.qml:159
 #: ../qml/common/PackageInfoView.qml:102
 msgid "removed"
-msgstr "removed"
+msgstr ""
 
 #: ../common/ContainerConfig.cpp:153 ../common/ContainerConfig.cpp:187
 msgid "failed"
-msgstr "failed"
+msgstr ""
 
 #: ../common/ContainersConfig.cpp:27
 msgid "installed"
-msgstr "installed"
+msgstr ""
 
 #: ../common/ContainerManager.cpp:26
 msgid "%1 failed to start"
-msgstr "%1 failed to start"
+msgstr ""
 
 #: ../common/ContainerManager.cpp:27
 msgid "Installation of package %1 failed"
-msgstr "Installation of package %1 failed"
+msgstr ""
 
 #: ../common/ContainerManager.cpp:28
 msgid "Removal of package %1 failed"
-msgstr "Removal of package %1 failed"
+msgstr ""
 
 #: ../common/ContainerManager.cpp:29
 msgid "Searching for query %1 failed"
-msgstr "Searching for query %1 failed"
+msgstr ""
 
 #: ../common/ContainerManager.cpp:30
 msgid "Updating container %1 failed"
-msgstr "Updating container %1 failed"
+msgstr ""
 
 #: ../common/ContainerManager.cpp:31
 msgid "Creating container %1 failed"
-msgstr "Creating container %1 failed"
+msgstr ""
 
 #: ../common/ContainerManager.cpp:32
 msgid "Destroying container %1 failed"
-msgstr "Destroying container %1 failed"
+msgstr ""
 
 #: ../common/ContainerManager.cpp:33
 msgid "Running command %1 failed"
-msgstr "Running command %1 failed"
+msgstr ""
 
 #: ../common/ContainerManager.cpp:34
 msgid "Attempt to configure container %1 failed"
-msgstr "Attempt to configure container %1 failed"
+msgstr ""
 
 #: ../common/ContainerManager.cpp:35
 msgid "Attempt to set container as default failed"
-msgstr "Attempt to set container as default failed"
+msgstr ""
 
 #: ../qml/common/PackageExistsDialog.qml:28
 msgid "The %1 package is already installed."
-msgstr "The %1 package is already installed."
+msgstr ""
 
 #: ../qml/common/PackageExistsDialog.qml:29
 msgid "Search again or return to search results."
-msgstr "Search again or return to search results."
+msgstr ""
 
 #: ../qml/common/PackageExistsDialog.qml:33
 msgid "Search again"
-msgstr "Search again"
+msgstr ""
 
 #: ../qml/common/PackageExistsDialog.qml:43
 msgid "Return to search results"
-msgstr "Return to search results"
+msgstr ""
 
 #: ../qml/gui/ContainersView.qml:35
 msgid "My Containers"
-msgstr "My Containers"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:228 ../qml/common/ContainersList.qml:81
 msgid "delete"
-msgstr "delete"
+msgstr ""
 
 #: ../qml/common/ContainersList.qml:82
 msgid "Delete Container"
-msgstr "Delete Container"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:240 ../qml/common/ContainersList.qml:96
 msgid "info"
-msgstr "info"
+msgstr ""
 
 #: ../qml/common/ContainersList.qml:97
 msgid "Container Info"
-msgstr "Container Info"
+msgstr ""
 
 #: ../qml/common/ContainersList.qml:105
 msgid "edit"
-msgstr "edit"
+msgstr ""
 
 #: ../qml/common/ContainersList.qml:106
 msgid "Container Apps"
-msgstr "Container Apps"
+msgstr ""
 
 #: ../qml/common/SearchPackagesDialog.qml:26
 #: ../qml/common/SearchResultsView.qml:36
 msgid "Search for packages"
-msgstr "Search for packages"
+msgstr ""
 
 #: ../qml/common/SearchPackagesDialog.qml:27
 msgid "Search archives for packages"
-msgstr "Search archives for packages"
+msgstr ""
 
 #: ../qml/common/SearchPackagesDialog.qml:35
 msgid "search"
-msgstr "search"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:69
 #: ../qml/common/ContainerOptionsDialog.qml:79
 #: ../qml/common/SearchPackagesDialog.qml:43
 msgid "OK"
-msgstr "OK"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:89
 #: ../qml/common/ContainerOptionsDialog.qml:91
 #: ../qml/common/SearchPackagesDialog.qml:56
 msgid "Cancel"
-msgstr "Cancel"
+msgstr ""
 
 #: ../libertine/qml/PackageInfoView.qml:30
 msgid "Information for the %1 package"
-msgstr "Information for the %1 package"
+msgstr ""
 
 #: ../qml/common/PackageInfoView.qml:35
 msgid "Obtaining package version…"
-msgstr "Obtaining package version…"
+msgstr ""
 
 #: ../qml/common/PackageInfoView.qml:55
 msgid "Package version"
-msgstr "Package version"
+msgstr ""
 
 #: ../qml/common/PackageInfoView.qml:63
 msgid "Install status"
-msgstr "Install status"
+msgstr ""
 
 #: ../qml/common/ContainerInfoView.qml:99 ../qml/common/PackageInfoView.qml:80
 msgid "Operation details"
-msgstr "Operation details"
+msgstr ""
 
 #: ../qml/common/PackageInfoView.qml:113
 msgid "Unknown"
-msgstr "Unknown"
+msgstr ""
 
 #: ../qml/common/SearchResultsView.qml:31
 msgid "Package Search Results"
-msgstr "Package Search Results"
+msgstr ""
 
 #: ../qml/common/SearchResultsView.qml:35
 msgid "Search"
-msgstr "Search"
+msgstr ""
 
 #: ../qml/common/SearchResultsView.qml:54
 msgid "No Search Results Found"
-msgstr "No Search Results Found"
+msgstr ""
 
 #: ../qml/common/SearchResultsView.qml:59
 msgid "Search Again"
-msgstr "Search Again"
+msgstr ""
 
 #: ../qml/common/SearchResultsView.qml:69
 msgid "Return to Apps Page"
-msgstr "Return to Apps Page"
+msgstr ""
 
 #: ../qml/common/SearchResultsView.qml:98
 msgid "Searching for packages…"
-msgstr "Searching for packages…"
+msgstr ""
 
 #: ../qml/common/DebianPackagePicker.qml:70 ../qml/common/SearchResults.qml:62
 msgid "Install Package"
-msgstr "Install Package"
+msgstr ""
 
 #: ../qml/common/ManageContainer.qml:29
 msgid "Manage %1"
-msgstr "Manage %1"
+msgstr ""
 
 #: ../qml/common/ContainerOptionsDialog.qml:41
 #: ../qml/common/ManageContainer.qml:71
 msgid "i386 multiarch support"
-msgstr "i386 multiarch support"
+msgstr ""
 
 #: ../qml/common/ManageContainer.qml:99
 msgid "Additional archives and PPAs"
-msgstr "Additional archives and PPAs"
+msgstr ""
 
 #: ../qml/common/ManageContainer.qml:119
 msgid "Update…"
-msgstr "Update…"
+msgstr ""
 
 #: ../qml/common/ManageContainer.qml:134
 msgid "Update container"
-msgstr "Update container"
+msgstr ""
 
 #: ../qml/common/ManageContainer.qml:152
 msgid "Default container"
-msgstr "Default container"
+msgstr ""
 
 #: ../qml/common/DebianPackagePicker.qml:28
 msgid "Available Debian Packages to Install"
-msgstr "Available Debian Packages to Install"
+msgstr ""
 
 #: ../qml/common/DebianPackagePicker.qml:87
 msgid "No Debian packages available"
-msgstr "No Debian packages available"
+msgstr ""
 
 #: ../libertine/qml/HomeView.qml:29
 msgid "Classic Apps - %1"
-msgstr "Classic Apps - %1"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:49
 msgid "Install new package"
-msgstr "Install new package"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:50
 msgid "Enter exact package name or full path to a Debian package file"
-msgstr "Enter exact package name or full path to a Debian package file"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:60
 msgid "Package name or Debian package path"
-msgstr "Package name or Debian package path"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:79
 msgid ""
 "The %1 package is already installed. Please try a different package name."
 msgstr ""
-"The %1 package is already installed. Please try a different package name."
 
 #: ../qml/common/ContainerEditView.qml:106
 msgid "Manage Container"
-msgstr "Manage Container"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:113
 msgid "Container Information"
-msgstr "Container Information"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:119
 msgid "Switch Container"
-msgstr "Switch Container"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:129
 msgid "Enter package name or Debian file"
-msgstr "Enter package name or Debian file"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:137
 msgid "Choose Debian package to install"
-msgstr "Choose Debian package to install"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:146
 msgid "Search archives for a package"
-msgstr "Search archives for a package"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:229
 msgid "Remove Package"
-msgstr "Remove Package"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:241
 msgid "Package Info"
-msgstr "Package Info"
+msgstr ""
 
 #: ../qml/common/ContainerEditView.qml:258
 msgid "No packages are installed"
-msgstr "No packages are installed"
+msgstr ""
 
 #: ../qml/common/ExtraArchivesView.qml:28
 msgid "Additional Archives"
-msgstr "Additional Archives"
+msgstr ""
 
 #: ../qml/common/ExtraArchivesView.qml:32
 #: ../qml/common/ExtraBindMountsView.qml:28
 msgid "add"
-msgstr "add"
+msgstr ""
 
 #: ../qml/common/ExtraArchivesView.qml:33
 msgid "Add a new archive"
-msgstr "Add a new archive"
+msgstr ""
 
 #: ../qml/common/ExtraArchivesView.qml:76
 #: ../qml/common/ExtraBindMountsView.qml:64
 msgid "remove"
-msgstr "remove"
+msgstr ""
 
 #: ../qml/common/ExtraArchivesView.qml:77
 msgid "Remove extra archive"
-msgstr "Remove extra archive"
+msgstr ""
 
 #: ../qml/common/ExtraArchivesView.qml:94
 msgid "No additional archives and PPA's have been added"
-msgstr "No additional archives and PPAs have been added"
+msgstr ""
 
 #: ../libertine/qml/ExtraArchivesView.qml:126
 msgid "Deleting archive failed"
-msgstr "Deleting archive failed"
+msgstr ""
 
 #: ../qml/common/GenericErrorDialog.qml:39
 msgid "Copy to Clipboard"
-msgstr "Copy to Clipboard"
+msgstr ""
 
 #: ../qml/common/GenericErrorDialog.qml:46
 msgid "Dismiss"
-msgstr "Dismiss"
+msgstr ""
 
 #: ../qml/gui/WelcomeView.qml:28
 msgid "Welcome"
-msgstr "Welcome"
+msgstr ""
 
 #: ../qml/gui/WelcomeView.qml:50
 msgid "Welcome to the Ubuntu Legacy Application Support Manager."
-msgstr "Welcome to the Ubuntu Legacy Application Support Manager."
+msgstr ""
 
 #: ../qml/gui/WelcomeView.qml:59
 msgid ""
@@ -360,41 +358,38 @@ msgid ""
 "Downloading and setting up the required environment takes some time and "
 "network bandwidth."
 msgstr ""
-"You do not have Legacy Application Support configured at this time.  "
-"Downloading and setting up the required environment takes some time and "
-"network bandwidth."
 
 #: ../qml/gui/WelcomeView.qml:67
 msgid "Install"
-msgstr "Install"
+msgstr ""
 
 #: ../libertine/qml/ContainerInfoView.qml:30
 msgid "Container information for %1"
-msgstr "Container information for %1"
+msgstr ""
 
 #: ../qml/common/ContainerInfoView.qml:58
 msgid "ID"
-msgstr "ID"
+msgstr ""
 
 #: ../qml/common/ContainerInfoView.qml:66
 msgid "Name"
-msgstr "Name"
+msgstr ""
 
 #: ../qml/common/ContainerInfoView.qml:74
 msgid "Distribution"
-msgstr "Distribution"
+msgstr ""
 
 #: ../qml/common/ContainerInfoView.qml:82
 msgid "Status"
-msgstr "Status"
+msgstr ""
 
 #: ../qml/common/AddExtraArchiveView.qml:27
 msgid "Add Archive"
-msgstr "Add Archive"
+msgstr ""
 
 #: ../qml/common/AddExtraArchiveView.qml:44
 msgid "New archive identifier, e.g."
-msgstr "New archive identifier, e.g."
+msgstr ""
 
 #: ../qml/common/AddExtraArchiveView.qml:52
 msgid ""
@@ -402,42 +397,37 @@ msgid ""
 "ppa:user/repository\n"
 "deb http://myserver/repo stable repo"
 msgstr ""
-"multiverse\n"
-"ppa:user/repository\n"
-"deb http://myserver/repo stable repo"
 
 #: ../qml/common/AddExtraArchiveView.qml:75
 msgid "(Optional) Public signing key for archive"
-msgstr "(Optional) Public signing key for archive"
+msgstr ""
 
 #: ../qml/common/AddExtraArchiveView.qml:92
 msgid "Add"
-msgstr "Add"
+msgstr ""
 
 #: ../qml/common/ContainerOptionsDialog.qml:27
 msgid "Container Options"
-msgstr "Container Options"
+msgstr ""
 
 #: ../qml/common/ContainerOptionsDialog.qml:28
 msgid "Configure options for container creation."
-msgstr "Configure options for container creation."
+msgstr ""
 
 #: ../qml/common/ContainerOptionsDialog.qml:51
 msgid "Enter a name for the container or leave blank for default name:"
-msgstr "Enter a name for the container or leave blank for default name:"
+msgstr ""
 
 #: ../qml/common/ContainerOptionsDialog.qml:57
 msgid "container name"
-msgstr "container name"
+msgstr ""
 
 #: ../qml/common/ContainerOptionsDialog.qml:64
 msgid ""
 "Enter password for your user in the Libertine container or leave blank for "
 "no password:"
 msgstr ""
-"Enter password for your user in the Libertine container or leave blank for "
-"no password:"
 
 #: ../qml/common/ContainerOptionsDialog.qml:71
 msgid "password"
-msgstr "password"
+msgstr ""

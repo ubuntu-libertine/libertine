@@ -14,39 +14,37 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2017-02-25 06:08+0000\n"
-"X-Generator: Launchpad (build 18328)\n"
+"X-Launchpad-Export-Date: 2017-03-19 06:49+0000\n"
+"X-Generator: Launchpad (build 18332)\n"
 "Language: it\n"
 
-#: ../common/ContainerConfig.cpp:147 ../common/ContainerConfig.cpp:184
+#: ../common/ContainersConfig.cpp:25
 msgid "new"
 msgstr "nuovo"
 
-#: ../common/ContainerConfig.cpp:148 ../common/ContainerConfig.cpp:185
-#: ../qml/common/ContainerEditView.qml:205 ../qml/common/ContainersList.qml:65
-#: ../qml/common/ExtraArchivesView.qml:67
+#: ../common/ContainersConfig.cpp:26 ../qml/common/ContainerEditView.qml:215
+#: ../qml/common/ContainersList.qml:67 ../qml/common/ExtraArchivesView.qml:68
 msgid "installing"
 msgstr "installando"
 
-#: ../common/ContainerConfig.cpp:149 ../qml/common/ContainersList.qml:102
-#: ../qml/common/ManageContainer.qml:85 ../qml/common/ManageContainer.qml:154
+#: ../common/ContainersConfig.cpp:36 ../qml/common/ContainersList.qml:107
+#: ../qml/common/ManageContainer.qml:193
 msgid "ready"
 msgstr "pronto"
 
-#: ../common/ContainerConfig.cpp:150 ../qml/common/ContainersList.qml:103
-#: ../qml/common/ManageContainer.qml:97 ../qml/common/ManageContainer.qml:150
+#: ../common/ContainersConfig.cpp:37 ../qml/common/ContainersList.qml:71
+#: ../qml/common/ContainersList.qml:108 ../qml/common/ManageContainer.qml:131
+#: ../qml/common/ManageContainer.qml:189
 msgid "updating"
 msgstr "aggiornando"
 
-#: ../common/ContainerConfig.cpp:151 ../common/ContainerConfig.cpp:188
-#: ../qml/common/ContainerEditView.qml:206 ../qml/common/ContainersList.qml:66
-#: ../qml/common/ExtraArchivesView.qml:68
+#: ../common/ContainersConfig.cpp:38 ../qml/common/ContainerEditView.qml:216
+#: ../qml/common/ContainersList.qml:68 ../qml/common/ExtraArchivesView.qml:69
 msgid "removing"
 msgstr "rimozione"
 
-#: ../common/ContainerConfig.cpp:152 ../common/ContainerConfig.cpp:189
-#: ../qml/common/ContainerInfoView.qml:141
-#: ../qml/common/PackageInfoView.qml:148
+#: ../common/ContainersConfig.cpp:39 ../qml/common/ContainerInfoView.qml:159
+#: ../qml/common/PackageInfoView.qml:102
 msgid "removed"
 msgstr "rimosso"
 
@@ -54,7 +52,7 @@ msgstr "rimosso"
 msgid "failed"
 msgstr "fallito"
 
-#: ../common/ContainerConfig.cpp:186
+#: ../common/ContainersConfig.cpp:27
 msgid "installed"
 msgstr "installato"
 
@@ -114,31 +112,31 @@ msgstr "Cerca di nuovo"
 msgid "Return to search results"
 msgstr "Torna ai risultati della ricerca"
 
-#: ../qml/gui/ContainersView.qml:34
+#: ../qml/gui/ContainersView.qml:35
 msgid "My Containers"
 msgstr "Miei Contenitori"
 
-#: ../qml/common/ContainerEditView.qml:218 ../qml/common/ContainersList.qml:76
+#: ../qml/common/ContainerEditView.qml:228 ../qml/common/ContainersList.qml:81
 msgid "delete"
 msgstr "elimina"
 
-#: ../qml/common/ContainersList.qml:77
+#: ../qml/common/ContainersList.qml:82
 msgid "Delete Container"
 msgstr "Elimina Contenitore"
 
-#: ../qml/common/ContainerEditView.qml:230 ../qml/common/ContainersList.qml:91
+#: ../qml/common/ContainerEditView.qml:240 ../qml/common/ContainersList.qml:96
 msgid "info"
 msgstr "Informazioni"
 
-#: ../qml/common/ContainersList.qml:92
+#: ../qml/common/ContainersList.qml:97
 msgid "Container Info"
 msgstr "Informazioni Contenitore"
 
-#: ../qml/common/ContainersList.qml:100
+#: ../qml/common/ContainersList.qml:105
 msgid "edit"
 msgstr "modifica"
 
-#: ../qml/common/ContainersList.qml:101
+#: ../qml/common/ContainersList.qml:106
 msgid "Container Apps"
 msgstr "Contenitori App"
 
@@ -151,19 +149,19 @@ msgstr "Cerca per pacchetto"
 msgid "Search archives for packages"
 msgstr ""
 
-#: ../qml/common/SearchPackagesDialog.qml:32
+#: ../qml/common/SearchPackagesDialog.qml:35
 msgid "search"
 msgstr "Cerca"
 
-#: ../qml/common/ContainerEditView.qml:68
+#: ../qml/common/ContainerEditView.qml:69
 #: ../qml/common/ContainerOptionsDialog.qml:79
-#: ../qml/common/SearchPackagesDialog.qml:40
+#: ../qml/common/SearchPackagesDialog.qml:43
 msgid "OK"
 msgstr "Ok"
 
-#: ../qml/common/ContainerEditView.qml:88
+#: ../qml/common/ContainerEditView.qml:89
 #: ../qml/common/ContainerOptionsDialog.qml:91
-#: ../qml/common/SearchPackagesDialog.qml:58
+#: ../qml/common/SearchPackagesDialog.qml:56
 msgid "Cancel"
 msgstr "Annulla"
 
@@ -175,19 +173,19 @@ msgstr "Informazioni per il pacchetto %1"
 msgid "Obtaining package version…"
 msgstr ""
 
-#: ../qml/common/PackageInfoView.qml:59
+#: ../qml/common/PackageInfoView.qml:55
 msgid "Package version"
 msgstr "Versione pacchetto"
 
-#: ../qml/common/PackageInfoView.qml:67
+#: ../qml/common/PackageInfoView.qml:63
 msgid "Install status"
 msgstr "Stato installazione"
 
-#: ../qml/common/ContainerInfoView.qml:97 ../qml/common/PackageInfoView.qml:84
+#: ../qml/common/ContainerInfoView.qml:99 ../qml/common/PackageInfoView.qml:80
 msgid "Operation details"
 msgstr "Dettagli operazione"
 
-#: ../qml/common/PackageInfoView.qml:159
+#: ../qml/common/PackageInfoView.qml:113
 msgid "Unknown"
 msgstr "Sconosciuto"
 
@@ -211,7 +209,7 @@ msgstr "Cerca ancora"
 msgid "Return to Apps Page"
 msgstr "Ritorna alla pagina App"
 
-#: ../qml/common/SearchResultsView.qml:97
+#: ../qml/common/SearchResultsView.qml:98
 msgid "Searching for packages…"
 msgstr "Cercando nei pacchetti..."
 
@@ -224,23 +222,23 @@ msgid "Manage %1"
 msgstr ""
 
 #: ../qml/common/ContainerOptionsDialog.qml:41
-#: ../qml/common/ManageContainer.qml:69
+#: ../qml/common/ManageContainer.qml:71
 msgid "i386 multiarch support"
 msgstr "Supporto i386 multiarchitettura"
 
-#: ../qml/common/ManageContainer.qml:73
+#: ../qml/common/ManageContainer.qml:99
 msgid "Additional archives and PPAs"
 msgstr "Archivi e PPA addizionali"
 
-#: ../qml/common/ManageContainer.qml:84
+#: ../qml/common/ManageContainer.qml:119
 msgid "Update…"
 msgstr "Aggiorno..."
 
-#: ../qml/common/ManageContainer.qml:100
+#: ../qml/common/ManageContainer.qml:134
 msgid "Update container"
 msgstr "Aggiorna contenitore"
 
-#: ../qml/common/ManageContainer.qml:119
+#: ../qml/common/ManageContainer.qml:152
 msgid "Default container"
 msgstr "Container di default"
 
@@ -256,28 +254,28 @@ msgstr "Nessun pacchetto debian disponibile"
 msgid "Classic Apps - %1"
 msgstr "App Classiche - %1"
 
-#: ../qml/common/ContainerEditView.qml:48
+#: ../qml/common/ContainerEditView.qml:49
 msgid "Install new package"
 msgstr "Installa nuovo pacchetto"
 
-#: ../qml/common/ContainerEditView.qml:49
+#: ../qml/common/ContainerEditView.qml:50
 msgid "Enter exact package name or full path to a Debian package file"
 msgstr ""
 
-#: ../qml/common/ContainerEditView.qml:59
+#: ../qml/common/ContainerEditView.qml:60
 msgid "Package name or Debian package path"
 msgstr ""
 
-#: ../qml/common/ContainerEditView.qml:78
+#: ../qml/common/ContainerEditView.qml:79
 msgid ""
 "The %1 package is already installed. Please try a different package name."
 msgstr ""
 
-#: ../qml/common/ContainerEditView.qml:105
+#: ../qml/common/ContainerEditView.qml:106
 msgid "Manage Container"
 msgstr ""
 
-#: ../qml/common/ContainerEditView.qml:112
+#: ../qml/common/ContainerEditView.qml:113
 msgid "Container Information"
 msgstr "Informazioni Contenitore"
 
@@ -285,51 +283,53 @@ msgstr "Informazioni Contenitore"
 msgid "Switch Container"
 msgstr "Cambia contenitore"
 
-#: ../qml/common/ContainerEditView.qml:135
+#: ../qml/common/ContainerEditView.qml:129
 msgid "Enter package name or Debian file"
 msgstr ""
 
-#: ../qml/common/ContainerEditView.qml:143
+#: ../qml/common/ContainerEditView.qml:137
 msgid "Choose Debian package to install"
 msgstr ""
 
-#: ../qml/common/ContainerEditView.qml:152
+#: ../qml/common/ContainerEditView.qml:146
 msgid "Search archives for a package"
 msgstr ""
 
-#: ../qml/common/ContainerEditView.qml:219
+#: ../qml/common/ContainerEditView.qml:229
 msgid "Remove Package"
 msgstr "Rimuovi pacchetto"
 
-#: ../qml/common/ContainerEditView.qml:231
+#: ../qml/common/ContainerEditView.qml:241
 msgid "Package Info"
 msgstr "Informazioni pacchetto"
 
-#: ../qml/common/ContainerEditView.qml:248
+#: ../qml/common/ContainerEditView.qml:258
 msgid "No packages are installed"
 msgstr "Nessun pacchetto installato"
 
-#: ../qml/common/ExtraArchivesView.qml:27
+#: ../qml/common/ExtraArchivesView.qml:28
 msgid "Additional Archives"
 msgstr ""
 
-#: ../qml/common/ExtraArchivesView.qml:31
+#: ../qml/common/ExtraArchivesView.qml:32
+#: ../qml/common/ExtraBindMountsView.qml:28
 msgid "add"
 msgstr "aggiungi"
 
-#: ../qml/common/ExtraArchivesView.qml:32
+#: ../qml/common/ExtraArchivesView.qml:33
 msgid "Add a new archive"
 msgstr "Aggiungi un archivio"
 
-#: ../qml/common/ExtraArchivesView.qml:75
+#: ../qml/common/ExtraArchivesView.qml:76
+#: ../qml/common/ExtraBindMountsView.qml:64
 msgid "remove"
 msgstr "rimuovi"
 
-#: ../qml/common/ExtraArchivesView.qml:76
+#: ../qml/common/ExtraArchivesView.qml:77
 msgid "Remove extra archive"
 msgstr ""
 
-#: ../qml/common/ExtraArchivesView.qml:93
+#: ../qml/common/ExtraArchivesView.qml:94
 msgid "No additional archives and PPA's have been added"
 msgstr ""
 
@@ -368,19 +368,19 @@ msgstr "Installa"
 msgid "Container information for %1"
 msgstr ""
 
-#: ../qml/common/ContainerInfoView.qml:56
+#: ../qml/common/ContainerInfoView.qml:58
 msgid "ID"
 msgstr "ID"
 
-#: ../qml/common/ContainerInfoView.qml:64
+#: ../qml/common/ContainerInfoView.qml:66
 msgid "Name"
 msgstr "Nome"
 
-#: ../qml/common/ContainerInfoView.qml:72
+#: ../qml/common/ContainerInfoView.qml:74
 msgid "Distribution"
 msgstr "Distribuzione"
 
-#: ../qml/common/ContainerInfoView.qml:80
+#: ../qml/common/ContainerInfoView.qml:82
 msgid "Status"
 msgstr "Stato"
 
