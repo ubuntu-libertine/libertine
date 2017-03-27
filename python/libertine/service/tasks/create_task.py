@@ -39,9 +39,10 @@ class CreateTask(ContainerBaseTask):
                 self._error("Creating container '%s' failed" % self._container)
             else:
                 self._config.update_container_install_status(self._container, "ready")
+                self._finished()
         except RuntimeError as e:
-            self._error(str(e))
             self._config.delete_container(self._container)
+            self._error(str(e))
 
     def _before(self):
         utils.get_logger().debug("CreateTask::_before")

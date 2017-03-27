@@ -66,6 +66,8 @@ class BaseTask(metaclass=ABCMeta):
         return thread
 
     def run(self):
+        self._refresh_database()
+
         if not self._before():
             self._monitor.finished(self._operation_id)
             self._delayed_callback()
@@ -73,14 +75,24 @@ class BaseTask(metaclass=ABCMeta):
 
         if self._lock is not None:
             with self._lock:
+                self._refresh_database(False)
                 self._run()
         else:
+            self._refresh_database()
             self._run()
 
         if self.running:
-            self._monitor.finished(self._operation_id)
+            self._finished()
 
         self._delayed_callback()
+
+    def _refresh_database(self, require_lock=True):
+        if self._config:
+            if require_lock and self._lock is not None:
+                with self._lock:
+                    self._config.refresh_database()
+            else:
+                self._config.refresh_database()
 
     @abstractmethod
     def _run(self):
@@ -91,6 +103,9 @@ class BaseTask(metaclass=ABCMeta):
 
     def _data(self, message):
         self._monitor.data(self._operation_id, message)
+
+    def _finished(self):
+        self._monitor.finished(self._operation_id)
 
     def _error(self, message):
         self._monitor.error(self._operation_id, message)

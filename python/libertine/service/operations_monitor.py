@@ -15,6 +15,7 @@
 
 import dbus.service
 import threading
+import uuid
 
 from . import constants, download
 from libertine import utils
@@ -27,7 +28,7 @@ class OperationsMonitor(dbus.service.Object):
         dbus.service.Object.__init__(self, conn=connection, object_path=constants.OPERATIONS_MONITOR_OBJECT)
 
     def new_operation(self):
-        self._operations.append(download.Download(self.connection, hex(int(time()*10000000))[2:]))
+        self._operations.append(download.Download(self.connection, str(uuid.uuid4().fields[-1])))
         return self._operations[-1].id
 
     def remove_from_connection(self, path):

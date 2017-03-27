@@ -42,18 +42,14 @@ class TestLibertineService(TestCase):
     def setUpClass(cls):
         cls._tempdir = tempfile.TemporaryDirectory()
 
-        environ = os.environ.copy()
-        environ['XDG_DATA_HOME'] = cls._tempdir.name
-
-        cls._process = pexpect.spawnu('libertined --debug', env=environ)
+        os.environ['XDG_DATA_HOME'] = cls._tempdir.name
+        cls._process = pexpect.spawnu('libertined --debug', env=os.environ.copy())
         cls._process.logfile = sys.stdout
 
         # give libertined enough time to start the whole process
-        verbosity = environ.get('LIBERTINE_DEBUG', '1')
-        if verbosity == '1':
-            cls._process.expect(['.+\n', pexpect.TIMEOUT], timeout=1)
-        elif environ['LIBERTINE_DEBUG'] == '2':
-            cls._process.expect(['.+\n.+\n.+\n', pexpect.TIMEOUT], timeout=1)
+        verbosity = os.environ.get('LIBERTINE_DEBUG', '1')
+        if verbosity != '0':
+            cls._process.expect(['libertined ready', pexpect.TIMEOUT], timeout=5)
 
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         cls._loop = GLib.MainLoop()
@@ -68,6 +64,7 @@ class TestLibertineService(TestCase):
         cls._tempdir.cleanup()
 
     def setUp(self):
+        os.environ['XDG_DATA_HOME'] = TestLibertineService._tempdir.name
         self.error = None
         self.result = None
         self.event = threading.Event()
@@ -95,7 +92,7 @@ class TestLibertineService(TestCase):
 
     def tearDown(self):
         for signal in self.signals:
-            self._bus._clean_up_signal_match(signal)
+            signal.remove()
 
     def _finished_handler(self, path):
         if self.path == path:
@@ -114,12 +111,11 @@ class TestLibertineService(TestCase):
         self.event.clear()
         self.result = None
 
+        monitor = self._bus.get_object(constants.SERVICE_NAME, constants.OPERATIONS_MONITOR_OBJECT)
         self.path = func()
 
-        monitor = self._bus.get_object(constants.SERVICE_NAME, constants.OPERATIONS_MONITOR_OBJECT)
-        if monitor.running(self.path):
-            self.event.wait(5)
-            self.assertIsNone(self.error)
+        while monitor.running(self.path):
+            self.event.wait(.1)
 
         self.assertEqual('', monitor.last_error(self.path))
         self.result = monitor.result(self.path)

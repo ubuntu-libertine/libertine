@@ -34,6 +34,7 @@ class RemoveTask(ContainerBaseTask):
         container = LibertineContainer(self._container, self._config, self._client)
         if container.remove_package(self._package):
             self._config.delete_package(self._container, self._package)
+            self._finished()
         else:
             self._config.update_package_install_status(self._container, self._package, 'installed')
             self._error("Package removal failed for '%s'" % self._package)

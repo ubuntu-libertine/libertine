@@ -140,7 +140,7 @@ def main():
     config = Config()
 
     with OutputRedirector(config):
-        utils.get_logger().info("Starting libertine service")
+        utils.get_logger().info("Initializing libertined...")
         loop = Loop()
 
         try:
@@ -156,6 +156,7 @@ def main():
         container_control.ContainerControl(manager.connection, client)
 
         try:
+            utils.get_logger().info("libertined ready")
             loop.run()
         except KeyboardInterrupt:
             utils.get_logger().debug("keyboard interrupt received")

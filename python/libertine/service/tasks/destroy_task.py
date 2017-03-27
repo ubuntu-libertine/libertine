@@ -32,6 +32,7 @@ class DestroyTask(ContainerBaseTask):
             return
 
         self._config.delete_container(self._container)
+        self._finished()
 
     def _before(self):
         utils.get_logger().debug("CreateTask::_before")

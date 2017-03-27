@@ -25,3 +25,4 @@ class ListTask(BaseTask):
 
     def _run(self):
         self._data(json.dumps(self._config.get_containers()))
+        self._finished()
