@@ -16,7 +16,7 @@
 
 if [ "$1" = "remove" ]; then
     echo "Shutting down the libertined service..."
-    pkill libertined
+    pkill -x libertined
 fi
 
 #DEBHELPER#
