@@ -62,7 +62,6 @@ Architecture: any
 Depends: libertine-qt-common,
          libertine-tools,
          python3-libertine-lxd,
-         libsystemsettings1,
          ${misc:Depends},
          ${shlibs:Depends}
 Enhances: ubuntu-system-settings
@@ -75,7 +74,7 @@ Package: libertine-qt-common
 Architecture: any
 Depends: qml-module-qtquick2,
          qml-module-qtquick-dialogs,
-         qtdeclarative5-ubuntu-ui-toolkit-plugin,
+         qtdeclarative5-ubuntu-ui-toolkit-plugin | qtdeclarative5-ubuntu-ui-toolkit-plugin-gles,
          ${misc:Depends},
          ${shlibs:Depends}
 Description: common files for qt-based libertine applications
@@ -101,11 +100,7 @@ Description: CLI tools for running deb-packaged X11 apps on Ubuntu Personal
 
 Package: libertine-xmir-tools
 Architecture: amd64 armhf arm64 i386
-Depends: libcontent-hub0,
-         libqt5core5a,
-         libqt5gui5,
-         libqt5widgets5,
-         python3-libertine,
+Depends: python3-libertine,
          xmir [amd64 armhf arm64 i386],
          ${misc:Depends},
          ${python3:Depends},
