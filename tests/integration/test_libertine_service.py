@@ -43,7 +43,7 @@ class TestLibertineService(TestCase):
         cls._tempdir = tempfile.TemporaryDirectory()
 
         os.environ['XDG_DATA_HOME'] = cls._tempdir.name
-        cls._process = pexpect.spawnu('libertined --debug', env=os.environ.copy())
+        cls._process = pexpect.spawnu('libertined', env=os.environ.copy())
         cls._process.logfile = sys.stdout
 
         # give libertined enough time to start the whole process

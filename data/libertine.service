@@ -1,0 +1,7 @@
+[Unit]
+Description=Libertine Service
+
+[Service]
+Type=dbus
+BusName=com.canonical.libertine.Service
+ExecStart=/usr/bin/libertined

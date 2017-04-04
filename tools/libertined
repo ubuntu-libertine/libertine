@@ -28,89 +28,15 @@ from libertine import utils
 from libertine.service import constants, operations, container_control, container_control_client
 
 
-class OutputRedirector(object):
-    def __init__(self, config):
-        self.config = config
-        if utils.is_snap_environment():
-            self.cache_path = '%s/.cache/libertined' % os.environ['SNAP_USER_COMMON']
-        else:
-            self.cache_path = '%s/.cache/libertined' % os.environ['HOME']
-        self.cache_file = '%s/libertined.log' % self.cache_path
-        self.output_file = None
-        self.copied_stdout = None
-        self.copied_stderr = None
-
-    def _fileno(self, file_or_fd):
-        return getattr(file_or_fd, 'fileno', lambda: file_or_fd)()
-
-    def _do_redirect(self, stream):
-        fd = self._fileno(stream)
-        copied_stream = os.fdopen(os.dup(fd), 'wb')
-        stream.flush()
-        os.dup2(self._fileno(self.output_file), fd)
-        return copied_stream, fd
-
-    def _undo_redirect(self, stream, stream_fd, copied_stream):
-        stream.flush()
-        os.dup2(copied_stream.fileno(), stream_fd)
-        copied_stream.close()
-
-    def _rotate_logs(self):
-        os.makedirs(self.cache_path, exist_ok=True)
-        num_backups = 3
-        for i in range(num_backups, 0, -1):
-            filename = '%s.%i' % (self.cache_file, i)
-            if os.path.exists(filename):
-                if i == num_backups:
-                    os.remove(filename)
-                else:
-                    os.rename(filename, '%s.%i' % (self.cache_file, i+1))
-        if os.path.exists(self.cache_file):
-            os.rename(self.cache_file, '%s.1' % self.cache_file)
-
-    def __enter__(self):
-        utils.set_environmental_verbosity(self.config.verbosity)
-
-        if not self.config.debug:
-            if self.config.cache_output:
-                self._rotate_logs()
-                self.output_file = open(self.cache_file, 'w')
-            else:
-                self.output_file = open(os.devnull, 'w')
-
-            self.copied_stdout, self.stdout_fd = self._do_redirect(sys.stdout)
-            self.copied_stderr, self.stderr_fd = self._do_redirect(sys.stderr)
-
-    def __exit__(self, type, value, tb):
-        if self.copied_stdout and self.stdout_fd:
-            self._undo_redirect(sys.stdout, self.stdout_fd, self.copied_stdout)
-        if self.copied_stderr and self.stderr_fd:
-            self._undo_redirect(sys.stderr, self.stderr_fd, self.copied_stderr)
-        if self.output_file:
-            self.output_file.close()
-
-
 class Config(object):
   def __init__(self):
     self._arg_parser = argparse.ArgumentParser(description=u'Libertine Store service')
-    self._arg_parser.add_argument(u'-l', u"--use-local-cache",
-                                  action='store_true',
-                                  default=False,
-                                  help=u"use local cache instead of system cache")
-    self._arg_parser.add_argument(u'-d', u"--debug",
-                                  action='store_true',
-                                  default=False,
-                                  help=u"print output to stdout")
     self._arg_parser.add_argument('-q', '--quiet', action='store_const',
                                   dest='verbosity', const=0,
                                   help=('disables all non-vital output'))
     self._arg_parser.add_argument('-v', '--verbosity', action='store_const',
                                   dest='verbosity', const=2,
                                   help=('enables debug output'))
-    self._arg_parser.add_argument(u'-c', u"--cache-output",
-                                  action='store_true',
-                                  default=False,
-                                  help=u"Log to $HOME/.cache/libertined/ instead of stdout")
     args = self._arg_parser.parse_args(namespace=Config)
 
 
@@ -139,31 +65,30 @@ class Loop(object):
 def main():
     config = Config()
 
-    with OutputRedirector(config):
-        utils.get_logger().info("Initializing libertined...")
-        loop = Loop()
+    utils.get_logger().info("Initializing libertined...")
+    loop = Loop()
 
-        try:
-            bus_name = dbus.service.BusName(constants.SERVICE_NAME,
-                                            bus=dbus.SessionBus(),
-                                            do_not_queue=True)
-        except dbus.exceptions.NameExistsException:
-            utils.get_logger().warning("service is already running")
-            raise
+    try:
+        bus_name = dbus.service.BusName(constants.SERVICE_NAME,
+                                        bus=dbus.SessionBus(),
+                                        do_not_queue=True)
+    except dbus.exceptions.NameExistsException:
+        utils.get_logger().warning("service is already running")
+        raise
 
-        client = container_control_client.ContainerControlClient()
-        manager = operations.Operations(bus_name, client)
-        container_control.ContainerControl(manager.connection, client)
+    client = container_control_client.ContainerControlClient()
+    manager = operations.Operations(bus_name, client)
+    container_control.ContainerControl(manager.connection, client)
 
-        try:
-            utils.get_logger().info("libertined ready")
-            loop.run()
-        except KeyboardInterrupt:
-            utils.get_logger().debug("keyboard interrupt received")
-        except Exception as e:
-            utils.get_logger().error("Unexpected exception occurred: '{}'".format(str(e)))
-        finally:
-            loop.shutdown()
+    try:
+        utils.get_logger().info("libertined ready")
+        loop.run()
+    except KeyboardInterrupt:
+        utils.get_logger().debug("keyboard interrupt received")
+    except Exception as e:
+        utils.get_logger().error("Unexpected exception occurred: '{}'".format(str(e)))
+    finally:
+        loop.shutdown()
 
 
 if __name__ == '__main__':

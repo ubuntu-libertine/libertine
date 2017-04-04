@@ -30,7 +30,6 @@ protected:
   static void SetUpTestCase()
   {
     process = dbus_test_process_new("libertined");
-    dbus_test_process_append_param(process, "--debug");
 
     dbus_test_task_set_bus(DBUS_TEST_TASK(process), DBUS_TEST_SERVICE_BUS_SESSION);
     dbus_test_task_set_name(DBUS_TEST_TASK(process), "libertine");
