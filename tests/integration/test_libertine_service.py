@@ -73,6 +73,8 @@ class TestLibertineService(TestCase):
         for retries in range(1, 11):
             try:
                 self._bus =  dbus.SessionBus()
+                self.path = None
+
                 self._libertined = self._bus.get_object(constants.SERVICE_NAME, constants.OPERATIONS_OBJECT)
 
                 self.signals.append(self._bus.add_signal_receiver(path=constants.OPERATIONS_MONITOR_OBJECT, handler_function=self._finished_handler,

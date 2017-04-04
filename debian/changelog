@@ -1,8 +1,39 @@
-libertine (1.7.1-0ubuntu1) UNRELEASED; urgency=medium
+libertine (1.7.1+17.04.20170331-0ubuntu1) zesty; urgency=medium
 
+  [ Chris Townsend ]
+  * When starting pasted, ensure DISPLAY is set and valid before continuing to
+    run. (LP: #1666472)
+  * Fix pasted to work with rootless Xmir. (LP: #1671257)
+  * Add a '-x' option to pkill so it only kills the libertined process(es)
+    and nothing else. (LP: #1676005)
+  * Remove hard-coded dependency on libraries.
+
+  [ Larry Price ]
   * Bump version to 1.7.1
+  * Gracefully handle creating a LibertineContainer object when the container
+    backend is unavailable.
+  * Update libertine xmir components to not depend on container backends.
+    (LP: #1671938)
+  * Catch all errors and gracefully shutdown libertined. (LP: #1671009)
+  * Fix method call from ContainerControl d-bus to interfaces.
+  * Update signal handlers in test_libertine_service to reflect new API.
+  * Inject client for accessing ContainerControl within containers.
+  * Rearchitect libertine service python backend for simpler access to running
+    tasks. (LP: #1669091)
+  * Ignore completions from dependencies during snapcraft build.
+  * LXD needs to forward host environment to container when running arbitrary
+    commands.
+  * Add client object to list_app_ids_task to avoid making reentrant service
+    calls.
+  * Take advantage of new network subcommand during lxd init on newer
+    installs.
+  * Prevent installing empty package names and appropriately update status for
+    unstopped containers.
+  * Modifications to make test_libertine_service more stable.
+  * Reopen the database file after every failure to grab the lock.
+    (LP: #1662655)
 
- -- Larry Price <larry.price@canonical.com>  Mon, 13 Mar 2017 11:35:33 -0400
+ -- Larry Price <larry.price@canonical.com>  Fri, 31 Mar 2017 20:09:39 +0000
 
 libertine (1.7+17.04.20170320.1-0ubuntu1) zesty; urgency=medium
 

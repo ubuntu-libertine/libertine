@@ -1,5 +1,5 @@
 name: libertine
-version: 1.7+17.04.20170320.1-0ubuntu1
+version: 1.7.1+17.04.20170331-0ubuntu1
 summary: Libertine suite
 description: |
     Suite for maintaining deb-based applications in a non-deb environment

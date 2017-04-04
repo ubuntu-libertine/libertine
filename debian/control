@@ -84,7 +84,7 @@ Description: common files for qt-based libertine applications
 
 Package: libertine-tools
 Architecture: any
-Depends: libertine-xmir-tools (>= 1.7.1),
+Depends: libertine-xmir-tools (>= 1.7.1) [amd64 armhf arm64 i386],
          libglib2.0-bin,
          python3-dbus,
          python3-libertine,
@@ -99,7 +99,7 @@ Description: CLI tools for running deb-packaged X11 apps on Ubuntu Personal
  the Ubuntu Personal sandbox for legacy Deb-packaged X11 applicatons.
 
 Package: libertine-xmir-tools
-Architecture: amd64 armhf arm64 i386
+Architecture: any
 Depends: python3-libertine,
          xmir [amd64 armhf arm64 i386],
          ${misc:Depends},
