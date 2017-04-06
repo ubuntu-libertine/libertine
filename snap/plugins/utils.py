@@ -44,6 +44,8 @@ class DependsParser(object):
             if ':' in line:
                 if not line.strip().startswith('${'):
                     self._parsing = False
+            elif '|' in line:
+                self._deps.append(_sanitize(line.split('|')[0]))
             else:
                 self._deps.append(_sanitize(line))
 
