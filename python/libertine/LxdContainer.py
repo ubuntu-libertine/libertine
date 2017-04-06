@@ -62,7 +62,7 @@ def _readlink(source):
 
 def _setup_lxd():
     if utils.is_snap_environment():
-        utils.get_logger().warning("Snapped libertine detected, you may need to run `sudo lxd init` manually.")
+        utils.get_logger().warning(utils._("Snapped libertine detected, you may need to run `sudo lxd init` manually."))
         return True
 
     utils.get_logger().debug("Running LXD setup.")
@@ -92,7 +92,7 @@ def _setup_lxd():
 
 
 def _setup_bind_mount_service(container, uid, username):
-    utils.get_logger().info("Creating mount update shell script")
+    utils.get_logger().info(utils._("Creating mount update shell script"))
     script = '''
 #!/bin/sh
 
@@ -122,7 +122,7 @@ def _wait_for_network(container):
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = ping.communicate()
         if out:
-            utils.get_logger().info("Network connection active")
+            utils.get_logger().debug("Network connection active")
             return True
         time.sleep(1)
     return False
@@ -137,7 +137,7 @@ def lxd_start(container):
     container.sync(rollback=True) # required for pylxd=2.0.x
 
     if container.status != 'Running':
-        utils.get_logger().error("Container {} failed to start".format(container.name))
+        utils.get_logger().error(utils._("Container '{container_id}' failed to start").format(container_id=container.name))
         return False
 
     return True
@@ -156,10 +156,10 @@ def lxd_stop(container, wait=True, freeze_on_stop=False):
 
     if wait:
         if freeze_on_stop and container.status != 'Frozen':
-            utils.get_logger().error("Container {} failed to freeze".format(container.name))
+            utils.get_logger().error(utils._("Container '{container_id}' failed to freeze").format(container_id=container.name))
             return False
         elif not freeze_on_stop and container.status != 'Stopped':
-            utils.get_logger().error("Container {} failed to stop".format(container.name))
+            utils.get_logger().error(utils._("Container '{container_id}' failed to stop").format(container_id=container.name))
             return False
 
     return True
@@ -178,7 +178,7 @@ _CONTAINER_DATA_DIRS = ["/usr/share/applications", "/usr/share/icons", "/usr/loc
 def _sync_application_dirs_to_host(container):
     host_root = utils.get_libertine_container_rootfs_path(container.name)
     for container_path in _CONTAINER_DATA_DIRS:
-        utils.get_logger().info("Syncing applications directory: {}".format(container_path))
+        utils.get_logger().info(utils._("Syncing applications directory: {sync_path}").format(sync_path=container_path))
         os.makedirs(os.path.join(host_root, container_path.lstrip("/")), exist_ok=True)
 
         # find a list of files within the container
@@ -194,7 +194,7 @@ def _sync_application_dirs_to_host(container):
 
             host_path = os.path.join(host_root, filepath.lstrip("/"))
             if not os.path.exists(host_path):
-                utils.get_logger().info("Syncing file: {}:{}".format(filepath, host_path))
+                utils.get_logger().info(utils._("Syncing file: {container_path}:{host_path}".format(container_path=filepath, host_path=host_path)))
                 os.makedirs(os.path.dirname(host_path), exist_ok=True)
                 with open(host_path, 'wb') as f:
                     f.write(container.files.get(filepath))
@@ -230,7 +230,7 @@ def _add_local_files_for_ual(container):
     container_link_endpoints = [link.strip() for link in links_stdout.decode('utf-8').split('\n')[:-1]]
 
     if len(broken_host_links) != len(container_link_endpoints):
-        utils.get_logger().warning("Link mismatch while trying to fix symbolic links.")
+        utils.get_logger().warning(utils._("Link mismatch while trying to fix symbolic links."))
         return
 
     for i in range(0, len(broken_host_links)):
@@ -245,7 +245,8 @@ def _add_local_files_for_ual(container):
                 try:
                     f.write(container.files.get(container_link_endpoints[i]))
                 except pylxd.exceptions.NotFound as e:
-                    utils.get_logger().warning("Error during symlink copy of {}: {}".format(container_link_endpoints[i], str(e)))
+                    utils.get_logger().warning(utils._("Error during symlink copy of {container_path}: {error}")
+                                                 .format(container_path=container_link_endpoints[i], error=str(e)))
                     continue
 
         subprocess.Popen(_lxc_args(container.name, "ln -sf --relative {} {}".format(
@@ -258,7 +259,7 @@ def _remove_local_files_for_ual(container):
     find = subprocess.Popen(shlex.split("find {} -type f".format(root_path)), stdout=subprocess.PIPE)
     find_stdout, stderr = find.communicate()
     if find.returncode != 0:
-        utils.get_logger().warning("Finding local files to remove failed.")
+        utils.get_logger().warning(utils._("Finding local files to remove failed."))
         return
 
     existing_files = [f.replace(root_path, '') for f in find_stdout.decode('UTF-8').strip().split('\n') if f]
@@ -271,20 +272,20 @@ def _remove_local_files_for_ual(container):
                                                'bash -c "echo -n {} | xargs -d , -I % bash -c \'test -e % || echo %\'"'.format(','.join(existing_files))), stdout=subprocess.PIPE)
     remove_stdout, stderr = missing_files.communicate()
     if missing_files.returncode != 0:
-        utils.get_logger().warning("Checking for missing files failed.")
+        utils.get_logger().warning(utils._("Checking for missing files failed."))
         return
 
     for f in [os.path.join(root_path, f.lstrip('/')) for f in remove_stdout.decode('UTF-8').strip().split('\n') if f]:
         try:
             os.remove(f)
         except PermissionError as e:
-            utils.get_logger().warning("Error while trying to remove local file {}: {}".format(f, str(e)))
+            utils.get_logger().warning(utils._("Error while trying to remove local file {filepath}: {error}").format(filepath=f, error=str(e)))
 
     # now remove any dangling directories
     empty_dirs = subprocess.Popen(shlex.split("find {} -depth -type d -empty".format(root_path)), stdout=subprocess.PIPE)
     empty_out, stderr = empty_dirs.communicate()
     if empty_dirs.returncode != 0:
-        utils.get_logger().warning("Looking for local empty directories failed.")
+        utils.get_logger().warning(utils._("Looking for local empty directories failed."))
         return
 
     deleteable_dirs = [d for d in empty_out.decode('UTF-8').strip().split('\n') if d]
@@ -330,7 +331,7 @@ def update_bind_mounts(container, config, home_path):
 
     for user_dir in utils.generate_binding_directories(mounts, home_path.rstrip('/')):
         if not os.path.exists(user_dir[0]):
-            utils.get_logger().warning('Bind-mount path \'{}\' does not exist.'.format(user_dir[0]))
+            utils.get_logger().warning(utils._("Bind-mount path '{mount_path}' does not exist.").format(mount_path=user_dir[0]))
             continue
 
         if os.path.isabs(user_dir[1]):
@@ -349,7 +350,7 @@ def update_bind_mounts(container, config, home_path):
                 'type': 'disk'
         }
 
-    _lxd_save(container, 'Saving bind mounts for container \'{}\' raised:'.format(container.name))
+    _lxd_save(container, utils._("Saving bind mounts for container '{container_id}' raised:").format(container_id=container.name))
 
 
 def _setup_etc_hosts(container):
@@ -368,13 +369,13 @@ def update_libertine_profile(client):
     try:
         profile = client.profiles.get('libertine')
 
-        utils.get_logger().info('Updating existing lxd profile.')
+        utils.get_logger().info(utils._('Updating existing lxd profile.'))
         profile.devices = _get_devices_map()
         profile.config['raw.idmap'] = 'both 1000 1000'
 
-        _lxd_save(profile, 'Saving libertine lxd profile raised:')
+        _lxd_save(profile, utils._('Saving libertine lxd profile raised:'))
     except pylxd.exceptions.LXDAPIException:
-        utils.get_logger().info('Creating libertine lxd profile.')
+        utils.get_logger().info(utils._('Creating libertine lxd profile.'))
         client.profiles.create('libertine', config={'raw.idmap': 'both 1000 1000'}, devices=_get_devices_map())
 
 
@@ -398,17 +399,19 @@ class LibertineLXD(Libertine.BaseContainer):
 
     def create_libertine_container(self, password=None, multiarch=False):
         if self._try_get_container():
-            utils.get_logger().error("Container already exists")
+            utils.get_logger().error(utils._("Container already exists"))
             return False
 
         update_libertine_profile(self._lxd_client)
 
-        utils.get_logger().info("Creating container '%s' with distro '%s'" % (self.container_id, self.installed_release))
+        utils.get_logger().info(utils._("Creating container '{container_id}' with distro '{container_distro}'")
+                                  .format(container_id=self.container_id, container_distro=self.installed_release))
         create = subprocess.Popen(shlex.split('lxc launch ubuntu-daily:{distro} {id} --profile '
                                               'default --profile libertine'.format(
                                               distro=self.installed_release, id=self.container_id)))
         if create.wait() is not 0:
-            utils.get_logger().error("Creating container '{}' failed with code '{}'".format(self.container_id, create.returncode))
+            utils.get_logger().error(utils._("Creating container '{container_id}' failed with code '{error_code}'")
+                                       .format(container_id=self.container_id, error_code=create.returncode))
             return False
 
         self._try_get_container()
@@ -431,15 +434,16 @@ class LibertineLXD(Libertine.BaseContainer):
         _setup_etc_hosts(self._container)
 
         if multiarch and self.architecture == 'amd64':
-            utils.get_logger().info("Adding i386 multiarch support to container '{}'".format(self.container_id))
+            utils.get_logger().info(utils._("Adding i386 multiarch support to container '{container_id}'").format(container_id=self.container_id))
             self.run_in_container("dpkg --add-architecture i386")
 
         self.update_packages()
 
         for package in self.default_packages:
-            utils.get_logger().info("Installing package '%s' in container '%s'" % (package, self.container_id))
+            utils.get_logger().info(utils._("Installing package '{package_name}' in container '{container_id}'")
+                                      .format(package_name=package, container_id=self.container_id))
             if not self.install_package(package, no_dialog=True, update_cache=False):
-                utils.get_logger().error("Failure installing '%s' during container creation" % package)
+                utils.get_logger().error(utils._("Failure installing '{package_name}' during container creation").format(package_name=package))
                 self.destroy_libertine_container()
                 return False
 
@@ -461,7 +465,7 @@ class LibertineLXD(Libertine.BaseContainer):
 
     def update_packages(self, update_locale=False):
         if not self._timezone_in_sync():
-            utils.get_logger().info("Re-syncing timezones")
+            utils.get_logger().info(utils._("Re-syncing timezones"))
             self.run_in_container("bash -c 'echo \"%s\" > /etc/timezone'" % self._host_info.get_host_timezone())
             self.run_in_container("rm -f /etc/localtime")
             self.run_in_container("dpkg-reconfigure -f noninteractive tzdata")
@@ -474,11 +478,11 @@ class LibertineLXD(Libertine.BaseContainer):
 
     def destroy_libertine_container(self, force):
         if not self._try_get_container():
-            utils.get_logger().error("No such container '%s'" % self.container_id)
+            utils.get_logger().error(utils._("No such container '{container_id}'").format(container_id=self.container_id))
             return False
 
         if self._container.status == 'Running' and not force:
-            utils.get_logger().error("Canceling destruction due to running container. Use --force to override.")
+            utils.get_logger().error(utils._("Canceling destruction due to running container. Use --force to override."))
             return False
 
         lxd_start(self._container)
@@ -526,7 +530,7 @@ class LibertineLXD(Libertine.BaseContainer):
         self._config.update_container_install_status(self.container_id, "running")
 
         if not _wait_for_network(self._container):
-            utils.get_logger().warning("Network unavailable in container '{}'".format(self.container_id))
+            utils.get_logger().warning(utils._("Network unavailable in container '{container_id}'").format(container_id=self.container_id))
 
         if requires_remount:
             self.run_in_container("/usr/bin/libertine-lxd-mount-update")
@@ -555,7 +559,7 @@ class LibertineLXD(Libertine.BaseContainer):
             return False
 
         if self._container.status != 'Frozen':
-            utils.get_logger().warning("Container {} is not frozen. Cannot restart.".format(self._container.name))
+            utils.get_logger().warning(utils._("Container '{container_id}' is not frozen. Cannot restart.").format(container_id=self._container.name))
             return False
 
         if not (lxd_stop(self._container) and lxd_start(self._container)):
@@ -565,7 +569,7 @@ class LibertineLXD(Libertine.BaseContainer):
 
     def start_application(self, app_exec_line, environ):
         if not self._try_get_container():
-            utils.get_logger().error("Could not get container '{}'".format(self.container_id))
+            utils.get_logger().error(utils._("Could not get container '{container_id}'").format(container_id=self.container_id))
             return None
 
         if utils.is_snap_environment():

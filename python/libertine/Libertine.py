@@ -236,7 +236,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
 
         if package_name.endswith('.deb'):
             if not os.path.exists(package_name):
-                utils.get_logger().error("File {} does not exist.".format(package_name))
+                utils.get_logger().error(utils._("File '{package_name}' does not exist.").format(package_name=package_name))
                 return False
 
             dest = os.path.join('/', 'tmp', package_name.split('/')[-1])
@@ -377,7 +377,7 @@ class ContainerRunning(contextlib.ExitStack):
     def __init__(self, container):
         super().__init__()
         if not container.start_container():
-            raise RuntimeError("Container failed to start.")
+            raise RuntimeError(utils._("Container failed to start."))
 
         self.callback(lambda: container.stop_container())
 
@@ -412,7 +412,7 @@ class LibertineContainer(object):
         elif container_type == "mock":
             self.container = LibertineMock(container_id, self.containers_config, service)
         else:
-            raise RuntimeError("Unsupported container type %s" % container_type)
+            raise RuntimeError(utils._("Unsupported container type '{container_type}'").format(container_type))
 
     @property
     def container_id(self):

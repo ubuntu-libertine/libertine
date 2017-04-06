@@ -100,7 +100,7 @@ class BridgePair(object):
                 to_socket.sendall(b)
                 utils.get_logger().debug('copied {} bytes from fd to {}'.format(len(b), from_socket, to_socket))
             else:
-                utils.get_logger().info('close detected on {}'.format(from_socket))
+                utils.get_logger().info(utils._('close detected on {socket}').format(socket=from_socket))
             return len(b)
         except Exception as e:
             utils.get_logger().debug(e)
@@ -169,7 +169,7 @@ class Session(ExitStack):
         with suppress(AttributeError):
             for task_config in self._config.prelaunch_tasks:
                 if task_config.task_type == TaskType.LAUNCH_SERVICE:
-                    utils.get_logger().info("launching {}".format(task_config.datum[0]))
+                    utils.get_logger().info(utils._("launching {launch_task}").format(launch_task=task_config.datum[0]))
                     task = LaunchServiceTask(task_config)
                     self._child_processes.append(task)
                     task.start(self._config.host_environ)
@@ -329,17 +329,17 @@ class Session(ExitStack):
         data = os.read(fd, 4)
         sig = struct.unpack('%uB' % len(data), data)
         if sig[0] == signal.SIGCHLD:
-            utils.get_logger().info('SIGCHLD received')
+            utils.get_logger().info(utils._('SIGCHLD received'))
             if self._handle_child_died():
-                raise StopIteration('launched program exited')
+                raise StopIteration(utils._('launched program exited'))
         elif sig[0] == signal.SIGINT:
-            utils.get_logger().info('SIGINT received')
-            raise StopIteration('keyboard interrupt')
+            utils.get_logger().info(utils._('SIGINT received'))
+            raise StopIteration(utils._('keyboard interrupt'))
         elif sig[0] == signal.SIGTERM:
-            utils.get_logger().info('SIGTERM received')
-            raise StopIteration('terminate')
+            utils.get_logger().info(utils._('SIGTERM received'))
+            raise StopIteration(utils._('terminate'))
         else:
-            utils.get_logger().warning('unknown signal {} received'.format(sig[0]))
+            utils.get_logger().warning(utils._('unknown signal {signal} received').format(signal=sig[0]))
 
     def _set_signal_handlers(self):
         """Set the signal handlers."""

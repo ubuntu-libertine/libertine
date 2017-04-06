@@ -38,9 +38,9 @@ class ContainerControlClient(object):
                 self._control = bus.get_object(constants.SERVICE_NAME, constants.CONTAINER_CONTROL_OBJECT)
                 self._interface = constants.CONTAINER_CONTROL_INTERFACE
         except ImportError as e:
-            utils.get_logger().warning("Libertine service libraries not installed.")
+            utils.get_logger().warning(utils._("Libertine service libraries not installed."))
         except dbus.exceptions.DBusException as e:
-            utils.get_logger().warning("Exception raised while discovering d-bus service: {}".format(str(e)))
+            utils.get_logger().warning(utils._("Exception raised while discovering d-bus service: {error}").format(error=str(e)))
 
     def _do_operation(self, operation):
         # It's possible that the service has gone down from when first getting the object.

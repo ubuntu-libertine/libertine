@@ -40,7 +40,7 @@ class ContainerControlClient(object):
                     else:
                         raise
                 except:
-                    utils.get_logger().error("Container app {} is not valid.".format(app['appExecName']))
+                    utils.get_logger().error(utils._("Container app '{application_name}' is not valid.").format(application_name=app['appExecName']))
                     if container not in self._invalid_apps:
                         self._invalid_apps[container] = [{app['appExecName'], app['pid']}]
                     else:

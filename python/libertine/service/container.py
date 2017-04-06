@@ -16,7 +16,6 @@ from libertine.service.tasks import *
 from libertine import utils
 from threading import Lock
 
-
 if not utils.is_snap_environment():
     from libertine.service import apt
 
@@ -33,7 +32,7 @@ class Container(object):
         self._tasks = []
 
         if utils.is_snap_environment():
-            utils.get_logger().warning("Using AptCache not currently supported in snap environment")
+            utils.get_logger().warning(utils._("Using AptCache not currently supported in snap environment"))
             self._cache = None
         else:
             self._cache = apt.AptCache(self.id)

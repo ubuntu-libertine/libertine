@@ -12,7 +12,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import libertine.utils
 import locale
 import lsb_release
 import os
@@ -20,6 +19,7 @@ import platform
 import subprocess
 
 from distro_info import UbuntuDistroInfo
+from libertine import utils
 
 
 class HostInfo(object):
@@ -78,7 +78,7 @@ class HostInfo(object):
                                 stdout=subprocess.PIPE,
                                 universal_newlines=True)
         if dpkg.wait() != 0:
-            parser.error("Failed to determine the local architecture.")
+            parser.error(utils._("Failed to determine the local architecture."))
 
         return dpkg.stdout.read().strip()
 

@@ -249,12 +249,12 @@ class ContainersConfig(object):
 
     def check_container_id(self, container_id):
         if container_id and not self.container_exists(container_id):
-            utils.get_logger().error("Container id '{container_id}' does not exist.".format(container_id=container_id))
+            utils.get_logger().error(utils._("Container id '{container_id}' does not exist.").format(container_id=container_id))
             sys.exit(1)
         elif not container_id:
             container_id = self.get_default_container_id()
             if container_id is None:
-                utils.get_logger().error("No default container available.")
+                utils.get_logger().error(utils._("No default container available."))
                 sys.exit(1)
 
         return container_id
@@ -298,7 +298,7 @@ class ContainersConfig(object):
 
     def delete_container(self, container_id):
         if not self.container_list:
-            utils.get_logger().error("Unable to delete container. No containers defined.")
+            utils.get_logger().error(utils._("Unable to delete container. No containers defined."))
             sys.exit(1)
 
         container = self._get_container_entry(container_id)

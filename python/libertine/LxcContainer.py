@@ -69,7 +69,7 @@ def _dump_lxc_log(logfile):
                 for line in fd:
                     print(line.lstrip())
         except Exception as ex:
-            utils.get_logger().error("Could not open LXC log file: %s" % ex)
+            utils.get_logger().error(utils._("Could not open LXC log file: {logfile}").format(logfile=ex))
 
 
 def get_logfile(container):
@@ -90,20 +90,20 @@ def lxc_start(container):
 
     if container.state == 'STOPPED':
         if not container.start():
-            utils.get_logger().error("Container failed to start.")
+            utils.get_logger().error(utils._("Container failed to start."))
             return False
     elif container.state == 'FROZEN':
         if not container.unfreeze():
-            utils.get_logger().error("Container failed to unfreeze.")
+            utils.get_logger().error(utils._("Container failed to unfreeze."))
             return False
 
     if not container.wait("RUNNING", 10):
-        utils.get_logger().error("Container failed to enter the RUNNING state.")
+        utils.get_logger().error(utils._("Container failed to enter the RUNNING state."))
         return False
 
     if not container.get_ips(timeout=30):
         lxc_stop(container)
-        utils.get_logger().error("Not able to connect to the network.")
+        utils.get_logger().error(utils._("Not able to connect to the network."))
         return False
 
     return True
@@ -116,12 +116,12 @@ def lxc_stop(container, freeze_on_stop=False):
     if freeze_on_stop:
         container.freeze()
         if not container.wait("FROZEN", 10):
-            utils.get_logger().error("Container failed to enter the FROZEN state.")
+            utils.get_logger().error(utils._("Container failed to enter the FROZEN state."))
             return False
     else:
         container.stop()
         if not container.wait("STOPPED", 10):
-            utils.get_logger().error("Container failed to enter the STOPPED state.")
+            utils.get_logger().error(utils._("Container failed to enter the STOPPED state."))
             return False
 
     return True
@@ -246,7 +246,7 @@ class LibertineLXC(BaseContainer):
 
     def restart_container(self):
         if self.container.state != 'FROZEN':
-            utils.get_logger().warning("Container {} is not frozen. Cannot restart.".format(self.container_id))
+            utils.get_logger().warning(utils._("Container '{container_id}' is not frozen. Cannot restart.").format(container_id=self.container_id))
             return False
 
         if not (lxc_stop(self.container) and lxc_start(self.container)):
@@ -272,11 +272,11 @@ class LibertineLXC(BaseContainer):
             return False
 
         if self.container.state == 'RUNNING' and not force:
-            utils.get_logger().error("Canceling destruction due to running container. Use --force to override.")
+            utils.get_logger().error(utils._("Canceling destruction due to running container. Use --force to override."))
             return False
 
         if not lxc_stop(self.container):
-            utils.get_logger().error("Failed to force container to stop. Canceling destruction.")
+            utils.get_logger().error(utils._("Failed to force container to stop. Canceling destruction."))
             return False
 
         self.container.destroy()
@@ -322,13 +322,13 @@ class LibertineLXC(BaseContainer):
                                          {"dist": "ubuntu",
                                           "release": self.installed_release,
                                           "arch": self.architecture}):
-                utils.get_logger().error("Failed to create container")
+                utils.get_logger().error(utils._("Failed to create container"))
                 _dump_lxc_log(lxc_logfile)
                 return False
 
         self.create_libertine_config()
 
-        utils.get_logger().info("starting container ...")
+        utils.get_logger().info(utils._("starting container ..."))
         if not self.start_container():
             self.destroy_libertine_container()
             return False
@@ -340,21 +340,21 @@ class LibertineLXC(BaseContainer):
                 str(user_id), crypt.crypt(password), str(username)))
 
         if multiarch and self.architecture == 'amd64':
-            utils.get_logger().info("Adding i386 multiarch support...")
+            utils.get_logger().info(utils._("Adding i386 multiarch support..."))
             self.run_in_container("dpkg --add-architecture i386")
 
-        utils.get_logger().info("Updating the contents of the container after creation...")
+        utils.get_logger().info(utils._("Updating the contents of the container after creation..."))
         self.update_packages()
 
         for package in self.default_packages:
             if not self.install_package(package, update_cache=False):
-                utils.get_logger().error("Failure installing %s during container creation" % package)
+                utils.get_logger().error(utils._("Failure installing '{package_name}' during container creation").format(package_name=package))
                 self.destroy_libertine_container()
                 return False
 
         super().create_libertine_container()
 
-        utils.get_logger().info("stopping container ...")
+        utils.get_logger().info(utils._("stopping container ..."))
         self.stop_container()
 
         return True

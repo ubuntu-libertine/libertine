@@ -23,10 +23,6 @@ import sys
 from .task import TaskType, TaskConfig
 from .. import utils
 
-import gettext
-gettext.textdomain('libertine')
-_ = gettext.gettext
-
 log = utils.get_logger()
 
 
@@ -129,21 +125,21 @@ class Config(object):
 
         """
         log.debug('Config.__init__() begins')
-        arg_parser = argparse.ArgumentParser(description=_('Launch an application natively or in a Libertine container'))
+        arg_parser = argparse.ArgumentParser(description=utils._('Launch an application natively or in a Libertine container'))
         arg_parser.add_argument('-i', '--id',
-                                help=_('Container identifier when launching containerized apps'))
+                                help=utils._('Container identifier when launching containerized apps'))
         arg_parser.add_argument('-E', '--env',
                                 default=[],
                                 dest='environ',
                                 action='append',
-                                help=_('Set an environment variable'))
+                                help=utils._('Set an environment variable'))
         arg_parser.add_argument('app_exec_line',
                                 nargs=argparse.REMAINDER,
-                                help=_('exec line'))
+                                help=utils._('exec line'))
         options = arg_parser.parse_args(args=argv)
 
         if not options.app_exec_line:
-            arg_parser.error('Must specify an exec line')
+            arg_parser.error(utils._('Must specify an exec line'))
 
         if options.id:
             self.container_id = options.id

@@ -22,6 +22,10 @@ import shlex
 import subprocess
 import xdg.BaseDirectory as basedir
 
+import gettext
+gettext.textdomain('libertine')
+_ = gettext.gettext
+
 
 def get_logger():
     logger = logging.getLogger('__libertine_logger__')
@@ -174,7 +178,7 @@ def set_session_dbus_env_var():
                 except psutil.NoSuchProcess as e:
                     get_logger().warning(str(e))
     except subprocess.CalledProcessError as e:
-        get_logger().warning("Exception caught while setting session dbus address: {}".format(str(e)))
+        get_logger().warning(utils._("Exception caught while setting session dbus address: {error}").format(error=str(e)))
         dbus_session_set = 'DBUS_SESSION_BUS_ADDRESS' in os.environ
 
     return dbus_session_set

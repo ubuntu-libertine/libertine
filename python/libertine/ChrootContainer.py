@@ -75,12 +75,12 @@ class LibertineChroot(BaseContainer):
         cmd.wait()
 
         if cmd.returncode != 0:
-            utils.get_logger().error("Failed to create container")
+            utils.get_logger().error(utils._("Failed to create container"))
             self.destroy_libertine_container()
             return False
 
         # Remove symlinks as they can cause ill-behaved recursive behavior in the chroot
-        utils.get_logger().info("Fixing chroot symlinks...")
+        utils.get_logger().info(utils._("Fixing chroot symlinks..."))
         os.remove(os.path.join(self.root_path, 'dev'))
         os.remove(os.path.join(self.root_path, 'proc'))
 
@@ -101,7 +101,7 @@ class LibertineChroot(BaseContainer):
         else:
             archive = "deb http://archive.ubuntu.com/ubuntu "
 
-        utils.get_logger().info("Updating chroot's sources.list entries...")
+        utils.get_logger().info(utils._("Updating chroot's sources.list entries..."))
 
         with open(os.path.join(self.root_path, 'etc', 'apt', 'sources.list'), 'a') as fd:
             fd.write(archive + self.installed_release + "-updates main\n")
@@ -115,22 +115,22 @@ class LibertineChroot(BaseContainer):
         self.update_locale()
 
         if multiarch and self.architecture == 'amd64':
-            utils.get_logger().info("Adding i386 multiarch support...")
+            utils.get_logger().info(utils._("Adding i386 multiarch support..."))
             self.run_in_container("dpkg --add-architecture i386")
 
-        utils.get_logger().info("Updating the contents of the container after creation...")
+        utils.get_logger().info(utils._("Updating the contents of the container after creation..."))
         self.update_packages()
 
         for package in self.default_packages:
             if not self.install_package(package, update_cache=False):
-                utils.get_logger().error("Failure installing %s during container creation" % package)
+                utils.get_logger().error(utils._("Failure installing '{package_name}' during container creation".format(package_name=package))
                 self.destroy_libertine_container()
                 return False
 
         if self.installed_release == "vivid" or self.installed_release == "xenial":
-            utils.get_logger().info("Installing the Stable Overlay PPA...")
+            utils.get_logger().info(utils._("Installing the Stable Overlay PPA..."))
             if not self.install_package("software-properties-common", update_cache=False):
-                utils.get_logger().error("Failure installing software-properties-common during container creation")
+                utils.get_logger().error(utils._("Failure installing software-properties-common during container creation"))
                 self.destroy_libertine_container()
                 return False
 
@@ -168,7 +168,7 @@ class LibertineChroot(BaseContainer):
     def _build_proot_command(self):
         proot_cmd = shutil.which('proot')
         if not proot_cmd:
-            raise RuntimeError('executable proot not found')
+            raise RuntimeError(utils._('executable proot not found'))
 
         proot_cmd += " -R " + self.root_path
 
@@ -211,7 +211,7 @@ class LibertineChroot(BaseContainer):
     def _build_privileged_proot_cmd(self):
         proot_cmd = shutil.which('proot')
         if not proot_cmd:
-            raise RuntimeError('executable proot not found')
+            raise RuntimeError(utils._('executable proot not found'))
 
         proot_cmd += " -b /usr/lib/locale -S " + self.root_path
 
@@ -232,7 +232,7 @@ class LibertineChroot(BaseContainer):
         app.wait()
 
     def _run_ldconfig(self):
-        utils.get_logger().info("Refreshing the container's dynamic linker run-time bindings...")
+        utils.get_logger().info(utils._("Refreshing the container's dynamic linker run-time bindings..."))
 
         command_line = self._build_privileged_proot_cmd() + " ldconfig.REAL"
 

@@ -30,13 +30,13 @@ from libertine.service import constants, operations, container_control, containe
 
 class Config(object):
   def __init__(self):
-    self._arg_parser = argparse.ArgumentParser(description=u'Libertine Store service')
+    self._arg_parser = argparse.ArgumentParser(description=utils._('Libertine Store service'))
     self._arg_parser.add_argument('-q', '--quiet', action='store_const',
                                   dest='verbosity', const=0,
-                                  help=('disables all non-vital output'))
+                                  help=utils._('disables all non-vital output'))
     self._arg_parser.add_argument('-v', '--verbosity', action='store_const',
                                   dest='verbosity', const=2,
-                                  help=('enables debug output'))
+                                  help=utils._('enables debug output'))
     args = self._arg_parser.parse_args(namespace=Config)
 
 
@@ -54,7 +54,7 @@ class Loop(object):
         self.shutdown()
 
     def shutdown(self):
-        utils.get_logger().info("shutting service down")
+        utils.get_logger().info(utils._("shutting service down"))
         self.loop.quit()
 
     def run(self):
@@ -65,15 +65,15 @@ class Loop(object):
 def main():
     config = Config()
 
-    utils.get_logger().info("Initializing libertined...")
+    utils.get_logger().info(utils._("Initializing libertined..."))
     loop = Loop()
 
     try:
         bus_name = dbus.service.BusName(constants.SERVICE_NAME,
                                         bus=dbus.SessionBus(),
-                                        do_not_queue=True)
+    	                                do_not_queue=True)
     except dbus.exceptions.NameExistsException:
-        utils.get_logger().warning("service is already running")
+        utils.get_logger().warning(utils._("service is already running"))
         raise
 
     client = container_control_client.ContainerControlClient()
@@ -81,12 +81,12 @@ def main():
     container_control.ContainerControl(manager.connection, client)
 
     try:
-        utils.get_logger().info("libertined ready")
+        utils.get_logger().info(utils._("libertined ready"))
         loop.run()
     except KeyboardInterrupt:
         utils.get_logger().debug("keyboard interrupt received")
     except Exception as e:
-        utils.get_logger().error("Unexpected exception occurred: '{}'".format(str(e)))
+        utils.get_logger().error(utils._("Unexpected exception occurred: '{error}'").format(error=str(e)))
     finally:
         loop.shutdown()
 
