@@ -1,0 +1,26 @@
+.TH libertine-shell "1" "March 2017" "libertine-shell 1.0" "User Commands"
+
+.SH NAME
+libertine-shell \- Launch an SSH session connected to a lxc/lxd Libertine container
+
+.SH DESCRIPTION
+usage: libertine\-shell [\-h] [-i ID] [-u USER] [-f IDENTITY_FILE_PATH] [-y]
+.PP
+Launch an SSH session connected to a Libertine container
+
+.SS "optional arguments:"
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+show this help message and exit
+.TP
+\fB\-i\fR, \fB\-\-id\fR
+Container identifier (default container if none specified)
+.TP
+\fB\-u\fR, \fB\-\-username\fR
+Container username (current username if none specified)
+.TP
+\fB\-f\fR, \fB\-\-identity-file\fR
+Full path of SSH key to be used
+.TP
+\fB\-y\fR, \fB\-\-assume-yes\fR
+Assume yes to all prompts (installations, public key copy, configuration changes)

@@ -1,0 +1,255 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2017 Canonical Ltd.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import os
+import shlex
+import subprocess
+import sys
+
+from libertine import ContainersConfig, utils, Libertine
+from shutil import copyfile
+
+import gettext
+gettext.textdomain('libertine')
+_ = gettext.gettext
+
+class ShellConfig(object):
+    def __init__(self, args):
+        super().__init__()
+        self._validate(self._parse(args))
+
+    @property
+    def public_key(self):
+        return "{}.pub".format(self.identity_file)
+
+    def _parse(self, args):
+        arg_parser = argparse.ArgumentParser(description=_('Launch an SSH session within a lxc/lxd Libertine container'))
+        arg_parser.add_argument('-i', '--id',
+                                help=_('Container identifier'))
+        arg_parser.add_argument('-u', '--username',
+                                help=_('Container username'))
+        arg_parser.add_argument('-f', '--identity-file',
+                                help=_('SSH key to be used'))
+        arg_parser.add_argument('-y', '--assume-yes',
+                                action='store_true',
+                                help=_('Assume yes to all prompts'))
+
+        return arg_parser.parse_args(args=args)
+
+    def _validate(self, options):
+        self.assume_yes = options.assume_yes or False
+        self.username = options.username
+
+        config = ContainersConfig.ContainersConfig()
+        self.container_id = config.check_container_id(options.id)
+        self.container_type = config.get_container_type(self.container_id)
+        utils.get_logger().debug("Using Container ID: {}".format(self.container_id))
+
+        self.identity_file = None
+
+        if options.identity_file:
+            utils.get_logger().debug("Public key file path: {}".format(options.identity_file))
+
+            if not os.path.exists(options.identity_file):
+                if not os.path.dirname(options.identity_file) and os.path.exists(os.path.join(os.environ['HOME'], '.ssh', options.identity_file)):
+                    self.identity_file = os.path.join(os.environ['HOME'], '.ssh', options.identity_file)
+                else:
+                    utils.get_logger().error(_("Identity file not found at '{}'. Leave blank for default.").format(options.identity_file))
+                    sys.exit(1)
+            else:
+                self.identity_file = options.identity_file
+
+            if not os.path.exists(self.public_key):
+                utils.get_logger().error(_("Corresponding public key not found for '{}'.").format(self.identity_file))
+                sys.exit(1)
+
+    def setup_public_keys(self, hostname):
+        should_save = False
+        all_lines, host_line = self._ssh_config_lines(hostname)
+
+        if host_line:
+            identity_files = [line for line in host_line.split('\n') if "IdentityFile " in line]
+            if identity_files:
+                if not self.identity_file:
+                    self.identity_file = identity_files[-1].split(' ')[-1]
+                elif not [i for i in identity_files if self.identity_file in i]:
+                    should_save = True
+                    host_line += "\n\tIdentityFile {}".format(self.identity_file)
+                    if self.username and not "User {}".format(self.username) in host_line:
+                        host_line += "\tUser {}\n".format(self.username)
+        elif self.identity_file:
+            should_save = True
+            host_line = "Host {}\n\tIdentityFile {}".format(hostname, self.identity_file)
+            all_lines.append(host_line)
+
+        if host_line and self.username and not "User {}".format(self.username) in host_line:
+            should_save = True
+            host_line += "\n\tUser {}\n".format(self.username)
+
+        if not self.identity_file:
+            DEFAULT_KEYS = ["id_dsa", "id_rsa", "id_ecdsa", "id_ed25519"]
+            keys = [key for key in os.listdir(os.path.join(os.environ['HOME'], '.ssh')) if key in DEFAULT_KEYS]
+            if keys:
+                self.identity_file = os.path.join(os.environ['HOME'], '.ssh', keys[0])
+
+        if self.identity_file and not (os.path.exists(self.identity_file) or os.path.exists(self.public_key)):
+            utils.get_logger().error(_("Configured identity file or public key matching '{}' do not exist.").format(self.identity_file))
+            sys.exit(1)
+
+        if should_save and self._ask_save_ssh_config():
+            try:
+                config_path = os.path.join(os.environ['HOME'], ".ssh", "config")
+                copyfile(config_path, config_path + ".bak")
+                with open(config_path, 'w') as f:
+                    for i in range(0, len(all_lines)):
+                        if i == (len(all_lines)-1):
+                            newlines = '\n'
+                        else:
+                            newlines = '\n\n'
+
+                        if not all_lines[i].startswith("Host {}".format(hostname)):
+                            f.write(all_lines[i] + newlines)
+                        else:
+                            f.write(host_line + newlines)
+            except Exception as e:
+                utils.get_logger().warning("Error caught during config edit: {}.".format(str(e)))
+                utils.get_logger().warning("Restoring previous version of '{}' and continuing".format(config_path))
+                copyfile(config_path + ".bak", config_path)
+
+            os.remove(config_path + ".bak")
+
+    def _ssh_config_lines(self, hostname):
+        ssh_dir = os.path.join(os.environ['HOME'], ".ssh")
+        if not os.path.exists(ssh_dir):
+            utils.get_logger().error(_("It looks like no SSH keys are set up. Please generate a key and try again. "
+                                       "You can use the following command to generate an appropriate key:\n"
+                                       "\tssh-keygen -t rsa -b 4096 -C 'your_email@example.com'"))
+            sys.exit(1)
+
+        config_path = os.path.join(ssh_dir, "config")
+
+        all_lines = []
+        host_line = []
+        if os.path.exists(config_path):
+            with open(config_path, 'r') as f:
+                all_lines = [line.strip() for line in f.read().split('\n\n')]
+                host_line = [line for line in all_lines if line.startswith("Host {}".format(hostname))]
+                if host_line:
+                    host_line = host_line[-1]
+
+        return (all_lines, host_line or '')
+
+    def _ask_save_ssh_config(self):
+        if not self.assume_yes:
+            if self.username:
+                prompt = input(_("Always use '{}' as identity file and username '{}' "
+                                 "when connecting to '{}'? [Yn]").format(self.identity_file, self.username, self.container_id))
+            else:
+                prompt = input(_("Always use '{}' as identity file when connecting to '{}'? [Yn]").format(self.identity_file, self.container_id))
+
+            if not (prompt == _('Y') or prompt == _('y') or prompt == ''):
+                utils.get_logger().debug("Responded 'no' to saving identity configuration")
+                return False
+
+        return True
+
+    def command(self, hostname):
+        if self.username:
+            hostname = "{}@{}".format(self.username, hostname)
+
+        options = ""
+        if self.identity_file:
+            options += " -i {} ".format(self.identity_file)
+
+        return "ssh {} {} -t 'bash -s'".format(options, hostname)
+
+    def get_ip_host_file_path(self, home):
+        if home in ContainersConfig.ContainersConfig().get_container_bind_mounts(self.container_id):
+            return os.path.join(home, 'libertine-shell-found-ip')
+
+        return os.path.join(utils.get_libertine_container_home_dir(self.container_id), 'libertine-shell-found-ip')
+
+
+def main():
+    if subprocess.Popen(shlex.split("bash -c \"which sshd &> /dev/null\"")).wait() != 0:
+        utils.get_logger().error(_("No sshd found. You can install openssh with the following command:\n"
+                                   "\tapt install openssh-client"))
+        sys.exit(1)
+
+    config = ShellConfig(sys.argv[1:])
+
+    if not (config.container_type == 'lxd' or config.container_type == 'lxc'):
+        utils.get_logger().error(_("'{}' is a '{}' container. Only 'lxd' or 'lxc' "
+                                   "containers are able to use this tool.".format(
+                                   config.container_id, config.container_type)))
+        sys.exit(1)
+
+    container = Libertine.LibertineContainer(config.container_id)
+
+
+    with Libertine.ContainerRunning(container.container):
+        if not container.container._binary_exists("sshd"):
+            if not config.assume_yes:
+                prompt = input(_("openssh-server not detected in container '{}'. Install now? [Yn]").format(config.container_id))
+                if not (prompt == _('Y') or prompt == _('y') or prompt == ''):
+                    utils.get_logger().debug("Responded 'no' to openssh-server installation")
+                    sys.exit(1)
+
+            if not container.install_package("openssh-server") or not container.exec_command("update-rc.d ssh defaults"):
+                utils.get_logger().error(_("Failed to install openssh-server"))
+                sys.exit(1)
+
+        username = config.username or os.environ['USER']
+
+        if not container.exec_command('bash -c "hostname -I | awk \'{ print $1 }\' > /home/%s/libertine-shell-found-ip"' % username):
+            utils.get_logger().error(_("Unable to get IP address for '{}'".format(config.container_id)))
+            sys.exit(1)
+
+        with open(config.get_ip_host_file_path('/home/%s' % username)) as f:
+            hostname = f.read().strip()
+            utils.get_logger().debug(hostname)
+            if not hostname:
+                utils.get_logger().error(_("Unable to get IP address for '{}'".format(config.container_id)))
+                sys.exit(1)
+
+        config.setup_public_keys(hostname)
+
+        if not container.exec_command('test -e /home/{}/.ssh/authorized_keys'.format(username)):
+            container.exec_command("bash -c 'mkdir -p /home/{user}/.ssh && "
+                                   "chown {user}:{user} /home/{user}/.ssh'".format(user=username))
+            container.exec_command("bash -c 'touch /home/{user}/.ssh/authorized_keys && "
+                                   "chown {user}:{user} /home/{user}/.ssh/authorized_keys'".format(user=username))
+
+        with open(config.public_key, 'r') as f:
+            public_key = f.read().strip()
+            if not container.exec_command('grep -q "{}$" /home/{}/.ssh/authorized_keys'.format(public_key, username)):
+                if not config.assume_yes:
+                    prompt = input(_("OK to add public key '{}' to container '{}'? [Yn]").format(config.public_key, config.container_id))
+                    if not (prompt == _('Y') or prompt == _('y') or prompt == ''):
+                        utils.get_logger().error(_("Public key must be added to container to continue."))
+                        sys.exit(1)
+
+                if not container.exec_command('bash -c "echo {} >> /home/{}/.ssh/authorized_keys"'.format(public_key, username)):
+                    utils.get_logger().error(_("Failed to add public key to container's authorized keys."))
+                    sys.exit(1)
+
+        subprocess.call(shlex.split(config.command(hostname)))
+
+
+if __name__ == '__main__':
+    main()

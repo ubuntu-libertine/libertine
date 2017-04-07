@@ -1,0 +1,50 @@
+# Copyright (C) 2017 Canonical Ltd.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+_libertine-shell()
+{
+    local cur cmd opts
+    COMPREPLY=()
+    cur=${COMP_WORDS[COMP_CWORD]}
+
+    if [[ ${COMP_CWORD} -gt 1 ]]; then
+      cmd="$cur"
+      if [[ ${cmd} != -* ]]; then
+        cmd=${COMP_WORDS[COMP_CWORD-1]}
+      fi
+
+      case "${cmd}" in
+      "--username" )
+        opts=$(users)
+        ;;
+      "--identity-file" )
+        compopt -o filenames
+        local files=("${cur}"*)
+        [[ -e ${files[0]} ]] && COMPREPLY=( "${files[@]// /\ }" )
+        return 0
+        ;;
+      esac
+    fi
+
+    if [[ -z ${opts} ]]; then
+      opts="--help --identity-file --username --assume-yes --id"
+    fi
+
+    if [[ -n "${opts}" ]]; then
+      COMPREPLY=( $(compgen -W "${opts}" -- "${COMP_WORDS[COMP_CWORD]}") )
+      return 0
+    fi
+}
+complete -F _libertine-shell libertine-shell
