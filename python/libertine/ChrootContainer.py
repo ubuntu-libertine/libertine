@@ -123,7 +123,7 @@ class LibertineChroot(BaseContainer):
 
         for package in self.default_packages:
             if not self.install_package(package, update_cache=False):
-                utils.get_logger().error(utils._("Failure installing '{package_name}' during container creation".format(package_name=package))
+                utils.get_logger().error(utils._("Failure installing '{package_name}' during container creation".format(package_name=package)))
                 self.destroy_libertine_container()
                 return False
 
