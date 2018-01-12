@@ -1,3 +1,9 @@
+libertine (1.7.2+ubports) xenial; urgency=medium
+
+  * Rebuild for xenial
+
+ -- Dan Chapman <dan@ubports.com>  Fri, 12 Jan 2018 11:13:25 +0000
+
 libertine (1.7.1+17.04.20170331-0ubuntu1) zesty; urgency=medium
 
   [ Chris Townsend ]
