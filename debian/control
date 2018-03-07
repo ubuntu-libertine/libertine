@@ -155,11 +155,11 @@ Description: developer files for the Libertine application sandbox
 Package: python3-libertine
 Architecture: any
 Section: python
-Multi-Arch: allowed
+Multi-Arch: foreign
 Depends: lsb-release,
-         python3-distro-info:any,
-         python3-psutil:any,
-         python3-xdg:any,
+         python3-distro-info,
+         python3-psutil,
+         python3-xdg,
          xdg-user-dirs,
          ${misc:Depends},
          ${python3:Depends}
