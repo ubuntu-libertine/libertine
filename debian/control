@@ -157,9 +157,9 @@ Architecture: any
 Section: python
 Multi-Arch: allowed
 Depends: lsb-release,
-         python3-distro-info,
-         python3-psutil,
-         python3-xdg,
+         python3-distro-info:any,
+         python3-psutil:any,
+         python3-xdg:any,
          xdg-user-dirs,
          ${misc:Depends},
          ${python3:Depends}
