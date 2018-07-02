@@ -39,7 +39,7 @@ Replaces: libertine (<= 1.4.3+17.04.20161118.1-0ubuntu1)
 Breaks: libertine (<= 1.4.3+17.04.20161118.1-0ubuntu1)
 Depends: libertine-qt-common,
          libertine-tools,
-         python3-libertine-lxd,
+         python3-libertine-chroot | python3-libertine-lxd,
          ${misc:Depends},
          ${shlibs:Depends}
 Description: sandbox for running deb-packaged X11 apps on Ubuntu Personal
@@ -61,7 +61,7 @@ Package: ubuntu-system-settings-libertine
 Architecture: any
 Depends: libertine-qt-common,
          libertine-tools,
-         python3-libertine-lxd,
+         python3-libertine-chroot | python3-libertine-lxd,
          ${misc:Depends},
          ${shlibs:Depends}
 Enhances: ubuntu-system-settings
@@ -91,7 +91,7 @@ Depends: libertine-xmir-tools (>= 1.7.1) [amd64 armhf arm64 i386],
          ${misc:Depends},
          ${python3:Depends},
          ${shlibs:Depends}
-Recommends: python3-libertine-lxd
+Recommends: python3-libertine-chroot
 Breaks: libertine-demo
 Replaces: libertine-demo
 Description: CLI tools for running deb-packaged X11 apps on Ubuntu Personal
