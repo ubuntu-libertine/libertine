@@ -58,6 +58,7 @@ Page {
             TextField {
                 id: enterPackageInput
                 placeholderText: i18n.tr("Package name or Debian package path")
+                inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhPreferLowercase | Qt.ImhNoPredictiveText
                 onAccepted: okButton.clicked()
             }
 
