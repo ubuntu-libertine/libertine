@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: libertine\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2018-10-27 23:37+0000\n"
+"PO-Revision-Date: 2018-10-28 22:40+0000\n"
 "Last-Translator: Joan CiberSheep <cibersheep@gmail.com>\n"
 "Language-Team: Catalan <https://translate.ubports.com/projects/ubports/"
 "libertine/ca/>\n"
@@ -226,7 +226,7 @@ msgstr "Gestiona %1"
 #: ../qml/common/ContainerOptionsDialog.qml:41
 #: ../qml/common/ManageContainer.qml:71
 msgid "i386 multiarch support"
-msgstr "Suport i386 multiarch "
+msgstr "Suport i386 multiarch"
 
 #: ../qml/common/ManageContainer.qml:99
 msgid "Additional archives and PPAs"
@@ -234,7 +234,7 @@ msgstr "Dipòsits i PPA addicionals"
 
 #: ../qml/common/ManageContainer.qml:119
 msgid "Update…"
-msgstr "Actualitza..."
+msgstr "Actualitza…"
 
 #: ../qml/common/ManageContainer.qml:134
 msgid "Update container"
@@ -272,7 +272,7 @@ msgstr "Nom del paquet o ruta al paquet del Debian"
 #: ../qml/common/ContainerEditView.qml:79
 msgid ""
 "The %1 package is already installed. Please try a different package name."
-msgstr "El pquet %1 ja està instal·lat. Proveu-ho amb un altre nom de paquet"
+msgstr "El paquet %1 ja està instal·lat. Proveu-ho amb un altre nom de paquet."
 
 #: ../qml/common/ContainerEditView.qml:106
 msgid "Manage Container"
@@ -355,8 +355,8 @@ msgstr "Benvinguda"
 #: ../qml/gui/WelcomeView.qml:50
 msgid "Welcome to the Ubuntu Legacy Application Support Manager."
 msgstr ""
-"Us donem la benvinguda al gestor de suport d'aplicacions heredades de "
-"l'Ubuntu"
+"Us donem la benvinguda al gestor de suport d'aplicacions heretades de "
+"l'Ubuntu."
 
 #: ../qml/gui/WelcomeView.qml:59
 msgid ""
@@ -424,7 +424,7 @@ msgstr "Opcions del contenidor"
 
 #: ../qml/common/ContainerOptionsDialog.qml:28
 msgid "Configure options for container creation."
-msgstr "Cofigureu les opcions de creació del contenidor"
+msgstr "Configureu les opcions de creació del contenidor."
 
 #: ../qml/common/ContainerOptionsDialog.qml:51
 msgid "Enter a name for the container or leave blank for default name:"
