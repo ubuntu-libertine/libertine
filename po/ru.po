@@ -8,39 +8,43 @@ msgstr ""
 "Project-Id-Version: libertine\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2017-02-20 09:38+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Russian <ru@li.org>\n"
+"PO-Revision-Date: 2018-10-28 22:40+0000\n"
+"Last-Translator: Igor Polyakov <igorpolyakov@protonmail.com>\n"
+"Language-Team: Russian <https://translate.ubports.com/projects/ubports/"
+"libertine/ru/>\n"
+"Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
+"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 3.0.1\n"
 "X-Launchpad-Export-Date: 2017-03-19 06:49+0000\n"
-"X-Generator: Launchpad (build 18332)\n"
 
 #: ../common/ContainersConfig.cpp:25
 msgid "new"
-msgstr ""
+msgstr "новый"
 
 #: ../common/ContainersConfig.cpp:26 ../qml/common/ContainerEditView.qml:215
 #: ../qml/common/ContainersList.qml:67 ../qml/common/ExtraArchivesView.qml:68
 msgid "installing"
-msgstr ""
+msgstr "установка"
 
 #: ../common/ContainersConfig.cpp:36 ../qml/common/ContainersList.qml:107
 #: ../qml/common/ManageContainer.qml:193
 msgid "ready"
-msgstr ""
+msgstr "готово"
 
 #: ../common/ContainersConfig.cpp:37 ../qml/common/ContainersList.qml:71
 #: ../qml/common/ContainersList.qml:108 ../qml/common/ManageContainer.qml:131
 #: ../qml/common/ManageContainer.qml:189
 msgid "updating"
-msgstr ""
+msgstr "обновление"
 
 #: ../common/ContainersConfig.cpp:38 ../qml/common/ContainerEditView.qml:216
 #: ../qml/common/ContainersList.qml:68 ../qml/common/ExtraArchivesView.qml:69
 msgid "removing"
-msgstr ""
+msgstr "удаление"
 
 #: ../common/ContainersConfig.cpp:39 ../qml/common/ContainerInfoView.qml:159
 #: ../qml/common/PackageInfoView.qml:102
@@ -61,11 +65,11 @@ msgstr "не удалось запустить %1"
 
 #: ../common/ContainerManager.cpp:27
 msgid "Installation of package %1 failed"
-msgstr ""
+msgstr "Установка пакета %1 не была выполнена"
 
 #: ../common/ContainerManager.cpp:28
 msgid "Removal of package %1 failed"
-msgstr ""
+msgstr "Не удалось удалить пакет %1"
 
 #: ../common/ContainerManager.cpp:29
 msgid "Searching for query %1 failed"
@@ -156,7 +160,7 @@ msgstr ""
 #: ../qml/common/ContainerOptionsDialog.qml:79
 #: ../qml/common/SearchPackagesDialog.qml:43
 msgid "OK"
-msgstr ""
+msgstr "ОК"
 
 #: ../qml/common/ContainerEditView.qml:89
 #: ../qml/common/ContainerOptionsDialog.qml:91
@@ -194,7 +198,7 @@ msgstr ""
 
 #: ../qml/common/SearchResultsView.qml:35
 msgid "Search"
-msgstr ""
+msgstr "Поиск"
 
 #: ../qml/common/SearchResultsView.qml:54
 msgid "No Search Results Found"
@@ -361,7 +365,7 @@ msgstr ""
 
 #: ../qml/gui/WelcomeView.qml:67
 msgid "Install"
-msgstr ""
+msgstr "Установить"
 
 #: ../libertine/qml/ContainerInfoView.qml:30
 msgid "Container information for %1"
@@ -404,7 +408,7 @@ msgstr ""
 
 #: ../qml/common/AddExtraArchiveView.qml:92
 msgid "Add"
-msgstr ""
+msgstr "Добавить"
 
 #: ../qml/common/ContainerOptionsDialog.qml:27
 msgid "Container Options"
