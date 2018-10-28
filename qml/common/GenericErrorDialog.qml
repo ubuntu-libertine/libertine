@@ -36,14 +36,14 @@ Dialog {
     }
 
     Button {
+        text: i18n.tr("Dismiss")
+        onClicked: PopupUtils.close(genericErrorDialog)
+    }
+
+    Button {
         text: i18n.tr("Copy to Clipboard")
         onClicked: {
             Clipboard.push(details)
         }
-    }
-
-    Button {
-        text: i18n.tr("Dismiss")
-        onClicked: PopupUtils.close(genericErrorDialog)
     }
 }

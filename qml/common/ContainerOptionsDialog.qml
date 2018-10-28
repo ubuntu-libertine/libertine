@@ -74,6 +74,15 @@ Dialog {
 
     Row {
         spacing: units.gu(1)
+
+        Button {
+            id: cancelButton
+            text: i18n.tr("Cancel")
+            color: UbuntuColors.red
+            width: (parent.width - parent.spacing) / 2
+            onClicked: PopupUtils.close(containerOptionsDialog)
+        }
+
         Button {
             id: okButton
             text: i18n.tr("OK")
@@ -86,13 +95,6 @@ Dialog {
             }
         }
 
-        Button {
-            id: cancelButton
-            text: i18n.tr("Cancel")
-            color: UbuntuColors.red
-            width: (parent.width - parent.spacing) / 2
-            onClicked: PopupUtils.close(containerOptionsDialog)
-        }
     }
 
     function createContainer() {

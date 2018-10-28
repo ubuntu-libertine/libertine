@@ -38,6 +38,17 @@ Dialog {
 
     Row {
         spacing: units.gu(1)
+
+        Button {
+            id: cancelButton
+            text: i18n.tr("Cancel")
+            color: UbuntuColors.red
+            width: (parent.width - parent.spacing) / 2
+            onClicked: {
+                PopupUtils.close(searchPackageDialog)
+            }
+        }
+
         Button {
             id: okButton
             text: i18n.tr("OK")
@@ -48,16 +59,6 @@ Dialog {
                     PopupUtils.close(searchPackageDialog)
                     initializeSearch(searchPackageInput.text, currentContainer)
                 }
-            }
-        }
-
-        Button {
-            id: cancelButton
-            text: i18n.tr("Cancel")
-            color: UbuntuColors.red
-            width: (parent.width - parent.spacing) / 2
-            onClicked: {
-                PopupUtils.close(searchPackageDialog)
             }
         }
     }
