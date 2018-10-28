@@ -8,15 +8,17 @@ msgstr ""
 "Project-Id-Version: libertine\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2016-07-23 05:45+0000\n"
-"Last-Translator: Adolfo Jayme <fitoschido@gmail.com>\n"
-"Language-Team: Spanish <es@li.org>\n"
+"PO-Revision-Date: 2018-10-28 00:05+0000\n"
+"Last-Translator: advocatux <advocatux@airpost.net>\n"
+"Language-Team: Spanish <https://translate.ubports.com/projects/ubports/"
+"libertine/es/>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.0.1\n"
 "X-Launchpad-Export-Date: 2017-03-19 06:49+0000\n"
-"X-Generator: Launchpad (build 18332)\n"
-"Language: es\n"
 
 #: ../common/ContainersConfig.cpp:25
 msgid "new"
@@ -94,7 +96,7 @@ msgstr "Falló el intento de configuración del contenedor «%1»"
 
 #: ../common/ContainerManager.cpp:35
 msgid "Attempt to set container as default failed"
-msgstr ""
+msgstr "Falló el intento de configurar el contenedor como predeterminado"
 
 #: ../qml/common/PackageExistsDialog.qml:28
 msgid "The %1 package is already installed."
@@ -183,7 +185,7 @@ msgstr "Estado de la instalación"
 
 #: ../qml/common/ContainerInfoView.qml:99 ../qml/common/PackageInfoView.qml:80
 msgid "Operation details"
-msgstr ""
+msgstr "Detalles de la operación"
 
 #: ../qml/common/PackageInfoView.qml:113
 msgid "Unknown"
@@ -240,7 +242,7 @@ msgstr "Actualizar contenedor"
 
 #: ../qml/common/ManageContainer.qml:152
 msgid "Default container"
-msgstr ""
+msgstr "Contenedor predeterminado"
 
 #: ../qml/common/DebianPackagePicker.qml:28
 msgid "Available Debian Packages to Install"
@@ -312,7 +314,7 @@ msgstr "No hay ningún paquete instalado"
 
 #: ../qml/common/ExtraArchivesView.qml:28
 msgid "Additional Archives"
-msgstr ""
+msgstr "Archivos adicionales"
 
 #: ../qml/common/ExtraArchivesView.qml:32
 #: ../qml/common/ExtraBindMountsView.qml:28
@@ -321,7 +323,7 @@ msgstr "añadir"
 
 #: ../qml/common/ExtraArchivesView.qml:33
 msgid "Add a new archive"
-msgstr ""
+msgstr "Añadir un nuevo archivo"
 
 #: ../qml/common/ExtraArchivesView.qml:76
 #: ../qml/common/ExtraBindMountsView.qml:64
@@ -342,7 +344,7 @@ msgstr "Falló la eliminación del archivo"
 
 #: ../qml/common/GenericErrorDialog.qml:39
 msgid "Copy to Clipboard"
-msgstr ""
+msgstr "Copiar al portapapeles"
 
 #: ../qml/common/GenericErrorDialog.qml:46
 msgid "Dismiss"
@@ -393,11 +395,11 @@ msgstr "Estado"
 
 #: ../qml/common/AddExtraArchiveView.qml:27
 msgid "Add Archive"
-msgstr ""
+msgstr "Añadir archivo"
 
 #: ../qml/common/AddExtraArchiveView.qml:44
 msgid "New archive identifier, e.g."
-msgstr ""
+msgstr "Nuevo identificador de archivo, p.ej."
 
 #: ../qml/common/AddExtraArchiveView.qml:52
 msgid ""
@@ -405,14 +407,17 @@ msgid ""
 "ppa:user/repository\n"
 "deb http://myserver/repo stable repo"
 msgstr ""
+"multiverse\n"
+"ppa:usuario/repositorio\n"
+"deb http://miservidor/repo stable repo"
 
 #: ../qml/common/AddExtraArchiveView.qml:75
 msgid "(Optional) Public signing key for archive"
-msgstr ""
+msgstr "(Opcional) clave de firma pública para el archivo"
 
 #: ../qml/common/AddExtraArchiveView.qml:92
 msgid "Add"
-msgstr ""
+msgstr "Añadir"
 
 #: ../qml/common/ContainerOptionsDialog.qml:27
 msgid "Container Options"
@@ -425,6 +430,8 @@ msgstr "Configurar opciones de creación de contenedores."
 #: ../qml/common/ContainerOptionsDialog.qml:51
 msgid "Enter a name for the container or leave blank for default name:"
 msgstr ""
+"Introducir un nombre para el contenedor o dejar en blanco para el nombre "
+"predeterminado:"
 
 #: ../qml/common/ContainerOptionsDialog.qml:57
 msgid "container name"
@@ -435,6 +442,8 @@ msgid ""
 "Enter password for your user in the Libertine container or leave blank for "
 "no password:"
 msgstr ""
+"Introducir la contraseña de su usuario en el contenedor de Libertine o dejar "
+"en blanco si no desea usar contraseña:"
 
 #: ../qml/common/ContainerOptionsDialog.qml:71
 msgid "password"
