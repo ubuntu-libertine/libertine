@@ -176,7 +176,6 @@ msgid "Information for the %1 package"
 msgstr "Informazioni per il pacchetto %1"
 
 #: ../libertine/qml/PackageInfoView.qml:35
-#, fuzzy
 msgid "Obtaining package version…"
 msgstr "Ottenendo la versione del pacchetto…"
 
