@@ -8,15 +8,17 @@ msgstr ""
 "Project-Id-Version: libertine\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2016-10-20 17:40+0000\n"
-"Last-Translator: Emanuele Antonio Faraone <emanueleant03@gmail.com>\n"
-"Language-Team: Italian <it@li.org>\n"
+"PO-Revision-Date: 2018-10-31 08:28+0000\n"
+"Last-Translator: Gianmarco <gianmarcoesgarix@gmail.com>\n"
+"Language-Team: Italian <https://translate.ubports.com/projects/ubports/"
+"libertine/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.0.1\n"
 "X-Launchpad-Export-Date: 2017-03-19 06:49+0000\n"
-"X-Generator: Launchpad (build 18332)\n"
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
@@ -74,7 +76,7 @@ msgstr "Rimozione del pacchetto %1 fallita"
 
 #: ../libertine/ContainerManager.cpp:28
 msgid "Searching for query %1 failed"
-msgstr ""
+msgstr "Ricerca di %1 fallita"
 
 #: ../libertine/ContainerManager.cpp:29
 msgid "Updating container %1 failed"
@@ -94,11 +96,11 @@ msgstr "Esecuzione comando %1 fallita"
 
 #: ../libertine/ContainerManager.cpp:33
 msgid "Attempt to configure container %1 failed"
-msgstr ""
+msgstr "Tentativo di configurare il container %1 fallito"
 
 #: ../libertine/ContainerManager.cpp:34
 msgid "Attempt to set container as default failed"
-msgstr ""
+msgstr "Tentativo di impostare il container come default fallito"
 
 #: ../libertine/qml/PackageExistsDialog.qml:28
 msgid "The %1 package is already installed."
@@ -151,7 +153,7 @@ msgstr "Cerca per pacchetto"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:27
 msgid "Search archives for packages"
-msgstr ""
+msgstr "Cerca pacchetti negli archivi"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:31
 msgid "search"
@@ -175,7 +177,7 @@ msgstr "Informazioni per il pacchetto %1"
 
 #: ../libertine/qml/PackageInfoView.qml:35
 msgid "Obtaining package version…"
-msgstr ""
+msgstr "Ottenendo la versione del pacchetto…"
 
 #: ../libertine/qml/PackageInfoView.qml:60
 msgid "Package version"
@@ -216,7 +218,7 @@ msgstr "Ritorna alla pagina App"
 
 #: ../libertine/qml/SearchResultsView.qml:95
 msgid "Searching for packages…"
-msgstr "Cercando nei pacchetti..."
+msgstr "Cercando nei pacchetti…"
 
 #: ../libertine/qml/SearchResults.qml:60
 #: ../libertine/qml/DebianPackagePicker.qml:70
@@ -225,7 +227,7 @@ msgstr "Installa pacchetto"
 
 #: ../libertine/qml/ManageContainer.qml:29
 msgid "Manage %1"
-msgstr ""
+msgstr "Gestisci %1"
 
 #: ../libertine/qml/ManageContainer.qml:69
 #: ../libertine/qml/ContainerOptionsDialog.qml:39
@@ -238,7 +240,7 @@ msgstr "Archivi e PPA addizionali"
 
 #: ../libertine/qml/ManageContainer.qml:84
 msgid "Update…"
-msgstr "Aggiorno..."
+msgstr "Aggiorno…"
 
 #: ../libertine/qml/ManageContainer.qml:100
 msgid "Update container"
@@ -267,19 +269,23 @@ msgstr "Installa nuovo pacchetto"
 #: ../libertine/qml/HomeView.qml:49
 msgid "Enter exact package name or full path to a Debian package file"
 msgstr ""
+"Inserisci il nome esatto del pacchetto o il percorso completo di un file di "
+"pacchetto di Debian"
 
 #: ../libertine/qml/HomeView.qml:59
 msgid "Package name or Debian package path"
-msgstr ""
+msgstr "Nome del pacchetto o percorso del file di pacchetto di Debian"
 
 #: ../libertine/qml/HomeView.qml:78
 msgid ""
 "The %1 package is already installed. Please try a different package name."
 msgstr ""
+"Il pacchetto %1 è già installato. Per favore prova un altro nome di "
+"pacchetto."
 
 #: ../libertine/qml/HomeView.qml:105
 msgid "Manage Container"
-msgstr ""
+msgstr "Gestisci Container"
 
 #: ../libertine/qml/HomeView.qml:112
 msgid "Container Information"
@@ -291,15 +297,15 @@ msgstr "Cambia contenitore"
 
 #: ../libertine/qml/HomeView.qml:135
 msgid "Enter package name or Debian file"
-msgstr ""
+msgstr "Inserisci il nome di un pacchetto o un file Debian"
 
 #: ../libertine/qml/HomeView.qml:143
 msgid "Choose Debian package to install"
-msgstr ""
+msgstr "Scegli il pacchetto Debian da installare"
 
 #: ../libertine/qml/HomeView.qml:152
 msgid "Search archives for a package"
-msgstr ""
+msgstr "Cerca un pacchetto negli archivi"
 
 #: ../libertine/qml/HomeView.qml:219
 msgid "Remove Package"
@@ -315,7 +321,7 @@ msgstr "Nessun pacchetto installato"
 
 #: ../libertine/qml/ExtraArchivesView.qml:27
 msgid "Additional Archives"
-msgstr ""
+msgstr "Archivi aggiuntivi"
 
 #: ../libertine/qml/ExtraArchivesView.qml:31
 msgid "add"
@@ -331,15 +337,15 @@ msgstr "rimuovi"
 
 #: ../libertine/qml/ExtraArchivesView.qml:76
 msgid "Remove extra archive"
-msgstr ""
+msgstr "Rimuovi archivio extra"
 
 #: ../libertine/qml/ExtraArchivesView.qml:93
 msgid "No additional archives and PPA's have been added"
-msgstr ""
+msgstr "Nessun archivio aggiuntivo e PPA è stato aggiunto"
 
 #: ../libertine/qml/ExtraArchivesView.qml:126
 msgid "Deleting archive failed"
-msgstr ""
+msgstr "Rimozione dell'archivio fallita"
 
 #: ../libertine/qml/GenericErrorDialog.qml:39
 msgid "Copy to Clipboard"
@@ -355,14 +361,17 @@ msgstr "Benvenuto"
 
 #: ../libertine/qml/WelcomeView.qml:50
 msgid "Welcome to the Ubuntu Legacy Application Support Manager."
-msgstr ""
+msgstr "Benvenuto nel Gestore del Supporto per Applicazioni Ubuntu Legacy."
 
 #: ../libertine/qml/WelcomeView.qml:58
+#, fuzzy
 msgid ""
 "You do not have Legacy Application Support configured at this time.  "
 "Downloading and setting up the required environment takes some time and "
 "network bandwidth."
 msgstr ""
+"Non hai ancora configurato il Supporto per Applicazioni Legacy.  Scaricare "
+"ed impostare l'ambiente richiesto richiede del tempo e banda"
 
 #: ../libertine/qml/WelcomeView.qml:66
 msgid "Install"
