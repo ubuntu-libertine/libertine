@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2018-11-11 12:01+0000\n"
+"PO-Revision-Date: 2018-11-18 17:34+0000\n"
 "Last-Translator: Louies <louies0623@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://translate.ubports.com/projects/"
 "ubports/libertine/zh_Hant/>\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
-msgstr "新"
+msgstr "新增"
 
 #: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:185
 #: ../libertine/qml/ContainersView.qml:80 ../libertine/qml/HomeView.qml:205
@@ -152,7 +152,7 @@ msgstr "搜尋套裝軟體"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:27
 msgid "Search archives for packages"
-msgstr "搜尋套裝軟體的存檔"
+msgstr "搜尋套裝軟體的封包"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:31
 msgid "search"
@@ -213,7 +213,7 @@ msgstr "再次搜尋"
 
 #: ../libertine/qml/SearchResultsView.qml:67
 msgid "Return to Apps Page"
-msgstr "返回應用頁面"
+msgstr "返回應用程式頁面"
 
 #: ../libertine/qml/SearchResultsView.qml:95
 msgid "Searching for packages…"
@@ -235,7 +235,7 @@ msgstr "i386 multiarch 支援"
 
 #: ../libertine/qml/ManageContainer.qml:73
 msgid "Additional archives and PPAs"
-msgstr "其他檔案和PPA"
+msgstr "附加封包和PPA"
 
 #: ../libertine/qml/ManageContainer.qml:84
 msgid "Update…"
@@ -259,7 +259,7 @@ msgstr "沒有可用的 Debian 套裝軟體"
 
 #: ../libertine/qml/HomeView.qml:29
 msgid "Classic Apps - %1"
-msgstr "經典應用 - %1"
+msgstr "經典應用程式 - %1"
 
 #: ../libertine/qml/HomeView.qml:48
 msgid "Install new package"
@@ -267,7 +267,7 @@ msgstr "安裝新的套裝軟體"
 
 #: ../libertine/qml/HomeView.qml:49
 msgid "Enter exact package name or full path to a Debian package file"
-msgstr "輸入正確的套裝軟體名稱或 Debian 套裝軟體文件的完整路徑"
+msgstr "輸入正確的套裝軟體名稱或 Debian 套裝軟體檔案的完整路徑"
 
 #: ../libertine/qml/HomeView.qml:59
 msgid "Package name or Debian package path"
@@ -300,7 +300,7 @@ msgstr "選擇要安裝的 debian 套裝軟體"
 
 #: ../libertine/qml/HomeView.qml:152
 msgid "Search archives for a package"
-msgstr "搜索套裝軟體的存檔"
+msgstr "搜索套裝軟體的封包"
 
 #: ../libertine/qml/HomeView.qml:219
 msgid "Remove Package"
@@ -316,15 +316,15 @@ msgstr "未安裝套裝軟體"
 
 #: ../libertine/qml/ExtraArchivesView.qml:27
 msgid "Additional Archives"
-msgstr "其他檔案"
+msgstr "附加封包"
 
 #: ../libertine/qml/ExtraArchivesView.qml:31
 msgid "add"
-msgstr "添加"
+msgstr "加入"
 
 #: ../libertine/qml/ExtraArchivesView.qml:32
 msgid "Add a new archive"
-msgstr "添加新的檔案"
+msgstr "加入新的封包"
 
 #: ../libertine/qml/ExtraArchivesView.qml:75
 msgid "remove"
@@ -332,15 +332,15 @@ msgstr "移除"
 
 #: ../libertine/qml/ExtraArchivesView.qml:76
 msgid "Remove extra archive"
-msgstr "移除多餘的檔案"
+msgstr "移除多餘的封包"
 
 #: ../libertine/qml/ExtraArchivesView.qml:93
 msgid "No additional archives and PPA's have been added"
-msgstr "沒有添加額外的檔案和PPA"
+msgstr "沒有已加入的附加封包和PPA"
 
 #: ../libertine/qml/ExtraArchivesView.qml:126
 msgid "Deleting archive failed"
-msgstr "刪除檔案失敗"
+msgstr "刪除封包失敗"
 
 #: ../libertine/qml/GenericErrorDialog.qml:39
 msgid "Copy to Clipboard"
@@ -363,7 +363,7 @@ msgid ""
 "You do not have Legacy Application Support configured at this time.  "
 "Downloading and setting up the required environment takes some time and "
 "network bandwidth."
-msgstr "您目前尚未配置舊版應用程序支持。 下載和設置所需的環境需要網絡和一些時間。"
+msgstr "您目前尚未配置舊版應用程式支持。 下載和設置所需的環境需要網絡和一些時間。"
 
 #: ../libertine/qml/WelcomeView.qml:66
 msgid "Install"
@@ -391,11 +391,11 @@ msgstr "狀態"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:27
 msgid "Add Archive"
-msgstr "添加檔案"
+msgstr "加入封包"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:42
 msgid "New archive identifier, e.g."
-msgstr "新的存檔識別碼，例如"
+msgstr "新增封包識別碼，例如"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:50
 msgid ""
@@ -409,7 +409,7 @@ msgstr ""
 
 #: ../libertine/qml/AddExtraArchiveView.qml:73
 msgid "(Optional) Public signing key for archive"
-msgstr "(可選)存檔的公共簽名密鑰"
+msgstr "(可選)封包的公共簽名密鑰"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:90
 msgid "Add"
