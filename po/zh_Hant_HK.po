@@ -8,13 +8,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2018-11-23 18:30+0000\n"
+"Last-Translator: Louies <louies0623@gmail.com>\n"
+"Language-Team: Chinese (Hong Kong) <https://translate.ubports.com/projects/"
+"ubports/libertine/zh_Hant_HK/>\n"
 "Language: zh_Hant_HK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 3.1.1\n"
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
@@ -159,13 +162,13 @@ msgstr ""
 #: ../libertine/qml/HomeView.qml:68
 #: ../libertine/qml/ContainerOptionsDialog.qml:77
 msgid "OK"
-msgstr ""
+msgstr "確定"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:57
 #: ../libertine/qml/HomeView.qml:88
 #: ../libertine/qml/ContainerOptionsDialog.qml:88
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: ../libertine/qml/PackageInfoView.qml:30
 msgid "Information for the %1 package"
@@ -190,7 +193,7 @@ msgstr ""
 
 #: ../libertine/qml/PackageInfoView.qml:159
 msgid "Unknown"
-msgstr ""
+msgstr "未知"
 
 #: ../libertine/qml/SearchResultsView.qml:31
 msgid "Package Search Results"
@@ -198,7 +201,7 @@ msgstr ""
 
 #: ../libertine/qml/SearchResultsView.qml:35
 msgid "Search"
-msgstr ""
+msgstr "搜尋"
 
 #: ../libertine/qml/SearchResultsView.qml:52
 msgid "No Search Results Found"
@@ -345,7 +348,7 @@ msgstr ""
 
 #: ../libertine/qml/GenericErrorDialog.qml:46
 msgid "Dismiss"
-msgstr ""
+msgstr "解除"
 
 #: ../libertine/qml/WelcomeView.qml:28
 msgid "Welcome"
@@ -376,7 +379,7 @@ msgstr ""
 
 #: ../libertine/qml/ContainerInfoView.qml:64
 msgid "Name"
-msgstr ""
+msgstr "名稱"
 
 #: ../libertine/qml/ContainerInfoView.qml:72
 msgid "Distribution"
@@ -384,7 +387,7 @@ msgstr ""
 
 #: ../libertine/qml/ContainerInfoView.qml:80
 msgid "Status"
-msgstr ""
+msgstr "狀態"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:27
 msgid "Add Archive"
@@ -407,7 +410,7 @@ msgstr ""
 
 #: ../libertine/qml/AddExtraArchiveView.qml:90
 msgid "Add"
-msgstr ""
+msgstr "加入"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:27
 msgid "Container Options"
