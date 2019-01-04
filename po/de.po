@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2018-11-23 18:30+0000\n"
-"Last-Translator: Ettore Atalan <atalanttore@googlemail.com>\n"
+"PO-Revision-Date: 2019-01-05 11:35+0000\n"
+"Last-Translator: Aaron <aaron@kimmigs.de>\n"
 "Language-Team: German <https://translate.ubports.com/projects/ubports/"
 "libertine/de/>\n"
 "Language: de\n"
@@ -95,7 +95,7 @@ msgstr "Ausführung von Befehl %1 schlug fehl"
 
 #: ../libertine/ContainerManager.cpp:33
 msgid "Attempt to configure container %1 failed"
-msgstr ""
+msgstr "Die Konfigurierung des Containers %1 ist fehlgeschlagen"
 
 #: ../libertine/ContainerManager.cpp:34
 msgid "Attempt to set container as default failed"
@@ -107,7 +107,7 @@ msgstr "Das Paket %1 ist bereits installiert."
 
 #: ../libertine/qml/PackageExistsDialog.qml:29
 msgid "Search again or return to search results."
-msgstr ""
+msgstr "Erneut suchen oder zu den Suchergebnissen zurückkehren."
 
 #: ../libertine/qml/PackageExistsDialog.qml:33
 msgid "Search again"
