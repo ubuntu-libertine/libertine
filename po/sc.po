@@ -8,352 +8,361 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2019-01-12 20:23+0000\n"
+"Last-Translator: Adrià <adriamartinmor@gmail.com>\n"
+"Language-Team: Sardinian <https://translate.ubports.com/projects/ubports/"
+"libertine/sc/>\n"
 "Language: sc\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.1.1\n"
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
-msgstr ""
+msgstr "nou"
 
 #: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:185
 #: ../libertine/qml/ContainersView.qml:80 ../libertine/qml/HomeView.qml:205
 #: ../libertine/qml/ExtraArchivesView.qml:67
 msgid "installing"
-msgstr ""
+msgstr "installende"
 
 #: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:117
 #: ../libertine/qml/ManageContainer.qml:85
 #: ../libertine/qml/ManageContainer.qml:152
 msgid "ready"
-msgstr ""
+msgstr "prontu"
 
 #: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:118
 #: ../libertine/qml/ManageContainer.qml:97
 #: ../libertine/qml/ManageContainer.qml:148
 msgid "updating"
-msgstr ""
+msgstr "atualizende"
 
 #: ../libertine/ContainerConfig.cpp:151 ../libertine/ContainerConfig.cpp:188
 #: ../libertine/qml/ContainersView.qml:81 ../libertine/qml/HomeView.qml:206
 #: ../libertine/qml/ExtraArchivesView.qml:68
 msgid "removing"
-msgstr ""
+msgstr "cantzellende"
 
 #: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:189
 #: ../libertine/qml/PackageInfoView.qml:148
 #: ../libertine/qml/ContainerInfoView.qml:143
 msgid "removed"
-msgstr ""
+msgstr "cantzelladu"
 
 #: ../libertine/ContainerConfig.cpp:153 ../libertine/ContainerConfig.cpp:187
 msgid "failed"
-msgstr ""
+msgstr "faddidu"
 
 #: ../libertine/ContainerConfig.cpp:186
 msgid "installed"
-msgstr ""
+msgstr "installadu"
 
 #: ../libertine/ContainerManager.cpp:25
 msgid "%1 failed to start"
-msgstr ""
+msgstr "faddina aviende %1"
 
 #: ../libertine/ContainerManager.cpp:26
 msgid "Installation of package %1 failed"
-msgstr ""
+msgstr "Faddina in s'installatzione de su pachete %1"
 
 #: ../libertine/ContainerManager.cpp:27
 msgid "Removal of package %1 failed"
-msgstr ""
+msgstr "Faddina eliminende su pachete %1"
 
 #: ../libertine/ContainerManager.cpp:28
 msgid "Searching for query %1 failed"
-msgstr ""
+msgstr "Faddina in sa chirca de %1"
 
 #: ../libertine/ContainerManager.cpp:29
 msgid "Updating container %1 failed"
-msgstr ""
+msgstr "Faddina in s'atualizatzione de su cuntenidore %1"
 
 #: ../libertine/ContainerManager.cpp:30
 msgid "Creating container %1 failed"
-msgstr ""
+msgstr "Faddina in sa creatzione de su cuntenidore %1"
 
 #: ../libertine/ContainerManager.cpp:31
 msgid "Destroying container %1 failed"
-msgstr ""
+msgstr "Faddina in sa distrutzione de su cuntenidore %1"
 
 #: ../libertine/ContainerManager.cpp:32
 msgid "Running command %1 failed"
-msgstr ""
+msgstr "Faddina in s'esecutzione de s'òrdine %1"
 
 #: ../libertine/ContainerManager.cpp:33
 msgid "Attempt to configure container %1 failed"
-msgstr ""
+msgstr "Faddina in su tentativu de cunfiguratzione de su cuntenidore %1"
 
 #: ../libertine/ContainerManager.cpp:34
 msgid "Attempt to set container as default failed"
 msgstr ""
+"Faddina in su tentativu de cunfigurare su cuntenidore comente predefinidu"
 
 #: ../libertine/qml/PackageExistsDialog.qml:28
 msgid "The %1 package is already installed."
-msgstr ""
+msgstr "Su pachete %1 est giai installadu."
 
 #: ../libertine/qml/PackageExistsDialog.qml:29
 msgid "Search again or return to search results."
-msgstr ""
+msgstr "Torra a chircare o torra a is resurtados de chirca."
 
 #: ../libertine/qml/PackageExistsDialog.qml:33
 msgid "Search again"
-msgstr ""
+msgstr "Torra a chircare"
 
 #: ../libertine/qml/PackageExistsDialog.qml:43
 msgid "Return to search results"
-msgstr ""
+msgstr "Torra a is resurtados de chirca"
 
 #: ../libertine/qml/ContainersView.qml:33
 msgid "My Containers"
-msgstr ""
+msgstr "Cuntenidores mios"
 
 #: ../libertine/qml/ContainersView.qml:91 ../libertine/qml/HomeView.qml:218
 msgid "delete"
-msgstr ""
+msgstr "cantzella"
 
 #: ../libertine/qml/ContainersView.qml:92
 msgid "Delete Container"
-msgstr ""
+msgstr "Cantzella su cuntenidore"
 
 #: ../libertine/qml/ContainersView.qml:106 ../libertine/qml/HomeView.qml:230
 msgid "info"
-msgstr ""
+msgstr "informatziones"
 
 #: ../libertine/qml/ContainersView.qml:107
 msgid "Container Info"
-msgstr ""
+msgstr "Informatziones de su cuntenidore"
 
 #: ../libertine/qml/ContainersView.qml:115
 msgid "edit"
-msgstr ""
+msgstr "modìfica"
 
 #: ../libertine/qml/ContainersView.qml:116
 msgid "Container Apps"
-msgstr ""
+msgstr "Aplicatziones de su cuntenidore"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:26
 #: ../libertine/qml/SearchResultsView.qml:36
 msgid "Search for packages"
-msgstr ""
+msgstr "Chirca pachetes"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:27
 msgid "Search archives for packages"
-msgstr ""
+msgstr "Chirca pachetes in su depòsitu"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:31
 msgid "search"
-msgstr ""
+msgstr "chirca"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:39
 #: ../libertine/qml/HomeView.qml:68
 #: ../libertine/qml/ContainerOptionsDialog.qml:77
 msgid "OK"
-msgstr ""
+msgstr "AB"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:57
 #: ../libertine/qml/HomeView.qml:88
 #: ../libertine/qml/ContainerOptionsDialog.qml:88
 msgid "Cancel"
-msgstr ""
+msgstr "Annulla"
 
 #: ../libertine/qml/PackageInfoView.qml:30
 msgid "Information for the %1 package"
-msgstr ""
+msgstr "Informatziones de su pachete %1"
 
 #: ../libertine/qml/PackageInfoView.qml:35
 msgid "Obtaining package version…"
-msgstr ""
+msgstr "Otenende sa versione de su pachete…"
 
 #: ../libertine/qml/PackageInfoView.qml:60
 msgid "Package version"
-msgstr ""
+msgstr "Versione de su pachete"
 
 #: ../libertine/qml/PackageInfoView.qml:68
 msgid "Install status"
-msgstr ""
+msgstr "Istadu de s'installatzione"
 
 #: ../libertine/qml/PackageInfoView.qml:85
 #: ../libertine/qml/ContainerInfoView.qml:97
 msgid "Operation details"
-msgstr ""
+msgstr "Detàllios de s'operatzione"
 
 #: ../libertine/qml/PackageInfoView.qml:159
 msgid "Unknown"
-msgstr ""
+msgstr "Disconnotu"
 
 #: ../libertine/qml/SearchResultsView.qml:31
 msgid "Package Search Results"
-msgstr ""
+msgstr "Resurtados de sa chirca de pachetes"
 
 #: ../libertine/qml/SearchResultsView.qml:35
 msgid "Search"
-msgstr ""
+msgstr "Chirca"
 
 #: ../libertine/qml/SearchResultsView.qml:52
 msgid "No Search Results Found"
-msgstr ""
+msgstr "Perunu resurtadu agatadu"
 
 #: ../libertine/qml/SearchResultsView.qml:57
 msgid "Search Again"
-msgstr ""
+msgstr "Torra a chircare"
 
 #: ../libertine/qml/SearchResultsView.qml:67
 msgid "Return to Apps Page"
-msgstr ""
+msgstr "Torra a sa pàgina de aplicatziones"
 
 #: ../libertine/qml/SearchResultsView.qml:95
 msgid "Searching for packages…"
-msgstr ""
+msgstr "Chirchende pachetes…"
 
 #: ../libertine/qml/SearchResults.qml:60
 #: ../libertine/qml/DebianPackagePicker.qml:70
 msgid "Install Package"
-msgstr ""
+msgstr "Installa su pachete"
 
 #: ../libertine/qml/ManageContainer.qml:29
 msgid "Manage %1"
-msgstr ""
+msgstr "Gesti %1"
 
 #: ../libertine/qml/ManageContainer.qml:69
 #: ../libertine/qml/ContainerOptionsDialog.qml:39
 msgid "i386 multiarch support"
-msgstr ""
+msgstr "Suportu i386 multiarchitetura"
 
 #: ../libertine/qml/ManageContainer.qml:73
 msgid "Additional archives and PPAs"
-msgstr ""
+msgstr "Depòsitos e PPA additzionales"
 
 #: ../libertine/qml/ManageContainer.qml:84
 msgid "Update…"
-msgstr ""
+msgstr "Atualiza…"
 
 #: ../libertine/qml/ManageContainer.qml:100
 msgid "Update container"
-msgstr ""
+msgstr "Atualiza su cuntenidore"
 
 #: ../libertine/qml/ManageContainer.qml:117
 msgid "Default container"
-msgstr ""
+msgstr "Cuntenidore predefinidu"
 
 #: ../libertine/qml/DebianPackagePicker.qml:28
 msgid "Available Debian Packages to Install"
-msgstr ""
+msgstr "Pachetes de Debian a disponimentu pro s'installatzione"
 
 #: ../libertine/qml/DebianPackagePicker.qml:87
 msgid "No Debian packages available"
-msgstr ""
+msgstr "Perunu pachete de Debian a disponimentu"
 
 #: ../libertine/qml/HomeView.qml:29
 msgid "Classic Apps - %1"
-msgstr ""
+msgstr "Aplicatziones clàssicas - %1"
 
 #: ../libertine/qml/HomeView.qml:48
 msgid "Install new package"
-msgstr ""
+msgstr "Installa unu pachete nou"
 
 #: ../libertine/qml/HomeView.qml:49
 msgid "Enter exact package name or full path to a Debian package file"
 msgstr ""
+"Inserta su nòmine esatu de su pachete o su percursu cumpletu de un'archìviu "
+"de pachete de Debian"
 
 #: ../libertine/qml/HomeView.qml:59
 msgid "Package name or Debian package path"
-msgstr ""
+msgstr "Nòmine de su pachete o percursu de s'archìviu de su pachete de Debian"
 
 #: ../libertine/qml/HomeView.qml:78
 msgid ""
 "The %1 package is already installed. Please try a different package name."
 msgstr ""
+"Su pachete %1 est giai installadu. Proa cun unu nòmine de pachete diferente."
 
 #: ../libertine/qml/HomeView.qml:105
 msgid "Manage Container"
-msgstr ""
+msgstr "Gesti cuntenidore"
 
 #: ../libertine/qml/HomeView.qml:112
 msgid "Container Information"
-msgstr ""
+msgstr "Informatziones de su cuntenidore"
 
 #: ../libertine/qml/HomeView.qml:119
 msgid "Switch Container"
-msgstr ""
+msgstr "Cola su cuntenidore"
 
 #: ../libertine/qml/HomeView.qml:135
 msgid "Enter package name or Debian file"
-msgstr ""
+msgstr "Inserta nòmine de unu pachete o un'archìviu de Debian"
 
 #: ../libertine/qml/HomeView.qml:143
 msgid "Choose Debian package to install"
-msgstr ""
+msgstr "Sèbera unu pachete de Debian pro installare"
 
 #: ../libertine/qml/HomeView.qml:152
 msgid "Search archives for a package"
-msgstr ""
+msgstr "Chirca unu pachete in is depòsitos"
 
 #: ../libertine/qml/HomeView.qml:219
 msgid "Remove Package"
-msgstr ""
+msgstr "Boga su pachete"
 
 #: ../libertine/qml/HomeView.qml:231
 msgid "Package Info"
-msgstr ""
+msgstr "Informatziones de su pachete"
 
 #: ../libertine/qml/HomeView.qml:248
 msgid "No packages are installed"
-msgstr ""
+msgstr "Perunu pachete installadu"
 
 #: ../libertine/qml/ExtraArchivesView.qml:27
 msgid "Additional Archives"
-msgstr ""
+msgstr "Depòsitos additzionales"
 
 #: ../libertine/qml/ExtraArchivesView.qml:31
 msgid "add"
-msgstr ""
+msgstr "agiunghe"
 
 #: ../libertine/qml/ExtraArchivesView.qml:32
 msgid "Add a new archive"
-msgstr ""
+msgstr "Agiunghe unu depòsitu nou"
 
 #: ../libertine/qml/ExtraArchivesView.qml:75
 msgid "remove"
-msgstr ""
+msgstr "boga"
 
 #: ../libertine/qml/ExtraArchivesView.qml:76
 msgid "Remove extra archive"
-msgstr ""
+msgstr "Boga s'archìviu extra"
 
 #: ../libertine/qml/ExtraArchivesView.qml:93
 msgid "No additional archives and PPA's have been added"
-msgstr ""
+msgstr "Perunu archìviu additzionale o PPA agiuntu"
 
 #: ../libertine/qml/ExtraArchivesView.qml:126
 msgid "Deleting archive failed"
-msgstr ""
+msgstr "Faddina in s'eliminatzione de su depòsitu"
 
 #: ../libertine/qml/GenericErrorDialog.qml:39
 msgid "Copy to Clipboard"
-msgstr ""
+msgstr "Còpia in punta de billete"
 
 #: ../libertine/qml/GenericErrorDialog.qml:46
 msgid "Dismiss"
-msgstr ""
+msgstr "Iscarta"
 
 #: ../libertine/qml/WelcomeView.qml:28
 msgid "Welcome"
-msgstr ""
+msgstr "Ti donamus su benebènnidu"
 
 #: ../libertine/qml/WelcomeView.qml:50
 msgid "Welcome to the Ubuntu Legacy Application Support Manager."
 msgstr ""
+"Ti donamus su benebènnidu a su gestore de suportu pro aplicatziones eredadas "
+"de Ubuntu."
 
 #: ../libertine/qml/WelcomeView.qml:58
 msgid ""
@@ -361,38 +370,41 @@ msgid ""
 "Downloading and setting up the required environment takes some time and "
 "network bandwidth."
 msgstr ""
+"Non as cunfiguradu su suportu pro aplicatziones eredadas de Ubuntu. "
+"S'iscarrigamentu e sa cunfiguratzione de s'ambiente netzessàriu rechedet "
+"carchi tempus e banda."
 
 #: ../libertine/qml/WelcomeView.qml:66
 msgid "Install"
-msgstr ""
+msgstr "Installa"
 
 #: ../libertine/qml/ContainerInfoView.qml:30
 msgid "Container information for %1"
-msgstr ""
+msgstr "Informatziones de su cuntenidore pro %1"
 
 #: ../libertine/qml/ContainerInfoView.qml:56
 msgid "ID"
-msgstr ""
+msgstr "Identificadore"
 
 #: ../libertine/qml/ContainerInfoView.qml:64
 msgid "Name"
-msgstr ""
+msgstr "Nòmine"
 
 #: ../libertine/qml/ContainerInfoView.qml:72
 msgid "Distribution"
-msgstr ""
+msgstr "Distributzione"
 
 #: ../libertine/qml/ContainerInfoView.qml:80
 msgid "Status"
-msgstr ""
+msgstr "Istadu"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:27
 msgid "Add Archive"
-msgstr ""
+msgstr "Agiunghe depòsitu"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:42
 msgid "New archive identifier, e.g."
-msgstr ""
+msgstr "Identificadore nou de depòsitu, pro esempru"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:50
 msgid ""
@@ -400,37 +412,44 @@ msgid ""
 "ppa:user/repository\n"
 "deb http://myserver/repo stable repo"
 msgstr ""
+"multiverse\n"
+"ppa:user/repository\n"
+"deb http://myserver/repo stable repo"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:73
 msgid "(Optional) Public signing key for archive"
-msgstr ""
+msgstr "Crae pùblica de firma pro su depòsitu (optzionale)"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:90
 msgid "Add"
-msgstr ""
+msgstr "Agiunghe"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:27
 msgid "Container Options"
-msgstr ""
+msgstr "Optziones de cu cuntenidore"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:28
 msgid "Configure options for container creation."
-msgstr ""
+msgstr "Cunfigura optziones de creatzione de su contenidore."
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:49
 msgid "Enter a name for the container or leave blank for default name:"
 msgstr ""
+"Inserta unu nòmine pro su cuntenidore o lassa·ddu bòidu si boles impreare su "
+"nòmine predefinidu:"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:55
 msgid "container name"
-msgstr ""
+msgstr "nòmine de su cuntenidore"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:62
 msgid ""
 "Enter password for your user in the Libertine container or leave blank for "
 "no password:"
 msgstr ""
+"Inserta una crae pro s'usuàriu tuo in su cuntenidore Libertine o lassa·dda "
+"bòida:"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:69
 msgid "password"
-msgstr ""
+msgstr "crae"
