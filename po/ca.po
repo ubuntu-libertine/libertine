@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: libertine\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2019-01-06 00:00+0000\n"
-"Last-Translator: Jaume Angrill <txaume@protonmail.com>\n"
+"PO-Revision-Date: 2019-01-16 17:27+0000\n"
+"Last-Translator: Adrià <adriamartinmor@gmail.com>\n"
 "Language-Team: Catalan <https://translate.ubports.com/projects/ubports/"
 "libertine/ca/>\n"
 "Language: ca\n"
@@ -369,7 +369,7 @@ msgid ""
 "network bandwidth."
 msgstr ""
 "No teniu configurat el suport de les aplicacions heredades de l'Ubuntu. La "
-"descàrrega i configuració de l'entorn necessari, requereix de cert temps i "
+"descàrrega i configuració de l'entorn necessari requereix de cert temps i "
 "ample de banda."
 
 #: ../libertine/qml/WelcomeView.qml:66
@@ -438,7 +438,7 @@ msgstr ""
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:55
 msgid "container name"
-msgstr "Nom del contenidor"
+msgstr "nom del contenidor"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:62
 msgid ""
