@@ -8,55 +8,58 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2019-01-22 09:55+0000\n"
+"Last-Translator: louies0623 <louies0623@gmail.com>\n"
+"Language-Team: Chinese (Simplified) <https://translate.ubports.com/projects/"
+"ubports/libertine/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 3.1.1\n"
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
-msgstr ""
+msgstr "新增"
 
 #: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:185
 #: ../libertine/qml/ContainersView.qml:80 ../libertine/qml/HomeView.qml:205
 #: ../libertine/qml/ExtraArchivesView.qml:67
 msgid "installing"
-msgstr ""
+msgstr "正在安装"
 
 #: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:117
 #: ../libertine/qml/ManageContainer.qml:85
 #: ../libertine/qml/ManageContainer.qml:152
 msgid "ready"
-msgstr ""
+msgstr "准备"
 
 #: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:118
 #: ../libertine/qml/ManageContainer.qml:97
 #: ../libertine/qml/ManageContainer.qml:148
 msgid "updating"
-msgstr ""
+msgstr "更新中"
 
 #: ../libertine/ContainerConfig.cpp:151 ../libertine/ContainerConfig.cpp:188
 #: ../libertine/qml/ContainersView.qml:81 ../libertine/qml/HomeView.qml:206
 #: ../libertine/qml/ExtraArchivesView.qml:68
 msgid "removing"
-msgstr ""
+msgstr "移除中"
 
 #: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:189
 #: ../libertine/qml/PackageInfoView.qml:148
 #: ../libertine/qml/ContainerInfoView.qml:143
 msgid "removed"
-msgstr ""
+msgstr "已移除"
 
 #: ../libertine/ContainerConfig.cpp:153 ../libertine/ContainerConfig.cpp:187
 msgid "failed"
-msgstr ""
+msgstr "失败"
 
 #: ../libertine/ContainerConfig.cpp:186
 msgid "installed"
-msgstr ""
+msgstr "已安装"
 
 #: ../libertine/ContainerManager.cpp:25
 msgid "%1 failed to start"
@@ -104,68 +107,68 @@ msgstr ""
 
 #: ../libertine/qml/PackageExistsDialog.qml:29
 msgid "Search again or return to search results."
-msgstr ""
+msgstr "再次搜索或返回搜索结果。"
 
 #: ../libertine/qml/PackageExistsDialog.qml:33
 msgid "Search again"
-msgstr ""
+msgstr "再次搜索"
 
 #: ../libertine/qml/PackageExistsDialog.qml:43
 msgid "Return to search results"
-msgstr ""
+msgstr "返回搜索结果"
 
 #: ../libertine/qml/ContainersView.qml:33
 msgid "My Containers"
-msgstr ""
+msgstr "我的容器"
 
 #: ../libertine/qml/ContainersView.qml:91 ../libertine/qml/HomeView.qml:218
 msgid "delete"
-msgstr ""
+msgstr "删除"
 
 #: ../libertine/qml/ContainersView.qml:92
 msgid "Delete Container"
-msgstr ""
+msgstr "删除容器"
 
 #: ../libertine/qml/ContainersView.qml:106 ../libertine/qml/HomeView.qml:230
 msgid "info"
-msgstr ""
+msgstr "详情"
 
 #: ../libertine/qml/ContainersView.qml:107
 msgid "Container Info"
-msgstr ""
+msgstr "容器信息"
 
 #: ../libertine/qml/ContainersView.qml:115
 msgid "edit"
-msgstr ""
+msgstr "编辑"
 
 #: ../libertine/qml/ContainersView.qml:116
 msgid "Container Apps"
-msgstr ""
+msgstr "容器应用"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:26
 #: ../libertine/qml/SearchResultsView.qml:36
 msgid "Search for packages"
-msgstr ""
+msgstr "搜索套件"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:27
 msgid "Search archives for packages"
-msgstr ""
+msgstr "搜索套件存档"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:31
 msgid "search"
-msgstr ""
+msgstr "搜索"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:39
 #: ../libertine/qml/HomeView.qml:68
 #: ../libertine/qml/ContainerOptionsDialog.qml:77
 msgid "OK"
-msgstr ""
+msgstr "确定"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:57
 #: ../libertine/qml/HomeView.qml:88
 #: ../libertine/qml/ContainerOptionsDialog.qml:88
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: ../libertine/qml/PackageInfoView.qml:30
 msgid "Information for the %1 package"
@@ -190,7 +193,7 @@ msgstr ""
 
 #: ../libertine/qml/PackageInfoView.qml:159
 msgid "Unknown"
-msgstr ""
+msgstr "未知"
 
 #: ../libertine/qml/SearchResultsView.qml:31
 msgid "Package Search Results"
@@ -198,7 +201,7 @@ msgstr ""
 
 #: ../libertine/qml/SearchResultsView.qml:35
 msgid "Search"
-msgstr ""
+msgstr "搜索"
 
 #: ../libertine/qml/SearchResultsView.qml:52
 msgid "No Search Results Found"
@@ -345,7 +348,7 @@ msgstr ""
 
 #: ../libertine/qml/GenericErrorDialog.qml:46
 msgid "Dismiss"
-msgstr ""
+msgstr "忽略"
 
 #: ../libertine/qml/WelcomeView.qml:28
 msgid "Welcome"
@@ -364,7 +367,7 @@ msgstr ""
 
 #: ../libertine/qml/WelcomeView.qml:66
 msgid "Install"
-msgstr ""
+msgstr "安装"
 
 #: ../libertine/qml/ContainerInfoView.qml:30
 msgid "Container information for %1"
@@ -376,7 +379,7 @@ msgstr ""
 
 #: ../libertine/qml/ContainerInfoView.qml:64
 msgid "Name"
-msgstr ""
+msgstr "名称"
 
 #: ../libertine/qml/ContainerInfoView.qml:72
 msgid "Distribution"
@@ -384,7 +387,7 @@ msgstr ""
 
 #: ../libertine/qml/ContainerInfoView.qml:80
 msgid "Status"
-msgstr ""
+msgstr "状态"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:27
 msgid "Add Archive"
@@ -407,7 +410,7 @@ msgstr ""
 
 #: ../libertine/qml/AddExtraArchiveView.qml:90
 msgid "Add"
-msgstr ""
+msgstr "添加"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:27
 msgid "Container Options"
@@ -433,4 +436,4 @@ msgstr ""
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:69
 msgid "password"
-msgstr ""
+msgstr "密码"
