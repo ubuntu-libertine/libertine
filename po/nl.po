@@ -8,352 +8,358 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2019-02-10 19:38+0000\n"
+"Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
+"Language-Team: Dutch <https://translate.ubports.com/projects/ubports/"
+"libertine/nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.1.1\n"
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
-msgstr ""
+msgstr "nieuw"
 
 #: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:185
 #: ../libertine/qml/ContainersView.qml:80 ../libertine/qml/HomeView.qml:205
 #: ../libertine/qml/ExtraArchivesView.qml:67
 msgid "installing"
-msgstr ""
+msgstr "bezig met installeren"
 
 #: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:117
 #: ../libertine/qml/ManageContainer.qml:85
 #: ../libertine/qml/ManageContainer.qml:152
 msgid "ready"
-msgstr ""
+msgstr "afgerond"
 
 #: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:118
 #: ../libertine/qml/ManageContainer.qml:97
 #: ../libertine/qml/ManageContainer.qml:148
 msgid "updating"
-msgstr ""
+msgstr "bezig met bijwerken"
 
 #: ../libertine/ContainerConfig.cpp:151 ../libertine/ContainerConfig.cpp:188
 #: ../libertine/qml/ContainersView.qml:81 ../libertine/qml/HomeView.qml:206
 #: ../libertine/qml/ExtraArchivesView.qml:68
 msgid "removing"
-msgstr ""
+msgstr "bezig met verwijderen"
 
 #: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:189
 #: ../libertine/qml/PackageInfoView.qml:148
 #: ../libertine/qml/ContainerInfoView.qml:143
 msgid "removed"
-msgstr ""
+msgstr "verwijderd"
 
 #: ../libertine/ContainerConfig.cpp:153 ../libertine/ContainerConfig.cpp:187
 msgid "failed"
-msgstr ""
+msgstr "mislukt"
 
 #: ../libertine/ContainerConfig.cpp:186
 msgid "installed"
-msgstr ""
+msgstr "geïnstalleerd"
 
 #: ../libertine/ContainerManager.cpp:25
 msgid "%1 failed to start"
-msgstr ""
+msgstr "%1 kan niet worden gestart"
 
 #: ../libertine/ContainerManager.cpp:26
 msgid "Installation of package %1 failed"
-msgstr ""
+msgstr "De installatie van '%1' is mislukt"
 
 #: ../libertine/ContainerManager.cpp:27
 msgid "Removal of package %1 failed"
-msgstr ""
+msgstr "Het verwijderen van '%1' is mislukt"
 
 #: ../libertine/ContainerManager.cpp:28
 msgid "Searching for query %1 failed"
-msgstr ""
+msgstr "Het zoeken naar '%1' is mislukt"
 
 #: ../libertine/ContainerManager.cpp:29
 msgid "Updating container %1 failed"
-msgstr ""
+msgstr "Het bijwerken van de container '%1' is mislukt"
 
 #: ../libertine/ContainerManager.cpp:30
 msgid "Creating container %1 failed"
-msgstr ""
+msgstr "Het creëren van de container '%1' is mislukt"
 
 #: ../libertine/ContainerManager.cpp:31
 msgid "Destroying container %1 failed"
-msgstr ""
+msgstr "Het vernietigen van de container '%1' is mislukt"
 
 #: ../libertine/ContainerManager.cpp:32
 msgid "Running command %1 failed"
-msgstr ""
+msgstr "Het uitvoeren van de opdracht '%1' is mislukt"
 
 #: ../libertine/ContainerManager.cpp:33
 msgid "Attempt to configure container %1 failed"
-msgstr ""
+msgstr "Het instellen van de container '%1' is mislukt"
 
 #: ../libertine/ContainerManager.cpp:34
 msgid "Attempt to set container as default failed"
-msgstr ""
+msgstr "Het instellen van de container als standaardcontainer is mislukt"
 
 #: ../libertine/qml/PackageExistsDialog.qml:28
 msgid "The %1 package is already installed."
-msgstr ""
+msgstr "Het pakket '%1' is al geïnstalleerd."
 
 #: ../libertine/qml/PackageExistsDialog.qml:29
 msgid "Search again or return to search results."
-msgstr ""
+msgstr "Zoek opnieuw of keer terug naar de zoekresultaten."
 
 #: ../libertine/qml/PackageExistsDialog.qml:33
 msgid "Search again"
-msgstr ""
+msgstr "Opnieuw zoeken"
 
 #: ../libertine/qml/PackageExistsDialog.qml:43
 msgid "Return to search results"
-msgstr ""
+msgstr "Terug naar zoekresultaten"
 
 #: ../libertine/qml/ContainersView.qml:33
 msgid "My Containers"
-msgstr ""
+msgstr "Mijn containers"
 
 #: ../libertine/qml/ContainersView.qml:91 ../libertine/qml/HomeView.qml:218
 msgid "delete"
-msgstr ""
+msgstr "verwijderen"
 
 #: ../libertine/qml/ContainersView.qml:92
 msgid "Delete Container"
-msgstr ""
+msgstr "Container verwijderen"
 
 #: ../libertine/qml/ContainersView.qml:106 ../libertine/qml/HomeView.qml:230
 msgid "info"
-msgstr ""
+msgstr "informatie"
 
 #: ../libertine/qml/ContainersView.qml:107
 msgid "Container Info"
-msgstr ""
+msgstr "Containerinformatie"
 
 #: ../libertine/qml/ContainersView.qml:115
 msgid "edit"
-msgstr ""
+msgstr "bewerken"
 
 #: ../libertine/qml/ContainersView.qml:116
 msgid "Container Apps"
-msgstr ""
+msgstr "Container-apps"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:26
 #: ../libertine/qml/SearchResultsView.qml:36
 msgid "Search for packages"
-msgstr ""
+msgstr "Zoeken naar pakketten"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:27
 msgid "Search archives for packages"
-msgstr ""
+msgstr "Naar pakketten zoeken in pakketbronnen"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:31
 msgid "search"
-msgstr ""
+msgstr "zoeken"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:39
 #: ../libertine/qml/HomeView.qml:68
 #: ../libertine/qml/ContainerOptionsDialog.qml:77
 msgid "OK"
-msgstr ""
+msgstr "Oké"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:57
 #: ../libertine/qml/HomeView.qml:88
 #: ../libertine/qml/ContainerOptionsDialog.qml:88
 msgid "Cancel"
-msgstr ""
+msgstr "Annuleren"
 
 #: ../libertine/qml/PackageInfoView.qml:30
 msgid "Information for the %1 package"
-msgstr ""
+msgstr "Informatie over het pakket '%1'"
 
 #: ../libertine/qml/PackageInfoView.qml:35
 msgid "Obtaining package version…"
-msgstr ""
+msgstr "Bezig met ophalen van pakketversie…"
 
 #: ../libertine/qml/PackageInfoView.qml:60
 msgid "Package version"
-msgstr ""
+msgstr "Pakketversie"
 
 #: ../libertine/qml/PackageInfoView.qml:68
 msgid "Install status"
-msgstr ""
+msgstr "Installatiestatus"
 
 #: ../libertine/qml/PackageInfoView.qml:85
 #: ../libertine/qml/ContainerInfoView.qml:97
 msgid "Operation details"
-msgstr ""
+msgstr "Details van operatie"
 
 #: ../libertine/qml/PackageInfoView.qml:159
 msgid "Unknown"
-msgstr ""
+msgstr "Onbekend"
 
 #: ../libertine/qml/SearchResultsView.qml:31
 msgid "Package Search Results"
-msgstr ""
+msgstr "Zoekresultaten"
 
 #: ../libertine/qml/SearchResultsView.qml:35
 msgid "Search"
-msgstr ""
+msgstr "Zoeken"
 
 #: ../libertine/qml/SearchResultsView.qml:52
 msgid "No Search Results Found"
-msgstr ""
+msgstr "Geen resultaten gevonden"
 
 #: ../libertine/qml/SearchResultsView.qml:57
 msgid "Search Again"
-msgstr ""
+msgstr "Opnieuw zoeken"
 
 #: ../libertine/qml/SearchResultsView.qml:67
 msgid "Return to Apps Page"
-msgstr ""
+msgstr "Terug naar appspagina"
 
 #: ../libertine/qml/SearchResultsView.qml:95
 msgid "Searching for packages…"
-msgstr ""
+msgstr "Bezig met zoeken naar pakketten…"
 
 #: ../libertine/qml/SearchResults.qml:60
 #: ../libertine/qml/DebianPackagePicker.qml:70
 msgid "Install Package"
-msgstr ""
+msgstr "Pakket installeren"
 
 #: ../libertine/qml/ManageContainer.qml:29
 msgid "Manage %1"
-msgstr ""
+msgstr "%1 beheren"
 
 #: ../libertine/qml/ManageContainer.qml:69
 #: ../libertine/qml/ContainerOptionsDialog.qml:39
 msgid "i386 multiarch support"
-msgstr ""
+msgstr "i386-multiarch-ondersteuning"
 
 #: ../libertine/qml/ManageContainer.qml:73
 msgid "Additional archives and PPAs"
-msgstr ""
+msgstr "Extra pakketbronnen en PPA's"
 
 #: ../libertine/qml/ManageContainer.qml:84
 msgid "Update…"
-msgstr ""
+msgstr "Bijwerken…"
 
 #: ../libertine/qml/ManageContainer.qml:100
 msgid "Update container"
-msgstr ""
+msgstr "Container bijwerken"
 
 #: ../libertine/qml/ManageContainer.qml:117
 msgid "Default container"
-msgstr ""
+msgstr "Standaard container"
 
 #: ../libertine/qml/DebianPackagePicker.qml:28
 msgid "Available Debian Packages to Install"
-msgstr ""
+msgstr "Debian-pakketten beschikbaar voor installatie"
 
 #: ../libertine/qml/DebianPackagePicker.qml:87
 msgid "No Debian packages available"
-msgstr ""
+msgstr "Geen Debian-pakketten beschikbaar"
 
 #: ../libertine/qml/HomeView.qml:29
 msgid "Classic Apps - %1"
-msgstr ""
+msgstr "Klassieke apps - %1"
 
 #: ../libertine/qml/HomeView.qml:48
 msgid "Install new package"
-msgstr ""
+msgstr "Nieuw pakket installeren"
 
 #: ../libertine/qml/HomeView.qml:49
 msgid "Enter exact package name or full path to a Debian package file"
 msgstr ""
+"Voer de exacte pakketnaam in of het volledige pad naar een Debian-"
+"pakketbestand"
 
 #: ../libertine/qml/HomeView.qml:59
 msgid "Package name or Debian package path"
-msgstr ""
+msgstr "Pakketnaam of Debian-pakketpad"
 
 #: ../libertine/qml/HomeView.qml:78
 msgid ""
 "The %1 package is already installed. Please try a different package name."
 msgstr ""
+"Het pakket '%1' is al geïnstalleerd. Probeer het met een andere pakketnaam."
 
 #: ../libertine/qml/HomeView.qml:105
 msgid "Manage Container"
-msgstr ""
+msgstr "Container beheren"
 
 #: ../libertine/qml/HomeView.qml:112
 msgid "Container Information"
-msgstr ""
+msgstr "Containerinformatie"
 
 #: ../libertine/qml/HomeView.qml:119
 msgid "Switch Container"
-msgstr ""
+msgstr "Andere container openen"
 
 #: ../libertine/qml/HomeView.qml:135
 msgid "Enter package name or Debian file"
-msgstr ""
+msgstr "Voer de pakketnaam in of het Debian-bestand"
 
 #: ../libertine/qml/HomeView.qml:143
 msgid "Choose Debian package to install"
-msgstr ""
+msgstr "Kies het te installeren Debian-pakket"
 
 #: ../libertine/qml/HomeView.qml:152
 msgid "Search archives for a package"
-msgstr ""
+msgstr "Zoeken naar een pakket in de pakketbronnen"
 
 #: ../libertine/qml/HomeView.qml:219
 msgid "Remove Package"
-msgstr ""
+msgstr "Pakket verwijderen"
 
 #: ../libertine/qml/HomeView.qml:231
 msgid "Package Info"
-msgstr ""
+msgstr "Pakketinformatie"
 
 #: ../libertine/qml/HomeView.qml:248
 msgid "No packages are installed"
-msgstr ""
+msgstr "Er zijn geen pakketten geïnstalleerd"
 
 #: ../libertine/qml/ExtraArchivesView.qml:27
 msgid "Additional Archives"
-msgstr ""
+msgstr "Extra pakketbronnen"
 
 #: ../libertine/qml/ExtraArchivesView.qml:31
 msgid "add"
-msgstr ""
+msgstr "toevoegen"
 
 #: ../libertine/qml/ExtraArchivesView.qml:32
 msgid "Add a new archive"
-msgstr ""
+msgstr "Nieuwe pakketbron toevoegen"
 
 #: ../libertine/qml/ExtraArchivesView.qml:75
 msgid "remove"
-msgstr ""
+msgstr "verwijderen"
 
 #: ../libertine/qml/ExtraArchivesView.qml:76
 msgid "Remove extra archive"
-msgstr ""
+msgstr "Extra pakketbron verwijderen"
 
 #: ../libertine/qml/ExtraArchivesView.qml:93
 msgid "No additional archives and PPA's have been added"
-msgstr ""
+msgstr "Er zijn geen extra pakketbronnen en/of PPA's toegevoegd"
 
 #: ../libertine/qml/ExtraArchivesView.qml:126
 msgid "Deleting archive failed"
-msgstr ""
+msgstr "Kan pakketbron niet verwijderen"
 
 #: ../libertine/qml/GenericErrorDialog.qml:39
 msgid "Copy to Clipboard"
-msgstr ""
+msgstr "Kopiëren naar klembord"
 
 #: ../libertine/qml/GenericErrorDialog.qml:46
 msgid "Dismiss"
-msgstr ""
+msgstr "Verwerpen"
 
 #: ../libertine/qml/WelcomeView.qml:28
 msgid "Welcome"
-msgstr ""
+msgstr "Welkom"
 
 #: ../libertine/qml/WelcomeView.qml:50
 msgid "Welcome to the Ubuntu Legacy Application Support Manager."
-msgstr ""
+msgstr "Welkom bij Ubuntu's klassieke applicatiebeheer."
 
 #: ../libertine/qml/WelcomeView.qml:58
 msgid ""
@@ -361,38 +367,41 @@ msgid ""
 "Downloading and setting up the required environment takes some time and "
 "network bandwidth."
 msgstr ""
+"De ondersteuning voor klassieke applicaties is nog niet ingesteld.  Het "
+"downloaden en instellen van de vereiste werkomgeving hiervoor neemt tijd en "
+"bandbreedte in beslag."
 
 #: ../libertine/qml/WelcomeView.qml:66
 msgid "Install"
-msgstr ""
+msgstr "Installeren"
 
 #: ../libertine/qml/ContainerInfoView.qml:30
 msgid "Container information for %1"
-msgstr ""
+msgstr "Containerinformatie over %1"
 
 #: ../libertine/qml/ContainerInfoView.qml:56
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: ../libertine/qml/ContainerInfoView.qml:64
 msgid "Name"
-msgstr ""
+msgstr "Naam"
 
 #: ../libertine/qml/ContainerInfoView.qml:72
 msgid "Distribution"
-msgstr ""
+msgstr "Distributie"
 
 #: ../libertine/qml/ContainerInfoView.qml:80
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:27
 msgid "Add Archive"
-msgstr ""
+msgstr "Pakketbron toevoegen"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:42
 msgid "New archive identifier, e.g."
-msgstr ""
+msgstr "Nieuwe pakketbronidentificatie, bijv."
 
 #: ../libertine/qml/AddExtraArchiveView.qml:50
 msgid ""
@@ -400,37 +409,44 @@ msgid ""
 "ppa:user/repository\n"
 "deb http://myserver/repo stable repo"
 msgstr ""
+"multiverse\n"
+"ppa:user/repository\n"
+"deb http://myserver/repo stable repo"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:73
 msgid "(Optional) Public signing key for archive"
-msgstr ""
+msgstr "(optioneel) Openbare ondertekening van pakketbron"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:90
 msgid "Add"
-msgstr ""
+msgstr "Toevoegen"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:27
 msgid "Container Options"
-msgstr ""
+msgstr "Containeropties"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:28
 msgid "Configure options for container creation."
-msgstr ""
+msgstr "Stel de opties in voor het creëren van de container."
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:49
 msgid "Enter a name for the container or leave blank for default name:"
 msgstr ""
+"Voer een naam in voor de container of laat leeg om de standaardnaam te "
+"gebruiken:"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:55
 msgid "container name"
-msgstr ""
+msgstr "containernaam"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:62
 msgid ""
 "Enter password for your user in the Libertine container or leave blank for "
 "no password:"
 msgstr ""
+"Voer het wachtwoord in van je gebruiker in de Libertine-container of laat "
+"leeg om geen wachtwoord te gebruiken:"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:69
 msgid "password"
-msgstr ""
+msgstr "wachtwoord"
