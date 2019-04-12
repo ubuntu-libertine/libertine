@@ -29,9 +29,10 @@ from libertine import utils
 from libertine.service import tasks, apt, constants
 from libertine.ContainersConfig import ContainersConfig
 from subprocess import Popen, PIPE
-from unittest import TestCase
+from unittest import TestCase, skip
 
 
+@skip('16.04 pbuilder missing pty devices - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=841935')
 class TestLibertineService(TestCase):
     _process = None
     _loop = None
@@ -43,7 +44,7 @@ class TestLibertineService(TestCase):
         cls._tempdir = tempfile.TemporaryDirectory()
 
         os.environ['XDG_DATA_HOME'] = cls._tempdir.name
-        cls._process = pexpect.spawnu('libertined', env=os.environ.copy())
+        cls._process = pexpect.spawn('libertined', env=os.environ.copy(), encoding='utf-8')
         cls._process.logfile = sys.stdout
 
         # give libertined enough time to start the whole process
