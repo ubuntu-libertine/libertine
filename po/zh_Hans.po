@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2019-03-07 21:53+0000\n"
-"Last-Translator: xqqy <xqqy189@hotmail.com>\n"
+"PO-Revision-Date: 2019-04-23 22:10+0000\n"
+"Last-Translator: 不朽正义 <tanyongle0633@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.ubports.com/projects/"
 "ubports/libertine/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -95,15 +95,15 @@ msgstr "运行命令 %1 失败"
 
 #: ../libertine/ContainerManager.cpp:33
 msgid "Attempt to configure container %1 failed"
-msgstr ""
+msgstr "容器 %1 配置失败"
 
 #: ../libertine/ContainerManager.cpp:34
 msgid "Attempt to set container as default failed"
-msgstr ""
+msgstr "尝试将容器设置为默认却失败"
 
 #: ../libertine/qml/PackageExistsDialog.qml:28
 msgid "The %1 package is already installed."
-msgstr ""
+msgstr "已安装 %1 软件包。"
 
 #: ../libertine/qml/PackageExistsDialog.qml:29
 msgid "Search again or return to search results."
@@ -172,24 +172,24 @@ msgstr "取消"
 
 #: ../libertine/qml/PackageInfoView.qml:30
 msgid "Information for the %1 package"
-msgstr ""
+msgstr "有关 %1 软件包的信息"
 
 #: ../libertine/qml/PackageInfoView.qml:35
 msgid "Obtaining package version…"
-msgstr ""
+msgstr "正在获取套件版本…"
 
 #: ../libertine/qml/PackageInfoView.qml:60
 msgid "Package version"
-msgstr ""
+msgstr "套件版本"
 
 #: ../libertine/qml/PackageInfoView.qml:68
 msgid "Install status"
-msgstr ""
+msgstr "安装状态"
 
 #: ../libertine/qml/PackageInfoView.qml:85
 #: ../libertine/qml/ContainerInfoView.qml:97
 msgid "Operation details"
-msgstr ""
+msgstr "操作细节"
 
 #: ../libertine/qml/PackageInfoView.qml:159
 msgid "Unknown"
@@ -197,7 +197,7 @@ msgstr "未知"
 
 #: ../libertine/qml/SearchResultsView.qml:31
 msgid "Package Search Results"
-msgstr ""
+msgstr "套件搜索结果"
 
 #: ../libertine/qml/SearchResultsView.qml:35
 msgid "Search"
@@ -205,146 +205,148 @@ msgstr "搜索"
 
 #: ../libertine/qml/SearchResultsView.qml:52
 msgid "No Search Results Found"
-msgstr ""
+msgstr "未找到搜索结果"
 
 #: ../libertine/qml/SearchResultsView.qml:57
 msgid "Search Again"
-msgstr ""
+msgstr "重试搜索"
 
 #: ../libertine/qml/SearchResultsView.qml:67
 msgid "Return to Apps Page"
-msgstr ""
+msgstr "返回至应用页"
 
 #: ../libertine/qml/SearchResultsView.qml:95
 msgid "Searching for packages…"
-msgstr ""
+msgstr "正在搜索软件包…"
 
 #: ../libertine/qml/SearchResults.qml:60
 #: ../libertine/qml/DebianPackagePicker.qml:70
 msgid "Install Package"
-msgstr ""
+msgstr "安装软件包"
 
 #: ../libertine/qml/ManageContainer.qml:29
 msgid "Manage %1"
-msgstr ""
+msgstr "管理 %1"
 
 #: ../libertine/qml/ManageContainer.qml:69
 #: ../libertine/qml/ContainerOptionsDialog.qml:39
 msgid "i386 multiarch support"
-msgstr ""
+msgstr "i386 multiarch 支持"
 
 #: ../libertine/qml/ManageContainer.qml:73
 msgid "Additional archives and PPAs"
-msgstr ""
+msgstr "其他文档和 PPA"
 
 #: ../libertine/qml/ManageContainer.qml:84
 msgid "Update…"
-msgstr ""
+msgstr "更新…"
 
 #: ../libertine/qml/ManageContainer.qml:100
 msgid "Update container"
-msgstr ""
+msgstr "更新容器"
 
 #: ../libertine/qml/ManageContainer.qml:117
 msgid "Default container"
-msgstr ""
+msgstr "默认容器"
 
 #: ../libertine/qml/DebianPackagePicker.qml:28
 msgid "Available Debian Packages to Install"
-msgstr ""
+msgstr "可用于安装的 Debian 软件包"
 
 #: ../libertine/qml/DebianPackagePicker.qml:87
 msgid "No Debian packages available"
-msgstr ""
+msgstr "没有可用的 Debian 软件包"
 
 #: ../libertine/qml/HomeView.qml:29
 msgid "Classic Apps - %1"
-msgstr ""
+msgstr "经典应用 - %1"
 
 #: ../libertine/qml/HomeView.qml:48
 msgid "Install new package"
-msgstr ""
+msgstr "安装新的软件包"
 
 #: ../libertine/qml/HomeView.qml:49
 msgid "Enter exact package name or full path to a Debian package file"
-msgstr ""
+msgstr "输入 Debian 正确的软件包名或文件所在的完整路径"
 
 #: ../libertine/qml/HomeView.qml:59
 msgid "Package name or Debian package path"
-msgstr ""
+msgstr "Debian 软件包名或所在路径"
 
 #: ../libertine/qml/HomeView.qml:78
 msgid ""
 "The %1 package is already installed. Please try a different package name."
 msgstr ""
+"已安装 %1 软件包。\n"
+"请尝试不同的软件包名。"
 
 #: ../libertine/qml/HomeView.qml:105
 msgid "Manage Container"
-msgstr ""
+msgstr "管理容器"
 
 #: ../libertine/qml/HomeView.qml:112
 msgid "Container Information"
-msgstr ""
+msgstr "容器信息"
 
 #: ../libertine/qml/HomeView.qml:119
 msgid "Switch Container"
-msgstr ""
+msgstr "切换容器"
 
 #: ../libertine/qml/HomeView.qml:135
 msgid "Enter package name or Debian file"
-msgstr ""
+msgstr "输入 Debian 软件包名或所在文件"
 
 #: ../libertine/qml/HomeView.qml:143
 msgid "Choose Debian package to install"
-msgstr ""
+msgstr "选择要安装的 Debian 软件包"
 
 #: ../libertine/qml/HomeView.qml:152
 msgid "Search archives for a package"
-msgstr ""
+msgstr "搜索软件包的存档"
 
 #: ../libertine/qml/HomeView.qml:219
 msgid "Remove Package"
-msgstr ""
+msgstr "删除软件包"
 
 #: ../libertine/qml/HomeView.qml:231
 msgid "Package Info"
-msgstr ""
+msgstr "软件包信息"
 
 #: ../libertine/qml/HomeView.qml:248
 msgid "No packages are installed"
-msgstr ""
+msgstr "软件包未安装"
 
 #: ../libertine/qml/ExtraArchivesView.qml:27
 msgid "Additional Archives"
-msgstr ""
+msgstr "其他存档"
 
 #: ../libertine/qml/ExtraArchivesView.qml:31
 msgid "add"
-msgstr ""
+msgstr "添加"
 
 #: ../libertine/qml/ExtraArchivesView.qml:32
 msgid "Add a new archive"
-msgstr ""
+msgstr "添加一个新的存档"
 
 #: ../libertine/qml/ExtraArchivesView.qml:75
 msgid "remove"
-msgstr ""
+msgstr "删除"
 
 #: ../libertine/qml/ExtraArchivesView.qml:76
 msgid "Remove extra archive"
-msgstr ""
+msgstr "删除其余的存档"
 
 #: ../libertine/qml/ExtraArchivesView.qml:93
 msgid "No additional archives and PPA's have been added"
-msgstr ""
+msgstr "没有添加其余的存档和 PPA"
 
 #: ../libertine/qml/ExtraArchivesView.qml:126
 msgid "Deleting archive failed"
-msgstr ""
+msgstr "删除存档时出错"
 
 #: ../libertine/qml/GenericErrorDialog.qml:39
 msgid "Copy to Clipboard"
-msgstr ""
+msgstr "复制到剪贴板"
 
 #: ../libertine/qml/GenericErrorDialog.qml:46
 msgid "Dismiss"
@@ -352,18 +354,18 @@ msgstr "忽略"
 
 #: ../libertine/qml/WelcomeView.qml:28
 msgid "Welcome"
-msgstr ""
+msgstr "欢迎"
 
 #: ../libertine/qml/WelcomeView.qml:50
 msgid "Welcome to the Ubuntu Legacy Application Support Manager."
-msgstr ""
+msgstr "欢迎来到 Ubuntu 旧版应用支持管理器。"
 
 #: ../libertine/qml/WelcomeView.qml:58
 msgid ""
 "You do not have Legacy Application Support configured at this time.  "
 "Downloading and setting up the required environment takes some time and "
 "network bandwidth."
-msgstr ""
+msgstr "您目前尚未配置旧版应用支持。 下载和设置所需的环境需要一些时间和网络流量。"
 
 #: ../libertine/qml/WelcomeView.qml:66
 msgid "Install"
@@ -371,11 +373,11 @@ msgstr "安装"
 
 #: ../libertine/qml/ContainerInfoView.qml:30
 msgid "Container information for %1"
-msgstr ""
+msgstr "%1 的容器信息"
 
 #: ../libertine/qml/ContainerInfoView.qml:56
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: ../libertine/qml/ContainerInfoView.qml:64
 msgid "Name"
@@ -383,7 +385,7 @@ msgstr "名称"
 
 #: ../libertine/qml/ContainerInfoView.qml:72
 msgid "Distribution"
-msgstr ""
+msgstr "分配"
 
 #: ../libertine/qml/ContainerInfoView.qml:80
 msgid "Status"
@@ -391,11 +393,11 @@ msgstr "状态"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:27
 msgid "Add Archive"
-msgstr ""
+msgstr "添加存档"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:42
 msgid "New archive identifier, e.g."
-msgstr ""
+msgstr "新的存档标识符，例如"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:50
 msgid ""
@@ -403,10 +405,13 @@ msgid ""
 "ppa:user/repository\n"
 "deb http://myserver/repo stable repo"
 msgstr ""
+"multiverse\n"
+"ppa:user/repository\n"
+"deb http://myserver/repo stable repo"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:73
 msgid "(Optional) Public signing key for archive"
-msgstr ""
+msgstr "（可选）存档的签名公钥"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:90
 msgid "Add"
@@ -414,25 +419,25 @@ msgstr "添加"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:27
 msgid "Container Options"
-msgstr ""
+msgstr "容器选项"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:28
 msgid "Configure options for container creation."
-msgstr ""
+msgstr "配置新建容器的选项。"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:49
 msgid "Enter a name for the container or leave blank for default name:"
-msgstr ""
+msgstr "给容器输入一个名称或留空则默认名称："
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:55
 msgid "container name"
-msgstr ""
+msgstr "容器名"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:62
 msgid ""
 "Enter password for your user in the Libertine container or leave blank for "
 "no password:"
-msgstr ""
+msgstr "在 Libertine 容器中输入用户密码或留空则没有密码："
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:69
 msgid "password"
