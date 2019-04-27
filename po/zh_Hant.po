@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2019-01-22 09:55+0000\n"
+"PO-Revision-Date: 2019-04-29 18:19+0000\n"
 "Last-Translator: louies0623 <louies0623@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://translate.ubports.com/projects/"
 "ubports/libertine/zh_Hant/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.1.1\n"
+"X-Generator: Weblate 3.4\n"
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
@@ -63,7 +63,7 @@ msgstr "已安裝"
 
 #: ../libertine/ContainerManager.cpp:25
 msgid "%1 failed to start"
-msgstr "% 1 無法啟動"
+msgstr "%1 無法啟動"
 
 #: ../libertine/ContainerManager.cpp:26
 msgid "Installation of package %1 failed"
@@ -75,7 +75,7 @@ msgstr "套件 %1 移除失敗"
 
 #: ../libertine/ContainerManager.cpp:28
 msgid "Searching for query %1 failed"
-msgstr "搜尋尋找%1 失敗"
+msgstr "搜尋尋找 %1 失敗"
 
 #: ../libertine/ContainerManager.cpp:29
 msgid "Updating container %1 failed"
@@ -91,7 +91,7 @@ msgstr "銷毀容器 %1 失敗"
 
 #: ../libertine/ContainerManager.cpp:32
 msgid "Running command %1 failed"
-msgstr "運行命令% 1 失敗"
+msgstr "運行命令 %1 失敗"
 
 #: ../libertine/ContainerManager.cpp:33
 msgid "Attempt to configure container %1 failed"
@@ -172,7 +172,7 @@ msgstr "取消"
 
 #: ../libertine/qml/PackageInfoView.qml:30
 msgid "Information for the %1 package"
-msgstr "套件 % 1 的資訊"
+msgstr "套件 %1 的資訊"
 
 #: ../libertine/qml/PackageInfoView.qml:35
 msgid "Obtaining package version…"
@@ -226,7 +226,7 @@ msgstr "安裝套件"
 
 #: ../libertine/qml/ManageContainer.qml:29
 msgid "Manage %1"
-msgstr "管理% 1"
+msgstr "管理 %1"
 
 #: ../libertine/qml/ManageContainer.qml:69
 #: ../libertine/qml/ContainerOptionsDialog.qml:39
@@ -235,7 +235,7 @@ msgstr "i386 multiarch 支援"
 
 #: ../libertine/qml/ManageContainer.qml:73
 msgid "Additional archives and PPAs"
-msgstr "附加套件和PPA"
+msgstr "附加套件和 PPA"
 
 #: ../libertine/qml/ManageContainer.qml:84
 msgid "Update…"
@@ -271,7 +271,7 @@ msgstr "輸入正確的套件名稱或 Debian 套件檔案的完整路徑"
 
 #: ../libertine/qml/HomeView.qml:59
 msgid "Package name or Debian package path"
-msgstr "套件名稱或 debian 套件路徑"
+msgstr "套件名稱或 Debian 套件路徑"
 
 #: ../libertine/qml/HomeView.qml:78
 msgid ""
@@ -292,11 +292,11 @@ msgstr "切換容器"
 
 #: ../libertine/qml/HomeView.qml:135
 msgid "Enter package name or Debian file"
-msgstr "輸入套件名稱或 debian 檔案"
+msgstr "輸入套件名稱或 Debian 檔案"
 
 #: ../libertine/qml/HomeView.qml:143
 msgid "Choose Debian package to install"
-msgstr "選擇要安裝的 debian 套件"
+msgstr "選擇要安裝的 Debian 套件"
 
 #: ../libertine/qml/HomeView.qml:152
 msgid "Search archives for a package"
@@ -404,7 +404,7 @@ msgid ""
 "deb http://myserver/repo stable repo"
 msgstr ""
 "多重宇宙\n"
-"ppa:users·存儲庫\n"
+"ppa:user/repository\n"
 "deb HTTP://myserver/repo 穩定的存儲庫"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:73
