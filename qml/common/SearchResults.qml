@@ -29,11 +29,12 @@ UbuntuListView {
     }
 
     property var currentContainer: null
+    signal packageSelected(string packageName)
 
     function install(packageName) {
         if (!containerConfigList.isAppInstalled(currentContainer, packageName)) {
-            pageStack.removePages(searchResultsListView)
-            pageStack.currentPage.installPackage(packageName)
+            pageStack.removePages(searchResultsView)
+            packageSelected(packageName)
         }
         else {
             PopupUtils.open(Qt.resolvedUrl("PackageExistsDialog.qml"), null, {"package_name": packageName})

@@ -140,7 +140,7 @@ Page {
                 onClicked: {
                     PopupUtils.close(addAppsDialog)
                     var packages = containerConfigList.getDebianPackageFiles()
-                    pageStack.addPageToNextColumn(homeView, Qt.resolvedUrl("DebianPackagePicker.qml"), {packageList: packages})
+                    pageStack.addPageToNextColumn(homeView, packagePickerComponent, {packageList: packages})
                 }
             }
             Button {
@@ -150,6 +150,16 @@ Page {
                     PopupUtils.close(addAppsDialog)
                     openSearchDialog(currentContainer)
                 }
+            }
+        }
+    } 
+
+    Component {
+        id: packagePickerComponent
+        
+        DebianPackagePicker {
+            Component.onCompleted: {
+                packageSelected.connect(installPackage)
             }
         }
     }
@@ -165,6 +175,7 @@ Page {
 
             searchResultsView = Qt.createComponent("SearchResultsView.qml").createObject(homeView, {currentContainer: container, query: query})
             searchResultsView.newSearch.connect(openSearchDialog)
+            searchResultsView.packageSelected.connect(installPackage)
 
             pageStack.addPageToNextColumn(homeView, searchResultsView)
         })

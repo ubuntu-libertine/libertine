@@ -28,6 +28,7 @@ Page {
         title: i18n.tr("Available Debian Packages to Install")
     }
 
+    signal packageSelected(string packageName)
     property var packageList: null
 
     ListModel {
@@ -45,7 +46,7 @@ Page {
 
         function install(fileName) {
             pageStack.removePages(debianPackagePicker)
-            pageStack.currentPage.installPackage(containerConfigList.getDownloadsLocation() + "/" + fileName)
+            debianPackagePicker.packageSelected(containerConfigList.getDownloadsLocation() + "/" + fileName)
         }
 
         delegate: ListItem {
@@ -93,5 +94,4 @@ Page {
             packageListModel.append({"file_name":  packageList[i]})
         }
     }
-
 }

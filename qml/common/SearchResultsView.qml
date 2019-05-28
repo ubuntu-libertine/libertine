@@ -22,7 +22,6 @@ import QtQuick.Layouts 1.0
 import Ubuntu.Components 1.3
 import Ubuntu.Components.Popups 1.3
 
-
 Page {
     id: searchResultsView
     header: PageHeader {
@@ -46,6 +45,7 @@ Page {
     property var currentContainer: null
 
     signal newSearch(string container)
+    signal packageSelected(string packageName)
 
     Component {
         id: noResultsPopup
@@ -138,6 +138,7 @@ Page {
                 search_comp = Qt.createComponent("SearchResults.qml")
             }
             search_obj = search_comp.createObject(parent, {"model": packageListModel, currentContainer: currentContainer})
+            search_obj.packageSelected.connect(packageSelected)
         }
         else {
             PopupUtils.open(noResultsPopup)
