@@ -68,7 +68,6 @@ Page {
                 Button {
                     id: cancelButton
                     text: i18n.tr("Cancel")
-                    color: UbuntuColors.red
                     width: (parent.width - parent.spacing) / 2
                     onClicked: PopupUtils.close(enterPackageDialog)
                 }
