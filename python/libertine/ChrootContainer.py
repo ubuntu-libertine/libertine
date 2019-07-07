@@ -127,15 +127,15 @@ class LibertineChroot(BaseContainer):
                 self.destroy_libertine_container()
                 return False
 
-        if self.installed_release == "vivid" or self.installed_release == "xenial":
-            utils.get_logger().info(utils._("Installing the Stable Overlay PPA..."))
-            if not self.install_package("software-properties-common", update_cache=False):
-                utils.get_logger().error(utils._("Failure installing software-properties-common during container creation"))
-                self.destroy_libertine_container()
-                return False
-
-            self.run_in_container("add-apt-repository ppa:ci-train-ppa-service/stable-phone-overlay -y")
-            self.update_packages()
+        # We need to add the UBports HTTPS repo after apt-transport-https is
+        # installed, so that update will not fail on not supporting HTTPS.
+        self.run_in_container('apt install -y gnupg2 gpgv wget')
+        self.run_in_container('wget https://repo.ubports.com/keyring.gpg -O /tmp/ubports.key')
+        self.run_in_container('apt-key add /tmp/ubports.key')
+        with open(os.path.join(self.root_path, 'etc', 'apt', 'sources.list.d', 'ubports.list'), 'w+') as fd:
+            fd.write('\n\n# UBports repo to match rootfs\n')
+            fd.write('deb https://repo.ubports.com {} main\n'.format(self.installed_release))
+        self.update_packages()
 
         # Check if the container was created as root and chown the user directories as necessary
         chown_recursive_dirs(utils.get_libertine_container_home_dir(self.container_id))

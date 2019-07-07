@@ -90,6 +90,7 @@ class BaseContainer(metaclass=abc.ABCMeta):
         self.locale = self._config.get_container_locale(container_id)
         self.language = self._get_language_from_locale()
         self.default_packages = ['libnss-extrausers',
+                                 'apt-transport-https',
                                  'humanity-icon-theme',
                                  'maliit-inputcontext-gtk2',
                                  'maliit-inputcontext-gtk3',
