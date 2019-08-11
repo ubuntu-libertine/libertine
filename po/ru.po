@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: libertine\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2019-07-05 08:13+0000\n"
+"PO-Revision-Date: 2019-08-04 12:16+0000\n"
 "Last-Translator: Moshe Lazar <wersewikkov@gmail.com>\n"
 "Language-Team: Russian <https://translate.ubports.com/projects/ubports/"
 "libertine/ru/>\n"
@@ -228,7 +228,7 @@ msgstr "Установить пакет"
 
 #: ../libertine/qml/ManageContainer.qml:29
 msgid "Manage %1"
-msgstr ""
+msgstr "Управление %1"
 
 #: ../libertine/qml/ManageContainer.qml:69
 #: ../libertine/qml/ContainerOptionsDialog.qml:39
@@ -289,7 +289,6 @@ msgid "Container Information"
 msgstr "Информация о контейнере"
 
 #: ../libertine/qml/HomeView.qml:119
-#, fuzzy
 msgid "Switch Container"
 msgstr "Переключить контейнер"
 
@@ -367,6 +366,9 @@ msgid ""
 "Downloading and setting up the required environment takes some time and "
 "network bandwidth."
 msgstr ""
+"В настоящее время у вас не настроена поддержка устаревших приложений. "
+"Загрузка и настройка требуемой среды требует некоторого времени и пропускной "
+"способности сети."
 
 #: ../libertine/qml/WelcomeView.qml:66
 msgid "Install"
@@ -374,7 +376,7 @@ msgstr "Установить"
 
 #: ../libertine/qml/ContainerInfoView.qml:30
 msgid "Container information for %1"
-msgstr ""
+msgstr "Сведения о контейнере %1"
 
 #: ../libertine/qml/ContainerInfoView.qml:56
 msgid "ID"
@@ -386,7 +388,7 @@ msgstr "Название"
 
 #: ../libertine/qml/ContainerInfoView.qml:72
 msgid "Distribution"
-msgstr ""
+msgstr "Распределение"
 
 #: ../libertine/qml/ContainerInfoView.qml:80
 msgid "Status"
@@ -423,7 +425,6 @@ msgid "Container Options"
 msgstr "Параметры контейнера"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:28
-#, fuzzy
 msgid "Configure options for container creation."
 msgstr "Настройте параметры для создания контейнера."
 
