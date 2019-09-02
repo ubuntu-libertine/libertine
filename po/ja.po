@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2019-05-17 05:03+0000\n"
+"PO-Revision-Date: 2019-08-28 14:50+0000\n"
 "Last-Translator: M.Sugahara <equaaqua@hotmail.com>\n"
 "Language-Team: Japanese <https://translate.ubports.com/projects/ubports/"
 "libertine/ja/>\n"
@@ -21,57 +21,57 @@ msgstr ""
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
-msgstr ""
+msgstr "新規"
 
 #: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:185
 #: ../libertine/qml/ContainersView.qml:80 ../libertine/qml/HomeView.qml:205
 #: ../libertine/qml/ExtraArchivesView.qml:67
 msgid "installing"
-msgstr ""
+msgstr "インストール中"
 
 #: ../libertine/ContainerConfig.cpp:149 ../libertine/qml/ContainersView.qml:117
 #: ../libertine/qml/ManageContainer.qml:85
 #: ../libertine/qml/ManageContainer.qml:152
 msgid "ready"
-msgstr ""
+msgstr "完了"
 
 #: ../libertine/ContainerConfig.cpp:150 ../libertine/qml/ContainersView.qml:118
 #: ../libertine/qml/ManageContainer.qml:97
 #: ../libertine/qml/ManageContainer.qml:148
 msgid "updating"
-msgstr ""
+msgstr "更新中"
 
 #: ../libertine/ContainerConfig.cpp:151 ../libertine/ContainerConfig.cpp:188
 #: ../libertine/qml/ContainersView.qml:81 ../libertine/qml/HomeView.qml:206
 #: ../libertine/qml/ExtraArchivesView.qml:68
 msgid "removing"
-msgstr ""
+msgstr "削除中"
 
 #: ../libertine/ContainerConfig.cpp:152 ../libertine/ContainerConfig.cpp:189
 #: ../libertine/qml/PackageInfoView.qml:148
 #: ../libertine/qml/ContainerInfoView.qml:143
 msgid "removed"
-msgstr ""
+msgstr "削除済み"
 
 #: ../libertine/ContainerConfig.cpp:153 ../libertine/ContainerConfig.cpp:187
 msgid "failed"
-msgstr ""
+msgstr "エラー"
 
 #: ../libertine/ContainerConfig.cpp:186
 msgid "installed"
-msgstr ""
+msgstr "インストール済み"
 
 #: ../libertine/ContainerManager.cpp:25
 msgid "%1 failed to start"
-msgstr ""
+msgstr "%1 を起動できませんでした"
 
 #: ../libertine/ContainerManager.cpp:26
 msgid "Installation of package %1 failed"
-msgstr ""
+msgstr "%1 のインストールに失敗しました"
 
 #: ../libertine/ContainerManager.cpp:27
 msgid "Removal of package %1 failed"
-msgstr ""
+msgstr "%1 を削除できませんでした"
 
 #: ../libertine/ContainerManager.cpp:28
 msgid "Searching for query %1 failed"
