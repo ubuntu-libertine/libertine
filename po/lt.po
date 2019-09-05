@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2019-09-01 16:50+0000\n"
+"PO-Revision-Date: 2019-09-06 19:50+0000\n"
 "Last-Translator: Moo <moose@mail.ru>\n"
 "Language-Team: Lithuanian <https://translate.ubports.com/projects/ubports/"
 "libertine/lt/>\n"
@@ -69,11 +69,11 @@ msgstr ""
 
 #: ../libertine/ContainerManager.cpp:26
 msgid "Installation of package %1 failed"
-msgstr ""
+msgstr "Paketo %1 įdiegimas nepavyko"
 
 #: ../libertine/ContainerManager.cpp:27
 msgid "Removal of package %1 failed"
-msgstr ""
+msgstr "Paketo %1 šalinimas nepavyko"
 
 #: ../libertine/ContainerManager.cpp:28
 msgid "Searching for query %1 failed"
@@ -105,7 +105,7 @@ msgstr ""
 
 #: ../libertine/qml/PackageExistsDialog.qml:28
 msgid "The %1 package is already installed."
-msgstr ""
+msgstr "Paketas %1 jau yra įdiegtas."
 
 #: ../libertine/qml/PackageExistsDialog.qml:29
 msgid "Search again or return to search results."
@@ -113,7 +113,7 @@ msgstr ""
 
 #: ../libertine/qml/PackageExistsDialog.qml:33
 msgid "Search again"
-msgstr ""
+msgstr "Ieškoti dar kartą"
 
 #: ../libertine/qml/PackageExistsDialog.qml:43
 msgid "Return to search results"
@@ -121,15 +121,15 @@ msgstr ""
 
 #: ../libertine/qml/ContainersView.qml:33
 msgid "My Containers"
-msgstr ""
+msgstr "Mano konteineriai"
 
 #: ../libertine/qml/ContainersView.qml:91 ../libertine/qml/HomeView.qml:218
 msgid "delete"
-msgstr ""
+msgstr "ištrinti"
 
 #: ../libertine/qml/ContainersView.qml:92
 msgid "Delete Container"
-msgstr ""
+msgstr "Ištrinti konteinerį"
 
 #: ../libertine/qml/ContainersView.qml:106 ../libertine/qml/HomeView.qml:230
 msgid "info"
@@ -137,11 +137,11 @@ msgstr "informacija"
 
 #: ../libertine/qml/ContainersView.qml:107
 msgid "Container Info"
-msgstr ""
+msgstr "Konteinerio informacija"
 
 #: ../libertine/qml/ContainersView.qml:115
 msgid "edit"
-msgstr ""
+msgstr "taisyti"
 
 #: ../libertine/qml/ContainersView.qml:116
 msgid "Container Apps"
@@ -150,7 +150,7 @@ msgstr ""
 #: ../libertine/qml/SearchPackagesDialog.qml:26
 #: ../libertine/qml/SearchResultsView.qml:36
 msgid "Search for packages"
-msgstr ""
+msgstr "Ieškoti paketų"
 
 #: ../libertine/qml/SearchPackagesDialog.qml:27
 msgid "Search archives for packages"
@@ -178,15 +178,15 @@ msgstr ""
 
 #: ../libertine/qml/PackageInfoView.qml:35
 msgid "Obtaining package version…"
-msgstr ""
+msgstr "Gaunama paketo versija…"
 
 #: ../libertine/qml/PackageInfoView.qml:60
 msgid "Package version"
-msgstr ""
+msgstr "Paketo versija"
 
 #: ../libertine/qml/PackageInfoView.qml:68
 msgid "Install status"
-msgstr ""
+msgstr "Įdiegimo būsena"
 
 #: ../libertine/qml/PackageInfoView.qml:85
 #: ../libertine/qml/ContainerInfoView.qml:97
@@ -195,7 +195,7 @@ msgstr ""
 
 #: ../libertine/qml/PackageInfoView.qml:159
 msgid "Unknown"
-msgstr ""
+msgstr "Nežinoma"
 
 #: ../libertine/qml/SearchResultsView.qml:31
 msgid "Package Search Results"
@@ -211,7 +211,7 @@ msgstr ""
 
 #: ../libertine/qml/SearchResultsView.qml:57
 msgid "Search Again"
-msgstr ""
+msgstr "Ieškoti dar kartą"
 
 #: ../libertine/qml/SearchResultsView.qml:67
 msgid "Return to Apps Page"
@@ -219,16 +219,16 @@ msgstr ""
 
 #: ../libertine/qml/SearchResultsView.qml:95
 msgid "Searching for packages…"
-msgstr ""
+msgstr "Ieškoma paketų…"
 
 #: ../libertine/qml/SearchResults.qml:60
 #: ../libertine/qml/DebianPackagePicker.qml:70
 msgid "Install Package"
-msgstr ""
+msgstr "Įdiegti paketą"
 
 #: ../libertine/qml/ManageContainer.qml:29
 msgid "Manage %1"
-msgstr ""
+msgstr "Tvarkyti %1"
 
 #: ../libertine/qml/ManageContainer.qml:69
 #: ../libertine/qml/ContainerOptionsDialog.qml:39
@@ -237,19 +237,19 @@ msgstr ""
 
 #: ../libertine/qml/ManageContainer.qml:73
 msgid "Additional archives and PPAs"
-msgstr ""
+msgstr "Papildomi archyvai ir PPA saugyklos"
 
 #: ../libertine/qml/ManageContainer.qml:84
 msgid "Update…"
-msgstr ""
+msgstr "Atnaujinti…"
 
 #: ../libertine/qml/ManageContainer.qml:100
 msgid "Update container"
-msgstr ""
+msgstr "Atnaujinti konteinerį"
 
 #: ../libertine/qml/ManageContainer.qml:117
 msgid "Default container"
-msgstr ""
+msgstr "Numatytasis konteineris"
 
 #: ../libertine/qml/DebianPackagePicker.qml:28
 msgid "Available Debian Packages to Install"
@@ -265,7 +265,7 @@ msgstr ""
 
 #: ../libertine/qml/HomeView.qml:48
 msgid "Install new package"
-msgstr ""
+msgstr "Įdiegti naują paketą"
 
 #: ../libertine/qml/HomeView.qml:49
 msgid "Enter exact package name or full path to a Debian package file"
@@ -273,24 +273,24 @@ msgstr ""
 
 #: ../libertine/qml/HomeView.qml:59
 msgid "Package name or Debian package path"
-msgstr ""
+msgstr "Paketo pavadinimas arba Debian paketo kelias"
 
 #: ../libertine/qml/HomeView.qml:78
 msgid ""
 "The %1 package is already installed. Please try a different package name."
-msgstr ""
+msgstr "Paketas %1 jau yra įdiegtas. Pabandykite kitokį paketo pavadinimą."
 
 #: ../libertine/qml/HomeView.qml:105
 msgid "Manage Container"
-msgstr ""
+msgstr "Tvarkyti konteinerį"
 
 #: ../libertine/qml/HomeView.qml:112
 msgid "Container Information"
-msgstr ""
+msgstr "Konteinerio informacija"
 
 #: ../libertine/qml/HomeView.qml:119
 msgid "Switch Container"
-msgstr ""
+msgstr "Perjungti konteinerį"
 
 #: ../libertine/qml/HomeView.qml:135
 msgid "Enter package name or Debian file"
@@ -306,11 +306,11 @@ msgstr ""
 
 #: ../libertine/qml/HomeView.qml:219
 msgid "Remove Package"
-msgstr ""
+msgstr "Šalinti paketą"
 
 #: ../libertine/qml/HomeView.qml:231
 msgid "Package Info"
-msgstr ""
+msgstr "Paketo informacija"
 
 #: ../libertine/qml/HomeView.qml:248
 msgid "No packages are installed"
@@ -318,23 +318,23 @@ msgstr ""
 
 #: ../libertine/qml/ExtraArchivesView.qml:27
 msgid "Additional Archives"
-msgstr ""
+msgstr "Papildomi archyvai"
 
 #: ../libertine/qml/ExtraArchivesView.qml:31
 msgid "add"
-msgstr ""
+msgstr "pridėti"
 
 #: ../libertine/qml/ExtraArchivesView.qml:32
 msgid "Add a new archive"
-msgstr ""
+msgstr "Pridėti naują archyvą"
 
 #: ../libertine/qml/ExtraArchivesView.qml:75
 msgid "remove"
-msgstr ""
+msgstr "šalinti"
 
 #: ../libertine/qml/ExtraArchivesView.qml:76
 msgid "Remove extra archive"
-msgstr ""
+msgstr "Šalinti papildomą archyvą"
 
 #: ../libertine/qml/ExtraArchivesView.qml:93
 msgid "No additional archives and PPA's have been added"
@@ -346,7 +346,7 @@ msgstr ""
 
 #: ../libertine/qml/GenericErrorDialog.qml:39
 msgid "Copy to Clipboard"
-msgstr ""
+msgstr "Kopijuoti į iškarpinę"
 
 #: ../libertine/qml/GenericErrorDialog.qml:46
 msgid "Dismiss"
@@ -369,7 +369,7 @@ msgstr ""
 
 #: ../libertine/qml/WelcomeView.qml:66
 msgid "Install"
-msgstr ""
+msgstr "Įdiegti"
 
 #: ../libertine/qml/ContainerInfoView.qml:30
 msgid "Container information for %1"
@@ -377,7 +377,7 @@ msgstr ""
 
 #: ../libertine/qml/ContainerInfoView.qml:56
 msgid "ID"
-msgstr ""
+msgstr "ID"
 
 #: ../libertine/qml/ContainerInfoView.qml:64
 msgid "Name"
@@ -389,11 +389,11 @@ msgstr ""
 
 #: ../libertine/qml/ContainerInfoView.qml:80
 msgid "Status"
-msgstr ""
+msgstr "Būsena"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:27
 msgid "Add Archive"
-msgstr ""
+msgstr "Pridėti archyvą"
 
 #: ../libertine/qml/AddExtraArchiveView.qml:42
 msgid "New archive identifier, e.g."
@@ -412,7 +412,7 @@ msgstr ""
 
 #: ../libertine/qml/AddExtraArchiveView.qml:90
 msgid "Add"
-msgstr ""
+msgstr "Pridėti"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:27
 msgid "Container Options"
@@ -428,7 +428,7 @@ msgstr ""
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:55
 msgid "container name"
-msgstr ""
+msgstr "konteinerio pavadinimas"
 
 #: ../libertine/qml/ContainerOptionsDialog.qml:62
 msgid ""
