@@ -16,4 +16,4 @@
 
 
 # Add and/or remove Xmir options here
-exec Xmir -rootless $@
+exec Xmir -rootless -flatten $@
