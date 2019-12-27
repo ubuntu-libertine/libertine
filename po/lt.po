@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-07-15 14:24-0400\n"
-"PO-Revision-Date: 2019-09-06 19:50+0000\n"
+"PO-Revision-Date: 2019-12-29 01:00+0000\n"
 "Last-Translator: Moo <moose@mail.ru>\n"
 "Language-Team: Lithuanian <https://translate.ubports.com/projects/ubports/"
 "libertine/lt/>\n"
@@ -19,11 +19,11 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n % 10 == 1 && (n % 100 < 11 || n % 100 > "
 "19)) ? 0 : ((n % 10 >= 2 && n % 10 <= 9 && (n % 100 < 11 || n % 100 > 19)) ? "
 "1 : 2);\n"
-"X-Generator: Weblate 3.6.1\n"
+"X-Generator: Weblate 3.8\n"
 
 #: ../libertine/ContainerConfig.cpp:147 ../libertine/ContainerConfig.cpp:184
 msgid "new"
-msgstr ""
+msgstr "naujas"
 
 #: ../libertine/ContainerConfig.cpp:148 ../libertine/ContainerConfig.cpp:185
 #: ../libertine/qml/ContainersView.qml:80 ../libertine/qml/HomeView.qml:205
@@ -207,7 +207,7 @@ msgstr "Ieškoti"
 
 #: ../libertine/qml/SearchResultsView.qml:52
 msgid "No Search Results Found"
-msgstr ""
+msgstr "Nėra jokių paieškos rezultatų"
 
 #: ../libertine/qml/SearchResultsView.qml:57
 msgid "Search Again"
@@ -261,7 +261,7 @@ msgstr ""
 
 #: ../libertine/qml/HomeView.qml:29
 msgid "Classic Apps - %1"
-msgstr ""
+msgstr "Klasikinės programėlės - %1"
 
 #: ../libertine/qml/HomeView.qml:48
 msgid "Install new package"
