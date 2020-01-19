@@ -31,7 +31,7 @@ Dialog {
     Button {
         id: searchAgain
         text: i18n.tr("Search again")
-        color: UbuntuColors.green
+        color: theme.palette.normal.positive
         onClicked: {
             search_again = true
             PopupUtils.close(packageExistsDialog)

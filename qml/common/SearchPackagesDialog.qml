@@ -23,8 +23,8 @@ import Ubuntu.Components.Popups 1.3
 
 Dialog {
     id: searchPackageDialog
-    title: i18n.tr("Search for packages")
-    text: i18n.tr("Search archives for packages")
+    title: i18n.tr("Search a package")
+    text: i18n.tr("Search a package in the archives by name")
     property bool calledFromSearch: null
     property string currentContainer: null
 
@@ -32,7 +32,9 @@ Dialog {
 
     TextField {
         id: searchPackageInput
-        placeholderText: i18n.tr("search")
+        placeholderText: i18n.tr("Search")
+        //Fixes issue #50. Ok button doesn't search
+        inputMethodHints: Qt.ImhNoPredictiveText
         onAccepted: okButton.clicked()
     }
 
@@ -50,8 +52,8 @@ Dialog {
 
         Button {
             id: okButton
-            text: i18n.tr("OK")
-            color: UbuntuColors.green
+            text: i18n.tr("Search")
+            color: theme.palette.normal.positive
             width: (parent.width - parent.spacing) / 2
             onClicked: {
                 if (searchPackageInput.text != "") {

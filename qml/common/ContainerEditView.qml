@@ -74,8 +74,8 @@ Page {
 
                 Button {
                     id: okButton
-                    text: i18n.tr("OK")
-                    color: UbuntuColors.green
+                    text: i18n.tr("Install")
+                    color: theme.palette.normal.positive
                     width: (parent.width - parent.spacing) / 2
                     onClicked: {
                         if (enterPackageInput.text != "") {
@@ -101,9 +101,11 @@ Page {
         id: settingsMenu
         Dialog {
             id: settingsDialog
+            title: i18n.tr("Container Actions")
             __closeOnDismissAreaPress: true
             Button {
                 text: i18n.tr("Manage Container")
+                color: theme.palette.normal.focus
                 onTriggered: {
                     PopupUtils.close(settingsDialog)
                     pageStack.addPageToNextColumn(homeView, Qt.resolvedUrl("ManageContainer.qml"), {currentContainer: currentContainer})
@@ -116,6 +118,11 @@ Page {
                     pageStack.addPageToNextColumn(homeView, Qt.resolvedUrl("ContainerInfoView.qml"), {currentContainer: currentContainer})
                 }
             }
+            Button {
+                text: i18n.tr("Cancel")
+                width: parent.width
+                onClicked: PopupUtils.close(settingsDialog)
+            }
         }
     }
 
@@ -123,11 +130,14 @@ Page {
         id: addAppsMenu
         Dialog {
             id: addAppsDialog
+            title: i18n.tr("Install new package")
+            text: i18n.tr("Choose how do you want to get the package you want to install")
             __closeOnDismissAreaPress: true
 
             Button {
                 text: i18n.tr("Enter package name or Debian file")
                 width: parent.width
+                color: theme.palette.normal.focus
                 onClicked: {
                     PopupUtils.close(addAppsDialog)
                     PopupUtils.open(enterPackagePopup)
@@ -150,12 +160,17 @@ Page {
                     openSearchDialog(currentContainer)
                 }
             }
+            Button {
+                text: i18n.tr("Cancel")
+                width: parent.width
+                onClicked: PopupUtils.close(addAppsDialog)
+            }
         }
-    } 
+    }
 
     Component {
         id: packagePickerComponent
-        
+
         DebianPackagePicker {
             Component.onCompleted: {
                 packageSelected.connect(installPackage)

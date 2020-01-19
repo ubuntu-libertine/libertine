@@ -57,7 +57,7 @@ Page {
             }
 
             readOnly: true
-            color: UbuntuColors.darkGrey
+            color: theme.palette.normal.backgroundSecondaryText
         }
 
         TextField {
@@ -90,7 +90,7 @@ Page {
 
         Button {
             text: i18n.tr("Add")
-            color: UbuntuColors.green
+            color: theme.palette.normal.positive
             onClicked: {
                 addArchive()
             }

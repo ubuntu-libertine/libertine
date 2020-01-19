@@ -28,7 +28,7 @@ Dialog {
     title: short_description
 
     TextEdit {
-        color: UbuntuColors.darkGrey
+        color: theme.palette.normal.backgroundSecondaryText
         text: details
         readOnly: true
         selectByMouse: true
@@ -37,6 +37,7 @@ Dialog {
 
     Button {
         text: i18n.tr("Dismiss")
+        color: theme.palette.normal.focus
         onClicked: PopupUtils.close(genericErrorDialog)
     }
 

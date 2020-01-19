@@ -57,7 +57,7 @@ Page {
             Button {
                 id: searchAgain
                 text: i18n.tr("Search Again")
-                color: UbuntuColors.green
+                color: theme.palette.normal.positive
                 onClicked: {
                     PopupUtils.close(noResultsDialog)
                     newSearch(currentContainer)

@@ -85,7 +85,7 @@ Dialog {
         Button {
             id: okButton
             text: i18n.tr("OK")
-            color: UbuntuColors.green
+            color: theme.palette.normal.positive
             width: (parent.width - parent.spacing) / 2
             onClicked: {
                 createContainer()

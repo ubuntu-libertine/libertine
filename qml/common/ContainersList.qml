@@ -144,7 +144,7 @@ Item {
             Layout.maximumWidth: units.gu(12)
 
             text: i18n.tr("Get started")
-            color: UbuntuColors.green
+            color: theme.palette.normal.positive
 
             onClicked: {
                 var dialog = PopupUtils.open(Qt.resolvedUrl("../common/ContainerOptionsDialog.qml"))
